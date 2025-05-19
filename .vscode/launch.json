@@ -1,0 +1,29 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug LightningQ API",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/apps/lightningq-api/src/main.ts",
+      "preLaunchTask": "tsc: build - apps/lightningq-api",
+      "outFiles": ["${workspaceFolder}/apps/lightningq-api/dist/**/*.js"],
+      "cwd": "${workspaceFolder}",
+      "runtimeArgs": ["--nolazy"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    }
+  ],
+  "tasks": [
+    {
+      "label": "tsc: build - apps/lightningq-api",
+      "type": "shell",
+      "command": "tsc -p apps/lightningq-api/tsconfig.build.json",
+      "problemMatcher": ["$tsc"]
+    }
+  ]
+}

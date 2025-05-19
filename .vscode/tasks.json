@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "build",
+			"path": "apps/lightningq-api",
+			"group": "build",
+			"problemMatcher": ["$tsc"],
+			// "label": "npm: build - apps/lightningq-api",
+			"label": "tsc: build - apps/lightningq-api",
+			"detail": "nest build"
+		}
+	]
+}
