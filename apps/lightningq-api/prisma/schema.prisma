@@ -15,125 +15,114 @@ datasource db {
 }
 
 model User {
-  id             Int       @id @default(autoincrement())
-  name           String
-  email          String    @unique
-  mobile         String    @unique
-  passwordHash   String
-  isActive       Boolean   @default(true)
+  id           Int     @id @default(autoincrement())
+  name         String
+  email        String  @unique
+  mobile       String  @unique
+  passwordHash String
+  isActive     Boolean @default(true)
+  hashedRefreshToken String?
 
-  roleId         Int
-  role           Role      @relation(fields: [roleId], references: [id])
-
-  token          JwtToken?
-  settings       Setting?  @relation("UserSettings")
-  auditLogs      AuditLog[]
-  loginSessions  LoginSession[]
-  AdminAccess    UserHospitalAccess[]
+  roleId             Int
+  role               Role                 @relation(fields: [roleId], references: [id])
+  settings           Setting?             @relation("UserSettings")
+  auditLogs          AuditLog[]
+  loginSessions      LoginSession[]
+  AdminAccess        UserHospitalAccess[]
 }
 
 model Role {
-  id          Int       @id @default(autoincrement())
-  Rolename    String?    @unique
+  id          Int              @id @default(autoincrement())
+  Rolename    String?          @unique
   description String
-  isActive    Boolean   @default(true)
+  isActive    Boolean          @default(true)
   permissions RolePermission[]
   users       User[]
 }
 
-model JwtToken {
-  id         Int      @id @default(autoincrement())
-  token      String   @unique
-  userId     Int      @unique
-  expiresAt  DateTime
-
-  user       User     @relation(fields: [userId], references: [id])
-}
-
 model Setting {
-  id        Int     @id @default(autoincrement())
-  userId    Int     @unique
-  theme     String  @default("light")
-  language  String  @default("en")
-  user      User    @relation("UserSettings", fields: [userId], references: [id])
+  id       Int    @id @default(autoincrement())
+  userId   Int    @unique
+  theme    String @default("light")
+  language String @default("en")
+  user     User   @relation("UserSettings", fields: [userId], references: [id])
 }
 
 model Hospital {
-  id                 Int           @id @default(autoincrement())
-  name               String
-  location           String
-  isActive           Boolean       @default(true)
+  id       Int     @id @default(autoincrement())
+  name     String
+  location String
+  isActive Boolean @default(true)
 
-  parentHospitalId   Int?
-  parentHospital     Hospital?     @relation("HospitalHierarchy", fields: [parentHospitalId], references: [id])
-  childHospitals     Hospital[]    @relation("HospitalHierarchy")
+  parentHospitalId Int?
+  parentHospital   Hospital?  @relation("HospitalHierarchy", fields: [parentHospitalId], references: [id])
+  childHospitals   Hospital[] @relation("HospitalHierarchy")
 
-  levelId            Int?          // <-- Made optional temporarily
-  type               Hospitaltype? @relation(fields: [levelId], references: [id])
+  levelId Int? // <-- Made optional temporarily
+  type    Hospitaltype? @relation(fields: [levelId], references: [id])
 
-  hospitalCode       String?       // <-- Made optional temporarily
-  superHospitalCode  String?       // <-- Made optional temporarily
+  hospitalCode      String? // <-- Made optional temporarily
+  superHospitalCode String? // <-- Made optional temporarily
 
-  userAccess         UserHospitalAccess[]
+  userAccess UserHospitalAccess[]
 }
-
 
 model Hospitaltype {
-  id          Int       @id @default(autoincrement())
-  HospitalType        String    @unique
-  hospitals   Hospital[]
+  id           Int        @id @default(autoincrement())
+  HospitalType String     @unique
+  hospitals    Hospital[]
 }
-model UserHospitalAccess {
-  id          Int      @id @default(autoincrement())
-  userId      Int
-  hospitalId  Int
-  isActive    Boolean  @default(true)
 
-  user        User     @relation(fields: [userId], references: [id])
-  hospital    Hospital @relation(fields: [hospitalId], references: [id])
+model UserHospitalAccess {
+  id         Int     @id @default(autoincrement())
+  userId     Int
+  hospitalId Int
+  isActive   Boolean @default(true)
+
+  user     User     @relation(fields: [userId], references: [id])
+  hospital Hospital @relation(fields: [hospitalId], references: [id])
 
   @@unique([userId, hospitalId])
   @@index([userId])
   @@index([hospitalId])
-
 }
 
 model AuditLog {
-  id               Int                @id @default(autoincrement())
-  userId           Int?
-  action           String
-  entity           String
-  entityId         Int?
-  timestamp        DateTime           @default(now())
-  metadata         Json?
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  action    String
+  entity    String
+  entityId  Int?
+  timestamp DateTime @default(now())
+  metadata  Json?
 
-  user             User?              @relation(fields: [userId], references: [id])
+  user User? @relation(fields: [userId], references: [id])
 }
 
 model LoginSession {
-  id               Int                @id @default(autoincrement())
-  userId           Int
-  ipAddress        String
-  userAgent        String
-  loginAt          DateTime           @default(now())
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  ipAddress String
+  userAgent String
+  loginAt   DateTime @default(now())
 
-  user             User               @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 }
 
 model Permission {
-  id             Int                  @id @default(autoincrement())
-  name           String               @unique
-  description    String?
-  roles          RolePermission[]
+  id          Int              @id @default(autoincrement())
+  name        String           @unique
+  description String?
+  roles       RolePermission[]
 }
 
 model RolePermission {
-  id             Int                  @id @default(autoincrement())
-  roleId         Int
-  permissionId   Int
+  id           Int @id @default(autoincrement())
+  roleId       Int
+  permissionId Int
 
-  role           Role                 @relation(fields: [roleId], references: [id])
-  permission     Permission           @relation(fields: [permissionId], references: [id])
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
 
   @@unique([roleId, permissionId])
 }

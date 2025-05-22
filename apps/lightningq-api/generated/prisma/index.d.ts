@@ -24,11 +24,6 @@ export type User = $Result.DefaultSelection<Prisma.$UserPayload>
  */
 export type Role = $Result.DefaultSelection<Prisma.$RolePayload>
 /**
- * Model JwtToken
- * 
- */
-export type JwtToken = $Result.DefaultSelection<Prisma.$JwtTokenPayload>
-/**
  * Model Setting
  * 
  */
@@ -213,16 +208,6 @@ export class PrismaClient<
     * ```
     */
   get role(): Prisma.RoleDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.jwtToken`: Exposes CRUD operations for the **JwtToken** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more JwtTokens
-    * const jwtTokens = await prisma.jwtToken.findMany()
-    * ```
-    */
-  get jwtToken(): Prisma.JwtTokenDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.setting`: Exposes CRUD operations for the **Setting** model.
@@ -745,7 +730,6 @@ export namespace Prisma {
   export const ModelName: {
     User: 'User',
     Role: 'Role',
-    JwtToken: 'JwtToken',
     Setting: 'Setting',
     Hospital: 'Hospital',
     Hospitaltype: 'Hospitaltype',
@@ -772,7 +756,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "role" | "jwtToken" | "setting" | "hospital" | "hospitaltype" | "userHospitalAccess" | "auditLog" | "loginSession" | "permission" | "rolePermission"
+      modelProps: "user" | "role" | "setting" | "hospital" | "hospitaltype" | "userHospitalAccess" | "auditLog" | "loginSession" | "permission" | "rolePermission"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -921,80 +905,6 @@ export namespace Prisma {
           count: {
             args: Prisma.RoleCountArgs<ExtArgs>
             result: $Utils.Optional<RoleCountAggregateOutputType> | number
-          }
-        }
-      }
-      JwtToken: {
-        payload: Prisma.$JwtTokenPayload<ExtArgs>
-        fields: Prisma.JwtTokenFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.JwtTokenFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$JwtTokenPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.JwtTokenFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$JwtTokenPayload>
-          }
-          findFirst: {
-            args: Prisma.JwtTokenFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$JwtTokenPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.JwtTokenFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$JwtTokenPayload>
-          }
-          findMany: {
-            args: Prisma.JwtTokenFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$JwtTokenPayload>[]
-          }
-          create: {
-            args: Prisma.JwtTokenCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$JwtTokenPayload>
-          }
-          createMany: {
-            args: Prisma.JwtTokenCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.JwtTokenCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$JwtTokenPayload>[]
-          }
-          delete: {
-            args: Prisma.JwtTokenDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$JwtTokenPayload>
-          }
-          update: {
-            args: Prisma.JwtTokenUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$JwtTokenPayload>
-          }
-          deleteMany: {
-            args: Prisma.JwtTokenDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.JwtTokenUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.JwtTokenUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$JwtTokenPayload>[]
-          }
-          upsert: {
-            args: Prisma.JwtTokenUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$JwtTokenPayload>
-          }
-          aggregate: {
-            args: Prisma.JwtTokenAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateJwtToken>
-          }
-          groupBy: {
-            args: Prisma.JwtTokenGroupByArgs<ExtArgs>
-            result: $Utils.Optional<JwtTokenGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.JwtTokenCountArgs<ExtArgs>
-            result: $Utils.Optional<JwtTokenCountAggregateOutputType> | number
           }
         }
       }
@@ -1676,7 +1586,6 @@ export namespace Prisma {
   export type GlobalOmitConfig = {
     user?: UserOmit
     role?: RoleOmit
-    jwtToken?: JwtTokenOmit
     setting?: SettingOmit
     hospital?: HospitalOmit
     hospitaltype?: HospitaltypeOmit
@@ -1998,6 +1907,7 @@ export namespace Prisma {
     mobile: string | null
     passwordHash: string | null
     isActive: boolean | null
+    hashedRefreshToken: string | null
     roleId: number | null
   }
 
@@ -2008,6 +1918,7 @@ export namespace Prisma {
     mobile: string | null
     passwordHash: string | null
     isActive: boolean | null
+    hashedRefreshToken: string | null
     roleId: number | null
   }
 
@@ -2018,6 +1929,7 @@ export namespace Prisma {
     mobile: number
     passwordHash: number
     isActive: number
+    hashedRefreshToken: number
     roleId: number
     _all: number
   }
@@ -2040,6 +1952,7 @@ export namespace Prisma {
     mobile?: true
     passwordHash?: true
     isActive?: true
+    hashedRefreshToken?: true
     roleId?: true
   }
 
@@ -2050,6 +1963,7 @@ export namespace Prisma {
     mobile?: true
     passwordHash?: true
     isActive?: true
+    hashedRefreshToken?: true
     roleId?: true
   }
 
@@ -2060,6 +1974,7 @@ export namespace Prisma {
     mobile?: true
     passwordHash?: true
     isActive?: true
+    hashedRefreshToken?: true
     roleId?: true
     _all?: true
   }
@@ -2157,6 +2072,7 @@ export namespace Prisma {
     mobile: string
     passwordHash: string
     isActive: boolean
+    hashedRefreshToken: string | null
     roleId: number
     _count: UserCountAggregateOutputType | null
     _avg: UserAvgAggregateOutputType | null
@@ -2186,9 +2102,9 @@ export namespace Prisma {
     mobile?: boolean
     passwordHash?: boolean
     isActive?: boolean
+    hashedRefreshToken?: boolean
     roleId?: boolean
     role?: boolean | RoleDefaultArgs<ExtArgs>
-    token?: boolean | User$tokenArgs<ExtArgs>
     settings?: boolean | User$settingsArgs<ExtArgs>
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
     loginSessions?: boolean | User$loginSessionsArgs<ExtArgs>
@@ -2203,6 +2119,7 @@ export namespace Prisma {
     mobile?: boolean
     passwordHash?: boolean
     isActive?: boolean
+    hashedRefreshToken?: boolean
     roleId?: boolean
     role?: boolean | RoleDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
@@ -2214,6 +2131,7 @@ export namespace Prisma {
     mobile?: boolean
     passwordHash?: boolean
     isActive?: boolean
+    hashedRefreshToken?: boolean
     roleId?: boolean
     role?: boolean | RoleDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
@@ -2225,13 +2143,13 @@ export namespace Prisma {
     mobile?: boolean
     passwordHash?: boolean
     isActive?: boolean
+    hashedRefreshToken?: boolean
     roleId?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "mobile" | "passwordHash" | "isActive" | "roleId", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "mobile" | "passwordHash" | "isActive" | "hashedRefreshToken" | "roleId", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     role?: boolean | RoleDefaultArgs<ExtArgs>
-    token?: boolean | User$tokenArgs<ExtArgs>
     settings?: boolean | User$settingsArgs<ExtArgs>
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
     loginSessions?: boolean | User$loginSessionsArgs<ExtArgs>
@@ -2249,7 +2167,6 @@ export namespace Prisma {
     name: "User"
     objects: {
       role: Prisma.$RolePayload<ExtArgs>
-      token: Prisma.$JwtTokenPayload<ExtArgs> | null
       settings: Prisma.$SettingPayload<ExtArgs> | null
       auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
       loginSessions: Prisma.$LoginSessionPayload<ExtArgs>[]
@@ -2262,6 +2179,7 @@ export namespace Prisma {
       mobile: string
       passwordHash: string
       isActive: boolean
+      hashedRefreshToken: string | null
       roleId: number
     }, ExtArgs["result"]["user"]>
     composites: {}
@@ -2658,7 +2576,6 @@ export namespace Prisma {
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     role<T extends RoleDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RoleDefaultArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    token<T extends User$tokenArgs<ExtArgs> = {}>(args?: Subset<T, User$tokenArgs<ExtArgs>>): Prisma__JwtTokenClient<$Result.GetResult<Prisma.$JwtTokenPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     settings<T extends User$settingsArgs<ExtArgs> = {}>(args?: Subset<T, User$settingsArgs<ExtArgs>>): Prisma__SettingClient<$Result.GetResult<Prisma.$SettingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     auditLogs<T extends User$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     loginSessions<T extends User$loginSessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$loginSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LoginSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2698,6 +2615,7 @@ export namespace Prisma {
     readonly mobile: FieldRef<"User", 'String'>
     readonly passwordHash: FieldRef<"User", 'String'>
     readonly isActive: FieldRef<"User", 'Boolean'>
+    readonly hashedRefreshToken: FieldRef<"User", 'String'>
     readonly roleId: FieldRef<"User", 'Int'>
   }
     
@@ -3092,25 +3010,6 @@ export namespace Prisma {
      * Limit how many Users to delete.
      */
     limit?: number
-  }
-
-  /**
-   * User.token
-   */
-  export type User$tokenArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the JwtToken
-     */
-    select?: JwtTokenSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the JwtToken
-     */
-    omit?: JwtTokenOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: JwtTokenInclude<ExtArgs> | null
-    where?: JwtTokenWhereInput
   }
 
   /**
@@ -4339,1089 +4238,6 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: RoleInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model JwtToken
-   */
-
-  export type AggregateJwtToken = {
-    _count: JwtTokenCountAggregateOutputType | null
-    _avg: JwtTokenAvgAggregateOutputType | null
-    _sum: JwtTokenSumAggregateOutputType | null
-    _min: JwtTokenMinAggregateOutputType | null
-    _max: JwtTokenMaxAggregateOutputType | null
-  }
-
-  export type JwtTokenAvgAggregateOutputType = {
-    id: number | null
-    userId: number | null
-  }
-
-  export type JwtTokenSumAggregateOutputType = {
-    id: number | null
-    userId: number | null
-  }
-
-  export type JwtTokenMinAggregateOutputType = {
-    id: number | null
-    token: string | null
-    userId: number | null
-    expiresAt: Date | null
-  }
-
-  export type JwtTokenMaxAggregateOutputType = {
-    id: number | null
-    token: string | null
-    userId: number | null
-    expiresAt: Date | null
-  }
-
-  export type JwtTokenCountAggregateOutputType = {
-    id: number
-    token: number
-    userId: number
-    expiresAt: number
-    _all: number
-  }
-
-
-  export type JwtTokenAvgAggregateInputType = {
-    id?: true
-    userId?: true
-  }
-
-  export type JwtTokenSumAggregateInputType = {
-    id?: true
-    userId?: true
-  }
-
-  export type JwtTokenMinAggregateInputType = {
-    id?: true
-    token?: true
-    userId?: true
-    expiresAt?: true
-  }
-
-  export type JwtTokenMaxAggregateInputType = {
-    id?: true
-    token?: true
-    userId?: true
-    expiresAt?: true
-  }
-
-  export type JwtTokenCountAggregateInputType = {
-    id?: true
-    token?: true
-    userId?: true
-    expiresAt?: true
-    _all?: true
-  }
-
-  export type JwtTokenAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which JwtToken to aggregate.
-     */
-    where?: JwtTokenWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of JwtTokens to fetch.
-     */
-    orderBy?: JwtTokenOrderByWithRelationInput | JwtTokenOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: JwtTokenWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` JwtTokens from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` JwtTokens.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned JwtTokens
-    **/
-    _count?: true | JwtTokenCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: JwtTokenAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: JwtTokenSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: JwtTokenMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: JwtTokenMaxAggregateInputType
-  }
-
-  export type GetJwtTokenAggregateType<T extends JwtTokenAggregateArgs> = {
-        [P in keyof T & keyof AggregateJwtToken]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateJwtToken[P]>
-      : GetScalarType<T[P], AggregateJwtToken[P]>
-  }
-
-
-
-
-  export type JwtTokenGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: JwtTokenWhereInput
-    orderBy?: JwtTokenOrderByWithAggregationInput | JwtTokenOrderByWithAggregationInput[]
-    by: JwtTokenScalarFieldEnum[] | JwtTokenScalarFieldEnum
-    having?: JwtTokenScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: JwtTokenCountAggregateInputType | true
-    _avg?: JwtTokenAvgAggregateInputType
-    _sum?: JwtTokenSumAggregateInputType
-    _min?: JwtTokenMinAggregateInputType
-    _max?: JwtTokenMaxAggregateInputType
-  }
-
-  export type JwtTokenGroupByOutputType = {
-    id: number
-    token: string
-    userId: number
-    expiresAt: Date
-    _count: JwtTokenCountAggregateOutputType | null
-    _avg: JwtTokenAvgAggregateOutputType | null
-    _sum: JwtTokenSumAggregateOutputType | null
-    _min: JwtTokenMinAggregateOutputType | null
-    _max: JwtTokenMaxAggregateOutputType | null
-  }
-
-  type GetJwtTokenGroupByPayload<T extends JwtTokenGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<JwtTokenGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof JwtTokenGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], JwtTokenGroupByOutputType[P]>
-            : GetScalarType<T[P], JwtTokenGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type JwtTokenSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    token?: boolean
-    userId?: boolean
-    expiresAt?: boolean
-    user?: boolean | UserDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["jwtToken"]>
-
-  export type JwtTokenSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    token?: boolean
-    userId?: boolean
-    expiresAt?: boolean
-    user?: boolean | UserDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["jwtToken"]>
-
-  export type JwtTokenSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    token?: boolean
-    userId?: boolean
-    expiresAt?: boolean
-    user?: boolean | UserDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["jwtToken"]>
-
-  export type JwtTokenSelectScalar = {
-    id?: boolean
-    token?: boolean
-    userId?: boolean
-    expiresAt?: boolean
-  }
-
-  export type JwtTokenOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "token" | "userId" | "expiresAt", ExtArgs["result"]["jwtToken"]>
-  export type JwtTokenInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    user?: boolean | UserDefaultArgs<ExtArgs>
-  }
-  export type JwtTokenIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    user?: boolean | UserDefaultArgs<ExtArgs>
-  }
-  export type JwtTokenIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    user?: boolean | UserDefaultArgs<ExtArgs>
-  }
-
-  export type $JwtTokenPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "JwtToken"
-    objects: {
-      user: Prisma.$UserPayload<ExtArgs>
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: number
-      token: string
-      userId: number
-      expiresAt: Date
-    }, ExtArgs["result"]["jwtToken"]>
-    composites: {}
-  }
-
-  type JwtTokenGetPayload<S extends boolean | null | undefined | JwtTokenDefaultArgs> = $Result.GetResult<Prisma.$JwtTokenPayload, S>
-
-  type JwtTokenCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<JwtTokenFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: JwtTokenCountAggregateInputType | true
-    }
-
-  export interface JwtTokenDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['JwtToken'], meta: { name: 'JwtToken' } }
-    /**
-     * Find zero or one JwtToken that matches the filter.
-     * @param {JwtTokenFindUniqueArgs} args - Arguments to find a JwtToken
-     * @example
-     * // Get one JwtToken
-     * const jwtToken = await prisma.jwtToken.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends JwtTokenFindUniqueArgs>(args: SelectSubset<T, JwtTokenFindUniqueArgs<ExtArgs>>): Prisma__JwtTokenClient<$Result.GetResult<Prisma.$JwtTokenPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one JwtToken that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {JwtTokenFindUniqueOrThrowArgs} args - Arguments to find a JwtToken
-     * @example
-     * // Get one JwtToken
-     * const jwtToken = await prisma.jwtToken.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends JwtTokenFindUniqueOrThrowArgs>(args: SelectSubset<T, JwtTokenFindUniqueOrThrowArgs<ExtArgs>>): Prisma__JwtTokenClient<$Result.GetResult<Prisma.$JwtTokenPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first JwtToken that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {JwtTokenFindFirstArgs} args - Arguments to find a JwtToken
-     * @example
-     * // Get one JwtToken
-     * const jwtToken = await prisma.jwtToken.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends JwtTokenFindFirstArgs>(args?: SelectSubset<T, JwtTokenFindFirstArgs<ExtArgs>>): Prisma__JwtTokenClient<$Result.GetResult<Prisma.$JwtTokenPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first JwtToken that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {JwtTokenFindFirstOrThrowArgs} args - Arguments to find a JwtToken
-     * @example
-     * // Get one JwtToken
-     * const jwtToken = await prisma.jwtToken.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends JwtTokenFindFirstOrThrowArgs>(args?: SelectSubset<T, JwtTokenFindFirstOrThrowArgs<ExtArgs>>): Prisma__JwtTokenClient<$Result.GetResult<Prisma.$JwtTokenPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more JwtTokens that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {JwtTokenFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all JwtTokens
-     * const jwtTokens = await prisma.jwtToken.findMany()
-     * 
-     * // Get first 10 JwtTokens
-     * const jwtTokens = await prisma.jwtToken.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const jwtTokenWithIdOnly = await prisma.jwtToken.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends JwtTokenFindManyArgs>(args?: SelectSubset<T, JwtTokenFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JwtTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a JwtToken.
-     * @param {JwtTokenCreateArgs} args - Arguments to create a JwtToken.
-     * @example
-     * // Create one JwtToken
-     * const JwtToken = await prisma.jwtToken.create({
-     *   data: {
-     *     // ... data to create a JwtToken
-     *   }
-     * })
-     * 
-     */
-    create<T extends JwtTokenCreateArgs>(args: SelectSubset<T, JwtTokenCreateArgs<ExtArgs>>): Prisma__JwtTokenClient<$Result.GetResult<Prisma.$JwtTokenPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many JwtTokens.
-     * @param {JwtTokenCreateManyArgs} args - Arguments to create many JwtTokens.
-     * @example
-     * // Create many JwtTokens
-     * const jwtToken = await prisma.jwtToken.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends JwtTokenCreateManyArgs>(args?: SelectSubset<T, JwtTokenCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many JwtTokens and returns the data saved in the database.
-     * @param {JwtTokenCreateManyAndReturnArgs} args - Arguments to create many JwtTokens.
-     * @example
-     * // Create many JwtTokens
-     * const jwtToken = await prisma.jwtToken.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many JwtTokens and only return the `id`
-     * const jwtTokenWithIdOnly = await prisma.jwtToken.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends JwtTokenCreateManyAndReturnArgs>(args?: SelectSubset<T, JwtTokenCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JwtTokenPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a JwtToken.
-     * @param {JwtTokenDeleteArgs} args - Arguments to delete one JwtToken.
-     * @example
-     * // Delete one JwtToken
-     * const JwtToken = await prisma.jwtToken.delete({
-     *   where: {
-     *     // ... filter to delete one JwtToken
-     *   }
-     * })
-     * 
-     */
-    delete<T extends JwtTokenDeleteArgs>(args: SelectSubset<T, JwtTokenDeleteArgs<ExtArgs>>): Prisma__JwtTokenClient<$Result.GetResult<Prisma.$JwtTokenPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one JwtToken.
-     * @param {JwtTokenUpdateArgs} args - Arguments to update one JwtToken.
-     * @example
-     * // Update one JwtToken
-     * const jwtToken = await prisma.jwtToken.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends JwtTokenUpdateArgs>(args: SelectSubset<T, JwtTokenUpdateArgs<ExtArgs>>): Prisma__JwtTokenClient<$Result.GetResult<Prisma.$JwtTokenPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more JwtTokens.
-     * @param {JwtTokenDeleteManyArgs} args - Arguments to filter JwtTokens to delete.
-     * @example
-     * // Delete a few JwtTokens
-     * const { count } = await prisma.jwtToken.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends JwtTokenDeleteManyArgs>(args?: SelectSubset<T, JwtTokenDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more JwtTokens.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {JwtTokenUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many JwtTokens
-     * const jwtToken = await prisma.jwtToken.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends JwtTokenUpdateManyArgs>(args: SelectSubset<T, JwtTokenUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more JwtTokens and returns the data updated in the database.
-     * @param {JwtTokenUpdateManyAndReturnArgs} args - Arguments to update many JwtTokens.
-     * @example
-     * // Update many JwtTokens
-     * const jwtToken = await prisma.jwtToken.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more JwtTokens and only return the `id`
-     * const jwtTokenWithIdOnly = await prisma.jwtToken.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends JwtTokenUpdateManyAndReturnArgs>(args: SelectSubset<T, JwtTokenUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JwtTokenPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one JwtToken.
-     * @param {JwtTokenUpsertArgs} args - Arguments to update or create a JwtToken.
-     * @example
-     * // Update or create a JwtToken
-     * const jwtToken = await prisma.jwtToken.upsert({
-     *   create: {
-     *     // ... data to create a JwtToken
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the JwtToken we want to update
-     *   }
-     * })
-     */
-    upsert<T extends JwtTokenUpsertArgs>(args: SelectSubset<T, JwtTokenUpsertArgs<ExtArgs>>): Prisma__JwtTokenClient<$Result.GetResult<Prisma.$JwtTokenPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of JwtTokens.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {JwtTokenCountArgs} args - Arguments to filter JwtTokens to count.
-     * @example
-     * // Count the number of JwtTokens
-     * const count = await prisma.jwtToken.count({
-     *   where: {
-     *     // ... the filter for the JwtTokens we want to count
-     *   }
-     * })
-    **/
-    count<T extends JwtTokenCountArgs>(
-      args?: Subset<T, JwtTokenCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], JwtTokenCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a JwtToken.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {JwtTokenAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends JwtTokenAggregateArgs>(args: Subset<T, JwtTokenAggregateArgs>): Prisma.PrismaPromise<GetJwtTokenAggregateType<T>>
-
-    /**
-     * Group by JwtToken.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {JwtTokenGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends JwtTokenGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: JwtTokenGroupByArgs['orderBy'] }
-        : { orderBy?: JwtTokenGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, JwtTokenGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetJwtTokenGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the JwtToken model
-   */
-  readonly fields: JwtTokenFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for JwtToken.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__JwtTokenClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the JwtToken model
-   */
-  interface JwtTokenFieldRefs {
-    readonly id: FieldRef<"JwtToken", 'Int'>
-    readonly token: FieldRef<"JwtToken", 'String'>
-    readonly userId: FieldRef<"JwtToken", 'Int'>
-    readonly expiresAt: FieldRef<"JwtToken", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * JwtToken findUnique
-   */
-  export type JwtTokenFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the JwtToken
-     */
-    select?: JwtTokenSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the JwtToken
-     */
-    omit?: JwtTokenOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: JwtTokenInclude<ExtArgs> | null
-    /**
-     * Filter, which JwtToken to fetch.
-     */
-    where: JwtTokenWhereUniqueInput
-  }
-
-  /**
-   * JwtToken findUniqueOrThrow
-   */
-  export type JwtTokenFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the JwtToken
-     */
-    select?: JwtTokenSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the JwtToken
-     */
-    omit?: JwtTokenOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: JwtTokenInclude<ExtArgs> | null
-    /**
-     * Filter, which JwtToken to fetch.
-     */
-    where: JwtTokenWhereUniqueInput
-  }
-
-  /**
-   * JwtToken findFirst
-   */
-  export type JwtTokenFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the JwtToken
-     */
-    select?: JwtTokenSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the JwtToken
-     */
-    omit?: JwtTokenOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: JwtTokenInclude<ExtArgs> | null
-    /**
-     * Filter, which JwtToken to fetch.
-     */
-    where?: JwtTokenWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of JwtTokens to fetch.
-     */
-    orderBy?: JwtTokenOrderByWithRelationInput | JwtTokenOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for JwtTokens.
-     */
-    cursor?: JwtTokenWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` JwtTokens from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` JwtTokens.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of JwtTokens.
-     */
-    distinct?: JwtTokenScalarFieldEnum | JwtTokenScalarFieldEnum[]
-  }
-
-  /**
-   * JwtToken findFirstOrThrow
-   */
-  export type JwtTokenFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the JwtToken
-     */
-    select?: JwtTokenSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the JwtToken
-     */
-    omit?: JwtTokenOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: JwtTokenInclude<ExtArgs> | null
-    /**
-     * Filter, which JwtToken to fetch.
-     */
-    where?: JwtTokenWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of JwtTokens to fetch.
-     */
-    orderBy?: JwtTokenOrderByWithRelationInput | JwtTokenOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for JwtTokens.
-     */
-    cursor?: JwtTokenWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` JwtTokens from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` JwtTokens.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of JwtTokens.
-     */
-    distinct?: JwtTokenScalarFieldEnum | JwtTokenScalarFieldEnum[]
-  }
-
-  /**
-   * JwtToken findMany
-   */
-  export type JwtTokenFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the JwtToken
-     */
-    select?: JwtTokenSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the JwtToken
-     */
-    omit?: JwtTokenOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: JwtTokenInclude<ExtArgs> | null
-    /**
-     * Filter, which JwtTokens to fetch.
-     */
-    where?: JwtTokenWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of JwtTokens to fetch.
-     */
-    orderBy?: JwtTokenOrderByWithRelationInput | JwtTokenOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing JwtTokens.
-     */
-    cursor?: JwtTokenWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` JwtTokens from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` JwtTokens.
-     */
-    skip?: number
-    distinct?: JwtTokenScalarFieldEnum | JwtTokenScalarFieldEnum[]
-  }
-
-  /**
-   * JwtToken create
-   */
-  export type JwtTokenCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the JwtToken
-     */
-    select?: JwtTokenSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the JwtToken
-     */
-    omit?: JwtTokenOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: JwtTokenInclude<ExtArgs> | null
-    /**
-     * The data needed to create a JwtToken.
-     */
-    data: XOR<JwtTokenCreateInput, JwtTokenUncheckedCreateInput>
-  }
-
-  /**
-   * JwtToken createMany
-   */
-  export type JwtTokenCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many JwtTokens.
-     */
-    data: JwtTokenCreateManyInput | JwtTokenCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * JwtToken createManyAndReturn
-   */
-  export type JwtTokenCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the JwtToken
-     */
-    select?: JwtTokenSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the JwtToken
-     */
-    omit?: JwtTokenOmit<ExtArgs> | null
-    /**
-     * The data used to create many JwtTokens.
-     */
-    data: JwtTokenCreateManyInput | JwtTokenCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: JwtTokenIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * JwtToken update
-   */
-  export type JwtTokenUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the JwtToken
-     */
-    select?: JwtTokenSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the JwtToken
-     */
-    omit?: JwtTokenOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: JwtTokenInclude<ExtArgs> | null
-    /**
-     * The data needed to update a JwtToken.
-     */
-    data: XOR<JwtTokenUpdateInput, JwtTokenUncheckedUpdateInput>
-    /**
-     * Choose, which JwtToken to update.
-     */
-    where: JwtTokenWhereUniqueInput
-  }
-
-  /**
-   * JwtToken updateMany
-   */
-  export type JwtTokenUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update JwtTokens.
-     */
-    data: XOR<JwtTokenUpdateManyMutationInput, JwtTokenUncheckedUpdateManyInput>
-    /**
-     * Filter which JwtTokens to update
-     */
-    where?: JwtTokenWhereInput
-    /**
-     * Limit how many JwtTokens to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * JwtToken updateManyAndReturn
-   */
-  export type JwtTokenUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the JwtToken
-     */
-    select?: JwtTokenSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the JwtToken
-     */
-    omit?: JwtTokenOmit<ExtArgs> | null
-    /**
-     * The data used to update JwtTokens.
-     */
-    data: XOR<JwtTokenUpdateManyMutationInput, JwtTokenUncheckedUpdateManyInput>
-    /**
-     * Filter which JwtTokens to update
-     */
-    where?: JwtTokenWhereInput
-    /**
-     * Limit how many JwtTokens to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: JwtTokenIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * JwtToken upsert
-   */
-  export type JwtTokenUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the JwtToken
-     */
-    select?: JwtTokenSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the JwtToken
-     */
-    omit?: JwtTokenOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: JwtTokenInclude<ExtArgs> | null
-    /**
-     * The filter to search for the JwtToken to update in case it exists.
-     */
-    where: JwtTokenWhereUniqueInput
-    /**
-     * In case the JwtToken found by the `where` argument doesn't exist, create a new JwtToken with this data.
-     */
-    create: XOR<JwtTokenCreateInput, JwtTokenUncheckedCreateInput>
-    /**
-     * In case the JwtToken was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<JwtTokenUpdateInput, JwtTokenUncheckedUpdateInput>
-  }
-
-  /**
-   * JwtToken delete
-   */
-  export type JwtTokenDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the JwtToken
-     */
-    select?: JwtTokenSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the JwtToken
-     */
-    omit?: JwtTokenOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: JwtTokenInclude<ExtArgs> | null
-    /**
-     * Filter which JwtToken to delete.
-     */
-    where: JwtTokenWhereUniqueInput
-  }
-
-  /**
-   * JwtToken deleteMany
-   */
-  export type JwtTokenDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which JwtTokens to delete
-     */
-    where?: JwtTokenWhereInput
-    /**
-     * Limit how many JwtTokens to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * JwtToken without action
-   */
-  export type JwtTokenDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the JwtToken
-     */
-    select?: JwtTokenSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the JwtToken
-     */
-    omit?: JwtTokenOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: JwtTokenInclude<ExtArgs> | null
   }
 
 
@@ -14329,6 +13145,7 @@ export namespace Prisma {
     mobile: 'mobile',
     passwordHash: 'passwordHash',
     isActive: 'isActive',
+    hashedRefreshToken: 'hashedRefreshToken',
     roleId: 'roleId'
   };
 
@@ -14343,16 +13160,6 @@ export namespace Prisma {
   };
 
   export type RoleScalarFieldEnum = (typeof RoleScalarFieldEnum)[keyof typeof RoleScalarFieldEnum]
-
-
-  export const JwtTokenScalarFieldEnum: {
-    id: 'id',
-    token: 'token',
-    userId: 'userId',
-    expiresAt: 'expiresAt'
-  };
-
-  export type JwtTokenScalarFieldEnum = (typeof JwtTokenScalarFieldEnum)[keyof typeof JwtTokenScalarFieldEnum]
 
 
   export const SettingScalarFieldEnum: {
@@ -14575,9 +13382,9 @@ export namespace Prisma {
     mobile?: StringFilter<"User"> | string
     passwordHash?: StringFilter<"User"> | string
     isActive?: BoolFilter<"User"> | boolean
+    hashedRefreshToken?: StringNullableFilter<"User"> | string | null
     roleId?: IntFilter<"User"> | number
     role?: XOR<RoleScalarRelationFilter, RoleWhereInput>
-    token?: XOR<JwtTokenNullableScalarRelationFilter, JwtTokenWhereInput> | null
     settings?: XOR<SettingNullableScalarRelationFilter, SettingWhereInput> | null
     auditLogs?: AuditLogListRelationFilter
     loginSessions?: LoginSessionListRelationFilter
@@ -14591,9 +13398,9 @@ export namespace Prisma {
     mobile?: SortOrder
     passwordHash?: SortOrder
     isActive?: SortOrder
+    hashedRefreshToken?: SortOrderInput | SortOrder
     roleId?: SortOrder
     role?: RoleOrderByWithRelationInput
-    token?: JwtTokenOrderByWithRelationInput
     settings?: SettingOrderByWithRelationInput
     auditLogs?: AuditLogOrderByRelationAggregateInput
     loginSessions?: LoginSessionOrderByRelationAggregateInput
@@ -14610,9 +13417,9 @@ export namespace Prisma {
     name?: StringFilter<"User"> | string
     passwordHash?: StringFilter<"User"> | string
     isActive?: BoolFilter<"User"> | boolean
+    hashedRefreshToken?: StringNullableFilter<"User"> | string | null
     roleId?: IntFilter<"User"> | number
     role?: XOR<RoleScalarRelationFilter, RoleWhereInput>
-    token?: XOR<JwtTokenNullableScalarRelationFilter, JwtTokenWhereInput> | null
     settings?: XOR<SettingNullableScalarRelationFilter, SettingWhereInput> | null
     auditLogs?: AuditLogListRelationFilter
     loginSessions?: LoginSessionListRelationFilter
@@ -14626,6 +13433,7 @@ export namespace Prisma {
     mobile?: SortOrder
     passwordHash?: SortOrder
     isActive?: SortOrder
+    hashedRefreshToken?: SortOrderInput | SortOrder
     roleId?: SortOrder
     _count?: UserCountOrderByAggregateInput
     _avg?: UserAvgOrderByAggregateInput
@@ -14644,6 +13452,7 @@ export namespace Prisma {
     mobile?: StringWithAggregatesFilter<"User"> | string
     passwordHash?: StringWithAggregatesFilter<"User"> | string
     isActive?: BoolWithAggregatesFilter<"User"> | boolean
+    hashedRefreshToken?: StringNullableWithAggregatesFilter<"User"> | string | null
     roleId?: IntWithAggregatesFilter<"User"> | number
   }
 
@@ -14700,58 +13509,6 @@ export namespace Prisma {
     Rolename?: StringNullableWithAggregatesFilter<"Role"> | string | null
     description?: StringWithAggregatesFilter<"Role"> | string
     isActive?: BoolWithAggregatesFilter<"Role"> | boolean
-  }
-
-  export type JwtTokenWhereInput = {
-    AND?: JwtTokenWhereInput | JwtTokenWhereInput[]
-    OR?: JwtTokenWhereInput[]
-    NOT?: JwtTokenWhereInput | JwtTokenWhereInput[]
-    id?: IntFilter<"JwtToken"> | number
-    token?: StringFilter<"JwtToken"> | string
-    userId?: IntFilter<"JwtToken"> | number
-    expiresAt?: DateTimeFilter<"JwtToken"> | Date | string
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
-  }
-
-  export type JwtTokenOrderByWithRelationInput = {
-    id?: SortOrder
-    token?: SortOrder
-    userId?: SortOrder
-    expiresAt?: SortOrder
-    user?: UserOrderByWithRelationInput
-  }
-
-  export type JwtTokenWhereUniqueInput = Prisma.AtLeast<{
-    id?: number
-    token?: string
-    userId?: number
-    AND?: JwtTokenWhereInput | JwtTokenWhereInput[]
-    OR?: JwtTokenWhereInput[]
-    NOT?: JwtTokenWhereInput | JwtTokenWhereInput[]
-    expiresAt?: DateTimeFilter<"JwtToken"> | Date | string
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
-  }, "id" | "token" | "userId">
-
-  export type JwtTokenOrderByWithAggregationInput = {
-    id?: SortOrder
-    token?: SortOrder
-    userId?: SortOrder
-    expiresAt?: SortOrder
-    _count?: JwtTokenCountOrderByAggregateInput
-    _avg?: JwtTokenAvgOrderByAggregateInput
-    _max?: JwtTokenMaxOrderByAggregateInput
-    _min?: JwtTokenMinOrderByAggregateInput
-    _sum?: JwtTokenSumOrderByAggregateInput
-  }
-
-  export type JwtTokenScalarWhereWithAggregatesInput = {
-    AND?: JwtTokenScalarWhereWithAggregatesInput | JwtTokenScalarWhereWithAggregatesInput[]
-    OR?: JwtTokenScalarWhereWithAggregatesInput[]
-    NOT?: JwtTokenScalarWhereWithAggregatesInput | JwtTokenScalarWhereWithAggregatesInput[]
-    id?: IntWithAggregatesFilter<"JwtToken"> | number
-    token?: StringWithAggregatesFilter<"JwtToken"> | string
-    userId?: IntWithAggregatesFilter<"JwtToken"> | number
-    expiresAt?: DateTimeWithAggregatesFilter<"JwtToken"> | Date | string
   }
 
   export type SettingWhereInput = {
@@ -15213,8 +13970,8 @@ export namespace Prisma {
     mobile: string
     passwordHash: string
     isActive?: boolean
+    hashedRefreshToken?: string | null
     role: RoleCreateNestedOneWithoutUsersInput
-    token?: JwtTokenCreateNestedOneWithoutUserInput
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
@@ -15228,8 +13985,8 @@ export namespace Prisma {
     mobile: string
     passwordHash: string
     isActive?: boolean
+    hashedRefreshToken?: string | null
     roleId: number
-    token?: JwtTokenUncheckedCreateNestedOneWithoutUserInput
     settings?: SettingUncheckedCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
@@ -15242,8 +13999,8 @@ export namespace Prisma {
     mobile?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
-    token?: JwtTokenUpdateOneWithoutUserNestedInput
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
@@ -15257,8 +14014,8 @@ export namespace Prisma {
     mobile?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     roleId?: IntFieldUpdateOperationsInput | number
-    token?: JwtTokenUncheckedUpdateOneWithoutUserNestedInput
     settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
@@ -15272,6 +14029,7 @@ export namespace Prisma {
     mobile: string
     passwordHash: string
     isActive?: boolean
+    hashedRefreshToken?: string | null
     roleId: number
   }
 
@@ -15281,6 +14039,7 @@ export namespace Prisma {
     mobile?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -15290,6 +14049,7 @@ export namespace Prisma {
     mobile?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     roleId?: IntFieldUpdateOperationsInput | number
   }
 
@@ -15345,51 +14105,6 @@ export namespace Prisma {
     Rolename?: NullableStringFieldUpdateOperationsInput | string | null
     description?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
-  }
-
-  export type JwtTokenCreateInput = {
-    token: string
-    expiresAt: Date | string
-    user: UserCreateNestedOneWithoutTokenInput
-  }
-
-  export type JwtTokenUncheckedCreateInput = {
-    id?: number
-    token: string
-    userId: number
-    expiresAt: Date | string
-  }
-
-  export type JwtTokenUpdateInput = {
-    token?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutTokenNestedInput
-  }
-
-  export type JwtTokenUncheckedUpdateInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    token?: StringFieldUpdateOperationsInput | string
-    userId?: IntFieldUpdateOperationsInput | number
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type JwtTokenCreateManyInput = {
-    id?: number
-    token: string
-    userId: number
-    expiresAt: Date | string
-  }
-
-  export type JwtTokenUpdateManyMutationInput = {
-    token?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type JwtTokenUncheckedUpdateManyInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    token?: StringFieldUpdateOperationsInput | string
-    userId?: IntFieldUpdateOperationsInput | number
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SettingCreateInput = {
@@ -15827,14 +14542,24 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type RoleScalarRelationFilter = {
     is?: RoleWhereInput
     isNot?: RoleWhereInput
-  }
-
-  export type JwtTokenNullableScalarRelationFilter = {
-    is?: JwtTokenWhereInput | null
-    isNot?: JwtTokenWhereInput | null
   }
 
   export type SettingNullableScalarRelationFilter = {
@@ -15860,6 +14585,11 @@ export namespace Prisma {
     none?: UserHospitalAccessWhereInput
   }
 
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
+  }
+
   export type AuditLogOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -15879,6 +14609,7 @@ export namespace Prisma {
     mobile?: SortOrder
     passwordHash?: SortOrder
     isActive?: SortOrder
+    hashedRefreshToken?: SortOrder
     roleId?: SortOrder
   }
 
@@ -15894,6 +14625,7 @@ export namespace Prisma {
     mobile?: SortOrder
     passwordHash?: SortOrder
     isActive?: SortOrder
+    hashedRefreshToken?: SortOrder
     roleId?: SortOrder
   }
 
@@ -15904,6 +14636,7 @@ export namespace Prisma {
     mobile?: SortOrder
     passwordHash?: SortOrder
     isActive?: SortOrder
+    hashedRefreshToken?: SortOrder
     roleId?: SortOrder
   }
 
@@ -15954,7 +14687,7 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
-  export type StringNullableFilter<$PrismaModel = never> = {
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
     notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -15966,7 +14699,10 @@ export namespace Prisma {
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     mode?: QueryMode
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type RolePermissionListRelationFilter = {
@@ -15979,11 +14715,6 @@ export namespace Prisma {
     every?: UserWhereInput
     some?: UserWhereInput
     none?: UserWhereInput
-  }
-
-  export type SortOrderInput = {
-    sort: SortOrder
-    nulls?: NullsOrder
   }
 
   export type RolePermissionOrderByRelationAggregateInput = {
@@ -16023,83 +14754,9 @@ export namespace Prisma {
     id?: SortOrder
   }
 
-  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
-  }
-
-  export type DateTimeFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
-  }
-
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
-  }
-
-  export type JwtTokenCountOrderByAggregateInput = {
-    id?: SortOrder
-    token?: SortOrder
-    userId?: SortOrder
-    expiresAt?: SortOrder
-  }
-
-  export type JwtTokenAvgOrderByAggregateInput = {
-    id?: SortOrder
-    userId?: SortOrder
-  }
-
-  export type JwtTokenMaxOrderByAggregateInput = {
-    id?: SortOrder
-    token?: SortOrder
-    userId?: SortOrder
-    expiresAt?: SortOrder
-  }
-
-  export type JwtTokenMinOrderByAggregateInput = {
-    id?: SortOrder
-    token?: SortOrder
-    userId?: SortOrder
-    expiresAt?: SortOrder
-  }
-
-  export type JwtTokenSumOrderByAggregateInput = {
-    id?: SortOrder
-    userId?: SortOrder
-  }
-
-  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
   export type SettingCountOrderByAggregateInput = {
@@ -16290,6 +14947,17 @@ export namespace Prisma {
     userId?: SortOrder
     hospitalId?: SortOrder
   }
+
+  export type DateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
   export type JsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
@@ -16357,6 +15025,20 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     entityId?: SortOrder
+  }
+
+  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
   }
   export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -16491,12 +15173,6 @@ export namespace Prisma {
     connect?: RoleWhereUniqueInput
   }
 
-  export type JwtTokenCreateNestedOneWithoutUserInput = {
-    create?: XOR<JwtTokenCreateWithoutUserInput, JwtTokenUncheckedCreateWithoutUserInput>
-    connectOrCreate?: JwtTokenCreateOrConnectWithoutUserInput
-    connect?: JwtTokenWhereUniqueInput
-  }
-
   export type SettingCreateNestedOneWithoutUserInput = {
     create?: XOR<SettingCreateWithoutUserInput, SettingUncheckedCreateWithoutUserInput>
     connectOrCreate?: SettingCreateOrConnectWithoutUserInput
@@ -16522,12 +15198,6 @@ export namespace Prisma {
     connectOrCreate?: UserHospitalAccessCreateOrConnectWithoutUserInput | UserHospitalAccessCreateOrConnectWithoutUserInput[]
     createMany?: UserHospitalAccessCreateManyUserInputEnvelope
     connect?: UserHospitalAccessWhereUniqueInput | UserHospitalAccessWhereUniqueInput[]
-  }
-
-  export type JwtTokenUncheckedCreateNestedOneWithoutUserInput = {
-    create?: XOR<JwtTokenCreateWithoutUserInput, JwtTokenUncheckedCreateWithoutUserInput>
-    connectOrCreate?: JwtTokenCreateOrConnectWithoutUserInput
-    connect?: JwtTokenWhereUniqueInput
   }
 
   export type SettingUncheckedCreateNestedOneWithoutUserInput = {
@@ -16565,22 +15235,16 @@ export namespace Prisma {
     set?: boolean
   }
 
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
   export type RoleUpdateOneRequiredWithoutUsersNestedInput = {
     create?: XOR<RoleCreateWithoutUsersInput, RoleUncheckedCreateWithoutUsersInput>
     connectOrCreate?: RoleCreateOrConnectWithoutUsersInput
     upsert?: RoleUpsertWithoutUsersInput
     connect?: RoleWhereUniqueInput
     update?: XOR<XOR<RoleUpdateToOneWithWhereWithoutUsersInput, RoleUpdateWithoutUsersInput>, RoleUncheckedUpdateWithoutUsersInput>
-  }
-
-  export type JwtTokenUpdateOneWithoutUserNestedInput = {
-    create?: XOR<JwtTokenCreateWithoutUserInput, JwtTokenUncheckedCreateWithoutUserInput>
-    connectOrCreate?: JwtTokenCreateOrConnectWithoutUserInput
-    upsert?: JwtTokenUpsertWithoutUserInput
-    disconnect?: JwtTokenWhereInput | boolean
-    delete?: JwtTokenWhereInput | boolean
-    connect?: JwtTokenWhereUniqueInput
-    update?: XOR<XOR<JwtTokenUpdateToOneWithWhereWithoutUserInput, JwtTokenUpdateWithoutUserInput>, JwtTokenUncheckedUpdateWithoutUserInput>
   }
 
   export type SettingUpdateOneWithoutUserNestedInput = {
@@ -16641,16 +15305,6 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
-  }
-
-  export type JwtTokenUncheckedUpdateOneWithoutUserNestedInput = {
-    create?: XOR<JwtTokenCreateWithoutUserInput, JwtTokenUncheckedCreateWithoutUserInput>
-    connectOrCreate?: JwtTokenCreateOrConnectWithoutUserInput
-    upsert?: JwtTokenUpsertWithoutUserInput
-    disconnect?: JwtTokenWhereInput | boolean
-    delete?: JwtTokenWhereInput | boolean
-    connect?: JwtTokenWhereUniqueInput
-    update?: XOR<XOR<JwtTokenUpdateToOneWithWhereWithoutUserInput, JwtTokenUpdateWithoutUserInput>, JwtTokenUncheckedUpdateWithoutUserInput>
   }
 
   export type SettingUncheckedUpdateOneWithoutUserNestedInput = {
@@ -16733,10 +15387,6 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
   }
 
-  export type NullableStringFieldUpdateOperationsInput = {
-    set?: string | null
-  }
-
   export type RolePermissionUpdateManyWithoutRoleNestedInput = {
     create?: XOR<RolePermissionCreateWithoutRoleInput, RolePermissionUncheckedCreateWithoutRoleInput> | RolePermissionCreateWithoutRoleInput[] | RolePermissionUncheckedCreateWithoutRoleInput[]
     connectOrCreate?: RolePermissionCreateOrConnectWithoutRoleInput | RolePermissionCreateOrConnectWithoutRoleInput[]
@@ -16791,24 +15441,6 @@ export namespace Prisma {
     update?: UserUpdateWithWhereUniqueWithoutRoleInput | UserUpdateWithWhereUniqueWithoutRoleInput[]
     updateMany?: UserUpdateManyWithWhereWithoutRoleInput | UserUpdateManyWithWhereWithoutRoleInput[]
     deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
-  }
-
-  export type UserCreateNestedOneWithoutTokenInput = {
-    create?: XOR<UserCreateWithoutTokenInput, UserUncheckedCreateWithoutTokenInput>
-    connectOrCreate?: UserCreateOrConnectWithoutTokenInput
-    connect?: UserWhereUniqueInput
-  }
-
-  export type DateTimeFieldUpdateOperationsInput = {
-    set?: Date | string
-  }
-
-  export type UserUpdateOneRequiredWithoutTokenNestedInput = {
-    create?: XOR<UserCreateWithoutTokenInput, UserUncheckedCreateWithoutTokenInput>
-    connectOrCreate?: UserCreateOrConnectWithoutTokenInput
-    upsert?: UserUpsertWithoutTokenInput
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTokenInput, UserUpdateWithoutTokenInput>, UserUncheckedUpdateWithoutTokenInput>
   }
 
   export type UserCreateNestedOneWithoutSettingsInput = {
@@ -17025,6 +15657,10 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type DateTimeFieldUpdateOperationsInput = {
+    set?: Date | string
+  }
+
   export type UserUpdateOneWithoutAuditLogsNestedInput = {
     create?: XOR<UserCreateWithoutAuditLogsInput, UserUncheckedCreateWithoutAuditLogsInput>
     connectOrCreate?: UserCreateOrConnectWithoutAuditLogsInput
@@ -17149,6 +15785,20 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -17201,20 +15851,6 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
-  export type NestedStringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
-  }
-
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -17243,31 +15879,6 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
-  export type NestedDateTimeFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
-  }
-
-  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
-  }
-
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
     in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
@@ -17293,6 +15904,31 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedDateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
   }
   export type NestedJsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -17336,22 +15972,6 @@ export namespace Prisma {
   export type RoleCreateOrConnectWithoutUsersInput = {
     where: RoleWhereUniqueInput
     create: XOR<RoleCreateWithoutUsersInput, RoleUncheckedCreateWithoutUsersInput>
-  }
-
-  export type JwtTokenCreateWithoutUserInput = {
-    token: string
-    expiresAt: Date | string
-  }
-
-  export type JwtTokenUncheckedCreateWithoutUserInput = {
-    id?: number
-    token: string
-    expiresAt: Date | string
-  }
-
-  export type JwtTokenCreateOrConnectWithoutUserInput = {
-    where: JwtTokenWhereUniqueInput
-    create: XOR<JwtTokenCreateWithoutUserInput, JwtTokenUncheckedCreateWithoutUserInput>
   }
 
   export type SettingCreateWithoutUserInput = {
@@ -17465,28 +16085,6 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     permissions?: RolePermissionUncheckedUpdateManyWithoutRoleNestedInput
-  }
-
-  export type JwtTokenUpsertWithoutUserInput = {
-    update: XOR<JwtTokenUpdateWithoutUserInput, JwtTokenUncheckedUpdateWithoutUserInput>
-    create: XOR<JwtTokenCreateWithoutUserInput, JwtTokenUncheckedCreateWithoutUserInput>
-    where?: JwtTokenWhereInput
-  }
-
-  export type JwtTokenUpdateToOneWithWhereWithoutUserInput = {
-    where?: JwtTokenWhereInput
-    data: XOR<JwtTokenUpdateWithoutUserInput, JwtTokenUncheckedUpdateWithoutUserInput>
-  }
-
-  export type JwtTokenUpdateWithoutUserInput = {
-    token?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type JwtTokenUncheckedUpdateWithoutUserInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    token?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SettingUpsertWithoutUserInput = {
@@ -17618,7 +16216,7 @@ export namespace Prisma {
     mobile: string
     passwordHash: string
     isActive?: boolean
-    token?: JwtTokenCreateNestedOneWithoutUserInput
+    hashedRefreshToken?: string | null
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
@@ -17632,7 +16230,7 @@ export namespace Prisma {
     mobile: string
     passwordHash: string
     isActive?: boolean
-    token?: JwtTokenUncheckedCreateNestedOneWithoutUserInput
+    hashedRefreshToken?: string | null
     settings?: SettingUncheckedCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
@@ -17700,77 +16298,8 @@ export namespace Prisma {
     mobile?: StringFilter<"User"> | string
     passwordHash?: StringFilter<"User"> | string
     isActive?: BoolFilter<"User"> | boolean
+    hashedRefreshToken?: StringNullableFilter<"User"> | string | null
     roleId?: IntFilter<"User"> | number
-  }
-
-  export type UserCreateWithoutTokenInput = {
-    name: string
-    email: string
-    mobile: string
-    passwordHash: string
-    isActive?: boolean
-    role: RoleCreateNestedOneWithoutUsersInput
-    settings?: SettingCreateNestedOneWithoutUserInput
-    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
-    loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
-    AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
-  }
-
-  export type UserUncheckedCreateWithoutTokenInput = {
-    id?: number
-    name: string
-    email: string
-    mobile: string
-    passwordHash: string
-    isActive?: boolean
-    roleId: number
-    settings?: SettingUncheckedCreateNestedOneWithoutUserInput
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
-    loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
-    AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
-  }
-
-  export type UserCreateOrConnectWithoutTokenInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutTokenInput, UserUncheckedCreateWithoutTokenInput>
-  }
-
-  export type UserUpsertWithoutTokenInput = {
-    update: XOR<UserUpdateWithoutTokenInput, UserUncheckedUpdateWithoutTokenInput>
-    create: XOR<UserCreateWithoutTokenInput, UserUncheckedCreateWithoutTokenInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutTokenInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutTokenInput, UserUncheckedUpdateWithoutTokenInput>
-  }
-
-  export type UserUpdateWithoutTokenInput = {
-    name?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    mobile?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    role?: RoleUpdateOneRequiredWithoutUsersNestedInput
-    settings?: SettingUpdateOneWithoutUserNestedInput
-    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
-    loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
-    AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutTokenInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    name?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    mobile?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    roleId?: IntFieldUpdateOperationsInput | number
-    settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
-    loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
-    AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSettingsInput = {
@@ -17779,8 +16308,8 @@ export namespace Prisma {
     mobile: string
     passwordHash: string
     isActive?: boolean
+    hashedRefreshToken?: string | null
     role: RoleCreateNestedOneWithoutUsersInput
-    token?: JwtTokenCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
     AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
@@ -17793,8 +16322,8 @@ export namespace Prisma {
     mobile: string
     passwordHash: string
     isActive?: boolean
+    hashedRefreshToken?: string | null
     roleId: number
-    token?: JwtTokenUncheckedCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
     AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
@@ -17822,8 +16351,8 @@ export namespace Prisma {
     mobile?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
-    token?: JwtTokenUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
     AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
@@ -17836,8 +16365,8 @@ export namespace Prisma {
     mobile?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     roleId?: IntFieldUpdateOperationsInput | number
-    token?: JwtTokenUncheckedUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
     AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
@@ -18094,8 +16623,8 @@ export namespace Prisma {
     mobile: string
     passwordHash: string
     isActive?: boolean
+    hashedRefreshToken?: string | null
     role: RoleCreateNestedOneWithoutUsersInput
-    token?: JwtTokenCreateNestedOneWithoutUserInput
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
@@ -18108,8 +16637,8 @@ export namespace Prisma {
     mobile: string
     passwordHash: string
     isActive?: boolean
+    hashedRefreshToken?: string | null
     roleId: number
-    token?: JwtTokenUncheckedCreateNestedOneWithoutUserInput
     settings?: SettingUncheckedCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
@@ -18165,8 +16694,8 @@ export namespace Prisma {
     mobile?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
-    token?: JwtTokenUpdateOneWithoutUserNestedInput
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
@@ -18179,8 +16708,8 @@ export namespace Prisma {
     mobile?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     roleId?: IntFieldUpdateOperationsInput | number
-    token?: JwtTokenUncheckedUpdateOneWithoutUserNestedInput
     settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
@@ -18226,8 +16755,8 @@ export namespace Prisma {
     mobile: string
     passwordHash: string
     isActive?: boolean
+    hashedRefreshToken?: string | null
     role: RoleCreateNestedOneWithoutUsersInput
-    token?: JwtTokenCreateNestedOneWithoutUserInput
     settings?: SettingCreateNestedOneWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
     AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
@@ -18240,8 +16769,8 @@ export namespace Prisma {
     mobile: string
     passwordHash: string
     isActive?: boolean
+    hashedRefreshToken?: string | null
     roleId: number
-    token?: JwtTokenUncheckedCreateNestedOneWithoutUserInput
     settings?: SettingUncheckedCreateNestedOneWithoutUserInput
     loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
     AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
@@ -18269,8 +16798,8 @@ export namespace Prisma {
     mobile?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
-    token?: JwtTokenUpdateOneWithoutUserNestedInput
     settings?: SettingUpdateOneWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
     AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
@@ -18283,8 +16812,8 @@ export namespace Prisma {
     mobile?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     roleId?: IntFieldUpdateOperationsInput | number
-    token?: JwtTokenUncheckedUpdateOneWithoutUserNestedInput
     settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
     loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
     AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
@@ -18296,8 +16825,8 @@ export namespace Prisma {
     mobile: string
     passwordHash: string
     isActive?: boolean
+    hashedRefreshToken?: string | null
     role: RoleCreateNestedOneWithoutUsersInput
-    token?: JwtTokenCreateNestedOneWithoutUserInput
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
@@ -18310,8 +16839,8 @@ export namespace Prisma {
     mobile: string
     passwordHash: string
     isActive?: boolean
+    hashedRefreshToken?: string | null
     roleId: number
-    token?: JwtTokenUncheckedCreateNestedOneWithoutUserInput
     settings?: SettingUncheckedCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
     AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
@@ -18339,8 +16868,8 @@ export namespace Prisma {
     mobile?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
-    token?: JwtTokenUpdateOneWithoutUserNestedInput
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
@@ -18353,8 +16882,8 @@ export namespace Prisma {
     mobile?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     roleId?: IntFieldUpdateOperationsInput | number
-    token?: JwtTokenUncheckedUpdateOneWithoutUserNestedInput
     settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
     AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
@@ -18576,6 +17105,7 @@ export namespace Prisma {
     mobile: string
     passwordHash: string
     isActive?: boolean
+    hashedRefreshToken?: string | null
   }
 
   export type RolePermissionUpdateWithoutRoleInput = {
@@ -18598,7 +17128,7 @@ export namespace Prisma {
     mobile?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    token?: JwtTokenUpdateOneWithoutUserNestedInput
+    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
@@ -18612,7 +17142,7 @@ export namespace Prisma {
     mobile?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    token?: JwtTokenUncheckedUpdateOneWithoutUserNestedInput
+    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
@@ -18626,6 +17156,7 @@ export namespace Prisma {
     mobile?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type HospitalCreateManyParentHospitalInput = {

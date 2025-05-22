@@ -1,10 +1,7 @@
-import styles from "./page.module.css";
+import { getSession } from "@/lib/session";
 
-
-export default function Home() {
-  return (
-    <div className={styles.page}>
-      Lightning Queue | AI Doc App
-    </div>
-  );
+export default async function Page() {
+  const session = await getSession();
+  console.log("session", session);
+  return <h1 className="text-3xl font-bold underline">Hello, Next.js!</h1>
 }

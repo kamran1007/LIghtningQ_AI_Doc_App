@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/logindto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UserService {
+  // updateHashedRefreshToken(userId: number, hashedRT: string) {
+  //   throw new Error('Method not implemented.');
+  // }
   constructor(private readonly prisma: PrismaService) {}
   
   async findByEmail(email: string) {
@@ -13,5 +15,22 @@ export class UserService {
       },
     });
   }
-
+  async findOne(userId: number) {
+    return await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+        
+      },
+    });
+  }
+  async updateHashedRefreshToken(userId: number ,hashedRT: string  |null) {
+    return await this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        hashedRefreshToken : hashedRT
+      },
+    });
+  }
 }

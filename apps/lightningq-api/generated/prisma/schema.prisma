@@ -15,17 +15,16 @@ datasource db {
 }
 
 model User {
-  id           Int     @id @default(autoincrement())
-  name         String
-  email        String  @unique
-  mobile       String  @unique
-  passwordHash String
-  isActive     Boolean @default(true)
+  id                 Int     @id @default(autoincrement())
+  name               String
+  email              String  @unique
+  mobile             String  @unique
+  passwordHash       String
+  isActive           Boolean @default(true)
+  hashedRefreshToken String?
 
-  roleId Int
-  role   Role @relation(fields: [roleId], references: [id])
-
-  token         JwtToken?
+  roleId        Int
+  role          Role                 @relation(fields: [roleId], references: [id])
   settings      Setting?             @relation("UserSettings")
   auditLogs     AuditLog[]
   loginSessions LoginSession[]
@@ -39,15 +38,6 @@ model Role {
   isActive    Boolean          @default(true)
   permissions RolePermission[]
   users       User[]
-}
-
-model JwtToken {
-  id        Int      @id @default(autoincrement())
-  token     String   @unique
-  userId    Int      @unique
-  expiresAt DateTime
-
-  user User @relation(fields: [userId], references: [id])
 }
 
 model Setting {

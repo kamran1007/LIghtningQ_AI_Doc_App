@@ -127,6 +127,7 @@ exports.Prisma.UserScalarFieldEnum = {
   mobile: 'mobile',
   passwordHash: 'passwordHash',
   isActive: 'isActive',
+  hashedRefreshToken: 'hashedRefreshToken',
   roleId: 'roleId'
 };
 
@@ -135,13 +136,6 @@ exports.Prisma.RoleScalarFieldEnum = {
   Rolename: 'Rolename',
   description: 'description',
   isActive: 'isActive'
-};
-
-exports.Prisma.JwtTokenScalarFieldEnum = {
-  id: 'id',
-  token: 'token',
-  userId: 'userId',
-  expiresAt: 'expiresAt'
 };
 
 exports.Prisma.SettingScalarFieldEnum = {
@@ -234,7 +228,6 @@ exports.Prisma.JsonNullValueFilter = {
 exports.Prisma.ModelName = {
   User: 'User',
   Role: 'Role',
-  JwtToken: 'JwtToken',
   Setting: 'Setting',
   Hospital: 'Hospital',
   Hospitaltype: 'Hospitaltype',

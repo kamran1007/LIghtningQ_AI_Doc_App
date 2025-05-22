@@ -13,7 +13,8 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
 
   validate(email: string, password: string) {
     console.log('email', email);
-
+    if(!email || !password) 
+      throw new UnauthorizedException('Email and password are required'); 
     return this.authService.validateLocalUser(email, password);
   }
 }

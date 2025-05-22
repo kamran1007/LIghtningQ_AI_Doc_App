@@ -5,7 +5,7 @@ import { PrismaService } from './prisma/prisma.service';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
-import { LocalAuthGuard } from './auth/guards/local-auth/local-auth.guard.spec';
+import { LocalAuthGuard } from './auth/guards/local-auth/local-auth.guard';
 
 @Module({
   imports: [
@@ -19,6 +19,6 @@ import { LocalAuthGuard } from './auth/guards/local-auth/local-auth.guard.spec';
     UserModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService,LocalAuthGuard],
+  providers: [AppService, PrismaService],
 })
 export class AppModule {}
