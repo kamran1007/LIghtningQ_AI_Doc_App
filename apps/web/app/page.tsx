@@ -1,7 +1,14 @@
+// app/page.tsx
 import { getSession } from "@/lib/session";
+import { redirect } from "next/navigation";
 
-export default async function Page() {
+export default async function HomePage() {
   const session = await getSession();
-  console.log("session", session);
-  return <h1 className="text-3xl font-bold underline">Hello, Next.js!</h1>
+
+  if (!session?.user) {
+    redirect("/auth/login");
+  }
+
+  // If session exists, you can redirect to dashboard or show content
+  redirect("/"); // or return <DashboardComponent />
 }

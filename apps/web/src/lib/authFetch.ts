@@ -16,7 +16,7 @@ export const authFetch = async (
     Authorization: `Bearer ${session?.accessToken}`,
   };
   let response = await fetch(url, options);
-  console.log({StaTTTTTTTTTTTTTTTTTTTTUS: response.status,
+  console.log({StaTUS: response.status,
   });
 
   if (response.status === 401) {

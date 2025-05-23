@@ -12,9 +12,17 @@ export class AuthController {
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  login(@Request() req) {
+  async login(@Request() req) {
     console.log('AuthController: req.user =', req.user);
-    return this.authService.login(req.user.Id, req.user.Email, req.user.Name);
+    // return this.authService.login(req.user.Id, req.user.Email, req.user.Name);
+    const resopnse = await this.authService.login(
+      req.user.Id,
+      req.user.Email,
+      req.user.Name,
+      req.user.Role,
+    ); 
+    console.log('AuthController: resopnse =', resopnse); 
+    return resopnse;
   }
   // @UseGuards(JwtAuthGuard)
   @Get('protected')

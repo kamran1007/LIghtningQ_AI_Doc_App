@@ -18,6 +18,7 @@ export async function login(
   const validatedFields = LoginFormSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
+    
   });
 
   if (!validatedFields.success) {
@@ -36,55 +37,32 @@ export async function login(
       body: JSON.stringify(validatedFields.data),
     }
   );
+
+  
+
   if (response.ok) {
-    const text = await response.text();
-  
-    let result;
-    try {
-      result = JSON.parse(text);
-      console.log("✅ Result is:", result);
-    } catch (e) {
-      console.error("❌ Failed to parse JSON. Got this instead:", text);
-      return;
-    }
-  
+    const result = await response.json();
+    // TODO: Create The Session For Authenticated User.
+
     await createSession({
       user: {
         id: result.id,
         name: result.name,
         email: result.email,
-        RoleId: result.roleId,
+        RoleId: result.role,
       },
       accessToken: result.accessToken,
       refreshToken: result.refreshToken,
     });
-  
     redirect("/");
+  } else {
+    return {
+      message:
+        response.status === 401
+          ? "Invalid Credentials!"
+          : "An error occurred. Please try again.",
+    };
   }
-  
-
-  // if (response.ok) {
-  //   const result = await response.json();
-  //   // TODO: Create The Session For Authenticated User.
-
-  //   await createSession({
-  //     user: {
-  //       id: result.id,
-  //       name: result.name,
-  //       role: result.role,
-  //     },
-  //     accessToken: result.accessToken,
-  //     refreshToken: result.refreshToken,
-  //   });
-  //   redirect("/");
-  // } else {
-  //   return {
-  //     message:
-  //       response.status === 401
-  //         ? "Invalid Credentials!"
-  //         : response.statusText,
-  //   };
-  // }
 }
 
 export const refreshToken = async (
@@ -105,9 +83,7 @@ export const refreshToken = async (
     );
 
     if (!response.ok) {
-      throw new Error(
-        "Failed to refresh token" + response.statusText
-      );
+      throw new Error("Failed to refresh token. Please try again.");
     }
 
     const { accessToken, refreshToken } =

@@ -10,35 +10,46 @@ import { useActionState } from "react"; // not react-dom
 const LoginInForm = () => {
   const [state, action] = useActionState(login, undefined);
   return (
-    <form action={action}>
+    <form action={action} autoComplete="off" className="flex flex-col gap-4">
+      {/* Hidden input to stop autofill guesses */}
+      <input
+        type="text"
+        name="fakeUsername"
+        autoComplete="username"
+        style={{ display: "none" }}
+        tabIndex={-1}
+      />
+
       <div className="flex flex-col gap-2 w-64">
         {state?.message && (
           <p className="text-sm text-red-500">{state.message}</p>
         )}
+
         <div>
           <Label htmlFor="email">Email</Label>
           <Input
             id="email"
             name="email"
-            placeholder="m@example.com"
             type="email"
+            placeholder="Lightningq@example.com"
+            autoComplete="new-email"
+            required
           />
         </div>
-        {state?.error?.email && (
-          <p className="text-sm text-red-500">{state.error.email}</p>
-        )}
 
         <div>
           <Label htmlFor="password">Password</Label>
-          <Input id="password" type="password" name="password" />
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="********"
+            autoComplete="new-password"
+            required
+          />
         </div>
-        {state?.error?.password && (
-          <p className="text-sm text-red-500">{state.error.password}</p>
-        )}
-        
 
         <SubmitButton>Sign In</SubmitButton>
-        
       </div>
     </form>
   );

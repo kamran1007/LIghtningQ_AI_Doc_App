@@ -1,17 +1,11 @@
 import React from "react";
 import LoginInForm from "./Loginform";
-// import SignInForm from "./signInForm";
-// import { BACKEND_URL } from "@/lib/constants";
 
 const SignInPage = () => {
   return (
-    <div className="bg-white p-8 rounded-lg shadow-lg w-96 flex flex-col justify-center items-center ">
-      <h1 className="text-center text-2xl font-bold mb-4">Sign In Page
+    <div className="bg-white p-8 rounded-lg shadow-lg w-96 flex flex-col justify-center items-center">
+      <h1 className="text-center text-2xl font-bold mb-4">Sign In Page</h1>
       <LoginInForm />
-
-      </h1>
-
-      <div className=" flex flex-col gap-2"></div>
     </div>
   );
 };
