@@ -8,12 +8,12 @@ const LogInButton = async () => {
     <div className="flex items-center gap-2 ml-auto">
       {!session || !session.user ? (
         <>
-          <Link href={"/auth/login"}> Login</Link>
+          <Link href={"/auth/login"}>Sign In</Link>
         </>
       ) : (
         <>
           <p>{session.user.name}</p>
-          <a href={"/api/auth/logout"}>log Out</a>
+          <a href={"/api/auth/signout"}>Sign Out</a>
         </>
       )}
     </div>

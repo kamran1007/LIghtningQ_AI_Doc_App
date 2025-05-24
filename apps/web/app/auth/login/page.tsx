@@ -1,11 +1,27 @@
 import React from "react";
 import LoginInForm from "./Loginform";
+import Image from "next/image";
 
 const SignInPage = () => {
   return (
-    <div className="bg-white p-8 rounded-lg shadow-lg w-96 flex flex-col justify-center items-center">
-      <h1 className="text-center text-2xl font-bold mb-4">Sign In Page</h1>
-      <LoginInForm />
+    <div
+      className="min-h-screen bg-cover bg-center flex items-center justify-center"
+      style={{
+        backgroundImage: "url('/loginBackgroundImage.png')", // ensure your image is at public/images/bg-login.jpg
+      }}
+    >
+      <div className="bg-white p-16 rounded-2xl shadow-2xl w-full max-w-2xl">
+        <div className="text-center mb-10">
+          <Image priority={false}
+            src="/LoginCard.png"
+            alt="Logo"
+            width={300}
+            height={100}
+            className="mx-auto"
+          />
+        </div>
+        <LoginInForm />
+      </div>
     </div>
   );
 };

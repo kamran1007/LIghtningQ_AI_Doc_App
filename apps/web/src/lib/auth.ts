@@ -83,7 +83,9 @@ export const refreshToken = async (
     );
 
     if (!response.ok) {
-      throw new Error("Failed to refresh token. Please try again.");
+      throw new Error(
+        "Failed to refresh token" + response.statusText
+      );
     }
 
     const { accessToken, refreshToken } =

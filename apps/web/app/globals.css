@@ -119,3 +119,68 @@
   }
 }
 
+@font-face {
+  font-family: 'Brandon Grotesque';
+  src: url('/fonts/BrandonGrotesque/BrandonGrotesque-Bold.woff2') format('woff2'),
+    url('/fonts/BrandonGrotesque/BrandonGrotesque-Bold.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Add this to your global CSS */
+.input-gradient {
+  @apply w-full h-14 px-4 rounded-md border border-gray-300 transition duration-300 bg-white outline-none;
+}
+
+.input-gradient:focus {
+  background-image: radial-gradient(
+    circle,
+    rgba(0, 36, 34, 1) 0%,
+    rgba(25, 138, 224, 1) 0%,
+    rgba(25, 138, 224, 1) 0%,
+    rgba(34, 224, 212, 1) 97%
+  );
+  border-color: rgba(34, 224, 212, 1);
+  color: white;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 1.5rem 1rem;
+  /* py-6 px-4 */
+  border-radius: 0.375rem;
+  /* rounded-md */
+  color: white;
+  font-family: 'Brandon Grotesque', sans-serif;
+  font-size: 1.25rem;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* shadow-md */
+  background: radial-gradient(circle, rgba(0, 36, 34, 1) 0%, rgba(25, 138, 224, 1) 0%, rgba(25, 138, 224, 1) 0%, rgba(34, 224, 212, 1) 97%);
+  transition: opacity 0.9s;
+}
+
+.submit-button:hover {
+  opacity: 0.9;
+}
+
+.navbar {
+  width: 100%;
+  padding: 1.5rem 1rem;
+  /* py-6 px-4 */
+  border-radius: 0.375rem;
+  /* rounded-md */
+  color: white;
+  font-family: 'Brandon Grotesque', sans-serif;
+  font-size: 1.25rem;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* shadow-md */
+  background: radial-gradient(circle, rgba(0, 36, 34, 1) 0%, rgba(25, 138, 224, 1) 0%, rgba(25, 138, 224, 1) 0%, rgba(34, 224, 212, 1) 97%);
+  transition: opacity 0.9s;
+}
+
+.submit-button:hover {
+  opacity: 0.9;
+}

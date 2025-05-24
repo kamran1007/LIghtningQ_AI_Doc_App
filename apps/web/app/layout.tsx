@@ -1,31 +1,22 @@
+// app/layout.tsx
 import type { Metadata } from "next";
-
-// These styles apply to every route in the application
 import "./globals.css";
-import AppBar from "@/components/ui/appBar";
-import { getSession } from "@/lib/session";
-import { redirect } from "next/navigation";
+import LayoutWrapper from "@/components/LayoutWrapper";
 
 export const metadata: Metadata = {
   title: "Lightning Queue",
   description: "Solution At Lightning Speed",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const session = await getSession();
-
-
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head />
       <body>
-      {session?.user && <AppBar />}
-      {children}
+        <LayoutWrapper>{children}</LayoutWrapper>
       </body>
     </html>
   );
