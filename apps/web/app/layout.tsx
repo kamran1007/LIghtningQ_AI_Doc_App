@@ -1,14 +1,18 @@
+// app/layout.tsx
 import type { Metadata } from "next";
-
-// These styles apply to every route in the application
 import "./globals.css";
 import AppBar from "@/components/ui/appBar";
 import { getSession } from "@/lib/session";
-import { redirect } from "next/navigation";
+import { AppSidebar } from "@/components/AppSidebar";
 
 export const metadata: Metadata = {
   title: "Lightning Queue",
   description: "Solution At Lightning Speed",
+  icons: {
+    icon: "/favicon.png",
+    apple: "/apple-touch-icon.png",
+    shortcut: "/favicon-32x32.png",
+  },
 };
 
 export default async function RootLayout({
@@ -18,14 +22,15 @@ export default async function RootLayout({
 }) {
   const session = await getSession();
 
-
-
   return (
     <html lang="en">
       <head />
-      <body>
-      {session?.user && <AppBar />}
-      {children}
+      <body className="h-screen flex flex-col">
+        {session?.user && <AppBar />}
+        <div className="flex flex-1 overflow-hidden">
+          {session?.user && <AppSidebar />}
+          <main className="flex-1 overflow-y-auto p-4">{children}</main>
+        </div>
       </body>
     </html>
   );

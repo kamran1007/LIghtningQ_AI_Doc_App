@@ -13,13 +13,14 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() req) {
-    console.log('AuthController: req.user =', req.user);
+    // console.log('AuthController: req.user =', req.user);
     // return this.authService.login(req.user.Id, req.user.Email, req.user.Name);
     const resopnse = await this.authService.login(
       req.user.Id,
       req.user.Email,
       req.user.Name,
-      req.user.Role,
+      req.user.Role, // Assuming Role is part of the user object
+
     ); 
     console.log('AuthController: resopnse =', resopnse); 
     return resopnse;
@@ -27,11 +28,22 @@ export class AuthController {
   // @UseGuards(JwtAuthGuard)
   @Get('protected')
   getAll(@Request() req) {
-    console.log('AuthController: req.user of protected =', req.user);
+    const userData = req.user.name;
     return {
-      messege: `Now you can access this protected API. this is your user ID: ${req.user.id}`,
+      message: 'This is a protected route',
+      user: {
+        id: userData.id,
+        name: userData.name,
+        email: userData.email,
+        mobile: userData.mobile,
+        passwordHash: userData.passwordHash,
+        isActive: userData.isActive,
+        hashedRefreshToken: userData.hashedRefreshToken,
+        roleId: userData.roleId,
+      }
     };
   }
+  
 
   @Public()
   @UseGuards(RefreshAuthGuard)

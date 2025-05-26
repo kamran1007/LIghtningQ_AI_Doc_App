@@ -13,7 +13,7 @@ const LogInButton = async () => {
       ) : (
         <>
           <p>{session.user.name}</p>
-          <a href={"/api/auth/logout"}>logout</a>
+          {/* <a href={"/api/auth/logout"}>logout</a> */}
         </>
       )}
     </div>

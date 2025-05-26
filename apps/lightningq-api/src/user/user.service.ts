@@ -17,9 +17,13 @@ export class UserService {
   }
   async findOne(userId: number) {
     return await this.prisma.user.findUnique({
-      where: {
-        id: userId,
-        
+      where: { id: userId },
+      include: {
+        role: true,
+        settings: true,
+        auditLogs: true,
+        loginSessions: true,
+        AdminAccess: true,
       },
     });
   }

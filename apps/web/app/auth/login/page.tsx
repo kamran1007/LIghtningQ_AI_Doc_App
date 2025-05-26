@@ -5,14 +5,15 @@ import Image from "next/image";
 const SignInPage = () => {
   return (
     <div
-      className="min-h-screen bg-cover bg-center flex items-center justify-center"
+      className="fixed top-0 left-0 h-screen w-screen bg-cover bg-center flex items-center justify-center"
       style={{
-        backgroundImage: "url('/loginBackgroundImage.png')", // ensure your image is at public/images/bg-login.jpg
+        backgroundImage: "url('/loginBackgroundImage.png')",
       }}
     >
       <div className="bg-white p-16 rounded-2xl shadow-2xl w-full max-w-2xl">
         <div className="text-center mb-10">
-          <Image priority={false}
+          <Image
+            priority={false}
             src="/LoginCard.png"
             alt="Logo"
             width={300}

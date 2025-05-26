@@ -47,14 +47,14 @@ export async function login(
     await createSession({
       user: {
         id: result.id,
-        name: result.name,
-        email: result.email,
-        RoleId: result.role,
+        email: result.Email,
+        name: result.Name,
+        RoleId: result.roleId, // Default to 2 if roleId is not provided
       },
       accessToken: result.accessToken,
       refreshToken: result.refreshToken,
     });
-    redirect("/");
+    redirect("/dashboard");
   } else {
     return {
       message:
