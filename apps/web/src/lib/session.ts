@@ -36,7 +36,7 @@ export async function createSession(payload: Session) {
     secure: true,
     expires: expiredAt,
     sameSite: "lax",
-    path: "/dashboard",
+    path: "/",
   });
 }
 

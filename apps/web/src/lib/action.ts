@@ -1,6 +1,6 @@
 "use server";
 
-import { authFetch } from "./authFetch";
+// import { authFetch } from "./authFetch";
 // import { authFetch } from "./authFetch";
 import { BACKEND_URL } from "./constants";
 

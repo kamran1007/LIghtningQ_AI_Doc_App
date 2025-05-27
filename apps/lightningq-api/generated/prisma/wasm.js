@@ -122,12 +122,17 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
-  name: 'name',
+  surname: 'surname',
+  imageUrl: 'imageUrl',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  gender: 'gender',
   email: 'email',
   mobile: 'mobile',
   passwordHash: 'passwordHash',
   isActive: 'isActive',
   hashedRefreshToken: 'hashedRefreshToken',
+  dateOfBirth: 'dateOfBirth',
   roleId: 'roleId'
 };
 
@@ -223,7 +228,15 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
-
+exports.Surname = exports.$Enums.Surname = {
+  Mr: 'Mr',
+  Mrs: 'Mrs',
+  Miss: 'Miss',
+  Ms: 'Ms',
+  Dr: 'Dr',
+  Prof: 'Prof',
+  Other: 'Other'
+};
 
 exports.Prisma.ModelName = {
   User: 'User',

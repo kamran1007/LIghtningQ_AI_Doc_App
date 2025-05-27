@@ -15,20 +15,21 @@ datasource db {
 }
 
 model User {
-  id                 Int     @id @default(autoincrement())
-  name               String
-  email              String  @unique
-  mobile             String  @unique
+  id                 Int                  @id @default(autoincrement())
+  firstName          String
+  lastName           String
+  email              String               @unique
+  mobile             String               @unique
   passwordHash       String
-  isActive           Boolean @default(true)
+  isActive           Boolean              @default(true)
   hashedRefreshToken String?
-
-  roleId        Int
-  role          Role                 @relation(fields: [roleId], references: [id])
-  settings      Setting?             @relation("UserSettings")
-  auditLogs     AuditLog[]
-  loginSessions LoginSession[]
-  AdminAccess   UserHospitalAccess[]
+  dateOfBirth        DateTime?
+  roleId             Int
+  role               Role                 @relation(fields: [roleId], references: [id])
+  settings           Setting?             @relation("UserSettings")
+  auditLogs          AuditLog[]
+  loginSessions      LoginSession[]
+  AdminAccess        UserHospitalAccess[]
 }
 
 model Role {

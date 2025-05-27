@@ -6,10 +6,10 @@ import { JwtService } from '@nestjs/jwt';
 // import refreshConfig from './config/refresh.config';
 import type { ConfigType } from '@nestjs/config'; // ✅ FIXED
 import refreshConfig from './config/refresh.config';
+import { UpdateProfileDto } from 'src/user/dto/updateprofile.dto';
 
 @Injectable()
 export class AuthService {
-  
   
   constructor(
     private readonly userService: UserService,
@@ -27,17 +27,18 @@ export class AuthService {
     if (!isPasswordMatched)
       throw new UnauthorizedException('Invalid Credentials!');
 
-    return { Id: user.id, Name: user.name, Email: user.email ,Role: user.roleId};
+    return { Id: user.id, firstName: user.firstName,lastName: user.lastName, Email: user.email ,Role: user.roleId};
   }
 
-  async login(userId: number,Email: string, Name: string,RoleID: number) {
+  async login(userId: number,Email: string, firstName: string, lastName: string,RoleID: number) {
     const { accessToken ,refreshToken} = await this.generateTokens(userId);
     const hashedRT = await hash(refreshToken);
     await this.userService.updateHashedRefreshToken(userId ,hashedRT);
     return {
       id: userId,
       Email: Email,
-      Name: Name,
+      Name: firstName,
+      lastName: lastName,
       RoleID: RoleID, 
       accessToken,
       refreshToken,
@@ -91,7 +92,32 @@ export class AuthService {
       refreshToken,
     };
   }
+
+  async updateProfile(userId: number, dto: UpdateProfileDto) {
+    console.log('userId:', userId);
+    const updatedUser = await this.userService.updateUserProfile(userId, dto);
+    return {
+      message: 'Profile updated successfully',
+      user: updatedUser,
+    };
+  }
+
+  async changePassword(userId: number, currentPassword: string, newPassword: string) {
+    const user = await this.userService.findOne(userId);
+    if (!user) throw new UnauthorizedException('User not found!');
+  
+    const isPasswordMatched = await verify(user.passwordHash, currentPassword);
+    if (!isPasswordMatched) throw new UnauthorizedException('Current password is incorrect!');
+  
+    const newHashedPassword = await hash(newPassword);
+  
+    await this.userService.updatePassword(userId, newHashedPassword);
+    return { message: 'Password changed successfully' };
+  }
+
+
   async logout(userId: number) {
     return await this.userService.updateHashedRefreshToken(userId, null);
   }
 }
+                                                                                   

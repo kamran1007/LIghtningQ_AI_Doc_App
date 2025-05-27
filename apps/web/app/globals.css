@@ -154,6 +154,12 @@ body {
   font-size: medium;
   font-style:normal;
 }
+.ModelFont {
+  font-family: 'span', sans-serif;
+  font-weight: 550;
+  font-size: medium;
+  font-style: normal;
+}
 
 .json-output {
   font-family: monospace;
@@ -213,6 +219,30 @@ body {
   background: linear-gradient(270deg, #002422, #198ae0, #22e0d4);
   background-size: 600% 600%;
   animation: gradientShift 100s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.submit-button:hover {
+  opacity: 0.9;
+}
+
+.sidebar {
+  background: linear-gradient(270deg, #002422, #198ae0, #22e0d4);
+  background-size: 600% 600%;
+  animation: gradientShift 30s ease-in-out;
 }
 
 @keyframes gradientShift {

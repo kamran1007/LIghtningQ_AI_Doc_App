@@ -16,13 +16,17 @@ datasource db {
 
 model User {
   id           Int     @id @default(autoincrement())
-  name         String
+  surname      Surname?    
+  imageUrl     String?          
+  firstName    String 
+  lastName     String 
+  gender       String? 
   email        String  @unique
   mobile       String  @unique
   passwordHash String
   isActive     Boolean @default(true)
   hashedRefreshToken String?
-
+  dateOfBirth  DateTime? 
   roleId             Int
   role               Role                 @relation(fields: [roleId], references: [id])
   settings           Setting?             @relation("UserSettings")
@@ -30,6 +34,17 @@ model User {
   loginSessions      LoginSession[]
   AdminAccess        UserHospitalAccess[]
 }
+enum Surname {
+  Mr
+  Mrs
+  Miss
+  Ms
+  Dr
+  Prof
+  Other
+}
+
+
 
 model Role {
   id          Int              @id @default(autoincrement())

@@ -1,15 +1,46 @@
+// import { NextRequest, NextResponse } from "next/server";
+// import { getSession } from "./src/lib/session";
+
+// export default async function middleware(req: NextRequest) {
+//   const session = await getSession();
+//   console.log("middleware: session = ", session);
+
+//   if (!session || !session.user) {
+//     return NextResponse.redirect(new URL("/auth/login", req.nextUrl));
+//   }
+
+//   return NextResponse.next(); // ✅ MUST RETURN THIS
+// }
+
+// export const config = {
+//   matcher: ["/dashboard", "/profile"],
+// };
+
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "./src/lib/session";
+import { jwtVerify } from "jose";
+
+// Must match SESSION_SECRET_KEY in .env
+const secretKey = process.env.SESSION_SECRET_KEY!;
+const encodedKey = new TextEncoder().encode(secretKey);
 
 export default async function middleware(req: NextRequest) {
-  const session = await getSession();
-  console.log("middleware: session = ", session);
+  const token = req.cookies.get("session")?.value;
 
-  if (!session || !session.user) {
-    return NextResponse.redirect(new URL("/auth/login", req.nextUrl));
+  if (!token) {
+    return NextResponse.redirect(new URL("/auth/login", req.url));
   }
 
-  return NextResponse.next(); // ✅ MUST RETURN THIS
+  try {
+    const { payload } = await jwtVerify(token, encodedKey, {
+      algorithms: ["HS256"],
+    });
+
+    // ✅ Token is valid → allow request to proceed
+    return NextResponse.next();
+  } catch (err) {
+    console.error("Invalid token in middleware:", err);
+    return NextResponse.redirect(new URL("/auth/login", req.url));
+  }
 }
 
 export const config = {
