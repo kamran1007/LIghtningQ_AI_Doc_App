@@ -7,7 +7,7 @@ export class UpdateProfileDto {
 
   @IsOptional()
   @IsString()
-  surname?: string;
+  title?: Title;
 
   @IsOptional()
   @IsString()
@@ -31,4 +31,14 @@ export class UpdateProfileDto {
 
   @IsOptional()
   imageUrl?: string; // Accepts a URL or path from upload service
+}
+
+export enum Title{
+  Mr = 'Mr',
+  Mrs = 'Mrs',
+  Miss = 'Miss',
+  Ms = 'Ms',
+  Dr = 'Dr',
+  Prof = 'Prof',
+  Other = 'Other',
 }

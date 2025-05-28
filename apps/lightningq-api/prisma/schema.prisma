@@ -16,7 +16,7 @@ datasource db {
 
 model User {
   id           Int     @id @default(autoincrement())
-  surname      Surname?    
+  title      Title?    
   imageUrl     String?          
   firstName    String 
   lastName     String 
@@ -34,7 +34,7 @@ model User {
   loginSessions      LoginSession[]
   AdminAccess        UserHospitalAccess[]
 }
-enum Surname {
+enum Title {
   Mr
   Mrs
   Miss

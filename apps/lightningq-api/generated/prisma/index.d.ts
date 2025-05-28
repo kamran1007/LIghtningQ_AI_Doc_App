@@ -68,7 +68,7 @@ export type RolePermission = $Result.DefaultSelection<Prisma.$RolePermissionPayl
  * Enums
  */
 export namespace $Enums {
-  export const Surname: {
+  export const Title: {
   Mr: 'Mr',
   Mrs: 'Mrs',
   Miss: 'Miss',
@@ -78,13 +78,13 @@ export namespace $Enums {
   Other: 'Other'
 };
 
-export type Surname = (typeof Surname)[keyof typeof Surname]
+export type Title = (typeof Title)[keyof typeof Title]
 
 }
 
-export type Surname = $Enums.Surname
+export type Title = $Enums.Title
 
-export const Surname: typeof $Enums.Surname
+export const Title: typeof $Enums.Title
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1924,7 +1924,7 @@ export namespace Prisma {
 
   export type UserMinAggregateOutputType = {
     id: number | null
-    surname: $Enums.Surname | null
+    title: $Enums.Title | null
     imageUrl: string | null
     firstName: string | null
     lastName: string | null
@@ -1940,7 +1940,7 @@ export namespace Prisma {
 
   export type UserMaxAggregateOutputType = {
     id: number | null
-    surname: $Enums.Surname | null
+    title: $Enums.Title | null
     imageUrl: string | null
     firstName: string | null
     lastName: string | null
@@ -1956,7 +1956,7 @@ export namespace Prisma {
 
   export type UserCountAggregateOutputType = {
     id: number
-    surname: number
+    title: number
     imageUrl: number
     firstName: number
     lastName: number
@@ -1984,7 +1984,7 @@ export namespace Prisma {
 
   export type UserMinAggregateInputType = {
     id?: true
-    surname?: true
+    title?: true
     imageUrl?: true
     firstName?: true
     lastName?: true
@@ -2000,7 +2000,7 @@ export namespace Prisma {
 
   export type UserMaxAggregateInputType = {
     id?: true
-    surname?: true
+    title?: true
     imageUrl?: true
     firstName?: true
     lastName?: true
@@ -2016,7 +2016,7 @@ export namespace Prisma {
 
   export type UserCountAggregateInputType = {
     id?: true
-    surname?: true
+    title?: true
     imageUrl?: true
     firstName?: true
     lastName?: true
@@ -2119,7 +2119,7 @@ export namespace Prisma {
 
   export type UserGroupByOutputType = {
     id: number
-    surname: $Enums.Surname | null
+    title: $Enums.Title | null
     imageUrl: string | null
     firstName: string
     lastName: string
@@ -2154,7 +2154,7 @@ export namespace Prisma {
 
   export type UserSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    surname?: boolean
+    title?: boolean
     imageUrl?: boolean
     firstName?: boolean
     lastName?: boolean
@@ -2176,7 +2176,7 @@ export namespace Prisma {
 
   export type UserSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    surname?: boolean
+    title?: boolean
     imageUrl?: boolean
     firstName?: boolean
     lastName?: boolean
@@ -2193,7 +2193,7 @@ export namespace Prisma {
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    surname?: boolean
+    title?: boolean
     imageUrl?: boolean
     firstName?: boolean
     lastName?: boolean
@@ -2210,7 +2210,7 @@ export namespace Prisma {
 
   export type UserSelectScalar = {
     id?: boolean
-    surname?: boolean
+    title?: boolean
     imageUrl?: boolean
     firstName?: boolean
     lastName?: boolean
@@ -2224,7 +2224,7 @@ export namespace Prisma {
     roleId?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "surname" | "imageUrl" | "firstName" | "lastName" | "gender" | "email" | "mobile" | "passwordHash" | "isActive" | "hashedRefreshToken" | "dateOfBirth" | "roleId", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "imageUrl" | "firstName" | "lastName" | "gender" | "email" | "mobile" | "passwordHash" | "isActive" | "hashedRefreshToken" | "dateOfBirth" | "roleId", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     role?: boolean | RoleDefaultArgs<ExtArgs>
     settings?: boolean | User$settingsArgs<ExtArgs>
@@ -2251,7 +2251,7 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
-      surname: $Enums.Surname | null
+      title: $Enums.Title | null
       imageUrl: string | null
       firstName: string
       lastName: string
@@ -2692,7 +2692,7 @@ export namespace Prisma {
    */
   interface UserFieldRefs {
     readonly id: FieldRef<"User", 'Int'>
-    readonly surname: FieldRef<"User", 'Surname'>
+    readonly title: FieldRef<"User", 'Title'>
     readonly imageUrl: FieldRef<"User", 'String'>
     readonly firstName: FieldRef<"User", 'String'>
     readonly lastName: FieldRef<"User", 'String'>
@@ -13227,7 +13227,7 @@ export namespace Prisma {
 
   export const UserScalarFieldEnum: {
     id: 'id',
-    surname: 'surname',
+    title: 'title',
     imageUrl: 'imageUrl',
     firstName: 'firstName',
     lastName: 'lastName',
@@ -13399,16 +13399,16 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Surname'
+   * Reference to a field of type 'Title'
    */
-  export type EnumSurnameFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Surname'>
+  export type EnumTitleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Title'>
     
 
 
   /**
-   * Reference to a field of type 'Surname[]'
+   * Reference to a field of type 'Title[]'
    */
-  export type ListEnumSurnameFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Surname[]'>
+  export type ListEnumTitleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Title[]'>
     
 
 
@@ -13483,7 +13483,7 @@ export namespace Prisma {
     OR?: UserWhereInput[]
     NOT?: UserWhereInput | UserWhereInput[]
     id?: IntFilter<"User"> | number
-    surname?: EnumSurnameNullableFilter<"User"> | $Enums.Surname | null
+    title?: EnumTitleNullableFilter<"User"> | $Enums.Title | null
     imageUrl?: StringNullableFilter<"User"> | string | null
     firstName?: StringFilter<"User"> | string
     lastName?: StringFilter<"User"> | string
@@ -13504,7 +13504,7 @@ export namespace Prisma {
 
   export type UserOrderByWithRelationInput = {
     id?: SortOrder
-    surname?: SortOrderInput | SortOrder
+    title?: SortOrderInput | SortOrder
     imageUrl?: SortOrderInput | SortOrder
     firstName?: SortOrder
     lastName?: SortOrder
@@ -13530,7 +13530,7 @@ export namespace Prisma {
     AND?: UserWhereInput | UserWhereInput[]
     OR?: UserWhereInput[]
     NOT?: UserWhereInput | UserWhereInput[]
-    surname?: EnumSurnameNullableFilter<"User"> | $Enums.Surname | null
+    title?: EnumTitleNullableFilter<"User"> | $Enums.Title | null
     imageUrl?: StringNullableFilter<"User"> | string | null
     firstName?: StringFilter<"User"> | string
     lastName?: StringFilter<"User"> | string
@@ -13549,7 +13549,7 @@ export namespace Prisma {
 
   export type UserOrderByWithAggregationInput = {
     id?: SortOrder
-    surname?: SortOrderInput | SortOrder
+    title?: SortOrderInput | SortOrder
     imageUrl?: SortOrderInput | SortOrder
     firstName?: SortOrder
     lastName?: SortOrder
@@ -13573,7 +13573,7 @@ export namespace Prisma {
     OR?: UserScalarWhereWithAggregatesInput[]
     NOT?: UserScalarWhereWithAggregatesInput | UserScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"User"> | number
-    surname?: EnumSurnameNullableWithAggregatesFilter<"User"> | $Enums.Surname | null
+    title?: EnumTitleNullableWithAggregatesFilter<"User"> | $Enums.Title | null
     imageUrl?: StringNullableWithAggregatesFilter<"User"> | string | null
     firstName?: StringWithAggregatesFilter<"User"> | string
     lastName?: StringWithAggregatesFilter<"User"> | string
@@ -14096,7 +14096,7 @@ export namespace Prisma {
   }
 
   export type UserCreateInput = {
-    surname?: $Enums.Surname | null
+    title?: $Enums.Title | null
     imageUrl?: string | null
     firstName: string
     lastName: string
@@ -14116,7 +14116,7 @@ export namespace Prisma {
 
   export type UserUncheckedCreateInput = {
     id?: number
-    surname?: $Enums.Surname | null
+    title?: $Enums.Title | null
     imageUrl?: string | null
     firstName: string
     lastName: string
@@ -14135,7 +14135,7 @@ export namespace Prisma {
   }
 
   export type UserUpdateInput = {
-    surname?: NullableEnumSurnameFieldUpdateOperationsInput | $Enums.Surname | null
+    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
@@ -14155,7 +14155,7 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
-    surname?: NullableEnumSurnameFieldUpdateOperationsInput | $Enums.Surname | null
+    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
@@ -14175,7 +14175,7 @@ export namespace Prisma {
 
   export type UserCreateManyInput = {
     id?: number
-    surname?: $Enums.Surname | null
+    title?: $Enums.Title | null
     imageUrl?: string | null
     firstName: string
     lastName: string
@@ -14190,7 +14190,7 @@ export namespace Prisma {
   }
 
   export type UserUpdateManyMutationInput = {
-    surname?: NullableEnumSurnameFieldUpdateOperationsInput | $Enums.Surname | null
+    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
@@ -14205,7 +14205,7 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
-    surname?: NullableEnumSurnameFieldUpdateOperationsInput | $Enums.Surname | null
+    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
@@ -14688,11 +14688,11 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
-  export type EnumSurnameNullableFilter<$PrismaModel = never> = {
-    equals?: $Enums.Surname | EnumSurnameFieldRefInput<$PrismaModel> | null
-    in?: $Enums.Surname[] | ListEnumSurnameFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.Surname[] | ListEnumSurnameFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumSurnameNullableFilter<$PrismaModel> | $Enums.Surname | null
+  export type EnumTitleNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.Title | EnumTitleFieldRefInput<$PrismaModel> | null
+    in?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumTitleNullableFilter<$PrismaModel> | $Enums.Title | null
   }
 
   export type StringNullableFilter<$PrismaModel = never> = {
@@ -14788,7 +14788,7 @@ export namespace Prisma {
 
   export type UserCountOrderByAggregateInput = {
     id?: SortOrder
-    surname?: SortOrder
+    title?: SortOrder
     imageUrl?: SortOrder
     firstName?: SortOrder
     lastName?: SortOrder
@@ -14809,7 +14809,7 @@ export namespace Prisma {
 
   export type UserMaxOrderByAggregateInput = {
     id?: SortOrder
-    surname?: SortOrder
+    title?: SortOrder
     imageUrl?: SortOrder
     firstName?: SortOrder
     lastName?: SortOrder
@@ -14825,7 +14825,7 @@ export namespace Prisma {
 
   export type UserMinOrderByAggregateInput = {
     id?: SortOrder
-    surname?: SortOrder
+    title?: SortOrder
     imageUrl?: SortOrder
     firstName?: SortOrder
     lastName?: SortOrder
@@ -14860,14 +14860,14 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
-  export type EnumSurnameNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.Surname | EnumSurnameFieldRefInput<$PrismaModel> | null
-    in?: $Enums.Surname[] | ListEnumSurnameFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.Surname[] | ListEnumSurnameFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumSurnameNullableWithAggregatesFilter<$PrismaModel> | $Enums.Surname | null
+  export type EnumTitleNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Title | EnumTitleFieldRefInput<$PrismaModel> | null
+    in?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumTitleNullableWithAggregatesFilter<$PrismaModel> | $Enums.Title | null
     _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedEnumSurnameNullableFilter<$PrismaModel>
-    _max?: NestedEnumSurnameNullableFilter<$PrismaModel>
+    _min?: NestedEnumTitleNullableFilter<$PrismaModel>
+    _max?: NestedEnumTitleNullableFilter<$PrismaModel>
   }
 
   export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -15450,8 +15450,8 @@ export namespace Prisma {
     connect?: UserHospitalAccessWhereUniqueInput | UserHospitalAccessWhereUniqueInput[]
   }
 
-  export type NullableEnumSurnameFieldUpdateOperationsInput = {
-    set?: $Enums.Surname | null
+  export type NullableEnumTitleFieldUpdateOperationsInput = {
+    set?: $Enums.Title | null
   }
 
   export type NullableStringFieldUpdateOperationsInput = {
@@ -15997,11 +15997,11 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
-  export type NestedEnumSurnameNullableFilter<$PrismaModel = never> = {
-    equals?: $Enums.Surname | EnumSurnameFieldRefInput<$PrismaModel> | null
-    in?: $Enums.Surname[] | ListEnumSurnameFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.Surname[] | ListEnumSurnameFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumSurnameNullableFilter<$PrismaModel> | $Enums.Surname | null
+  export type NestedEnumTitleNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.Title | EnumTitleFieldRefInput<$PrismaModel> | null
+    in?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumTitleNullableFilter<$PrismaModel> | $Enums.Title | null
   }
 
   export type NestedStringNullableFilter<$PrismaModel = never> = {
@@ -16075,14 +16075,14 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
-  export type NestedEnumSurnameNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.Surname | EnumSurnameFieldRefInput<$PrismaModel> | null
-    in?: $Enums.Surname[] | ListEnumSurnameFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.Surname[] | ListEnumSurnameFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumSurnameNullableWithAggregatesFilter<$PrismaModel> | $Enums.Surname | null
+  export type NestedEnumTitleNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Title | EnumTitleFieldRefInput<$PrismaModel> | null
+    in?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumTitleNullableWithAggregatesFilter<$PrismaModel> | $Enums.Title | null
     _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedEnumSurnameNullableFilter<$PrismaModel>
-    _max?: NestedEnumSurnameNullableFilter<$PrismaModel>
+    _min?: NestedEnumTitleNullableFilter<$PrismaModel>
+    _max?: NestedEnumTitleNullableFilter<$PrismaModel>
   }
 
   export type NestedIntNullableFilter<$PrismaModel = never> = {
@@ -16484,7 +16484,7 @@ export namespace Prisma {
   }
 
   export type UserCreateWithoutRoleInput = {
-    surname?: $Enums.Surname | null
+    title?: $Enums.Title | null
     imageUrl?: string | null
     firstName: string
     lastName: string
@@ -16503,7 +16503,7 @@ export namespace Prisma {
 
   export type UserUncheckedCreateWithoutRoleInput = {
     id?: number
-    surname?: $Enums.Surname | null
+    title?: $Enums.Title | null
     imageUrl?: string | null
     firstName: string
     lastName: string
@@ -16576,7 +16576,7 @@ export namespace Prisma {
     OR?: UserScalarWhereInput[]
     NOT?: UserScalarWhereInput | UserScalarWhereInput[]
     id?: IntFilter<"User"> | number
-    surname?: EnumSurnameNullableFilter<"User"> | $Enums.Surname | null
+    title?: EnumTitleNullableFilter<"User"> | $Enums.Title | null
     imageUrl?: StringNullableFilter<"User"> | string | null
     firstName?: StringFilter<"User"> | string
     lastName?: StringFilter<"User"> | string
@@ -16591,7 +16591,7 @@ export namespace Prisma {
   }
 
   export type UserCreateWithoutSettingsInput = {
-    surname?: $Enums.Surname | null
+    title?: $Enums.Title | null
     imageUrl?: string | null
     firstName: string
     lastName: string
@@ -16610,7 +16610,7 @@ export namespace Prisma {
 
   export type UserUncheckedCreateWithoutSettingsInput = {
     id?: number
-    surname?: $Enums.Surname | null
+    title?: $Enums.Title | null
     imageUrl?: string | null
     firstName: string
     lastName: string
@@ -16644,7 +16644,7 @@ export namespace Prisma {
   }
 
   export type UserUpdateWithoutSettingsInput = {
-    surname?: NullableEnumSurnameFieldUpdateOperationsInput | $Enums.Surname | null
+    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
@@ -16663,7 +16663,7 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateWithoutSettingsInput = {
     id?: IntFieldUpdateOperationsInput | number
-    surname?: NullableEnumSurnameFieldUpdateOperationsInput | $Enums.Surname | null
+    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
@@ -16926,7 +16926,7 @@ export namespace Prisma {
   }
 
   export type UserCreateWithoutAdminAccessInput = {
-    surname?: $Enums.Surname | null
+    title?: $Enums.Title | null
     imageUrl?: string | null
     firstName: string
     lastName: string
@@ -16945,7 +16945,7 @@ export namespace Prisma {
 
   export type UserUncheckedCreateWithoutAdminAccessInput = {
     id?: number
-    surname?: $Enums.Surname | null
+    title?: $Enums.Title | null
     imageUrl?: string | null
     firstName: string
     lastName: string
@@ -17007,7 +17007,7 @@ export namespace Prisma {
   }
 
   export type UserUpdateWithoutAdminAccessInput = {
-    surname?: NullableEnumSurnameFieldUpdateOperationsInput | $Enums.Surname | null
+    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
@@ -17026,7 +17026,7 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateWithoutAdminAccessInput = {
     id?: IntFieldUpdateOperationsInput | number
-    surname?: NullableEnumSurnameFieldUpdateOperationsInput | $Enums.Surname | null
+    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
@@ -17078,7 +17078,7 @@ export namespace Prisma {
   }
 
   export type UserCreateWithoutAuditLogsInput = {
-    surname?: $Enums.Surname | null
+    title?: $Enums.Title | null
     imageUrl?: string | null
     firstName: string
     lastName: string
@@ -17097,7 +17097,7 @@ export namespace Prisma {
 
   export type UserUncheckedCreateWithoutAuditLogsInput = {
     id?: number
-    surname?: $Enums.Surname | null
+    title?: $Enums.Title | null
     imageUrl?: string | null
     firstName: string
     lastName: string
@@ -17131,7 +17131,7 @@ export namespace Prisma {
   }
 
   export type UserUpdateWithoutAuditLogsInput = {
-    surname?: NullableEnumSurnameFieldUpdateOperationsInput | $Enums.Surname | null
+    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
@@ -17150,7 +17150,7 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateWithoutAuditLogsInput = {
     id?: IntFieldUpdateOperationsInput | number
-    surname?: NullableEnumSurnameFieldUpdateOperationsInput | $Enums.Surname | null
+    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
@@ -17168,7 +17168,7 @@ export namespace Prisma {
   }
 
   export type UserCreateWithoutLoginSessionsInput = {
-    surname?: $Enums.Surname | null
+    title?: $Enums.Title | null
     imageUrl?: string | null
     firstName: string
     lastName: string
@@ -17187,7 +17187,7 @@ export namespace Prisma {
 
   export type UserUncheckedCreateWithoutLoginSessionsInput = {
     id?: number
-    surname?: $Enums.Surname | null
+    title?: $Enums.Title | null
     imageUrl?: string | null
     firstName: string
     lastName: string
@@ -17221,7 +17221,7 @@ export namespace Prisma {
   }
 
   export type UserUpdateWithoutLoginSessionsInput = {
-    surname?: NullableEnumSurnameFieldUpdateOperationsInput | $Enums.Surname | null
+    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
@@ -17240,7 +17240,7 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateWithoutLoginSessionsInput = {
     id?: IntFieldUpdateOperationsInput | number
-    surname?: NullableEnumSurnameFieldUpdateOperationsInput | $Enums.Surname | null
+    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
@@ -17468,7 +17468,7 @@ export namespace Prisma {
 
   export type UserCreateManyRoleInput = {
     id?: number
-    surname?: $Enums.Surname | null
+    title?: $Enums.Title | null
     imageUrl?: string | null
     firstName: string
     lastName: string
@@ -17496,7 +17496,7 @@ export namespace Prisma {
   }
 
   export type UserUpdateWithoutRoleInput = {
-    surname?: NullableEnumSurnameFieldUpdateOperationsInput | $Enums.Surname | null
+    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
@@ -17515,7 +17515,7 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateWithoutRoleInput = {
     id?: IntFieldUpdateOperationsInput | number
-    surname?: NullableEnumSurnameFieldUpdateOperationsInput | $Enums.Surname | null
+    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
@@ -17534,7 +17534,7 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateManyWithoutRoleInput = {
     id?: IntFieldUpdateOperationsInput | number
-    surname?: NullableEnumSurnameFieldUpdateOperationsInput | $Enums.Surname | null
+    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string

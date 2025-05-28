@@ -52,11 +52,15 @@ export class AuthController {
       message: 'This is a protected route',
       user: {
         id: userData.id,
+        title: userData.title,
+        imageUrl: userData.imageUrl,
         firstName: userData.firstName,
         lastName: userData.lastName,
         email: userData.email,
         mobile: userData.mobile,
         passwordHash: userData.passwordHash,
+        dateOfBirth: userData.dateOfBirth,
+        gender: userData.gender,
         isActive: userData.isActive,
         hashedRefreshToken: userData.hashedRefreshToken,
         roleId: userData.roleId,
@@ -111,10 +115,5 @@ export class AuthController {
     return this.authService.logout(req.user.id);
   }
 }
-// function diskStorage(arg0: {
-//   destination: string; // Make sure this folder exists
-//   filename: (req: any, file: any, cb: any) => void;
-// }): any {
-//   throw new Error('Function not implemented.');
-// }
+
 

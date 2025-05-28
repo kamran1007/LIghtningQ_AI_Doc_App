@@ -4,6 +4,8 @@ import "./globals.css";
 import AppBar from "@/components/ui/appBar";
 import { getSession } from "@/lib/session";
 import { AppSidebar } from "@/components/AppSidebar";
+import { ReactQueryProvider } from "@/components/ReactQueryProvider";
+import { Toaster } from "react-hot-toast"; // <-- ADD THIS IMPORT
 
 export const metadata: Metadata = {
   title: "Lightning Queue",
@@ -26,11 +28,14 @@ export default async function RootLayout({
     <html lang="en">
       <head />
       <body className="h-screen flex flex-col">
-        {session?.user && <AppBar />}
-        <div className="flex flex-1 overflow-hidden">
-          {session?.user && <AppSidebar />}
-          <main className="flex-1 overflow-y-auto p-4">{children}</main>
-        </div>
+        <ReactQueryProvider>
+          <Toaster position="top-center" reverseOrder={false} /> {/* <-- ADD THIS */}
+          {session?.user && <AppBar />}
+          <div className="flex flex-1 overflow-hidden">
+            {session?.user && <AppSidebar />}
+            <main className="flex-1 overflow-y-auto p-4">{children}</main>
+          </div>
+        </ReactQueryProvider>
       </body>
     </html>
   );

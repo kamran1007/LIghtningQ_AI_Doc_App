@@ -16,8 +16,11 @@ datasource db {
 
 model User {
   id                 Int                  @id @default(autoincrement())
+  title              Title?
+  imageUrl           String?
   firstName          String
   lastName           String
+  gender             String?
   email              String               @unique
   mobile             String               @unique
   passwordHash       String
@@ -30,6 +33,16 @@ model User {
   auditLogs          AuditLog[]
   loginSessions      LoginSession[]
   AdminAccess        UserHospitalAccess[]
+}
+
+enum Title {
+  Mr
+  Mrs
+  Miss
+  Ms
+  Dr
+  Prof
+  Other
 }
 
 model Role {

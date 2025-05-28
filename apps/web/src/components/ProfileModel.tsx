@@ -12,8 +12,15 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 // import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { X } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
+import { getProfile } from "@/lib/action";
+import z from "zod";
+import { profileSchema } from "@/helper/profileschema";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-hot-toast"; // or from "sonner"
+import type { AxiosError } from "axios";
+import { updateProfile } from "@/lib/profile";
 
 interface ProfileModalProps {
   open: boolean;
@@ -21,16 +28,119 @@ interface ProfileModalProps {
 }
 
 const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
+  const mutation = useMutation({ mutationFn: updateProfile });
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const [imageUrl, setImageUrl] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [email, setEmail] = useState("");
+
+  const [errors, setErrors] = useState<{
+    firstName?: string;
+    lastName?: string;
+    mobile?: string;
+    dateOfBirth?: string;
+  }>({});
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const result = await getProfile();
+      if (result) {
+        console.log("ProfileModel working", result);
+        setImageUrl(
+          result.user.imageUrl
+            ? `http://localhost:8000${result.user.imageUrl}`
+            : ""
+        );
+        setFirstName(result.user.firstName || "");
+        setLastName(result.user.lastName || "");
+        setMobile(result.user.mobile || "");
+        setDateOfBirth(
+          result.user.dateOfBirth ? result.user.dateOfBirth.split("T")[0] : ""
+        );
+        setEmail(result.user.email || "");
+      }
+    };
+
+    if (open) {
+      fetchProfile();
+    } else {
+      setErrors({});
+    }
+  }, [open]);
 
   const handleImageClick = () => {
     fileInputRef.current?.click();
   };
-  const imageUrl = ""; // or your state value
 
-  const firstName = "John";
-  const lastName = "Doe";
-  const initials = `${firstName[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase();
+  //handle submit
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const data = {
+      firstName,
+      lastName,
+      mobile,
+      dateOfBirth,
+      image: fileInputRef.current?.files || null,
+    };
+
+    // Optional: Validate using zod
+    const parsed = profileSchema.safeParse(data);
+    if (!parsed.success) {
+      const formatted = parsed.error.format();
+      console.log("Validation Errors:", formatted);
+
+      setErrors({
+        firstName: formatted.firstName?._errors?.[0],
+        lastName: formatted.lastName?._errors?.[0],
+        mobile: formatted.mobile?._errors?.[0],
+        dateOfBirth: formatted.dateOfBirth?._errors?.[0],
+      });
+
+      toast.error("Please correct the errors and try again.");
+      return;
+    } else {
+      setErrors({}); // Clear errors on successful validation
+    }
+
+    const formData = new FormData();
+    formData.append("firstName", data.firstName);
+    formData.append("lastName", data.lastName);
+    formData.append("mobile", data.mobile);
+    formData.append("dateOfBirth", data.dateOfBirth);
+    if (data.image && data.image[0]) {
+      // formData.append("image", data.image[0]);
+      formData.append("file", data.image[0]);
+    }
+
+    try {
+      await mutation.mutateAsync(formData);
+      toast.success("Profile updated successfully");
+      setOpen(false);
+    } catch (error) {
+      const err = error as AxiosError<{ message: string }>;
+      toast.error(err.response?.data?.message || "An error occurred");
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setImageUrl(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const initials =(firstName?.[0]?.toUpperCase() || "") +(lastName?.[0]?.toUpperCase() || "");
+
+  // change password for User Profile
+  
+  
+  
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent size="md" className="max-h-[95vh] overflow-y-auto p-6">
@@ -68,7 +178,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
 
           {/* Profile Info Tab */}
           <TabsContent value="profile">
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmit}>
               {/* Profile Image */}
               {/* <div className="flex items-center gap-4">
                 <Avatar className="h-13 w-13 rounded-full">
@@ -128,7 +238,13 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
                   </div>
                 </div>
 
-                <input type="file" ref={fileInputRef} className="hidden" />
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
               </div>
 
               {/* First Row: First Name and Last Name */}
@@ -141,6 +257,8 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
                   <input
                     type="text"
                     placeholder="John"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
                     className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm text-gray-800 shadow-md placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200"
                   />
                 </div>
@@ -153,6 +271,8 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
                   <input
                     type="text"
                     placeholder="Doe"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
                     className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm text-gray-800 shadow-md placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200"
                   />
                 </div>
@@ -162,14 +282,22 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                 {/* Phone Number */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="text-sm font-semibold text-gray-700 mb-2 block">
                     Phone Number
                   </label>
                   <input
                     type="tel"
                     placeholder="+1 234 567 890"
-                    className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm text-gray-800 shadow-md placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200"
+                    value={mobile}
+                    maxLength={10}
+                    onChange={(e) => setMobile(e.target.value)}
+                    className={`w-full rounded-xl px-4 py-2 text-sm shadow-md transition duration-200 
+      ${errors.mobile ? "border-red-500 ring-2 ring-red-300" : "border-gray-300 focus:border-blue-500 focus:ring-blue-300"} 
+      bg-white text-gray-800 placeholder:text-gray-400 focus:outline-none`}
                   />
+                  {errors.mobile && (
+                    <p className="text-red-500 text-xs mt-1">{errors.mobile}</p>
+                  )}
                 </div>
 
                 {/* Date of Birth */}
@@ -179,17 +307,24 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
                   </label>
                   <input
                     type="date"
+                    value={dateOfBirth}
+                    onChange={(e) => setDateOfBirth(e.target.value)}
+                    maxLength={10}
                     className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm text-gray-800 shadow-md focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200"
                   />
                 </div>
               </div>
 
               <DialogFooter className="pt-4">
+                {/* {mutation.isLoading && <p>Loading...</p>} */}
+
                 <button
                   type="submit"
-                  className="bg-green-400 hover:bg-green-500 text-white px-5 py-2 rounded-4xl shadow-2xl transition"
+                  disabled={mutation.status === "pending"}
+                  className="bg-green-400 hover:bg-green-500 text-white px-5 py-2 rounded-4xl shadow-2xl transition disabled:opacity-50"
+                  // onClick={() => mutation.mutate(data)}
                 >
-                  Save Changes
+                  {mutation.status === "pending" ? "Saving..." : "Save Changes"}
                 </button>
               </DialogFooter>
             </form>
@@ -205,8 +340,8 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
                 </label>
                 <input
                   type="email"
-                  disabled
-                  defaultValue="user@example.com"
+                  value={email}
+                  readOnly
                   className="w-full rounded-xl border border-gray-200 bg-gray-100 px-4 py-2 text-sm text-gray-500 shadow-inner cursor-not-allowed"
                 />
               </div>

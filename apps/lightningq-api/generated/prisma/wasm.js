@@ -122,7 +122,7 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
-  surname: 'surname',
+  title: 'title',
   imageUrl: 'imageUrl',
   firstName: 'firstName',
   lastName: 'lastName',
@@ -228,7 +228,7 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
-exports.Surname = exports.$Enums.Surname = {
+exports.Title = exports.$Enums.Title = {
   Mr: 'Mr',
   Mrs: 'Mrs',
   Miss: 'Miss',

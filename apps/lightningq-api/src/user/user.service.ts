@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateProfileDto } from './dto/updateprofile.dto';
-import { Surname } from 'generated/prisma';
+import { Title } from 'generated/prisma';
 
 @Injectable()
 export class UserService {
@@ -46,14 +46,14 @@ export class UserService {
       where: { id: userId },
       data: {
         ...dto,
-        surname: dto.surname as Surname, // Cast string to enum
+        title: dto.title  as Title, // Cast string to enum
 
         dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
       },
       select: {
         id: true,
         firstName: true,
-        surname: true,
+        title: true,
         lastName: true,
         gender: true,
         email: true,
