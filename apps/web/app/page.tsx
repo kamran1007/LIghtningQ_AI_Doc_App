@@ -8,11 +8,6 @@ export default async function HomePage() {
   if (!session?.user) {
     redirect("/auth/login");
   }
-  else{
-    redirect("/dashboard");
 
-  }
-
-  // // If session exists, you can redirect to dashboard or show content
-  // redirect("/"); // or return <DashboardComponent />
+  redirect("/dashboard");
 }

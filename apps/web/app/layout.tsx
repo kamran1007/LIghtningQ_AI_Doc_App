@@ -5,7 +5,8 @@ import AppBar from "@/components/ui/appBar";
 import { getSession } from "@/lib/session";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ReactQueryProvider } from "@/components/ReactQueryProvider";
-import { Toaster } from "react-hot-toast"; // <-- ADD THIS IMPORT
+import { Toaster } from "react-hot-toast";
+import { headers } from "next/headers";
 
 export const metadata: Metadata = {
   title: "Lightning Queue",
@@ -23,16 +24,17 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const session = await getSession();
+  const pathname = (await headers()).get("x-next-url") || "";
+  const isAuthPage = pathname.startsWith("/auth");
 
   return (
     <html lang="en">
-      <head />
       <body className="h-screen flex flex-col">
         <ReactQueryProvider>
-          <Toaster position="top-center" reverseOrder={false} /> {/* <-- ADD THIS */}
-          {session?.user && <AppBar />}
+          <Toaster position="top-center" reverseOrder={false} />
+          {!isAuthPage && session?.user && <AppBar />}
           <div className="flex flex-1 overflow-hidden">
-            {session?.user && <AppSidebar />}
+            {!isAuthPage && session?.user && <AppSidebar />}
             <main className="flex-1 overflow-y-auto p-4">{children}</main>
           </div>
         </ReactQueryProvider>

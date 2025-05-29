@@ -1,8 +1,12 @@
-import { z } from "zod";
+import { optional, z } from "zod";
 
 export const passwordSchema = z
   .object({
-    oldPassword: z.string().min(8, "Old password must be at least 8 characters"),
+    currentPassword: z.string({
+      required_error: "Current password is required",
+      invalid_type_error: "Current password must be a string",
+    })
+    .min(1, "Current password is required"),
     newPassword: z
       .string()
       .min(8, "New password must be at least 8 characters")
@@ -11,7 +15,7 @@ export const passwordSchema = z
       .regex(/[0-9]/, "New password must contain at least one number")
       .regex(/[\W_]/, "New password must contain at least one special character"),
   })
-  .refine((data) => data.oldPassword !== data.newPassword, {
+  .refine((data) => data.currentPassword !== data.newPassword, {
     message: "New password must be different from old password",
     path: ["newPassword"],
   });

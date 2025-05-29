@@ -15,12 +15,16 @@ import { X } from "lucide-react";
 import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import { getProfile } from "@/lib/action";
-import z from "zod";
 import { profileSchema } from "@/helper/profileschema";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-hot-toast"; // or from "sonner"
 import type { AxiosError } from "axios";
-import { updateProfile } from "@/lib/profile";
+import { updatePassword, updateProfile } from "@/lib/profile";
+import { PasswordForm, passwordSchema } from "@/helper/profilepasswordschema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOff } from "lucide-react";
+import { ProfileSkeleton } from "./ui/ProfileSkeleton";
 
 interface ProfileModalProps {
   open: boolean;
@@ -38,8 +42,9 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
   const [mobile, setMobile] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [errors, setErrors] = useState<{
+  const [error, setError] = useState<{
     firstName?: string;
     lastName?: string;
     mobile?: string;
@@ -47,6 +52,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
   }>({});
   useEffect(() => {
     const fetchProfile = async () => {
+      setLoading(true);
       const result = await getProfile();
       if (result) {
         console.log("ProfileModel working", result);
@@ -63,12 +69,14 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
         );
         setEmail(result.user.email || "");
       }
+      setLoading(false);
+
     };
 
     if (open) {
       fetchProfile();
     } else {
-      setErrors({});
+      setError({});
     }
   }, [open]);
 
@@ -77,7 +85,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
   };
 
   //handle submit
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const data = {
       firstName,
@@ -93,7 +101,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
       const formatted = parsed.error.format();
       console.log("Validation Errors:", formatted);
 
-      setErrors({
+      setError({
         firstName: formatted.firstName?._errors?.[0],
         lastName: formatted.lastName?._errors?.[0],
         mobile: formatted.mobile?._errors?.[0],
@@ -103,7 +111,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
       toast.error("Please correct the errors and try again.");
       return;
     } else {
-      setErrors({}); // Clear errors on successful validation
+      setError({}); // Clear errors on successful validation
     }
 
     const formData = new FormData();
@@ -135,12 +143,63 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
     }
   };
 
-  const initials =(firstName?.[0]?.toUpperCase() || "") +(lastName?.[0]?.toUpperCase() || "");
+  const initials =
+    (firstName?.[0]?.toUpperCase() || "") +
+    (lastName?.[0]?.toUpperCase() || "");
 
   // change password for User Profile
-  
-  
-  
+
+  const {
+    register,
+    handleSubmit: handlePasswordSubmit,
+    watch,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<PasswordForm>({
+    resolver: zodResolver(passwordSchema),
+  });
+
+  const [apiError, setApiError] = useState("");
+  const [apiSuccess, setApiSuccess] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+
+  const newPassword = watch("newPassword");
+
+  // Password strength logic
+  const getPasswordStrength = (password: string) => {
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[a-z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[\W_]/.test(password)) strength++;
+    return strength;
+  };
+
+  const passwordStrength = getPasswordStrength(newPassword || "");
+
+  const onSubmits = async (data: PasswordForm) => {
+    try {
+      setApiError("");
+      setApiSuccess("");
+      const passwordUpdate = await updatePassword(data.currentPassword, data.newPassword);
+      setApiSuccess("Password changed successfully!");
+      toast.success("Password changed successfully");
+    } catch (error: any) {
+      setApiError(error.response?.data?.message || "Something went wrong.");
+      toast.error(error.response?.data?.message);
+    }
+  };
+  // const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) {
+      reset(); // ✅ Clear form fields and validation errors
+      setApiError(""); // ✅ Clear custom API error messages
+      setApiSuccess(""); // ✅ Clear success messages if needed
+    }
+  }, [open, reset]);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent size="md" className="max-h-[95vh] overflow-y-auto p-6">
@@ -160,46 +219,29 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
           </DialogClose>
         </div>
 
-        <Tabs defaultValue="profile" className="w-full">
+        <Tabs defaultValue="profile" className="w-full ">
           <TabsList className="mb-2 border-b w-full flex gap-2">
             <TabsTrigger
               value="profile"
-              className="px-4 py-2 text-sm font-medium border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:text-blue-600"
+              className="px-4 py-2 text-sm font-medium border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 cursor-pointer"
             >
               Profile Info
             </TabsTrigger>
             <TabsTrigger
               value="credentials"
-              className="px-4 py-2 text-sm font-medium border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:text-blue-600"
+              className="px-4 py-2 text-sm font-medium border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 cursor-pointer"
             >
               Credentials
             </TabsTrigger>
           </TabsList>
 
           {/* Profile Info Tab */}
+
           <TabsContent value="profile">
-            <form className="space-y-4" onSubmit={handleSubmit}>
+            {loading? <ProfileSkeleton/>: 
+            <div>
+            <form className="space-y-4" onSubmit={handleProfileSubmit}>
               {/* Profile Image */}
-              {/* <div className="flex items-center gap-4">
-                <Avatar className="h-13 w-13 rounded-full">
-                  <AvatarImage
-                    src="https://github.com/shadcn.png"
-                    alt="User avatar"
-                    className="object-cover rounded-full"
-                  />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <div>
-                  <button
-                    type="button"
-                    onClick={handleImageClick}
-                    className="text-sm text-blue-600 underline"
-                  >
-                    Change Photo
-                  </button>
-                  <input type="file" ref={fileInputRef} className="hidden" />
-                </div>
-              </div> */}
               <div className="flex flex-col items-center justify-center relative w-fit group mx-auto my-4">
                 <div className="relative h-20 w-20 rounded-full overflow-hidden group">
                   {imageUrl ? (
@@ -292,11 +334,11 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
                     maxLength={10}
                     onChange={(e) => setMobile(e.target.value)}
                     className={`w-full rounded-xl px-4 py-2 text-sm shadow-md transition duration-200 
-      ${errors.mobile ? "border-red-500 ring-2 ring-red-300" : "border-gray-300 focus:border-blue-500 focus:ring-blue-300"} 
+      ${error.mobile ? "border-red-500 ring-2 ring-red-300" : "border-gray-300 focus:border-blue-500 focus:ring-blue-300"} 
       bg-white text-gray-800 placeholder:text-gray-400 focus:outline-none`}
                   />
-                  {errors.mobile && (
-                    <p className="text-red-500 text-xs mt-1">{errors.mobile}</p>
+                  {error.mobile && (
+                    <p className="text-red-500 text-xs mt-1">{error.mobile}</p>
                   )}
                 </div>
 
@@ -321,18 +363,24 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
                 <button
                   type="submit"
                   disabled={mutation.status === "pending"}
-                  className="bg-green-400 hover:bg-green-500 text-white px-5 py-2 rounded-4xl shadow-2xl transition disabled:opacity-50"
+                  className="bg-green-400 hover:bg-green-500 text-white px-5 py-2 rounded-4xl shadow-2xl transition disabled:opacity-50 cursor-pointer"
                   // onClick={() => mutation.mutate(data)}
                 >
                   {mutation.status === "pending" ? "Saving..." : "Save Changes"}
                 </button>
               </DialogFooter>
             </form>
+            </div>}
+           
+            
           </TabsContent>
 
           {/* Credentials Tab */}
           <TabsContent value="credentials">
-            <form className="space-y-2">
+            <form
+              onSubmit={handlePasswordSubmit(onSubmits)}
+              className="space-y-2"
+            >
               {/* Email (Disabled) */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -347,38 +395,105 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
               </div>
 
               {/* Current Password */}
-              <div>
+              <div className="relative">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Current Password
                 </label>
                 <input
-                  type="password"
+                  type={showCurrentPassword ? "text" : "password"}
                   placeholder="Enter your current password"
+                  {...register("currentPassword")}
                   className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm text-gray-800 shadow-md placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200"
                 />
+                <span
+                  onClick={() => setShowCurrentPassword((prev) => !prev)}
+                  className="absolute right-3 top-9 cursor-pointer text-gray-500 hover:text-gray-700"
+                >
+                  {showCurrentPassword ? (
+                    <EyeOff size={20} />
+                  ) : (
+                    <Eye size={20} />
+                  )}
+                </span>
+                {/* {errors.oldPassword && (
+                  <p className="text-red-500 text-sm">
+                    {errors.oldPassword.message}
+                  </p>
+                )} */}
               </div>
 
               {/* New Password */}
-              <div>
+              <div className="relative">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   New Password
                 </label>
                 <input
-                  type="password"
+                  type={showNewPassword ? "text" : "password"}
                   placeholder="Enter your new password"
+                  {...register("newPassword")}
                   className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm text-gray-800 shadow-md placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200"
                 />
+                {errors.newPassword && (
+                  <p className="text-red-500 text-sm">
+                    {errors.newPassword.message}
+                  </p>
+                )}
+                <span
+                  onClick={() => setShowNewPassword((prev) => !prev)}
+                  className="absolute right-3 top-9 cursor-pointer text-gray-500 hover:text-gray-700"
+                >
+                  {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </span>
+                {/* Password strength bar */}
+                {newPassword && (
+                  <div className="mt-2">
+                    <div className="h-2 rounded bg-gray-300 w-full">
+                      <div
+                        className={`h-2 rounded transition-all duration-300 ${
+                          passwordStrength <= 2
+                            ? "bg-red-500 w-1/4"
+                            : passwordStrength === 3
+                              ? "bg-yellow-500 w-1/2"
+                              : passwordStrength === 4
+                                ? "bg-blue-500 w-3/4"
+                                : "bg-green-500 w-full"
+                        }`}
+                      ></div>
+                    </div>
+                    <p className="text-xs mt-1 text-gray-500">
+                      Strength:{" "}
+                      {
+                        [
+                          "Very Weak",
+                          "Weak",
+                          "Moderate",
+                          "Strong",
+                          "Very Strong",
+                        ][passwordStrength - 1]
+                      }
+                    </p>
+                  </div>
+                )}
               </div>
+              {apiError && <p className="text-red-600">{apiError}</p>}
+              {apiSuccess && <p className="text-green-600">{apiSuccess}</p>}
 
               {/* Submit Button */}
               <DialogFooter className="pt-4">
                 <button
                   type="submit"
-                  className="bg-green-400 hover:bg-green-500 text-white px-5 py-2 rounded-4xl shadow-2xl transition"
+                  disabled={isSubmitting}
+                  className="bg-green-400 hover:bg-green-500 text-white px-5 py-2 rounded-4xl shadow-2xl transition cursor-pointer"
                 >
-                  Update Password
+                  {isSubmitting? 'updating Password...' : 'Update Password' }
                 </button>
               </DialogFooter>
+
+              {/* Success/Error Messages */}
+              {apiSuccess && (
+                <p className="text-green-600 text-sm">{apiSuccess}</p>
+              )}
+              {apiError && <p className="text-red-600 text-sm">{apiError}</p>}
             </form>
           </TabsContent>
         </Tabs>

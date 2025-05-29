@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import SubmitButton from "@/components/ui/submitButton";
@@ -65,10 +66,10 @@ const LoginInForm = () => {
             />
           </div>
         </div>
-        <div className="mt-2">
-          <SubmitButton>
-            <span className="font-brandon font-bold">Login</span>
-          </SubmitButton>
+        <div className="mt-2 flex justify-center-safe items-center">
+          <Button className="submit-button  shadow-2xl px-6 py-2 cursor-pointer ">
+            Login
+          </Button>
         </div>
       </div>
     </form>

@@ -52,7 +52,8 @@ export async function getSession() {
     return payload as Session;
   } catch (err) {
     console.error("Failed to verify the session", err);
-    redirect("/auth/login");
+    // redirect("/auth/login");
+    return null;
   }
 }
 

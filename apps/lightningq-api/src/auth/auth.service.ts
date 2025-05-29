@@ -110,7 +110,7 @@ export class AuthService {
     if (!isPasswordMatched) throw new UnauthorizedException('Current password is incorrect!');
   
     const newHashedPassword = await hash(newPassword);
-  
+    
     await this.userService.updatePassword(userId, newHashedPassword);
     return { message: 'Password changed successfully' };
   }

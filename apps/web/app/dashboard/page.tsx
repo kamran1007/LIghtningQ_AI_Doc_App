@@ -7,7 +7,9 @@ const page = async () => {
   const session = await getSession();
   const res = await getProfile();
 
-  if (!session || !session.user) redirect("/auth/login");
+  // if (!session?.user) {
+  //   redirect("/auth/login");
+  // }
   console.log("session", session);
   return (
     <div className="json-output">
