@@ -4,11 +4,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import SubmitButton from "@/components/ui/submitButton";
 import { login } from "@/lib/auth";
-import React from "react";
+import { FormState } from "@/lib/types";
+import { startLoading, stopLoading } from "@/store/globalLoaderSlice";
+import { useAppDispatch } from "@/store/hooks";
+import React  from "react";
 import { useActionState } from "react"; // not react-dom
 
+
 const LoginInForm = () => {
-  const [state, action] = useActionState(login, undefined);
+  const dispatch = useAppDispatch();
+
+  const [state, action, isPending] = useActionState(async (prevState: FormState, formData: FormData) => {
+    try {
+      dispatch(startLoading());
+      const result = await login(prevState, formData);
+      // You can redirect or do something here if login is successful
+      return result;
+    } finally {
+      dispatch(stopLoading());
+    }
+  }, undefined);
 
   return (
     <form
@@ -66,8 +81,8 @@ const LoginInForm = () => {
             />
           </div>
         </div>
-        <div className="mt-2 flex justify-center-safe items-center">
-          <Button className="submit-button  shadow-2xl px-6 py-2 cursor-pointer ">
+        <div className="mt-4 flex justify-self-end-safe items-center ">
+          <Button className="submit-button shadow-2xl px-6 py-2 cursor-pointer  rounded-4xl">
             Login
           </Button>
         </div>

@@ -13,13 +13,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Toaster } from "react-hot-toast";
+import { useAppDispatch } from "@/store/hooks";
+import { startLoading } from "@/store/globalLoaderSlice";
 
 function NavbarDropdown() {
   const [profileOpen, setProfileOpen] = useState(false);
+  const dispatch = useAppDispatch();
 
   const handleLogout = () => {
     console.log("Logout clicked");
-    window.location.href = "/api/auth/logout";
+    dispatch(startLoading());
+
+    // Add a short delay to show the loader
+    setTimeout(() => {
+      window.location.href = "/api/auth/logout";
+    }, 300);
+    // window.location.href = "/api/auth/logout";
   };
 
   return (

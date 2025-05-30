@@ -26,7 +26,7 @@ export async function login(
       error: validatedFields.error.flatten().fieldErrors,
     };
   }
-
+  console.log(BACKEND_URL)
   const response = await fetch(
     `${BACKEND_URL}/auth/login`,
     {

@@ -189,6 +189,7 @@ body {
   padding: 0.6rem 1.5rem;
   /* More natural spacing */
   border-radius: 9999px;
+  height: 3.5rem;
   /* Fully rounded (pill shape) */
   color: white;
   font-family: 'Brandon Grotesque', sans-serif;

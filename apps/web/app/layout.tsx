@@ -1,4 +1,5 @@
 // app/layout.tsx
+
 import type { Metadata } from "next";
 import "./globals.css";
 import AppBar from "@/components/ui/appBar";
@@ -7,6 +8,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { ReactQueryProvider } from "@/components/ReactQueryProvider";
 import { Toaster } from "react-hot-toast";
 import { headers } from "next/headers";
+import ClientLayoutWrapper from "@/hooks/ClientLayoutWrapper"; // ✅ use wrapper
 
 export const metadata: Metadata = {
   title: "Lightning Queue",
@@ -32,11 +34,13 @@ export default async function RootLayout({
       <body className="h-screen flex flex-col">
         <ReactQueryProvider>
           <Toaster position="top-center" reverseOrder={false} />
-          {!isAuthPage && session?.user && <AppBar />}
-          <div className="flex flex-1 overflow-hidden">
-            {!isAuthPage && session?.user && <AppSidebar />}
-            <main className="flex-1 overflow-y-auto p-4">{children}</main>
-          </div>
+          <ClientLayoutWrapper>
+            {!isAuthPage && session?.user && <AppBar />}
+            <div className="flex flex-1 overflow-hidden">
+              {!isAuthPage && session?.user && <AppSidebar />}
+              <main className="flex-1 overflow-y-auto p-4">{children}</main>
+            </div>
+          </ClientLayoutWrapper>
         </ReactQueryProvider>
       </body>
     </html>

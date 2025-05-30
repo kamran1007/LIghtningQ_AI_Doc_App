@@ -3,12 +3,14 @@ import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import LoginInForm from "./Loginform";
 import Image from "next/image";
+import RedirectWithLoader from "@/components/RedirectWithLoader";
+
 
 export default async function SignInPage() {
   const session = await getSession();
 
   if (session?.user) {
-    redirect("/dashboard");
+    return <RedirectWithLoader to="/dashboard" />;
   }
 
   return (
