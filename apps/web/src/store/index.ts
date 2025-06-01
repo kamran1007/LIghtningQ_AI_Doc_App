@@ -1,7 +1,7 @@
 //  store/index.ts
 
 import { configureStore } from "@reduxjs/toolkit";
-import globalLoaderReducer from "./globalLoaderSlice"; // adjust if needed
+import globalLoaderReducer from "./globalLoaderSlice";
 
 export const store = configureStore({
   reducer: {

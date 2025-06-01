@@ -15,44 +15,116 @@ datasource db {
 }
 
 model User {
-  id           Int     @id @default(autoincrement())
-  title      Title?    
-  imageUrl     String?          
-  firstName    String 
-  lastName     String 
-  gender       String? 
-  email        String  @unique
-  mobile       String  @unique
-  passwordHash String
-  isActive     Boolean @default(true)
-  hashedRefreshToken String?
-  dateOfBirth  DateTime? 
+  id                 Int                  @id @default(autoincrement())
+  title              Title
+  imageUrl           String
+  firstName          String
+  lastName           String
+  gender             String
+  email              String               @unique
+  mobile             String               @unique
+  passwordHash       String
+  isActive           Boolean              @default(true)
+  hashedRefreshToken String
+  dateOfBirth        DateTime
   roleId             Int
   role               Role                 @relation(fields: [roleId], references: [id])
+  //  Add this for organization mapping
+  organizationId     Int
+  organization       Organization         @relation(fields: [organizationId], references: [id])
   settings           Setting?             @relation("UserSettings")
   auditLogs          AuditLog[]
   loginSessions      LoginSession[]
   AdminAccess        UserHospitalAccess[]
-}
-enum Title {
-  Mr
-  Mrs
-  Miss
-  Ms
-  Dr
-  Prof
-  Other
+  deletedAt          DateTime?
 }
 
+// Organization (Top-most head entity created by you or BA)
+model Organization {
+  id               Int                 @id @default(autoincrement())
+  OrganizationName String // Official hospital group/organization name
+  Organizationcode String              @unique // Short unique code e.g. "JKH01"
+  logoUrl          String // Optional logo for branding
+  email            String              @unique
+  contactNumber    String
+  Orgnizationtype  OrganizationType? 
+  website          String 
+  addressLine1     String
+  addressLine2     String
+  city             String
+  state            String
+  country          String
+  postalCode       String
+  registrationNo   String // Govt/Medical Reg Number if applicable
+  establishedOn    DateTime // Foundation/Start date
+  industryType     String // Optional, e.g. "Healthcare", "Diagnostics"
+  status           Hospital_Org_status @default(ACTIVE) // Enum for status
+  description      String? // Optional about/description field
 
+  // Relations
+  hospitals Hospital[]
+  users     User[]
 
-model Role {
-  id          Int              @id @default(autoincrement())
-  Rolename    String?          @unique
-  description String
-  isActive    Boolean          @default(true)
-  permissions RolePermission[]
-  users       User[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+// Hospital entity (can be super/child/sub-child)
+model Hospital {
+  id                 Int                 @id @default(autoincrement())
+  name               String
+  hospitalCode       String              @unique
+  ParentHospitalCode String?
+  Organizationcode   String?
+  SpecializationType SpecializationType
+  address            String
+  city               String
+  state              String
+  country            String
+  postalCode         String
+  contactNumber      String
+  email              String
+  website            String
+  logoUrl            String
+  latitude           Float
+  longitude          Float
+  status             Hospital_Org_status @default(ACTIVE)
+  level              HospitalLevel
+  // Hierarchical relation
+  parentHospitalId   Int?
+  parentHospital     Hospital?           @relation("HospitalHierarchy", fields: [parentHospitalId], references: [id])
+  childHospital      Hospital[]          @relation("HospitalHierarchy")
+
+  // Organization it belongs to
+
+  Organization   Organization         @relation(fields: [organizationId], references: [id])
+  organizationId Int
+  // User-to-Hospital mapping
+  users          UserHospitalAccess[]
+
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
+  deletedAt DateTime?
+}
+
+// User ↔ Hospital mapping model
+model UserHospitalAccess {
+  id Int @id @default(autoincrement())
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  hospitalId Int
+  hospital   Hospital @relation(fields: [hospitalId], references: [id])
+
+  roleId Int
+  role   Role @relation(fields: [roleId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@unique([userId, hospitalId]) // Prevent duplicate mappings
 }
 
 model Setting {
@@ -61,45 +133,6 @@ model Setting {
   theme    String @default("light")
   language String @default("en")
   user     User   @relation("UserSettings", fields: [userId], references: [id])
-}
-
-model Hospital {
-  id       Int     @id @default(autoincrement())
-  name     String
-  location String
-  isActive Boolean @default(true)
-
-  parentHospitalId Int?
-  parentHospital   Hospital?  @relation("HospitalHierarchy", fields: [parentHospitalId], references: [id])
-  childHospitals   Hospital[] @relation("HospitalHierarchy")
-
-  levelId Int? // <-- Made optional temporarily
-  type    Hospitaltype? @relation(fields: [levelId], references: [id])
-
-  hospitalCode      String? // <-- Made optional temporarily
-  superHospitalCode String? // <-- Made optional temporarily
-
-  userAccess UserHospitalAccess[]
-}
-
-model Hospitaltype {
-  id           Int        @id @default(autoincrement())
-  HospitalType String     @unique
-  hospitals    Hospital[]
-}
-
-model UserHospitalAccess {
-  id         Int     @id @default(autoincrement())
-  userId     Int
-  hospitalId Int
-  isActive   Boolean @default(true)
-
-  user     User     @relation(fields: [userId], references: [id])
-  hospital Hospital @relation(fields: [hospitalId], references: [id])
-
-  @@unique([userId, hospitalId])
-  @@index([userId])
-  @@index([hospitalId])
 }
 
 model AuditLog {
@@ -124,11 +157,18 @@ model LoginSession {
   user User @relation(fields: [userId], references: [id])
 }
 
-model Permission {
-  id          Int              @id @default(autoincrement())
-  name        String           @unique
-  description String?
-  roles       RolePermission[]
+// [User] has [roleId]
+// [Role] has many [RolePermissions]
+// Each [RolePermission] links a [Role] to a [Permission]
+
+model Role {
+  id                 Int                  @id @default(autoincrement())
+  Rolename           String               @unique
+  description        String
+  isActive           Boolean              @default(true)
+  users              User[]
+  UserHospitalAccess UserHospitalAccess[]
+  permissions        RolePermission[] // <== Links to RolePermission
 }
 
 model RolePermission {
@@ -136,8 +176,59 @@ model RolePermission {
   roleId       Int
   permissionId Int
 
+  // Relationships
+  // There will be 5 entries in RolePermission with the same roleId but different permissionIds.
   role       Role       @relation(fields: [roleId], references: [id])
   permission Permission @relation(fields: [permissionId], references: [id])
 
   @@unique([roleId, permissionId])
+}
+
+model Permission {
+  id          Int              @id @default(autoincrement())
+  name        String           @unique // e.g., "Dashboard_Summary_TotalRevenueReport"
+  displayName String // e.g., "Total Revenue Report"
+  category    String // e.g., "Dashboard - Summary"
+  description String?
+  roles       RolePermission[] // <== Links to RolePermission
+}
+
+//Enums
+
+enum HospitalLevel {
+  SUPER // Top-level hospital
+  CHILD // Direct child of SUPER
+  SUB_CHILD // Child of a CHILD
+}
+
+enum Title {
+  Mr
+  Mrs
+  Miss
+  Ms
+  Dr
+  Prof
+  Other
+}
+
+enum Hospital_Org_status {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum SpecializationType {
+  GENERAL
+  OPHTHALMOLOGY
+  DENTAL
+  ENT
+  ORTHOPEDIC
+  MULTISPECIALITY
+  OTHER
+}
+
+enum OrganizationType {
+  HOSPITAL
+  CLINIC
+  DIAGNOSTICS
 }

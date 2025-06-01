@@ -104,6 +104,7 @@ export const refreshToken = async (
     );
     if (!updateRes.ok)
       throw new Error("Failed to update the tokens");
+    console.log("refresh token has relesed", accessToken)
 
     return accessToken;
   } catch (err) {

@@ -133,14 +133,70 @@ exports.Prisma.UserScalarFieldEnum = {
   isActive: 'isActive',
   hashedRefreshToken: 'hashedRefreshToken',
   dateOfBirth: 'dateOfBirth',
-  roleId: 'roleId'
+  roleId: 'roleId',
+  organizationId: 'organizationId',
+  deletedAt: 'deletedAt'
 };
 
-exports.Prisma.RoleScalarFieldEnum = {
+exports.Prisma.OrganizationScalarFieldEnum = {
   id: 'id',
-  Rolename: 'Rolename',
+  OrganizationName: 'OrganizationName',
+  Organizationcode: 'Organizationcode',
+  logoUrl: 'logoUrl',
+  email: 'email',
+  contactNumber: 'contactNumber',
+  Orgnizationtype: 'Orgnizationtype',
+  website: 'website',
+  addressLine1: 'addressLine1',
+  addressLine2: 'addressLine2',
+  city: 'city',
+  state: 'state',
+  country: 'country',
+  postalCode: 'postalCode',
+  registrationNo: 'registrationNo',
+  establishedOn: 'establishedOn',
+  industryType: 'industryType',
+  status: 'status',
   description: 'description',
-  isActive: 'isActive'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.HospitalScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  hospitalCode: 'hospitalCode',
+  ParentHospitalCode: 'ParentHospitalCode',
+  Organizationcode: 'Organizationcode',
+  SpecializationType: 'SpecializationType',
+  address: 'address',
+  city: 'city',
+  state: 'state',
+  country: 'country',
+  postalCode: 'postalCode',
+  contactNumber: 'contactNumber',
+  email: 'email',
+  website: 'website',
+  logoUrl: 'logoUrl',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  status: 'status',
+  level: 'level',
+  parentHospitalId: 'parentHospitalId',
+  organizationId: 'organizationId',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+};
+
+exports.Prisma.UserHospitalAccessScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  hospitalId: 'hospitalId',
+  roleId: 'roleId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SettingScalarFieldEnum = {
@@ -148,29 +204,6 @@ exports.Prisma.SettingScalarFieldEnum = {
   userId: 'userId',
   theme: 'theme',
   language: 'language'
-};
-
-exports.Prisma.HospitalScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  location: 'location',
-  isActive: 'isActive',
-  parentHospitalId: 'parentHospitalId',
-  levelId: 'levelId',
-  hospitalCode: 'hospitalCode',
-  superHospitalCode: 'superHospitalCode'
-};
-
-exports.Prisma.HospitaltypeScalarFieldEnum = {
-  id: 'id',
-  HospitalType: 'HospitalType'
-};
-
-exports.Prisma.UserHospitalAccessScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  hospitalId: 'hospitalId',
-  isActive: 'isActive'
 };
 
 exports.Prisma.AuditLogScalarFieldEnum = {
@@ -191,16 +224,25 @@ exports.Prisma.LoginSessionScalarFieldEnum = {
   loginAt: 'loginAt'
 };
 
-exports.Prisma.PermissionScalarFieldEnum = {
+exports.Prisma.RoleScalarFieldEnum = {
   id: 'id',
-  name: 'name',
-  description: 'description'
+  Rolename: 'Rolename',
+  description: 'description',
+  isActive: 'isActive'
 };
 
 exports.Prisma.RolePermissionScalarFieldEnum = {
   id: 'id',
   roleId: 'roleId',
   permissionId: 'permissionId'
+};
+
+exports.Prisma.PermissionScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  displayName: 'displayName',
+  category: 'category',
+  description: 'description'
 };
 
 exports.Prisma.SortOrder = {
@@ -238,17 +280,45 @@ exports.Title = exports.$Enums.Title = {
   Other: 'Other'
 };
 
+exports.OrganizationType = exports.$Enums.OrganizationType = {
+  HOSPITAL: 'HOSPITAL',
+  CLINIC: 'CLINIC',
+  DIAGNOSTICS: 'DIAGNOSTICS'
+};
+
+exports.Hospital_Org_status = exports.$Enums.Hospital_Org_status = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  SUSPENDED: 'SUSPENDED'
+};
+
+exports.SpecializationType = exports.$Enums.SpecializationType = {
+  GENERAL: 'GENERAL',
+  OPHTHALMOLOGY: 'OPHTHALMOLOGY',
+  DENTAL: 'DENTAL',
+  ENT: 'ENT',
+  ORTHOPEDIC: 'ORTHOPEDIC',
+  MULTISPECIALITY: 'MULTISPECIALITY',
+  OTHER: 'OTHER'
+};
+
+exports.HospitalLevel = exports.$Enums.HospitalLevel = {
+  SUPER: 'SUPER',
+  CHILD: 'CHILD',
+  SUB_CHILD: 'SUB_CHILD'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
-  Role: 'Role',
-  Setting: 'Setting',
+  Organization: 'Organization',
   Hospital: 'Hospital',
-  Hospitaltype: 'Hospitaltype',
   UserHospitalAccess: 'UserHospitalAccess',
+  Setting: 'Setting',
   AuditLog: 'AuditLog',
   LoginSession: 'LoginSession',
-  Permission: 'Permission',
-  RolePermission: 'RolePermission'
+  Role: 'Role',
+  RolePermission: 'RolePermission',
+  Permission: 'Permission'
 };
 
 /**

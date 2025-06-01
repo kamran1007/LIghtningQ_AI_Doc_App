@@ -19,30 +19,25 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  */
 export type User = $Result.DefaultSelection<Prisma.$UserPayload>
 /**
- * Model Role
+ * Model Organization
  * 
  */
-export type Role = $Result.DefaultSelection<Prisma.$RolePayload>
-/**
- * Model Setting
- * 
- */
-export type Setting = $Result.DefaultSelection<Prisma.$SettingPayload>
+export type Organization = $Result.DefaultSelection<Prisma.$OrganizationPayload>
 /**
  * Model Hospital
  * 
  */
 export type Hospital = $Result.DefaultSelection<Prisma.$HospitalPayload>
 /**
- * Model Hospitaltype
- * 
- */
-export type Hospitaltype = $Result.DefaultSelection<Prisma.$HospitaltypePayload>
-/**
  * Model UserHospitalAccess
  * 
  */
 export type UserHospitalAccess = $Result.DefaultSelection<Prisma.$UserHospitalAccessPayload>
+/**
+ * Model Setting
+ * 
+ */
+export type Setting = $Result.DefaultSelection<Prisma.$SettingPayload>
 /**
  * Model AuditLog
  * 
@@ -54,21 +49,35 @@ export type AuditLog = $Result.DefaultSelection<Prisma.$AuditLogPayload>
  */
 export type LoginSession = $Result.DefaultSelection<Prisma.$LoginSessionPayload>
 /**
- * Model Permission
+ * Model Role
  * 
  */
-export type Permission = $Result.DefaultSelection<Prisma.$PermissionPayload>
+export type Role = $Result.DefaultSelection<Prisma.$RolePayload>
 /**
  * Model RolePermission
  * 
  */
 export type RolePermission = $Result.DefaultSelection<Prisma.$RolePermissionPayload>
+/**
+ * Model Permission
+ * 
+ */
+export type Permission = $Result.DefaultSelection<Prisma.$PermissionPayload>
 
 /**
  * Enums
  */
 export namespace $Enums {
-  export const Title: {
+  export const HospitalLevel: {
+  SUPER: 'SUPER',
+  CHILD: 'CHILD',
+  SUB_CHILD: 'SUB_CHILD'
+};
+
+export type HospitalLevel = (typeof HospitalLevel)[keyof typeof HospitalLevel]
+
+
+export const Title: {
   Mr: 'Mr',
   Mrs: 'Mrs',
   Miss: 'Miss',
@@ -80,11 +89,58 @@ export namespace $Enums {
 
 export type Title = (typeof Title)[keyof typeof Title]
 
+
+export const Hospital_Org_status: {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  SUSPENDED: 'SUSPENDED'
+};
+
+export type Hospital_Org_status = (typeof Hospital_Org_status)[keyof typeof Hospital_Org_status]
+
+
+export const SpecializationType: {
+  GENERAL: 'GENERAL',
+  OPHTHALMOLOGY: 'OPHTHALMOLOGY',
+  DENTAL: 'DENTAL',
+  ENT: 'ENT',
+  ORTHOPEDIC: 'ORTHOPEDIC',
+  MULTISPECIALITY: 'MULTISPECIALITY',
+  OTHER: 'OTHER'
+};
+
+export type SpecializationType = (typeof SpecializationType)[keyof typeof SpecializationType]
+
+
+export const OrganizationType: {
+  HOSPITAL: 'HOSPITAL',
+  CLINIC: 'CLINIC',
+  DIAGNOSTICS: 'DIAGNOSTICS'
+};
+
+export type OrganizationType = (typeof OrganizationType)[keyof typeof OrganizationType]
+
 }
+
+export type HospitalLevel = $Enums.HospitalLevel
+
+export const HospitalLevel: typeof $Enums.HospitalLevel
 
 export type Title = $Enums.Title
 
 export const Title: typeof $Enums.Title
+
+export type Hospital_Org_status = $Enums.Hospital_Org_status
+
+export const Hospital_Org_status: typeof $Enums.Hospital_Org_status
+
+export type SpecializationType = $Enums.SpecializationType
+
+export const SpecializationType: typeof $Enums.SpecializationType
+
+export type OrganizationType = $Enums.OrganizationType
+
+export const OrganizationType: typeof $Enums.OrganizationType
 
 /**
  * ##  Prisma Client ʲˢ
@@ -222,24 +278,14 @@ export class PrismaClient<
   get user(): Prisma.UserDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.role`: Exposes CRUD operations for the **Role** model.
+   * `prisma.organization`: Exposes CRUD operations for the **Organization** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Roles
-    * const roles = await prisma.role.findMany()
+    * // Fetch zero or more Organizations
+    * const organizations = await prisma.organization.findMany()
     * ```
     */
-  get role(): Prisma.RoleDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.setting`: Exposes CRUD operations for the **Setting** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more Settings
-    * const settings = await prisma.setting.findMany()
-    * ```
-    */
-  get setting(): Prisma.SettingDelegate<ExtArgs, ClientOptions>;
+  get organization(): Prisma.OrganizationDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.hospital`: Exposes CRUD operations for the **Hospital** model.
@@ -252,16 +298,6 @@ export class PrismaClient<
   get hospital(): Prisma.HospitalDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.hospitaltype`: Exposes CRUD operations for the **Hospitaltype** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more Hospitaltypes
-    * const hospitaltypes = await prisma.hospitaltype.findMany()
-    * ```
-    */
-  get hospitaltype(): Prisma.HospitaltypeDelegate<ExtArgs, ClientOptions>;
-
-  /**
    * `prisma.userHospitalAccess`: Exposes CRUD operations for the **UserHospitalAccess** model.
     * Example usage:
     * ```ts
@@ -270,6 +306,16 @@ export class PrismaClient<
     * ```
     */
   get userHospitalAccess(): Prisma.UserHospitalAccessDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.setting`: Exposes CRUD operations for the **Setting** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Settings
+    * const settings = await prisma.setting.findMany()
+    * ```
+    */
+  get setting(): Prisma.SettingDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.auditLog`: Exposes CRUD operations for the **AuditLog** model.
@@ -292,14 +338,14 @@ export class PrismaClient<
   get loginSession(): Prisma.LoginSessionDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.permission`: Exposes CRUD operations for the **Permission** model.
+   * `prisma.role`: Exposes CRUD operations for the **Role** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Permissions
-    * const permissions = await prisma.permission.findMany()
+    * // Fetch zero or more Roles
+    * const roles = await prisma.role.findMany()
     * ```
     */
-  get permission(): Prisma.PermissionDelegate<ExtArgs, ClientOptions>;
+  get role(): Prisma.RoleDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.rolePermission`: Exposes CRUD operations for the **RolePermission** model.
@@ -310,6 +356,16 @@ export class PrismaClient<
     * ```
     */
   get rolePermission(): Prisma.RolePermissionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.permission`: Exposes CRUD operations for the **Permission** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Permissions
+    * const permissions = await prisma.permission.findMany()
+    * ```
+    */
+  get permission(): Prisma.PermissionDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -751,15 +807,15 @@ export namespace Prisma {
 
   export const ModelName: {
     User: 'User',
-    Role: 'Role',
-    Setting: 'Setting',
+    Organization: 'Organization',
     Hospital: 'Hospital',
-    Hospitaltype: 'Hospitaltype',
     UserHospitalAccess: 'UserHospitalAccess',
+    Setting: 'Setting',
     AuditLog: 'AuditLog',
     LoginSession: 'LoginSession',
-    Permission: 'Permission',
-    RolePermission: 'RolePermission'
+    Role: 'Role',
+    RolePermission: 'RolePermission',
+    Permission: 'Permission'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -778,7 +834,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "role" | "setting" | "hospital" | "hospitaltype" | "userHospitalAccess" | "auditLog" | "loginSession" | "permission" | "rolePermission"
+      modelProps: "user" | "organization" | "hospital" | "userHospitalAccess" | "setting" | "auditLog" | "loginSession" | "role" | "rolePermission" | "permission"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -856,151 +912,77 @@ export namespace Prisma {
           }
         }
       }
-      Role: {
-        payload: Prisma.$RolePayload<ExtArgs>
-        fields: Prisma.RoleFieldRefs
+      Organization: {
+        payload: Prisma.$OrganizationPayload<ExtArgs>
+        fields: Prisma.OrganizationFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.RoleFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$RolePayload> | null
+            args: Prisma.OrganizationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.RoleFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$RolePayload>
+            args: Prisma.OrganizationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPayload>
           }
           findFirst: {
-            args: Prisma.RoleFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$RolePayload> | null
+            args: Prisma.OrganizationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.RoleFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$RolePayload>
+            args: Prisma.OrganizationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPayload>
           }
           findMany: {
-            args: Prisma.RoleFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$RolePayload>[]
+            args: Prisma.OrganizationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPayload>[]
           }
           create: {
-            args: Prisma.RoleCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$RolePayload>
+            args: Prisma.OrganizationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPayload>
           }
           createMany: {
-            args: Prisma.RoleCreateManyArgs<ExtArgs>
+            args: Prisma.OrganizationCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.RoleCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$RolePayload>[]
+            args: Prisma.OrganizationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPayload>[]
           }
           delete: {
-            args: Prisma.RoleDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$RolePayload>
+            args: Prisma.OrganizationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPayload>
           }
           update: {
-            args: Prisma.RoleUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$RolePayload>
+            args: Prisma.OrganizationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPayload>
           }
           deleteMany: {
-            args: Prisma.RoleDeleteManyArgs<ExtArgs>
+            args: Prisma.OrganizationDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.RoleUpdateManyArgs<ExtArgs>
+            args: Prisma.OrganizationUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateManyAndReturn: {
-            args: Prisma.RoleUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$RolePayload>[]
+            args: Prisma.OrganizationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPayload>[]
           }
           upsert: {
-            args: Prisma.RoleUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$RolePayload>
+            args: Prisma.OrganizationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPayload>
           }
           aggregate: {
-            args: Prisma.RoleAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateRole>
+            args: Prisma.OrganizationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOrganization>
           }
           groupBy: {
-            args: Prisma.RoleGroupByArgs<ExtArgs>
-            result: $Utils.Optional<RoleGroupByOutputType>[]
+            args: Prisma.OrganizationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OrganizationGroupByOutputType>[]
           }
           count: {
-            args: Prisma.RoleCountArgs<ExtArgs>
-            result: $Utils.Optional<RoleCountAggregateOutputType> | number
-          }
-        }
-      }
-      Setting: {
-        payload: Prisma.$SettingPayload<ExtArgs>
-        fields: Prisma.SettingFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.SettingFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SettingPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.SettingFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SettingPayload>
-          }
-          findFirst: {
-            args: Prisma.SettingFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SettingPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.SettingFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SettingPayload>
-          }
-          findMany: {
-            args: Prisma.SettingFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SettingPayload>[]
-          }
-          create: {
-            args: Prisma.SettingCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SettingPayload>
-          }
-          createMany: {
-            args: Prisma.SettingCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.SettingCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SettingPayload>[]
-          }
-          delete: {
-            args: Prisma.SettingDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SettingPayload>
-          }
-          update: {
-            args: Prisma.SettingUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SettingPayload>
-          }
-          deleteMany: {
-            args: Prisma.SettingDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.SettingUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.SettingUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SettingPayload>[]
-          }
-          upsert: {
-            args: Prisma.SettingUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SettingPayload>
-          }
-          aggregate: {
-            args: Prisma.SettingAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateSetting>
-          }
-          groupBy: {
-            args: Prisma.SettingGroupByArgs<ExtArgs>
-            result: $Utils.Optional<SettingGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.SettingCountArgs<ExtArgs>
-            result: $Utils.Optional<SettingCountAggregateOutputType> | number
+            args: Prisma.OrganizationCountArgs<ExtArgs>
+            result: $Utils.Optional<OrganizationCountAggregateOutputType> | number
           }
         }
       }
@@ -1078,80 +1060,6 @@ export namespace Prisma {
           }
         }
       }
-      Hospitaltype: {
-        payload: Prisma.$HospitaltypePayload<ExtArgs>
-        fields: Prisma.HospitaltypeFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.HospitaltypeFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$HospitaltypePayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.HospitaltypeFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$HospitaltypePayload>
-          }
-          findFirst: {
-            args: Prisma.HospitaltypeFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$HospitaltypePayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.HospitaltypeFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$HospitaltypePayload>
-          }
-          findMany: {
-            args: Prisma.HospitaltypeFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$HospitaltypePayload>[]
-          }
-          create: {
-            args: Prisma.HospitaltypeCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$HospitaltypePayload>
-          }
-          createMany: {
-            args: Prisma.HospitaltypeCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.HospitaltypeCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$HospitaltypePayload>[]
-          }
-          delete: {
-            args: Prisma.HospitaltypeDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$HospitaltypePayload>
-          }
-          update: {
-            args: Prisma.HospitaltypeUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$HospitaltypePayload>
-          }
-          deleteMany: {
-            args: Prisma.HospitaltypeDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.HospitaltypeUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.HospitaltypeUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$HospitaltypePayload>[]
-          }
-          upsert: {
-            args: Prisma.HospitaltypeUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$HospitaltypePayload>
-          }
-          aggregate: {
-            args: Prisma.HospitaltypeAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateHospitaltype>
-          }
-          groupBy: {
-            args: Prisma.HospitaltypeGroupByArgs<ExtArgs>
-            result: $Utils.Optional<HospitaltypeGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.HospitaltypeCountArgs<ExtArgs>
-            result: $Utils.Optional<HospitaltypeCountAggregateOutputType> | number
-          }
-        }
-      }
       UserHospitalAccess: {
         payload: Prisma.$UserHospitalAccessPayload<ExtArgs>
         fields: Prisma.UserHospitalAccessFieldRefs
@@ -1223,6 +1131,80 @@ export namespace Prisma {
           count: {
             args: Prisma.UserHospitalAccessCountArgs<ExtArgs>
             result: $Utils.Optional<UserHospitalAccessCountAggregateOutputType> | number
+          }
+        }
+      }
+      Setting: {
+        payload: Prisma.$SettingPayload<ExtArgs>
+        fields: Prisma.SettingFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SettingFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SettingPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SettingFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SettingPayload>
+          }
+          findFirst: {
+            args: Prisma.SettingFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SettingPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SettingFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SettingPayload>
+          }
+          findMany: {
+            args: Prisma.SettingFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SettingPayload>[]
+          }
+          create: {
+            args: Prisma.SettingCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SettingPayload>
+          }
+          createMany: {
+            args: Prisma.SettingCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SettingCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SettingPayload>[]
+          }
+          delete: {
+            args: Prisma.SettingDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SettingPayload>
+          }
+          update: {
+            args: Prisma.SettingUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SettingPayload>
+          }
+          deleteMany: {
+            args: Prisma.SettingDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SettingUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SettingUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SettingPayload>[]
+          }
+          upsert: {
+            args: Prisma.SettingUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SettingPayload>
+          }
+          aggregate: {
+            args: Prisma.SettingAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSetting>
+          }
+          groupBy: {
+            args: Prisma.SettingGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SettingGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SettingCountArgs<ExtArgs>
+            result: $Utils.Optional<SettingCountAggregateOutputType> | number
           }
         }
       }
@@ -1374,77 +1356,77 @@ export namespace Prisma {
           }
         }
       }
-      Permission: {
-        payload: Prisma.$PermissionPayload<ExtArgs>
-        fields: Prisma.PermissionFieldRefs
+      Role: {
+        payload: Prisma.$RolePayload<ExtArgs>
+        fields: Prisma.RoleFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.PermissionFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PermissionPayload> | null
+            args: Prisma.RoleFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RolePayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.PermissionFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>
+            args: Prisma.RoleFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RolePayload>
           }
           findFirst: {
-            args: Prisma.PermissionFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PermissionPayload> | null
+            args: Prisma.RoleFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RolePayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.PermissionFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>
+            args: Prisma.RoleFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RolePayload>
           }
           findMany: {
-            args: Prisma.PermissionFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>[]
+            args: Prisma.RoleFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RolePayload>[]
           }
           create: {
-            args: Prisma.PermissionCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>
+            args: Prisma.RoleCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RolePayload>
           }
           createMany: {
-            args: Prisma.PermissionCreateManyArgs<ExtArgs>
+            args: Prisma.RoleCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.PermissionCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>[]
+            args: Prisma.RoleCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RolePayload>[]
           }
           delete: {
-            args: Prisma.PermissionDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>
+            args: Prisma.RoleDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RolePayload>
           }
           update: {
-            args: Prisma.PermissionUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>
+            args: Prisma.RoleUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RolePayload>
           }
           deleteMany: {
-            args: Prisma.PermissionDeleteManyArgs<ExtArgs>
+            args: Prisma.RoleDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.PermissionUpdateManyArgs<ExtArgs>
+            args: Prisma.RoleUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateManyAndReturn: {
-            args: Prisma.PermissionUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>[]
+            args: Prisma.RoleUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RolePayload>[]
           }
           upsert: {
-            args: Prisma.PermissionUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>
+            args: Prisma.RoleUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RolePayload>
           }
           aggregate: {
-            args: Prisma.PermissionAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregatePermission>
+            args: Prisma.RoleAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateRole>
           }
           groupBy: {
-            args: Prisma.PermissionGroupByArgs<ExtArgs>
-            result: $Utils.Optional<PermissionGroupByOutputType>[]
+            args: Prisma.RoleGroupByArgs<ExtArgs>
+            result: $Utils.Optional<RoleGroupByOutputType>[]
           }
           count: {
-            args: Prisma.PermissionCountArgs<ExtArgs>
-            result: $Utils.Optional<PermissionCountAggregateOutputType> | number
+            args: Prisma.RoleCountArgs<ExtArgs>
+            result: $Utils.Optional<RoleCountAggregateOutputType> | number
           }
         }
       }
@@ -1519,6 +1501,80 @@ export namespace Prisma {
           count: {
             args: Prisma.RolePermissionCountArgs<ExtArgs>
             result: $Utils.Optional<RolePermissionCountAggregateOutputType> | number
+          }
+        }
+      }
+      Permission: {
+        payload: Prisma.$PermissionPayload<ExtArgs>
+        fields: Prisma.PermissionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PermissionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PermissionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>
+          }
+          findFirst: {
+            args: Prisma.PermissionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PermissionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>
+          }
+          findMany: {
+            args: Prisma.PermissionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>[]
+          }
+          create: {
+            args: Prisma.PermissionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>
+          }
+          createMany: {
+            args: Prisma.PermissionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PermissionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>[]
+          }
+          delete: {
+            args: Prisma.PermissionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>
+          }
+          update: {
+            args: Prisma.PermissionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>
+          }
+          deleteMany: {
+            args: Prisma.PermissionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PermissionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PermissionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>[]
+          }
+          upsert: {
+            args: Prisma.PermissionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>
+          }
+          aggregate: {
+            args: Prisma.PermissionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePermission>
+          }
+          groupBy: {
+            args: Prisma.PermissionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PermissionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PermissionCountArgs<ExtArgs>
+            result: $Utils.Optional<PermissionCountAggregateOutputType> | number
           }
         }
       }
@@ -1607,15 +1663,15 @@ export namespace Prisma {
   }
   export type GlobalOmitConfig = {
     user?: UserOmit
-    role?: RoleOmit
-    setting?: SettingOmit
+    organization?: OrganizationOmit
     hospital?: HospitalOmit
-    hospitaltype?: HospitaltypeOmit
     userHospitalAccess?: UserHospitalAccessOmit
+    setting?: SettingOmit
     auditLog?: AuditLogOmit
     loginSession?: LoginSessionOmit
-    permission?: PermissionOmit
+    role?: RoleOmit
     rolePermission?: RolePermissionOmit
+    permission?: PermissionOmit
   }
 
   /* Types for Logging */
@@ -1755,41 +1811,41 @@ export namespace Prisma {
 
 
   /**
-   * Count Type RoleCountOutputType
+   * Count Type OrganizationCountOutputType
    */
 
-  export type RoleCountOutputType = {
-    permissions: number
+  export type OrganizationCountOutputType = {
+    hospitals: number
     users: number
   }
 
-  export type RoleCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    permissions?: boolean | RoleCountOutputTypeCountPermissionsArgs
-    users?: boolean | RoleCountOutputTypeCountUsersArgs
+  export type OrganizationCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    hospitals?: boolean | OrganizationCountOutputTypeCountHospitalsArgs
+    users?: boolean | OrganizationCountOutputTypeCountUsersArgs
   }
 
   // Custom InputTypes
   /**
-   * RoleCountOutputType without action
+   * OrganizationCountOutputType without action
    */
-  export type RoleCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizationCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the RoleCountOutputType
+     * Select specific fields to fetch from the OrganizationCountOutputType
      */
-    select?: RoleCountOutputTypeSelect<ExtArgs> | null
+    select?: OrganizationCountOutputTypeSelect<ExtArgs> | null
   }
 
   /**
-   * RoleCountOutputType without action
+   * OrganizationCountOutputType without action
    */
-  export type RoleCountOutputTypeCountPermissionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: RolePermissionWhereInput
+  export type OrganizationCountOutputTypeCountHospitalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HospitalWhereInput
   }
 
   /**
-   * RoleCountOutputType without action
+   * OrganizationCountOutputType without action
    */
-  export type RoleCountOutputTypeCountUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizationCountOutputTypeCountUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UserWhereInput
   }
 
@@ -1799,13 +1855,13 @@ export namespace Prisma {
    */
 
   export type HospitalCountOutputType = {
-    childHospitals: number
-    userAccess: number
+    childHospital: number
+    users: number
   }
 
   export type HospitalCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    childHospitals?: boolean | HospitalCountOutputTypeCountChildHospitalsArgs
-    userAccess?: boolean | HospitalCountOutputTypeCountUserAccessArgs
+    childHospital?: boolean | HospitalCountOutputTypeCountChildHospitalArgs
+    users?: boolean | HospitalCountOutputTypeCountUsersArgs
   }
 
   // Custom InputTypes
@@ -1822,46 +1878,64 @@ export namespace Prisma {
   /**
    * HospitalCountOutputType without action
    */
-  export type HospitalCountOutputTypeCountChildHospitalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type HospitalCountOutputTypeCountChildHospitalArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: HospitalWhereInput
   }
 
   /**
    * HospitalCountOutputType without action
    */
-  export type HospitalCountOutputTypeCountUserAccessArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type HospitalCountOutputTypeCountUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UserHospitalAccessWhereInput
   }
 
 
   /**
-   * Count Type HospitaltypeCountOutputType
+   * Count Type RoleCountOutputType
    */
 
-  export type HospitaltypeCountOutputType = {
-    hospitals: number
+  export type RoleCountOutputType = {
+    users: number
+    UserHospitalAccess: number
+    permissions: number
   }
 
-  export type HospitaltypeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    hospitals?: boolean | HospitaltypeCountOutputTypeCountHospitalsArgs
+  export type RoleCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    users?: boolean | RoleCountOutputTypeCountUsersArgs
+    UserHospitalAccess?: boolean | RoleCountOutputTypeCountUserHospitalAccessArgs
+    permissions?: boolean | RoleCountOutputTypeCountPermissionsArgs
   }
 
   // Custom InputTypes
   /**
-   * HospitaltypeCountOutputType without action
+   * RoleCountOutputType without action
    */
-  export type HospitaltypeCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RoleCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the HospitaltypeCountOutputType
+     * Select specific fields to fetch from the RoleCountOutputType
      */
-    select?: HospitaltypeCountOutputTypeSelect<ExtArgs> | null
+    select?: RoleCountOutputTypeSelect<ExtArgs> | null
   }
 
   /**
-   * HospitaltypeCountOutputType without action
+   * RoleCountOutputType without action
    */
-  export type HospitaltypeCountOutputTypeCountHospitalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: HospitalWhereInput
+  export type RoleCountOutputTypeCountUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserWhereInput
+  }
+
+  /**
+   * RoleCountOutputType without action
+   */
+  export type RoleCountOutputTypeCountUserHospitalAccessArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserHospitalAccessWhereInput
+  }
+
+  /**
+   * RoleCountOutputType without action
+   */
+  export type RoleCountOutputTypeCountPermissionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RolePermissionWhereInput
   }
 
 
@@ -1915,11 +1989,13 @@ export namespace Prisma {
   export type UserAvgAggregateOutputType = {
     id: number | null
     roleId: number | null
+    organizationId: number | null
   }
 
   export type UserSumAggregateOutputType = {
     id: number | null
     roleId: number | null
+    organizationId: number | null
   }
 
   export type UserMinAggregateOutputType = {
@@ -1936,6 +2012,8 @@ export namespace Prisma {
     hashedRefreshToken: string | null
     dateOfBirth: Date | null
     roleId: number | null
+    organizationId: number | null
+    deletedAt: Date | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -1952,6 +2030,8 @@ export namespace Prisma {
     hashedRefreshToken: string | null
     dateOfBirth: Date | null
     roleId: number | null
+    organizationId: number | null
+    deletedAt: Date | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -1968,6 +2048,8 @@ export namespace Prisma {
     hashedRefreshToken: number
     dateOfBirth: number
     roleId: number
+    organizationId: number
+    deletedAt: number
     _all: number
   }
 
@@ -1975,11 +2057,13 @@ export namespace Prisma {
   export type UserAvgAggregateInputType = {
     id?: true
     roleId?: true
+    organizationId?: true
   }
 
   export type UserSumAggregateInputType = {
     id?: true
     roleId?: true
+    organizationId?: true
   }
 
   export type UserMinAggregateInputType = {
@@ -1996,6 +2080,8 @@ export namespace Prisma {
     hashedRefreshToken?: true
     dateOfBirth?: true
     roleId?: true
+    organizationId?: true
+    deletedAt?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -2012,6 +2098,8 @@ export namespace Prisma {
     hashedRefreshToken?: true
     dateOfBirth?: true
     roleId?: true
+    organizationId?: true
+    deletedAt?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -2028,6 +2116,8 @@ export namespace Prisma {
     hashedRefreshToken?: true
     dateOfBirth?: true
     roleId?: true
+    organizationId?: true
+    deletedAt?: true
     _all?: true
   }
 
@@ -2119,18 +2209,20 @@ export namespace Prisma {
 
   export type UserGroupByOutputType = {
     id: number
-    title: $Enums.Title | null
-    imageUrl: string | null
+    title: $Enums.Title
+    imageUrl: string
     firstName: string
     lastName: string
-    gender: string | null
+    gender: string
     email: string
     mobile: string
     passwordHash: string
     isActive: boolean
-    hashedRefreshToken: string | null
-    dateOfBirth: Date | null
+    hashedRefreshToken: string
+    dateOfBirth: Date
     roleId: number
+    organizationId: number
+    deletedAt: Date | null
     _count: UserCountAggregateOutputType | null
     _avg: UserAvgAggregateOutputType | null
     _sum: UserSumAggregateOutputType | null
@@ -2166,7 +2258,10 @@ export namespace Prisma {
     hashedRefreshToken?: boolean
     dateOfBirth?: boolean
     roleId?: boolean
+    organizationId?: boolean
+    deletedAt?: boolean
     role?: boolean | RoleDefaultArgs<ExtArgs>
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     settings?: boolean | User$settingsArgs<ExtArgs>
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
     loginSessions?: boolean | User$loginSessionsArgs<ExtArgs>
@@ -2188,7 +2283,10 @@ export namespace Prisma {
     hashedRefreshToken?: boolean
     dateOfBirth?: boolean
     roleId?: boolean
+    organizationId?: boolean
+    deletedAt?: boolean
     role?: boolean | RoleDefaultArgs<ExtArgs>
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2205,7 +2303,10 @@ export namespace Prisma {
     hashedRefreshToken?: boolean
     dateOfBirth?: boolean
     roleId?: boolean
+    organizationId?: boolean
+    deletedAt?: boolean
     role?: boolean | RoleDefaultArgs<ExtArgs>
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
@@ -2222,11 +2323,14 @@ export namespace Prisma {
     hashedRefreshToken?: boolean
     dateOfBirth?: boolean
     roleId?: boolean
+    organizationId?: boolean
+    deletedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "imageUrl" | "firstName" | "lastName" | "gender" | "email" | "mobile" | "passwordHash" | "isActive" | "hashedRefreshToken" | "dateOfBirth" | "roleId", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "imageUrl" | "firstName" | "lastName" | "gender" | "email" | "mobile" | "passwordHash" | "isActive" | "hashedRefreshToken" | "dateOfBirth" | "roleId" | "organizationId" | "deletedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     role?: boolean | RoleDefaultArgs<ExtArgs>
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     settings?: boolean | User$settingsArgs<ExtArgs>
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
     loginSessions?: boolean | User$loginSessionsArgs<ExtArgs>
@@ -2235,15 +2339,18 @@ export namespace Prisma {
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     role?: boolean | RoleDefaultArgs<ExtArgs>
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
   }
   export type UserIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     role?: boolean | RoleDefaultArgs<ExtArgs>
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
   }
 
   export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "User"
     objects: {
       role: Prisma.$RolePayload<ExtArgs>
+      organization: Prisma.$OrganizationPayload<ExtArgs>
       settings: Prisma.$SettingPayload<ExtArgs> | null
       auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
       loginSessions: Prisma.$LoginSessionPayload<ExtArgs>[]
@@ -2251,18 +2358,20 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
-      title: $Enums.Title | null
-      imageUrl: string | null
+      title: $Enums.Title
+      imageUrl: string
       firstName: string
       lastName: string
-      gender: string | null
+      gender: string
       email: string
       mobile: string
       passwordHash: string
       isActive: boolean
-      hashedRefreshToken: string | null
-      dateOfBirth: Date | null
+      hashedRefreshToken: string
+      dateOfBirth: Date
       roleId: number
+      organizationId: number
+      deletedAt: Date | null
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -2658,6 +2767,7 @@ export namespace Prisma {
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     role<T extends RoleDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RoleDefaultArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    organization<T extends OrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizationDefaultArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     settings<T extends User$settingsArgs<ExtArgs> = {}>(args?: Subset<T, User$settingsArgs<ExtArgs>>): Prisma__SettingClient<$Result.GetResult<Prisma.$SettingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     auditLogs<T extends User$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     loginSessions<T extends User$loginSessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$loginSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LoginSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2704,6 +2814,8 @@ export namespace Prisma {
     readonly hashedRefreshToken: FieldRef<"User", 'String'>
     readonly dateOfBirth: FieldRef<"User", 'DateTime'>
     readonly roleId: FieldRef<"User", 'Int'>
+    readonly organizationId: FieldRef<"User", 'Int'>
+    readonly deletedAt: FieldRef<"User", 'DateTime'>
   }
     
 
@@ -3210,371 +3322,575 @@ export namespace Prisma {
 
 
   /**
-   * Model Role
+   * Model Organization
    */
 
-  export type AggregateRole = {
-    _count: RoleCountAggregateOutputType | null
-    _avg: RoleAvgAggregateOutputType | null
-    _sum: RoleSumAggregateOutputType | null
-    _min: RoleMinAggregateOutputType | null
-    _max: RoleMaxAggregateOutputType | null
+  export type AggregateOrganization = {
+    _count: OrganizationCountAggregateOutputType | null
+    _avg: OrganizationAvgAggregateOutputType | null
+    _sum: OrganizationSumAggregateOutputType | null
+    _min: OrganizationMinAggregateOutputType | null
+    _max: OrganizationMaxAggregateOutputType | null
   }
 
-  export type RoleAvgAggregateOutputType = {
+  export type OrganizationAvgAggregateOutputType = {
     id: number | null
   }
 
-  export type RoleSumAggregateOutputType = {
+  export type OrganizationSumAggregateOutputType = {
     id: number | null
   }
 
-  export type RoleMinAggregateOutputType = {
+  export type OrganizationMinAggregateOutputType = {
     id: number | null
-    Rolename: string | null
+    OrganizationName: string | null
+    Organizationcode: string | null
+    logoUrl: string | null
+    email: string | null
+    contactNumber: string | null
+    Orgnizationtype: $Enums.OrganizationType | null
+    website: string | null
+    addressLine1: string | null
+    addressLine2: string | null
+    city: string | null
+    state: string | null
+    country: string | null
+    postalCode: string | null
+    registrationNo: string | null
+    establishedOn: Date | null
+    industryType: string | null
+    status: $Enums.Hospital_Org_status | null
     description: string | null
-    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
-  export type RoleMaxAggregateOutputType = {
+  export type OrganizationMaxAggregateOutputType = {
     id: number | null
-    Rolename: string | null
+    OrganizationName: string | null
+    Organizationcode: string | null
+    logoUrl: string | null
+    email: string | null
+    contactNumber: string | null
+    Orgnizationtype: $Enums.OrganizationType | null
+    website: string | null
+    addressLine1: string | null
+    addressLine2: string | null
+    city: string | null
+    state: string | null
+    country: string | null
+    postalCode: string | null
+    registrationNo: string | null
+    establishedOn: Date | null
+    industryType: string | null
+    status: $Enums.Hospital_Org_status | null
     description: string | null
-    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
-  export type RoleCountAggregateOutputType = {
+  export type OrganizationCountAggregateOutputType = {
     id: number
-    Rolename: number
+    OrganizationName: number
+    Organizationcode: number
+    logoUrl: number
+    email: number
+    contactNumber: number
+    Orgnizationtype: number
+    website: number
+    addressLine1: number
+    addressLine2: number
+    city: number
+    state: number
+    country: number
+    postalCode: number
+    registrationNo: number
+    establishedOn: number
+    industryType: number
+    status: number
     description: number
-    isActive: number
+    createdAt: number
+    updatedAt: number
     _all: number
   }
 
 
-  export type RoleAvgAggregateInputType = {
+  export type OrganizationAvgAggregateInputType = {
     id?: true
   }
 
-  export type RoleSumAggregateInputType = {
+  export type OrganizationSumAggregateInputType = {
     id?: true
   }
 
-  export type RoleMinAggregateInputType = {
+  export type OrganizationMinAggregateInputType = {
     id?: true
-    Rolename?: true
+    OrganizationName?: true
+    Organizationcode?: true
+    logoUrl?: true
+    email?: true
+    contactNumber?: true
+    Orgnizationtype?: true
+    website?: true
+    addressLine1?: true
+    addressLine2?: true
+    city?: true
+    state?: true
+    country?: true
+    postalCode?: true
+    registrationNo?: true
+    establishedOn?: true
+    industryType?: true
+    status?: true
     description?: true
-    isActive?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
-  export type RoleMaxAggregateInputType = {
+  export type OrganizationMaxAggregateInputType = {
     id?: true
-    Rolename?: true
+    OrganizationName?: true
+    Organizationcode?: true
+    logoUrl?: true
+    email?: true
+    contactNumber?: true
+    Orgnizationtype?: true
+    website?: true
+    addressLine1?: true
+    addressLine2?: true
+    city?: true
+    state?: true
+    country?: true
+    postalCode?: true
+    registrationNo?: true
+    establishedOn?: true
+    industryType?: true
+    status?: true
     description?: true
-    isActive?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
-  export type RoleCountAggregateInputType = {
+  export type OrganizationCountAggregateInputType = {
     id?: true
-    Rolename?: true
+    OrganizationName?: true
+    Organizationcode?: true
+    logoUrl?: true
+    email?: true
+    contactNumber?: true
+    Orgnizationtype?: true
+    website?: true
+    addressLine1?: true
+    addressLine2?: true
+    city?: true
+    state?: true
+    country?: true
+    postalCode?: true
+    registrationNo?: true
+    establishedOn?: true
+    industryType?: true
+    status?: true
     description?: true
-    isActive?: true
+    createdAt?: true
+    updatedAt?: true
     _all?: true
   }
 
-  export type RoleAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Role to aggregate.
+     * Filter which Organization to aggregate.
      */
-    where?: RoleWhereInput
+    where?: OrganizationWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Roles to fetch.
+     * Determine the order of Organizations to fetch.
      */
-    orderBy?: RoleOrderByWithRelationInput | RoleOrderByWithRelationInput[]
+    orderBy?: OrganizationOrderByWithRelationInput | OrganizationOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: RoleWhereUniqueInput
+    cursor?: OrganizationWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Roles from the position of the cursor.
+     * Take `±n` Organizations from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Roles.
+     * Skip the first `n` Organizations.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned Roles
+     * Count returned Organizations
     **/
-    _count?: true | RoleCountAggregateInputType
+    _count?: true | OrganizationCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: RoleAvgAggregateInputType
+    _avg?: OrganizationAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: RoleSumAggregateInputType
+    _sum?: OrganizationSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: RoleMinAggregateInputType
+    _min?: OrganizationMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: RoleMaxAggregateInputType
+    _max?: OrganizationMaxAggregateInputType
   }
 
-  export type GetRoleAggregateType<T extends RoleAggregateArgs> = {
-        [P in keyof T & keyof AggregateRole]: P extends '_count' | 'count'
+  export type GetOrganizationAggregateType<T extends OrganizationAggregateArgs> = {
+        [P in keyof T & keyof AggregateOrganization]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateRole[P]>
-      : GetScalarType<T[P], AggregateRole[P]>
+        : GetScalarType<T[P], AggregateOrganization[P]>
+      : GetScalarType<T[P], AggregateOrganization[P]>
   }
 
 
 
 
-  export type RoleGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: RoleWhereInput
-    orderBy?: RoleOrderByWithAggregationInput | RoleOrderByWithAggregationInput[]
-    by: RoleScalarFieldEnum[] | RoleScalarFieldEnum
-    having?: RoleScalarWhereWithAggregatesInput
+  export type OrganizationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OrganizationWhereInput
+    orderBy?: OrganizationOrderByWithAggregationInput | OrganizationOrderByWithAggregationInput[]
+    by: OrganizationScalarFieldEnum[] | OrganizationScalarFieldEnum
+    having?: OrganizationScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: RoleCountAggregateInputType | true
-    _avg?: RoleAvgAggregateInputType
-    _sum?: RoleSumAggregateInputType
-    _min?: RoleMinAggregateInputType
-    _max?: RoleMaxAggregateInputType
+    _count?: OrganizationCountAggregateInputType | true
+    _avg?: OrganizationAvgAggregateInputType
+    _sum?: OrganizationSumAggregateInputType
+    _min?: OrganizationMinAggregateInputType
+    _max?: OrganizationMaxAggregateInputType
   }
 
-  export type RoleGroupByOutputType = {
+  export type OrganizationGroupByOutputType = {
     id: number
-    Rolename: string | null
-    description: string
-    isActive: boolean
-    _count: RoleCountAggregateOutputType | null
-    _avg: RoleAvgAggregateOutputType | null
-    _sum: RoleSumAggregateOutputType | null
-    _min: RoleMinAggregateOutputType | null
-    _max: RoleMaxAggregateOutputType | null
+    OrganizationName: string
+    Organizationcode: string
+    logoUrl: string
+    email: string
+    contactNumber: string
+    Orgnizationtype: $Enums.OrganizationType | null
+    website: string
+    addressLine1: string
+    addressLine2: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    registrationNo: string
+    establishedOn: Date
+    industryType: string
+    status: $Enums.Hospital_Org_status
+    description: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: OrganizationCountAggregateOutputType | null
+    _avg: OrganizationAvgAggregateOutputType | null
+    _sum: OrganizationSumAggregateOutputType | null
+    _min: OrganizationMinAggregateOutputType | null
+    _max: OrganizationMaxAggregateOutputType | null
   }
 
-  type GetRoleGroupByPayload<T extends RoleGroupByArgs> = Prisma.PrismaPromise<
+  type GetOrganizationGroupByPayload<T extends OrganizationGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<RoleGroupByOutputType, T['by']> &
+      PickEnumerable<OrganizationGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof RoleGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof OrganizationGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], RoleGroupByOutputType[P]>
-            : GetScalarType<T[P], RoleGroupByOutputType[P]>
+              : GetScalarType<T[P], OrganizationGroupByOutputType[P]>
+            : GetScalarType<T[P], OrganizationGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type RoleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type OrganizationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    Rolename?: boolean
+    OrganizationName?: boolean
+    Organizationcode?: boolean
+    logoUrl?: boolean
+    email?: boolean
+    contactNumber?: boolean
+    Orgnizationtype?: boolean
+    website?: boolean
+    addressLine1?: boolean
+    addressLine2?: boolean
+    city?: boolean
+    state?: boolean
+    country?: boolean
+    postalCode?: boolean
+    registrationNo?: boolean
+    establishedOn?: boolean
+    industryType?: boolean
+    status?: boolean
     description?: boolean
-    isActive?: boolean
-    permissions?: boolean | Role$permissionsArgs<ExtArgs>
-    users?: boolean | Role$usersArgs<ExtArgs>
-    _count?: boolean | RoleCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["role"]>
+    createdAt?: boolean
+    updatedAt?: boolean
+    hospitals?: boolean | Organization$hospitalsArgs<ExtArgs>
+    users?: boolean | Organization$usersArgs<ExtArgs>
+    _count?: boolean | OrganizationCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["organization"]>
 
-  export type RoleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type OrganizationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    Rolename?: boolean
+    OrganizationName?: boolean
+    Organizationcode?: boolean
+    logoUrl?: boolean
+    email?: boolean
+    contactNumber?: boolean
+    Orgnizationtype?: boolean
+    website?: boolean
+    addressLine1?: boolean
+    addressLine2?: boolean
+    city?: boolean
+    state?: boolean
+    country?: boolean
+    postalCode?: boolean
+    registrationNo?: boolean
+    establishedOn?: boolean
+    industryType?: boolean
+    status?: boolean
     description?: boolean
-    isActive?: boolean
-  }, ExtArgs["result"]["role"]>
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["organization"]>
 
-  export type RoleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type OrganizationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    Rolename?: boolean
+    OrganizationName?: boolean
+    Organizationcode?: boolean
+    logoUrl?: boolean
+    email?: boolean
+    contactNumber?: boolean
+    Orgnizationtype?: boolean
+    website?: boolean
+    addressLine1?: boolean
+    addressLine2?: boolean
+    city?: boolean
+    state?: boolean
+    country?: boolean
+    postalCode?: boolean
+    registrationNo?: boolean
+    establishedOn?: boolean
+    industryType?: boolean
+    status?: boolean
     description?: boolean
-    isActive?: boolean
-  }, ExtArgs["result"]["role"]>
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["organization"]>
 
-  export type RoleSelectScalar = {
+  export type OrganizationSelectScalar = {
     id?: boolean
-    Rolename?: boolean
+    OrganizationName?: boolean
+    Organizationcode?: boolean
+    logoUrl?: boolean
+    email?: boolean
+    contactNumber?: boolean
+    Orgnizationtype?: boolean
+    website?: boolean
+    addressLine1?: boolean
+    addressLine2?: boolean
+    city?: boolean
+    state?: boolean
+    country?: boolean
+    postalCode?: boolean
+    registrationNo?: boolean
+    establishedOn?: boolean
+    industryType?: boolean
+    status?: boolean
     description?: boolean
-    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }
 
-  export type RoleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "Rolename" | "description" | "isActive", ExtArgs["result"]["role"]>
-  export type RoleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    permissions?: boolean | Role$permissionsArgs<ExtArgs>
-    users?: boolean | Role$usersArgs<ExtArgs>
-    _count?: boolean | RoleCountOutputTypeDefaultArgs<ExtArgs>
+  export type OrganizationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "OrganizationName" | "Organizationcode" | "logoUrl" | "email" | "contactNumber" | "Orgnizationtype" | "website" | "addressLine1" | "addressLine2" | "city" | "state" | "country" | "postalCode" | "registrationNo" | "establishedOn" | "industryType" | "status" | "description" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
+  export type OrganizationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    hospitals?: boolean | Organization$hospitalsArgs<ExtArgs>
+    users?: boolean | Organization$usersArgs<ExtArgs>
+    _count?: boolean | OrganizationCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type RoleIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
-  export type RoleIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type OrganizationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type OrganizationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
-  export type $RolePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Role"
+  export type $OrganizationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Organization"
     objects: {
-      permissions: Prisma.$RolePermissionPayload<ExtArgs>[]
+      hospitals: Prisma.$HospitalPayload<ExtArgs>[]
       users: Prisma.$UserPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
-      Rolename: string | null
-      description: string
-      isActive: boolean
-    }, ExtArgs["result"]["role"]>
+      OrganizationName: string
+      Organizationcode: string
+      logoUrl: string
+      email: string
+      contactNumber: string
+      Orgnizationtype: $Enums.OrganizationType | null
+      website: string
+      addressLine1: string
+      addressLine2: string
+      city: string
+      state: string
+      country: string
+      postalCode: string
+      registrationNo: string
+      establishedOn: Date
+      industryType: string
+      status: $Enums.Hospital_Org_status
+      description: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["organization"]>
     composites: {}
   }
 
-  type RoleGetPayload<S extends boolean | null | undefined | RoleDefaultArgs> = $Result.GetResult<Prisma.$RolePayload, S>
+  type OrganizationGetPayload<S extends boolean | null | undefined | OrganizationDefaultArgs> = $Result.GetResult<Prisma.$OrganizationPayload, S>
 
-  type RoleCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<RoleFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: RoleCountAggregateInputType | true
+  type OrganizationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OrganizationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OrganizationCountAggregateInputType | true
     }
 
-  export interface RoleDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Role'], meta: { name: 'Role' } }
+  export interface OrganizationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Organization'], meta: { name: 'Organization' } }
     /**
-     * Find zero or one Role that matches the filter.
-     * @param {RoleFindUniqueArgs} args - Arguments to find a Role
+     * Find zero or one Organization that matches the filter.
+     * @param {OrganizationFindUniqueArgs} args - Arguments to find a Organization
      * @example
-     * // Get one Role
-     * const role = await prisma.role.findUnique({
+     * // Get one Organization
+     * const organization = await prisma.organization.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends RoleFindUniqueArgs>(args: SelectSubset<T, RoleFindUniqueArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends OrganizationFindUniqueArgs>(args: SelectSubset<T, OrganizationFindUniqueArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one Role that matches the filter or throw an error with `error.code='P2025'`
+     * Find one Organization that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
-     * @param {RoleFindUniqueOrThrowArgs} args - Arguments to find a Role
+     * @param {OrganizationFindUniqueOrThrowArgs} args - Arguments to find a Organization
      * @example
-     * // Get one Role
-     * const role = await prisma.role.findUniqueOrThrow({
+     * // Get one Organization
+     * const organization = await prisma.organization.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends RoleFindUniqueOrThrowArgs>(args: SelectSubset<T, RoleFindUniqueOrThrowArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends OrganizationFindUniqueOrThrowArgs>(args: SelectSubset<T, OrganizationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first Role that matches the filter.
+     * Find the first Organization that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {RoleFindFirstArgs} args - Arguments to find a Role
+     * @param {OrganizationFindFirstArgs} args - Arguments to find a Organization
      * @example
-     * // Get one Role
-     * const role = await prisma.role.findFirst({
+     * // Get one Organization
+     * const organization = await prisma.organization.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends RoleFindFirstArgs>(args?: SelectSubset<T, RoleFindFirstArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends OrganizationFindFirstArgs>(args?: SelectSubset<T, OrganizationFindFirstArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first Role that matches the filter or
+     * Find the first Organization that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {RoleFindFirstOrThrowArgs} args - Arguments to find a Role
+     * @param {OrganizationFindFirstOrThrowArgs} args - Arguments to find a Organization
      * @example
-     * // Get one Role
-     * const role = await prisma.role.findFirstOrThrow({
+     * // Get one Organization
+     * const organization = await prisma.organization.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends RoleFindFirstOrThrowArgs>(args?: SelectSubset<T, RoleFindFirstOrThrowArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends OrganizationFindFirstOrThrowArgs>(args?: SelectSubset<T, OrganizationFindFirstOrThrowArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find zero or more Roles that matches the filter.
+     * Find zero or more Organizations that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {RoleFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {OrganizationFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all Roles
-     * const roles = await prisma.role.findMany()
+     * // Get all Organizations
+     * const organizations = await prisma.organization.findMany()
      * 
-     * // Get first 10 Roles
-     * const roles = await prisma.role.findMany({ take: 10 })
+     * // Get first 10 Organizations
+     * const organizations = await prisma.organization.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const roleWithIdOnly = await prisma.role.findMany({ select: { id: true } })
+     * const organizationWithIdOnly = await prisma.organization.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends RoleFindManyArgs>(args?: SelectSubset<T, RoleFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends OrganizationFindManyArgs>(args?: SelectSubset<T, OrganizationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
-     * Create a Role.
-     * @param {RoleCreateArgs} args - Arguments to create a Role.
+     * Create a Organization.
+     * @param {OrganizationCreateArgs} args - Arguments to create a Organization.
      * @example
-     * // Create one Role
-     * const Role = await prisma.role.create({
+     * // Create one Organization
+     * const Organization = await prisma.organization.create({
      *   data: {
-     *     // ... data to create a Role
+     *     // ... data to create a Organization
      *   }
      * })
      * 
      */
-    create<T extends RoleCreateArgs>(args: SelectSubset<T, RoleCreateArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends OrganizationCreateArgs>(args: SelectSubset<T, OrganizationCreateArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Create many Roles.
-     * @param {RoleCreateManyArgs} args - Arguments to create many Roles.
+     * Create many Organizations.
+     * @param {OrganizationCreateManyArgs} args - Arguments to create many Organizations.
      * @example
-     * // Create many Roles
-     * const role = await prisma.role.createMany({
+     * // Create many Organizations
+     * const organization = await prisma.organization.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends RoleCreateManyArgs>(args?: SelectSubset<T, RoleCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends OrganizationCreateManyArgs>(args?: SelectSubset<T, OrganizationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many Roles and returns the data saved in the database.
-     * @param {RoleCreateManyAndReturnArgs} args - Arguments to create many Roles.
+     * Create many Organizations and returns the data saved in the database.
+     * @param {OrganizationCreateManyAndReturnArgs} args - Arguments to create many Organizations.
      * @example
-     * // Create many Roles
-     * const role = await prisma.role.createManyAndReturn({
+     * // Create many Organizations
+     * const organization = await prisma.organization.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many Roles and only return the `id`
-     * const roleWithIdOnly = await prisma.role.createManyAndReturn({
+     * // Create many Organizations and only return the `id`
+     * const organizationWithIdOnly = await prisma.organization.createManyAndReturn({
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -3584,28 +3900,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends RoleCreateManyAndReturnArgs>(args?: SelectSubset<T, RoleCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+    createManyAndReturn<T extends OrganizationCreateManyAndReturnArgs>(args?: SelectSubset<T, OrganizationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Delete a Role.
-     * @param {RoleDeleteArgs} args - Arguments to delete one Role.
+     * Delete a Organization.
+     * @param {OrganizationDeleteArgs} args - Arguments to delete one Organization.
      * @example
-     * // Delete one Role
-     * const Role = await prisma.role.delete({
+     * // Delete one Organization
+     * const Organization = await prisma.organization.delete({
      *   where: {
-     *     // ... filter to delete one Role
+     *     // ... filter to delete one Organization
      *   }
      * })
      * 
      */
-    delete<T extends RoleDeleteArgs>(args: SelectSubset<T, RoleDeleteArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends OrganizationDeleteArgs>(args: SelectSubset<T, OrganizationDeleteArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Update one Role.
-     * @param {RoleUpdateArgs} args - Arguments to update one Role.
+     * Update one Organization.
+     * @param {OrganizationUpdateArgs} args - Arguments to update one Organization.
      * @example
-     * // Update one Role
-     * const role = await prisma.role.update({
+     * // Update one Organization
+     * const organization = await prisma.organization.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -3615,30 +3931,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends RoleUpdateArgs>(args: SelectSubset<T, RoleUpdateArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends OrganizationUpdateArgs>(args: SelectSubset<T, OrganizationUpdateArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Delete zero or more Roles.
-     * @param {RoleDeleteManyArgs} args - Arguments to filter Roles to delete.
+     * Delete zero or more Organizations.
+     * @param {OrganizationDeleteManyArgs} args - Arguments to filter Organizations to delete.
      * @example
-     * // Delete a few Roles
-     * const { count } = await prisma.role.deleteMany({
+     * // Delete a few Organizations
+     * const { count } = await prisma.organization.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends RoleDeleteManyArgs>(args?: SelectSubset<T, RoleDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends OrganizationDeleteManyArgs>(args?: SelectSubset<T, OrganizationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Roles.
+     * Update zero or more Organizations.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {RoleUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {OrganizationUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many Roles
-     * const role = await prisma.role.updateMany({
+     * // Update many Organizations
+     * const organization = await prisma.organization.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -3648,14 +3964,14 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends RoleUpdateManyArgs>(args: SelectSubset<T, RoleUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends OrganizationUpdateManyArgs>(args: SelectSubset<T, OrganizationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Roles and returns the data updated in the database.
-     * @param {RoleUpdateManyAndReturnArgs} args - Arguments to update many Roles.
+     * Update zero or more Organizations and returns the data updated in the database.
+     * @param {OrganizationUpdateManyAndReturnArgs} args - Arguments to update many Organizations.
      * @example
-     * // Update many Roles
-     * const role = await prisma.role.updateManyAndReturn({
+     * // Update many Organizations
+     * const organization = await prisma.organization.updateManyAndReturn({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -3664,8 +3980,8 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Update zero or more Roles and only return the `id`
-     * const roleWithIdOnly = await prisma.role.updateManyAndReturn({
+     * // Update zero or more Organizations and only return the `id`
+     * const organizationWithIdOnly = await prisma.organization.updateManyAndReturn({
      *   select: { id: true },
      *   where: {
      *     // ... provide filter here
@@ -3678,56 +3994,56 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    updateManyAndReturn<T extends RoleUpdateManyAndReturnArgs>(args: SelectSubset<T, RoleUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+    updateManyAndReturn<T extends OrganizationUpdateManyAndReturnArgs>(args: SelectSubset<T, OrganizationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Create or update one Role.
-     * @param {RoleUpsertArgs} args - Arguments to update or create a Role.
+     * Create or update one Organization.
+     * @param {OrganizationUpsertArgs} args - Arguments to update or create a Organization.
      * @example
-     * // Update or create a Role
-     * const role = await prisma.role.upsert({
+     * // Update or create a Organization
+     * const organization = await prisma.organization.upsert({
      *   create: {
-     *     // ... data to create a Role
+     *     // ... data to create a Organization
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the Role we want to update
+     *     // ... the filter for the Organization we want to update
      *   }
      * })
      */
-    upsert<T extends RoleUpsertArgs>(args: SelectSubset<T, RoleUpsertArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends OrganizationUpsertArgs>(args: SelectSubset<T, OrganizationUpsertArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
-     * Count the number of Roles.
+     * Count the number of Organizations.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {RoleCountArgs} args - Arguments to filter Roles to count.
+     * @param {OrganizationCountArgs} args - Arguments to filter Organizations to count.
      * @example
-     * // Count the number of Roles
-     * const count = await prisma.role.count({
+     * // Count the number of Organizations
+     * const count = await prisma.organization.count({
      *   where: {
-     *     // ... the filter for the Roles we want to count
+     *     // ... the filter for the Organizations we want to count
      *   }
      * })
     **/
-    count<T extends RoleCountArgs>(
-      args?: Subset<T, RoleCountArgs>,
+    count<T extends OrganizationCountArgs>(
+      args?: Subset<T, OrganizationCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], RoleCountAggregateOutputType>
+          : GetScalarType<T['select'], OrganizationCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a Role.
+     * Allows you to perform aggregations operations on a Organization.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {RoleAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {OrganizationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -3747,13 +4063,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends RoleAggregateArgs>(args: Subset<T, RoleAggregateArgs>): Prisma.PrismaPromise<GetRoleAggregateType<T>>
+    aggregate<T extends OrganizationAggregateArgs>(args: Subset<T, OrganizationAggregateArgs>): Prisma.PrismaPromise<GetOrganizationAggregateType<T>>
 
     /**
-     * Group by Role.
+     * Group by Organization.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {RoleGroupByArgs} args - Group by arguments.
+     * @param {OrganizationGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -3768,14 +4084,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends RoleGroupByArgs,
+      T extends OrganizationGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: RoleGroupByArgs['orderBy'] }
-        : { orderBy?: RoleGroupByArgs['orderBy'] },
+        ? { orderBy: OrganizationGroupByArgs['orderBy'] }
+        : { orderBy?: OrganizationGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -3824,23 +4140,23 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, RoleGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetRoleGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, OrganizationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOrganizationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the Role model
+   * Fields of the Organization model
    */
-  readonly fields: RoleFieldRefs;
+  readonly fields: OrganizationFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for Role.
+   * The delegate class that acts as a "Promise-like" for Organization.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__RoleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__OrganizationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    permissions<T extends Role$permissionsArgs<ExtArgs> = {}>(args?: Subset<T, Role$permissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RolePermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    users<T extends Role$usersArgs<ExtArgs> = {}>(args?: Subset<T, Role$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    hospitals<T extends Organization$hospitalsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$hospitalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    users<T extends Organization$usersArgs<ExtArgs> = {}>(args?: Subset<T, Organization$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3867,428 +4183,445 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the Role model
+   * Fields of the Organization model
    */
-  interface RoleFieldRefs {
-    readonly id: FieldRef<"Role", 'Int'>
-    readonly Rolename: FieldRef<"Role", 'String'>
-    readonly description: FieldRef<"Role", 'String'>
-    readonly isActive: FieldRef<"Role", 'Boolean'>
+  interface OrganizationFieldRefs {
+    readonly id: FieldRef<"Organization", 'Int'>
+    readonly OrganizationName: FieldRef<"Organization", 'String'>
+    readonly Organizationcode: FieldRef<"Organization", 'String'>
+    readonly logoUrl: FieldRef<"Organization", 'String'>
+    readonly email: FieldRef<"Organization", 'String'>
+    readonly contactNumber: FieldRef<"Organization", 'String'>
+    readonly Orgnizationtype: FieldRef<"Organization", 'OrganizationType'>
+    readonly website: FieldRef<"Organization", 'String'>
+    readonly addressLine1: FieldRef<"Organization", 'String'>
+    readonly addressLine2: FieldRef<"Organization", 'String'>
+    readonly city: FieldRef<"Organization", 'String'>
+    readonly state: FieldRef<"Organization", 'String'>
+    readonly country: FieldRef<"Organization", 'String'>
+    readonly postalCode: FieldRef<"Organization", 'String'>
+    readonly registrationNo: FieldRef<"Organization", 'String'>
+    readonly establishedOn: FieldRef<"Organization", 'DateTime'>
+    readonly industryType: FieldRef<"Organization", 'String'>
+    readonly status: FieldRef<"Organization", 'Hospital_Org_status'>
+    readonly description: FieldRef<"Organization", 'String'>
+    readonly createdAt: FieldRef<"Organization", 'DateTime'>
+    readonly updatedAt: FieldRef<"Organization", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * Role findUnique
+   * Organization findUnique
    */
-  export type RoleFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Role
+     * Select specific fields to fetch from the Organization
      */
-    select?: RoleSelect<ExtArgs> | null
+    select?: OrganizationSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Role
+     * Omit specific fields from the Organization
      */
-    omit?: RoleOmit<ExtArgs> | null
+    omit?: OrganizationOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: RoleInclude<ExtArgs> | null
+    include?: OrganizationInclude<ExtArgs> | null
     /**
-     * Filter, which Role to fetch.
+     * Filter, which Organization to fetch.
      */
-    where: RoleWhereUniqueInput
+    where: OrganizationWhereUniqueInput
   }
 
   /**
-   * Role findUniqueOrThrow
+   * Organization findUniqueOrThrow
    */
-  export type RoleFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Role
+     * Select specific fields to fetch from the Organization
      */
-    select?: RoleSelect<ExtArgs> | null
+    select?: OrganizationSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Role
+     * Omit specific fields from the Organization
      */
-    omit?: RoleOmit<ExtArgs> | null
+    omit?: OrganizationOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: RoleInclude<ExtArgs> | null
+    include?: OrganizationInclude<ExtArgs> | null
     /**
-     * Filter, which Role to fetch.
+     * Filter, which Organization to fetch.
      */
-    where: RoleWhereUniqueInput
+    where: OrganizationWhereUniqueInput
   }
 
   /**
-   * Role findFirst
+   * Organization findFirst
    */
-  export type RoleFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Role
+     * Select specific fields to fetch from the Organization
      */
-    select?: RoleSelect<ExtArgs> | null
+    select?: OrganizationSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Role
+     * Omit specific fields from the Organization
      */
-    omit?: RoleOmit<ExtArgs> | null
+    omit?: OrganizationOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: RoleInclude<ExtArgs> | null
+    include?: OrganizationInclude<ExtArgs> | null
     /**
-     * Filter, which Role to fetch.
+     * Filter, which Organization to fetch.
      */
-    where?: RoleWhereInput
+    where?: OrganizationWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Roles to fetch.
+     * Determine the order of Organizations to fetch.
      */
-    orderBy?: RoleOrderByWithRelationInput | RoleOrderByWithRelationInput[]
+    orderBy?: OrganizationOrderByWithRelationInput | OrganizationOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Roles.
+     * Sets the position for searching for Organizations.
      */
-    cursor?: RoleWhereUniqueInput
+    cursor?: OrganizationWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Roles from the position of the cursor.
+     * Take `±n` Organizations from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Roles.
+     * Skip the first `n` Organizations.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Roles.
+     * Filter by unique combinations of Organizations.
      */
-    distinct?: RoleScalarFieldEnum | RoleScalarFieldEnum[]
+    distinct?: OrganizationScalarFieldEnum | OrganizationScalarFieldEnum[]
   }
 
   /**
-   * Role findFirstOrThrow
+   * Organization findFirstOrThrow
    */
-  export type RoleFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Role
+     * Select specific fields to fetch from the Organization
      */
-    select?: RoleSelect<ExtArgs> | null
+    select?: OrganizationSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Role
+     * Omit specific fields from the Organization
      */
-    omit?: RoleOmit<ExtArgs> | null
+    omit?: OrganizationOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: RoleInclude<ExtArgs> | null
+    include?: OrganizationInclude<ExtArgs> | null
     /**
-     * Filter, which Role to fetch.
+     * Filter, which Organization to fetch.
      */
-    where?: RoleWhereInput
+    where?: OrganizationWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Roles to fetch.
+     * Determine the order of Organizations to fetch.
      */
-    orderBy?: RoleOrderByWithRelationInput | RoleOrderByWithRelationInput[]
+    orderBy?: OrganizationOrderByWithRelationInput | OrganizationOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Roles.
+     * Sets the position for searching for Organizations.
      */
-    cursor?: RoleWhereUniqueInput
+    cursor?: OrganizationWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Roles from the position of the cursor.
+     * Take `±n` Organizations from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Roles.
+     * Skip the first `n` Organizations.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Roles.
+     * Filter by unique combinations of Organizations.
      */
-    distinct?: RoleScalarFieldEnum | RoleScalarFieldEnum[]
+    distinct?: OrganizationScalarFieldEnum | OrganizationScalarFieldEnum[]
   }
 
   /**
-   * Role findMany
+   * Organization findMany
    */
-  export type RoleFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Role
+     * Select specific fields to fetch from the Organization
      */
-    select?: RoleSelect<ExtArgs> | null
+    select?: OrganizationSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Role
+     * Omit specific fields from the Organization
      */
-    omit?: RoleOmit<ExtArgs> | null
+    omit?: OrganizationOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: RoleInclude<ExtArgs> | null
+    include?: OrganizationInclude<ExtArgs> | null
     /**
-     * Filter, which Roles to fetch.
+     * Filter, which Organizations to fetch.
      */
-    where?: RoleWhereInput
+    where?: OrganizationWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Roles to fetch.
+     * Determine the order of Organizations to fetch.
      */
-    orderBy?: RoleOrderByWithRelationInput | RoleOrderByWithRelationInput[]
+    orderBy?: OrganizationOrderByWithRelationInput | OrganizationOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing Roles.
+     * Sets the position for listing Organizations.
      */
-    cursor?: RoleWhereUniqueInput
+    cursor?: OrganizationWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Roles from the position of the cursor.
+     * Take `±n` Organizations from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Roles.
+     * Skip the first `n` Organizations.
      */
     skip?: number
-    distinct?: RoleScalarFieldEnum | RoleScalarFieldEnum[]
+    distinct?: OrganizationScalarFieldEnum | OrganizationScalarFieldEnum[]
   }
 
   /**
-   * Role create
+   * Organization create
    */
-  export type RoleCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Role
+     * Select specific fields to fetch from the Organization
      */
-    select?: RoleSelect<ExtArgs> | null
+    select?: OrganizationSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Role
+     * Omit specific fields from the Organization
      */
-    omit?: RoleOmit<ExtArgs> | null
+    omit?: OrganizationOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: RoleInclude<ExtArgs> | null
+    include?: OrganizationInclude<ExtArgs> | null
     /**
-     * The data needed to create a Role.
+     * The data needed to create a Organization.
      */
-    data: XOR<RoleCreateInput, RoleUncheckedCreateInput>
+    data: XOR<OrganizationCreateInput, OrganizationUncheckedCreateInput>
   }
 
   /**
-   * Role createMany
+   * Organization createMany
    */
-  export type RoleCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many Roles.
+     * The data used to create many Organizations.
      */
-    data: RoleCreateManyInput | RoleCreateManyInput[]
+    data: OrganizationCreateManyInput | OrganizationCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * Role createManyAndReturn
+   * Organization createManyAndReturn
    */
-  export type RoleCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Role
+     * Select specific fields to fetch from the Organization
      */
-    select?: RoleSelectCreateManyAndReturn<ExtArgs> | null
+    select?: OrganizationSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the Role
+     * Omit specific fields from the Organization
      */
-    omit?: RoleOmit<ExtArgs> | null
+    omit?: OrganizationOmit<ExtArgs> | null
     /**
-     * The data used to create many Roles.
+     * The data used to create many Organizations.
      */
-    data: RoleCreateManyInput | RoleCreateManyInput[]
+    data: OrganizationCreateManyInput | OrganizationCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * Role update
+   * Organization update
    */
-  export type RoleUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Role
+     * Select specific fields to fetch from the Organization
      */
-    select?: RoleSelect<ExtArgs> | null
+    select?: OrganizationSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Role
+     * Omit specific fields from the Organization
      */
-    omit?: RoleOmit<ExtArgs> | null
+    omit?: OrganizationOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: RoleInclude<ExtArgs> | null
+    include?: OrganizationInclude<ExtArgs> | null
     /**
-     * The data needed to update a Role.
+     * The data needed to update a Organization.
      */
-    data: XOR<RoleUpdateInput, RoleUncheckedUpdateInput>
+    data: XOR<OrganizationUpdateInput, OrganizationUncheckedUpdateInput>
     /**
-     * Choose, which Role to update.
+     * Choose, which Organization to update.
      */
-    where: RoleWhereUniqueInput
+    where: OrganizationWhereUniqueInput
   }
 
   /**
-   * Role updateMany
+   * Organization updateMany
    */
-  export type RoleUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update Roles.
+     * The data used to update Organizations.
      */
-    data: XOR<RoleUpdateManyMutationInput, RoleUncheckedUpdateManyInput>
+    data: XOR<OrganizationUpdateManyMutationInput, OrganizationUncheckedUpdateManyInput>
     /**
-     * Filter which Roles to update
+     * Filter which Organizations to update
      */
-    where?: RoleWhereInput
+    where?: OrganizationWhereInput
     /**
-     * Limit how many Roles to update.
+     * Limit how many Organizations to update.
      */
     limit?: number
   }
 
   /**
-   * Role updateManyAndReturn
+   * Organization updateManyAndReturn
    */
-  export type RoleUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Role
+     * Select specific fields to fetch from the Organization
      */
-    select?: RoleSelectUpdateManyAndReturn<ExtArgs> | null
+    select?: OrganizationSelectUpdateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the Role
+     * Omit specific fields from the Organization
      */
-    omit?: RoleOmit<ExtArgs> | null
+    omit?: OrganizationOmit<ExtArgs> | null
     /**
-     * The data used to update Roles.
+     * The data used to update Organizations.
      */
-    data: XOR<RoleUpdateManyMutationInput, RoleUncheckedUpdateManyInput>
+    data: XOR<OrganizationUpdateManyMutationInput, OrganizationUncheckedUpdateManyInput>
     /**
-     * Filter which Roles to update
+     * Filter which Organizations to update
      */
-    where?: RoleWhereInput
+    where?: OrganizationWhereInput
     /**
-     * Limit how many Roles to update.
+     * Limit how many Organizations to update.
      */
     limit?: number
   }
 
   /**
-   * Role upsert
+   * Organization upsert
    */
-  export type RoleUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Role
+     * Select specific fields to fetch from the Organization
      */
-    select?: RoleSelect<ExtArgs> | null
+    select?: OrganizationSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Role
+     * Omit specific fields from the Organization
      */
-    omit?: RoleOmit<ExtArgs> | null
+    omit?: OrganizationOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: RoleInclude<ExtArgs> | null
+    include?: OrganizationInclude<ExtArgs> | null
     /**
-     * The filter to search for the Role to update in case it exists.
+     * The filter to search for the Organization to update in case it exists.
      */
-    where: RoleWhereUniqueInput
+    where: OrganizationWhereUniqueInput
     /**
-     * In case the Role found by the `where` argument doesn't exist, create a new Role with this data.
+     * In case the Organization found by the `where` argument doesn't exist, create a new Organization with this data.
      */
-    create: XOR<RoleCreateInput, RoleUncheckedCreateInput>
+    create: XOR<OrganizationCreateInput, OrganizationUncheckedCreateInput>
     /**
-     * In case the Role was found with the provided `where` argument, update it with this data.
+     * In case the Organization was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<RoleUpdateInput, RoleUncheckedUpdateInput>
+    update: XOR<OrganizationUpdateInput, OrganizationUncheckedUpdateInput>
   }
 
   /**
-   * Role delete
+   * Organization delete
    */
-  export type RoleDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Role
+     * Select specific fields to fetch from the Organization
      */
-    select?: RoleSelect<ExtArgs> | null
+    select?: OrganizationSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Role
+     * Omit specific fields from the Organization
      */
-    omit?: RoleOmit<ExtArgs> | null
+    omit?: OrganizationOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: RoleInclude<ExtArgs> | null
+    include?: OrganizationInclude<ExtArgs> | null
     /**
-     * Filter which Role to delete.
+     * Filter which Organization to delete.
      */
-    where: RoleWhereUniqueInput
+    where: OrganizationWhereUniqueInput
   }
 
   /**
-   * Role deleteMany
+   * Organization deleteMany
    */
-  export type RoleDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Roles to delete
+     * Filter which Organizations to delete
      */
-    where?: RoleWhereInput
+    where?: OrganizationWhereInput
     /**
-     * Limit how many Roles to delete.
+     * Limit how many Organizations to delete.
      */
     limit?: number
   }
 
   /**
-   * Role.permissions
+   * Organization.hospitals
    */
-  export type Role$permissionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Organization$hospitalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the RolePermission
+     * Select specific fields to fetch from the Hospital
      */
-    select?: RolePermissionSelect<ExtArgs> | null
+    select?: HospitalSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the RolePermission
+     * Omit specific fields from the Hospital
      */
-    omit?: RolePermissionOmit<ExtArgs> | null
+    omit?: HospitalOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: RolePermissionInclude<ExtArgs> | null
-    where?: RolePermissionWhereInput
-    orderBy?: RolePermissionOrderByWithRelationInput | RolePermissionOrderByWithRelationInput[]
-    cursor?: RolePermissionWhereUniqueInput
+    include?: HospitalInclude<ExtArgs> | null
+    where?: HospitalWhereInput
+    orderBy?: HospitalOrderByWithRelationInput | HospitalOrderByWithRelationInput[]
+    cursor?: HospitalWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: RolePermissionScalarFieldEnum | RolePermissionScalarFieldEnum[]
+    distinct?: HospitalScalarFieldEnum | HospitalScalarFieldEnum[]
   }
 
   /**
-   * Role.users
+   * Organization.users
    */
-  export type Role$usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Organization$usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the User
      */
@@ -4310,21 +4643,2607 @@ export namespace Prisma {
   }
 
   /**
-   * Role without action
+   * Organization without action
    */
-  export type RoleDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Role
+     * Select specific fields to fetch from the Organization
      */
-    select?: RoleSelect<ExtArgs> | null
+    select?: OrganizationSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Role
+     * Omit specific fields from the Organization
      */
-    omit?: RoleOmit<ExtArgs> | null
+    omit?: OrganizationOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: RoleInclude<ExtArgs> | null
+    include?: OrganizationInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Hospital
+   */
+
+  export type AggregateHospital = {
+    _count: HospitalCountAggregateOutputType | null
+    _avg: HospitalAvgAggregateOutputType | null
+    _sum: HospitalSumAggregateOutputType | null
+    _min: HospitalMinAggregateOutputType | null
+    _max: HospitalMaxAggregateOutputType | null
+  }
+
+  export type HospitalAvgAggregateOutputType = {
+    id: number | null
+    latitude: number | null
+    longitude: number | null
+    parentHospitalId: number | null
+    organizationId: number | null
+  }
+
+  export type HospitalSumAggregateOutputType = {
+    id: number | null
+    latitude: number | null
+    longitude: number | null
+    parentHospitalId: number | null
+    organizationId: number | null
+  }
+
+  export type HospitalMinAggregateOutputType = {
+    id: number | null
+    name: string | null
+    hospitalCode: string | null
+    ParentHospitalCode: string | null
+    Organizationcode: string | null
+    SpecializationType: $Enums.SpecializationType | null
+    address: string | null
+    city: string | null
+    state: string | null
+    country: string | null
+    postalCode: string | null
+    contactNumber: string | null
+    email: string | null
+    website: string | null
+    logoUrl: string | null
+    latitude: number | null
+    longitude: number | null
+    status: $Enums.Hospital_Org_status | null
+    level: $Enums.HospitalLevel | null
+    parentHospitalId: number | null
+    organizationId: number | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    deletedAt: Date | null
+  }
+
+  export type HospitalMaxAggregateOutputType = {
+    id: number | null
+    name: string | null
+    hospitalCode: string | null
+    ParentHospitalCode: string | null
+    Organizationcode: string | null
+    SpecializationType: $Enums.SpecializationType | null
+    address: string | null
+    city: string | null
+    state: string | null
+    country: string | null
+    postalCode: string | null
+    contactNumber: string | null
+    email: string | null
+    website: string | null
+    logoUrl: string | null
+    latitude: number | null
+    longitude: number | null
+    status: $Enums.Hospital_Org_status | null
+    level: $Enums.HospitalLevel | null
+    parentHospitalId: number | null
+    organizationId: number | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    deletedAt: Date | null
+  }
+
+  export type HospitalCountAggregateOutputType = {
+    id: number
+    name: number
+    hospitalCode: number
+    ParentHospitalCode: number
+    Organizationcode: number
+    SpecializationType: number
+    address: number
+    city: number
+    state: number
+    country: number
+    postalCode: number
+    contactNumber: number
+    email: number
+    website: number
+    logoUrl: number
+    latitude: number
+    longitude: number
+    status: number
+    level: number
+    parentHospitalId: number
+    organizationId: number
+    isActive: number
+    createdAt: number
+    updatedAt: number
+    deletedAt: number
+    _all: number
+  }
+
+
+  export type HospitalAvgAggregateInputType = {
+    id?: true
+    latitude?: true
+    longitude?: true
+    parentHospitalId?: true
+    organizationId?: true
+  }
+
+  export type HospitalSumAggregateInputType = {
+    id?: true
+    latitude?: true
+    longitude?: true
+    parentHospitalId?: true
+    organizationId?: true
+  }
+
+  export type HospitalMinAggregateInputType = {
+    id?: true
+    name?: true
+    hospitalCode?: true
+    ParentHospitalCode?: true
+    Organizationcode?: true
+    SpecializationType?: true
+    address?: true
+    city?: true
+    state?: true
+    country?: true
+    postalCode?: true
+    contactNumber?: true
+    email?: true
+    website?: true
+    logoUrl?: true
+    latitude?: true
+    longitude?: true
+    status?: true
+    level?: true
+    parentHospitalId?: true
+    organizationId?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+    deletedAt?: true
+  }
+
+  export type HospitalMaxAggregateInputType = {
+    id?: true
+    name?: true
+    hospitalCode?: true
+    ParentHospitalCode?: true
+    Organizationcode?: true
+    SpecializationType?: true
+    address?: true
+    city?: true
+    state?: true
+    country?: true
+    postalCode?: true
+    contactNumber?: true
+    email?: true
+    website?: true
+    logoUrl?: true
+    latitude?: true
+    longitude?: true
+    status?: true
+    level?: true
+    parentHospitalId?: true
+    organizationId?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+    deletedAt?: true
+  }
+
+  export type HospitalCountAggregateInputType = {
+    id?: true
+    name?: true
+    hospitalCode?: true
+    ParentHospitalCode?: true
+    Organizationcode?: true
+    SpecializationType?: true
+    address?: true
+    city?: true
+    state?: true
+    country?: true
+    postalCode?: true
+    contactNumber?: true
+    email?: true
+    website?: true
+    logoUrl?: true
+    latitude?: true
+    longitude?: true
+    status?: true
+    level?: true
+    parentHospitalId?: true
+    organizationId?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+    deletedAt?: true
+    _all?: true
+  }
+
+  export type HospitalAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Hospital to aggregate.
+     */
+    where?: HospitalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Hospitals to fetch.
+     */
+    orderBy?: HospitalOrderByWithRelationInput | HospitalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: HospitalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Hospitals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Hospitals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Hospitals
+    **/
+    _count?: true | HospitalCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: HospitalAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: HospitalSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: HospitalMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: HospitalMaxAggregateInputType
+  }
+
+  export type GetHospitalAggregateType<T extends HospitalAggregateArgs> = {
+        [P in keyof T & keyof AggregateHospital]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateHospital[P]>
+      : GetScalarType<T[P], AggregateHospital[P]>
+  }
+
+
+
+
+  export type HospitalGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HospitalWhereInput
+    orderBy?: HospitalOrderByWithAggregationInput | HospitalOrderByWithAggregationInput[]
+    by: HospitalScalarFieldEnum[] | HospitalScalarFieldEnum
+    having?: HospitalScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: HospitalCountAggregateInputType | true
+    _avg?: HospitalAvgAggregateInputType
+    _sum?: HospitalSumAggregateInputType
+    _min?: HospitalMinAggregateInputType
+    _max?: HospitalMaxAggregateInputType
+  }
+
+  export type HospitalGroupByOutputType = {
+    id: number
+    name: string
+    hospitalCode: string
+    ParentHospitalCode: string | null
+    Organizationcode: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website: string
+    logoUrl: string
+    latitude: number
+    longitude: number
+    status: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    parentHospitalId: number | null
+    organizationId: number
+    isActive: boolean
+    createdAt: Date
+    updatedAt: Date
+    deletedAt: Date | null
+    _count: HospitalCountAggregateOutputType | null
+    _avg: HospitalAvgAggregateOutputType | null
+    _sum: HospitalSumAggregateOutputType | null
+    _min: HospitalMinAggregateOutputType | null
+    _max: HospitalMaxAggregateOutputType | null
+  }
+
+  type GetHospitalGroupByPayload<T extends HospitalGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<HospitalGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof HospitalGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], HospitalGroupByOutputType[P]>
+            : GetScalarType<T[P], HospitalGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type HospitalSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    hospitalCode?: boolean
+    ParentHospitalCode?: boolean
+    Organizationcode?: boolean
+    SpecializationType?: boolean
+    address?: boolean
+    city?: boolean
+    state?: boolean
+    country?: boolean
+    postalCode?: boolean
+    contactNumber?: boolean
+    email?: boolean
+    website?: boolean
+    logoUrl?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    status?: boolean
+    level?: boolean
+    parentHospitalId?: boolean
+    organizationId?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    deletedAt?: boolean
+    parentHospital?: boolean | Hospital$parentHospitalArgs<ExtArgs>
+    childHospital?: boolean | Hospital$childHospitalArgs<ExtArgs>
+    Organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+    users?: boolean | Hospital$usersArgs<ExtArgs>
+    _count?: boolean | HospitalCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["hospital"]>
+
+  export type HospitalSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    hospitalCode?: boolean
+    ParentHospitalCode?: boolean
+    Organizationcode?: boolean
+    SpecializationType?: boolean
+    address?: boolean
+    city?: boolean
+    state?: boolean
+    country?: boolean
+    postalCode?: boolean
+    contactNumber?: boolean
+    email?: boolean
+    website?: boolean
+    logoUrl?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    status?: boolean
+    level?: boolean
+    parentHospitalId?: boolean
+    organizationId?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    deletedAt?: boolean
+    parentHospital?: boolean | Hospital$parentHospitalArgs<ExtArgs>
+    Organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["hospital"]>
+
+  export type HospitalSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    hospitalCode?: boolean
+    ParentHospitalCode?: boolean
+    Organizationcode?: boolean
+    SpecializationType?: boolean
+    address?: boolean
+    city?: boolean
+    state?: boolean
+    country?: boolean
+    postalCode?: boolean
+    contactNumber?: boolean
+    email?: boolean
+    website?: boolean
+    logoUrl?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    status?: boolean
+    level?: boolean
+    parentHospitalId?: boolean
+    organizationId?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    deletedAt?: boolean
+    parentHospital?: boolean | Hospital$parentHospitalArgs<ExtArgs>
+    Organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["hospital"]>
+
+  export type HospitalSelectScalar = {
+    id?: boolean
+    name?: boolean
+    hospitalCode?: boolean
+    ParentHospitalCode?: boolean
+    Organizationcode?: boolean
+    SpecializationType?: boolean
+    address?: boolean
+    city?: boolean
+    state?: boolean
+    country?: boolean
+    postalCode?: boolean
+    contactNumber?: boolean
+    email?: boolean
+    website?: boolean
+    logoUrl?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    status?: boolean
+    level?: boolean
+    parentHospitalId?: boolean
+    organizationId?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    deletedAt?: boolean
+  }
+
+  export type HospitalOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "hospitalCode" | "ParentHospitalCode" | "Organizationcode" | "SpecializationType" | "address" | "city" | "state" | "country" | "postalCode" | "contactNumber" | "email" | "website" | "logoUrl" | "latitude" | "longitude" | "status" | "level" | "parentHospitalId" | "organizationId" | "isActive" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["hospital"]>
+  export type HospitalInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    parentHospital?: boolean | Hospital$parentHospitalArgs<ExtArgs>
+    childHospital?: boolean | Hospital$childHospitalArgs<ExtArgs>
+    Organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+    users?: boolean | Hospital$usersArgs<ExtArgs>
+    _count?: boolean | HospitalCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type HospitalIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    parentHospital?: boolean | Hospital$parentHospitalArgs<ExtArgs>
+    Organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }
+  export type HospitalIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    parentHospital?: boolean | Hospital$parentHospitalArgs<ExtArgs>
+    Organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }
+
+  export type $HospitalPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Hospital"
+    objects: {
+      parentHospital: Prisma.$HospitalPayload<ExtArgs> | null
+      childHospital: Prisma.$HospitalPayload<ExtArgs>[]
+      Organization: Prisma.$OrganizationPayload<ExtArgs>
+      users: Prisma.$UserHospitalAccessPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      name: string
+      hospitalCode: string
+      ParentHospitalCode: string | null
+      Organizationcode: string | null
+      SpecializationType: $Enums.SpecializationType
+      address: string
+      city: string
+      state: string
+      country: string
+      postalCode: string
+      contactNumber: string
+      email: string
+      website: string
+      logoUrl: string
+      latitude: number
+      longitude: number
+      status: $Enums.Hospital_Org_status
+      level: $Enums.HospitalLevel
+      parentHospitalId: number | null
+      organizationId: number
+      isActive: boolean
+      createdAt: Date
+      updatedAt: Date
+      deletedAt: Date | null
+    }, ExtArgs["result"]["hospital"]>
+    composites: {}
+  }
+
+  type HospitalGetPayload<S extends boolean | null | undefined | HospitalDefaultArgs> = $Result.GetResult<Prisma.$HospitalPayload, S>
+
+  type HospitalCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<HospitalFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: HospitalCountAggregateInputType | true
+    }
+
+  export interface HospitalDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Hospital'], meta: { name: 'Hospital' } }
+    /**
+     * Find zero or one Hospital that matches the filter.
+     * @param {HospitalFindUniqueArgs} args - Arguments to find a Hospital
+     * @example
+     * // Get one Hospital
+     * const hospital = await prisma.hospital.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends HospitalFindUniqueArgs>(args: SelectSubset<T, HospitalFindUniqueArgs<ExtArgs>>): Prisma__HospitalClient<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Hospital that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {HospitalFindUniqueOrThrowArgs} args - Arguments to find a Hospital
+     * @example
+     * // Get one Hospital
+     * const hospital = await prisma.hospital.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends HospitalFindUniqueOrThrowArgs>(args: SelectSubset<T, HospitalFindUniqueOrThrowArgs<ExtArgs>>): Prisma__HospitalClient<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Hospital that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HospitalFindFirstArgs} args - Arguments to find a Hospital
+     * @example
+     * // Get one Hospital
+     * const hospital = await prisma.hospital.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends HospitalFindFirstArgs>(args?: SelectSubset<T, HospitalFindFirstArgs<ExtArgs>>): Prisma__HospitalClient<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Hospital that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HospitalFindFirstOrThrowArgs} args - Arguments to find a Hospital
+     * @example
+     * // Get one Hospital
+     * const hospital = await prisma.hospital.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends HospitalFindFirstOrThrowArgs>(args?: SelectSubset<T, HospitalFindFirstOrThrowArgs<ExtArgs>>): Prisma__HospitalClient<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Hospitals that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HospitalFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Hospitals
+     * const hospitals = await prisma.hospital.findMany()
+     * 
+     * // Get first 10 Hospitals
+     * const hospitals = await prisma.hospital.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const hospitalWithIdOnly = await prisma.hospital.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends HospitalFindManyArgs>(args?: SelectSubset<T, HospitalFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Hospital.
+     * @param {HospitalCreateArgs} args - Arguments to create a Hospital.
+     * @example
+     * // Create one Hospital
+     * const Hospital = await prisma.hospital.create({
+     *   data: {
+     *     // ... data to create a Hospital
+     *   }
+     * })
+     * 
+     */
+    create<T extends HospitalCreateArgs>(args: SelectSubset<T, HospitalCreateArgs<ExtArgs>>): Prisma__HospitalClient<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Hospitals.
+     * @param {HospitalCreateManyArgs} args - Arguments to create many Hospitals.
+     * @example
+     * // Create many Hospitals
+     * const hospital = await prisma.hospital.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends HospitalCreateManyArgs>(args?: SelectSubset<T, HospitalCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Hospitals and returns the data saved in the database.
+     * @param {HospitalCreateManyAndReturnArgs} args - Arguments to create many Hospitals.
+     * @example
+     * // Create many Hospitals
+     * const hospital = await prisma.hospital.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Hospitals and only return the `id`
+     * const hospitalWithIdOnly = await prisma.hospital.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends HospitalCreateManyAndReturnArgs>(args?: SelectSubset<T, HospitalCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Hospital.
+     * @param {HospitalDeleteArgs} args - Arguments to delete one Hospital.
+     * @example
+     * // Delete one Hospital
+     * const Hospital = await prisma.hospital.delete({
+     *   where: {
+     *     // ... filter to delete one Hospital
+     *   }
+     * })
+     * 
+     */
+    delete<T extends HospitalDeleteArgs>(args: SelectSubset<T, HospitalDeleteArgs<ExtArgs>>): Prisma__HospitalClient<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Hospital.
+     * @param {HospitalUpdateArgs} args - Arguments to update one Hospital.
+     * @example
+     * // Update one Hospital
+     * const hospital = await prisma.hospital.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends HospitalUpdateArgs>(args: SelectSubset<T, HospitalUpdateArgs<ExtArgs>>): Prisma__HospitalClient<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Hospitals.
+     * @param {HospitalDeleteManyArgs} args - Arguments to filter Hospitals to delete.
+     * @example
+     * // Delete a few Hospitals
+     * const { count } = await prisma.hospital.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends HospitalDeleteManyArgs>(args?: SelectSubset<T, HospitalDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Hospitals.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HospitalUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Hospitals
+     * const hospital = await prisma.hospital.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends HospitalUpdateManyArgs>(args: SelectSubset<T, HospitalUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Hospitals and returns the data updated in the database.
+     * @param {HospitalUpdateManyAndReturnArgs} args - Arguments to update many Hospitals.
+     * @example
+     * // Update many Hospitals
+     * const hospital = await prisma.hospital.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Hospitals and only return the `id`
+     * const hospitalWithIdOnly = await prisma.hospital.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends HospitalUpdateManyAndReturnArgs>(args: SelectSubset<T, HospitalUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Hospital.
+     * @param {HospitalUpsertArgs} args - Arguments to update or create a Hospital.
+     * @example
+     * // Update or create a Hospital
+     * const hospital = await prisma.hospital.upsert({
+     *   create: {
+     *     // ... data to create a Hospital
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Hospital we want to update
+     *   }
+     * })
+     */
+    upsert<T extends HospitalUpsertArgs>(args: SelectSubset<T, HospitalUpsertArgs<ExtArgs>>): Prisma__HospitalClient<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Hospitals.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HospitalCountArgs} args - Arguments to filter Hospitals to count.
+     * @example
+     * // Count the number of Hospitals
+     * const count = await prisma.hospital.count({
+     *   where: {
+     *     // ... the filter for the Hospitals we want to count
+     *   }
+     * })
+    **/
+    count<T extends HospitalCountArgs>(
+      args?: Subset<T, HospitalCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], HospitalCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Hospital.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HospitalAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends HospitalAggregateArgs>(args: Subset<T, HospitalAggregateArgs>): Prisma.PrismaPromise<GetHospitalAggregateType<T>>
+
+    /**
+     * Group by Hospital.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HospitalGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends HospitalGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: HospitalGroupByArgs['orderBy'] }
+        : { orderBy?: HospitalGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, HospitalGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetHospitalGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Hospital model
+   */
+  readonly fields: HospitalFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Hospital.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__HospitalClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    parentHospital<T extends Hospital$parentHospitalArgs<ExtArgs> = {}>(args?: Subset<T, Hospital$parentHospitalArgs<ExtArgs>>): Prisma__HospitalClient<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    childHospital<T extends Hospital$childHospitalArgs<ExtArgs> = {}>(args?: Subset<T, Hospital$childHospitalArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    Organization<T extends OrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizationDefaultArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    users<T extends Hospital$usersArgs<ExtArgs> = {}>(args?: Subset<T, Hospital$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Hospital model
+   */
+  interface HospitalFieldRefs {
+    readonly id: FieldRef<"Hospital", 'Int'>
+    readonly name: FieldRef<"Hospital", 'String'>
+    readonly hospitalCode: FieldRef<"Hospital", 'String'>
+    readonly ParentHospitalCode: FieldRef<"Hospital", 'String'>
+    readonly Organizationcode: FieldRef<"Hospital", 'String'>
+    readonly SpecializationType: FieldRef<"Hospital", 'SpecializationType'>
+    readonly address: FieldRef<"Hospital", 'String'>
+    readonly city: FieldRef<"Hospital", 'String'>
+    readonly state: FieldRef<"Hospital", 'String'>
+    readonly country: FieldRef<"Hospital", 'String'>
+    readonly postalCode: FieldRef<"Hospital", 'String'>
+    readonly contactNumber: FieldRef<"Hospital", 'String'>
+    readonly email: FieldRef<"Hospital", 'String'>
+    readonly website: FieldRef<"Hospital", 'String'>
+    readonly logoUrl: FieldRef<"Hospital", 'String'>
+    readonly latitude: FieldRef<"Hospital", 'Float'>
+    readonly longitude: FieldRef<"Hospital", 'Float'>
+    readonly status: FieldRef<"Hospital", 'Hospital_Org_status'>
+    readonly level: FieldRef<"Hospital", 'HospitalLevel'>
+    readonly parentHospitalId: FieldRef<"Hospital", 'Int'>
+    readonly organizationId: FieldRef<"Hospital", 'Int'>
+    readonly isActive: FieldRef<"Hospital", 'Boolean'>
+    readonly createdAt: FieldRef<"Hospital", 'DateTime'>
+    readonly updatedAt: FieldRef<"Hospital", 'DateTime'>
+    readonly deletedAt: FieldRef<"Hospital", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Hospital findUnique
+   */
+  export type HospitalFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Hospital
+     */
+    select?: HospitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Hospital
+     */
+    omit?: HospitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HospitalInclude<ExtArgs> | null
+    /**
+     * Filter, which Hospital to fetch.
+     */
+    where: HospitalWhereUniqueInput
+  }
+
+  /**
+   * Hospital findUniqueOrThrow
+   */
+  export type HospitalFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Hospital
+     */
+    select?: HospitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Hospital
+     */
+    omit?: HospitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HospitalInclude<ExtArgs> | null
+    /**
+     * Filter, which Hospital to fetch.
+     */
+    where: HospitalWhereUniqueInput
+  }
+
+  /**
+   * Hospital findFirst
+   */
+  export type HospitalFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Hospital
+     */
+    select?: HospitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Hospital
+     */
+    omit?: HospitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HospitalInclude<ExtArgs> | null
+    /**
+     * Filter, which Hospital to fetch.
+     */
+    where?: HospitalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Hospitals to fetch.
+     */
+    orderBy?: HospitalOrderByWithRelationInput | HospitalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Hospitals.
+     */
+    cursor?: HospitalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Hospitals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Hospitals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Hospitals.
+     */
+    distinct?: HospitalScalarFieldEnum | HospitalScalarFieldEnum[]
+  }
+
+  /**
+   * Hospital findFirstOrThrow
+   */
+  export type HospitalFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Hospital
+     */
+    select?: HospitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Hospital
+     */
+    omit?: HospitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HospitalInclude<ExtArgs> | null
+    /**
+     * Filter, which Hospital to fetch.
+     */
+    where?: HospitalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Hospitals to fetch.
+     */
+    orderBy?: HospitalOrderByWithRelationInput | HospitalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Hospitals.
+     */
+    cursor?: HospitalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Hospitals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Hospitals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Hospitals.
+     */
+    distinct?: HospitalScalarFieldEnum | HospitalScalarFieldEnum[]
+  }
+
+  /**
+   * Hospital findMany
+   */
+  export type HospitalFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Hospital
+     */
+    select?: HospitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Hospital
+     */
+    omit?: HospitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HospitalInclude<ExtArgs> | null
+    /**
+     * Filter, which Hospitals to fetch.
+     */
+    where?: HospitalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Hospitals to fetch.
+     */
+    orderBy?: HospitalOrderByWithRelationInput | HospitalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Hospitals.
+     */
+    cursor?: HospitalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Hospitals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Hospitals.
+     */
+    skip?: number
+    distinct?: HospitalScalarFieldEnum | HospitalScalarFieldEnum[]
+  }
+
+  /**
+   * Hospital create
+   */
+  export type HospitalCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Hospital
+     */
+    select?: HospitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Hospital
+     */
+    omit?: HospitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HospitalInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Hospital.
+     */
+    data: XOR<HospitalCreateInput, HospitalUncheckedCreateInput>
+  }
+
+  /**
+   * Hospital createMany
+   */
+  export type HospitalCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Hospitals.
+     */
+    data: HospitalCreateManyInput | HospitalCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Hospital createManyAndReturn
+   */
+  export type HospitalCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Hospital
+     */
+    select?: HospitalSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Hospital
+     */
+    omit?: HospitalOmit<ExtArgs> | null
+    /**
+     * The data used to create many Hospitals.
+     */
+    data: HospitalCreateManyInput | HospitalCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HospitalIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Hospital update
+   */
+  export type HospitalUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Hospital
+     */
+    select?: HospitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Hospital
+     */
+    omit?: HospitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HospitalInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Hospital.
+     */
+    data: XOR<HospitalUpdateInput, HospitalUncheckedUpdateInput>
+    /**
+     * Choose, which Hospital to update.
+     */
+    where: HospitalWhereUniqueInput
+  }
+
+  /**
+   * Hospital updateMany
+   */
+  export type HospitalUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Hospitals.
+     */
+    data: XOR<HospitalUpdateManyMutationInput, HospitalUncheckedUpdateManyInput>
+    /**
+     * Filter which Hospitals to update
+     */
+    where?: HospitalWhereInput
+    /**
+     * Limit how many Hospitals to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Hospital updateManyAndReturn
+   */
+  export type HospitalUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Hospital
+     */
+    select?: HospitalSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Hospital
+     */
+    omit?: HospitalOmit<ExtArgs> | null
+    /**
+     * The data used to update Hospitals.
+     */
+    data: XOR<HospitalUpdateManyMutationInput, HospitalUncheckedUpdateManyInput>
+    /**
+     * Filter which Hospitals to update
+     */
+    where?: HospitalWhereInput
+    /**
+     * Limit how many Hospitals to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HospitalIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Hospital upsert
+   */
+  export type HospitalUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Hospital
+     */
+    select?: HospitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Hospital
+     */
+    omit?: HospitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HospitalInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Hospital to update in case it exists.
+     */
+    where: HospitalWhereUniqueInput
+    /**
+     * In case the Hospital found by the `where` argument doesn't exist, create a new Hospital with this data.
+     */
+    create: XOR<HospitalCreateInput, HospitalUncheckedCreateInput>
+    /**
+     * In case the Hospital was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<HospitalUpdateInput, HospitalUncheckedUpdateInput>
+  }
+
+  /**
+   * Hospital delete
+   */
+  export type HospitalDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Hospital
+     */
+    select?: HospitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Hospital
+     */
+    omit?: HospitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HospitalInclude<ExtArgs> | null
+    /**
+     * Filter which Hospital to delete.
+     */
+    where: HospitalWhereUniqueInput
+  }
+
+  /**
+   * Hospital deleteMany
+   */
+  export type HospitalDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Hospitals to delete
+     */
+    where?: HospitalWhereInput
+    /**
+     * Limit how many Hospitals to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Hospital.parentHospital
+   */
+  export type Hospital$parentHospitalArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Hospital
+     */
+    select?: HospitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Hospital
+     */
+    omit?: HospitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HospitalInclude<ExtArgs> | null
+    where?: HospitalWhereInput
+  }
+
+  /**
+   * Hospital.childHospital
+   */
+  export type Hospital$childHospitalArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Hospital
+     */
+    select?: HospitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Hospital
+     */
+    omit?: HospitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HospitalInclude<ExtArgs> | null
+    where?: HospitalWhereInput
+    orderBy?: HospitalOrderByWithRelationInput | HospitalOrderByWithRelationInput[]
+    cursor?: HospitalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: HospitalScalarFieldEnum | HospitalScalarFieldEnum[]
+  }
+
+  /**
+   * Hospital.users
+   */
+  export type Hospital$usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserHospitalAccess
+     */
+    select?: UserHospitalAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserHospitalAccess
+     */
+    omit?: UserHospitalAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserHospitalAccessInclude<ExtArgs> | null
+    where?: UserHospitalAccessWhereInput
+    orderBy?: UserHospitalAccessOrderByWithRelationInput | UserHospitalAccessOrderByWithRelationInput[]
+    cursor?: UserHospitalAccessWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserHospitalAccessScalarFieldEnum | UserHospitalAccessScalarFieldEnum[]
+  }
+
+  /**
+   * Hospital without action
+   */
+  export type HospitalDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Hospital
+     */
+    select?: HospitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Hospital
+     */
+    omit?: HospitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HospitalInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model UserHospitalAccess
+   */
+
+  export type AggregateUserHospitalAccess = {
+    _count: UserHospitalAccessCountAggregateOutputType | null
+    _avg: UserHospitalAccessAvgAggregateOutputType | null
+    _sum: UserHospitalAccessSumAggregateOutputType | null
+    _min: UserHospitalAccessMinAggregateOutputType | null
+    _max: UserHospitalAccessMaxAggregateOutputType | null
+  }
+
+  export type UserHospitalAccessAvgAggregateOutputType = {
+    id: number | null
+    userId: number | null
+    hospitalId: number | null
+    roleId: number | null
+  }
+
+  export type UserHospitalAccessSumAggregateOutputType = {
+    id: number | null
+    userId: number | null
+    hospitalId: number | null
+    roleId: number | null
+  }
+
+  export type UserHospitalAccessMinAggregateOutputType = {
+    id: number | null
+    userId: number | null
+    hospitalId: number | null
+    roleId: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type UserHospitalAccessMaxAggregateOutputType = {
+    id: number | null
+    userId: number | null
+    hospitalId: number | null
+    roleId: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type UserHospitalAccessCountAggregateOutputType = {
+    id: number
+    userId: number
+    hospitalId: number
+    roleId: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type UserHospitalAccessAvgAggregateInputType = {
+    id?: true
+    userId?: true
+    hospitalId?: true
+    roleId?: true
+  }
+
+  export type UserHospitalAccessSumAggregateInputType = {
+    id?: true
+    userId?: true
+    hospitalId?: true
+    roleId?: true
+  }
+
+  export type UserHospitalAccessMinAggregateInputType = {
+    id?: true
+    userId?: true
+    hospitalId?: true
+    roleId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type UserHospitalAccessMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    hospitalId?: true
+    roleId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type UserHospitalAccessCountAggregateInputType = {
+    id?: true
+    userId?: true
+    hospitalId?: true
+    roleId?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type UserHospitalAccessAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserHospitalAccess to aggregate.
+     */
+    where?: UserHospitalAccessWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserHospitalAccesses to fetch.
+     */
+    orderBy?: UserHospitalAccessOrderByWithRelationInput | UserHospitalAccessOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UserHospitalAccessWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserHospitalAccesses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserHospitalAccesses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned UserHospitalAccesses
+    **/
+    _count?: true | UserHospitalAccessCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: UserHospitalAccessAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: UserHospitalAccessSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UserHospitalAccessMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UserHospitalAccessMaxAggregateInputType
+  }
+
+  export type GetUserHospitalAccessAggregateType<T extends UserHospitalAccessAggregateArgs> = {
+        [P in keyof T & keyof AggregateUserHospitalAccess]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUserHospitalAccess[P]>
+      : GetScalarType<T[P], AggregateUserHospitalAccess[P]>
+  }
+
+
+
+
+  export type UserHospitalAccessGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserHospitalAccessWhereInput
+    orderBy?: UserHospitalAccessOrderByWithAggregationInput | UserHospitalAccessOrderByWithAggregationInput[]
+    by: UserHospitalAccessScalarFieldEnum[] | UserHospitalAccessScalarFieldEnum
+    having?: UserHospitalAccessScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UserHospitalAccessCountAggregateInputType | true
+    _avg?: UserHospitalAccessAvgAggregateInputType
+    _sum?: UserHospitalAccessSumAggregateInputType
+    _min?: UserHospitalAccessMinAggregateInputType
+    _max?: UserHospitalAccessMaxAggregateInputType
+  }
+
+  export type UserHospitalAccessGroupByOutputType = {
+    id: number
+    userId: number
+    hospitalId: number
+    roleId: number
+    createdAt: Date
+    updatedAt: Date
+    _count: UserHospitalAccessCountAggregateOutputType | null
+    _avg: UserHospitalAccessAvgAggregateOutputType | null
+    _sum: UserHospitalAccessSumAggregateOutputType | null
+    _min: UserHospitalAccessMinAggregateOutputType | null
+    _max: UserHospitalAccessMaxAggregateOutputType | null
+  }
+
+  type GetUserHospitalAccessGroupByPayload<T extends UserHospitalAccessGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UserHospitalAccessGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UserHospitalAccessGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UserHospitalAccessGroupByOutputType[P]>
+            : GetScalarType<T[P], UserHospitalAccessGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UserHospitalAccessSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    hospitalId?: boolean
+    roleId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    hospital?: boolean | HospitalDefaultArgs<ExtArgs>
+    role?: boolean | RoleDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userHospitalAccess"]>
+
+  export type UserHospitalAccessSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    hospitalId?: boolean
+    roleId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    hospital?: boolean | HospitalDefaultArgs<ExtArgs>
+    role?: boolean | RoleDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userHospitalAccess"]>
+
+  export type UserHospitalAccessSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    hospitalId?: boolean
+    roleId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    hospital?: boolean | HospitalDefaultArgs<ExtArgs>
+    role?: boolean | RoleDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userHospitalAccess"]>
+
+  export type UserHospitalAccessSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    hospitalId?: boolean
+    roleId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type UserHospitalAccessOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "hospitalId" | "roleId" | "createdAt" | "updatedAt", ExtArgs["result"]["userHospitalAccess"]>
+  export type UserHospitalAccessInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    hospital?: boolean | HospitalDefaultArgs<ExtArgs>
+    role?: boolean | RoleDefaultArgs<ExtArgs>
+  }
+  export type UserHospitalAccessIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    hospital?: boolean | HospitalDefaultArgs<ExtArgs>
+    role?: boolean | RoleDefaultArgs<ExtArgs>
+  }
+  export type UserHospitalAccessIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    hospital?: boolean | HospitalDefaultArgs<ExtArgs>
+    role?: boolean | RoleDefaultArgs<ExtArgs>
+  }
+
+  export type $UserHospitalAccessPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "UserHospitalAccess"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      hospital: Prisma.$HospitalPayload<ExtArgs>
+      role: Prisma.$RolePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      userId: number
+      hospitalId: number
+      roleId: number
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["userHospitalAccess"]>
+    composites: {}
+  }
+
+  type UserHospitalAccessGetPayload<S extends boolean | null | undefined | UserHospitalAccessDefaultArgs> = $Result.GetResult<Prisma.$UserHospitalAccessPayload, S>
+
+  type UserHospitalAccessCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UserHospitalAccessFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UserHospitalAccessCountAggregateInputType | true
+    }
+
+  export interface UserHospitalAccessDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserHospitalAccess'], meta: { name: 'UserHospitalAccess' } }
+    /**
+     * Find zero or one UserHospitalAccess that matches the filter.
+     * @param {UserHospitalAccessFindUniqueArgs} args - Arguments to find a UserHospitalAccess
+     * @example
+     * // Get one UserHospitalAccess
+     * const userHospitalAccess = await prisma.userHospitalAccess.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UserHospitalAccessFindUniqueArgs>(args: SelectSubset<T, UserHospitalAccessFindUniqueArgs<ExtArgs>>): Prisma__UserHospitalAccessClient<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one UserHospitalAccess that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UserHospitalAccessFindUniqueOrThrowArgs} args - Arguments to find a UserHospitalAccess
+     * @example
+     * // Get one UserHospitalAccess
+     * const userHospitalAccess = await prisma.userHospitalAccess.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UserHospitalAccessFindUniqueOrThrowArgs>(args: SelectSubset<T, UserHospitalAccessFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserHospitalAccessClient<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserHospitalAccess that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserHospitalAccessFindFirstArgs} args - Arguments to find a UserHospitalAccess
+     * @example
+     * // Get one UserHospitalAccess
+     * const userHospitalAccess = await prisma.userHospitalAccess.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UserHospitalAccessFindFirstArgs>(args?: SelectSubset<T, UserHospitalAccessFindFirstArgs<ExtArgs>>): Prisma__UserHospitalAccessClient<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserHospitalAccess that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserHospitalAccessFindFirstOrThrowArgs} args - Arguments to find a UserHospitalAccess
+     * @example
+     * // Get one UserHospitalAccess
+     * const userHospitalAccess = await prisma.userHospitalAccess.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UserHospitalAccessFindFirstOrThrowArgs>(args?: SelectSubset<T, UserHospitalAccessFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserHospitalAccessClient<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UserHospitalAccesses that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserHospitalAccessFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UserHospitalAccesses
+     * const userHospitalAccesses = await prisma.userHospitalAccess.findMany()
+     * 
+     * // Get first 10 UserHospitalAccesses
+     * const userHospitalAccesses = await prisma.userHospitalAccess.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const userHospitalAccessWithIdOnly = await prisma.userHospitalAccess.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UserHospitalAccessFindManyArgs>(args?: SelectSubset<T, UserHospitalAccessFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a UserHospitalAccess.
+     * @param {UserHospitalAccessCreateArgs} args - Arguments to create a UserHospitalAccess.
+     * @example
+     * // Create one UserHospitalAccess
+     * const UserHospitalAccess = await prisma.userHospitalAccess.create({
+     *   data: {
+     *     // ... data to create a UserHospitalAccess
+     *   }
+     * })
+     * 
+     */
+    create<T extends UserHospitalAccessCreateArgs>(args: SelectSubset<T, UserHospitalAccessCreateArgs<ExtArgs>>): Prisma__UserHospitalAccessClient<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many UserHospitalAccesses.
+     * @param {UserHospitalAccessCreateManyArgs} args - Arguments to create many UserHospitalAccesses.
+     * @example
+     * // Create many UserHospitalAccesses
+     * const userHospitalAccess = await prisma.userHospitalAccess.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UserHospitalAccessCreateManyArgs>(args?: SelectSubset<T, UserHospitalAccessCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many UserHospitalAccesses and returns the data saved in the database.
+     * @param {UserHospitalAccessCreateManyAndReturnArgs} args - Arguments to create many UserHospitalAccesses.
+     * @example
+     * // Create many UserHospitalAccesses
+     * const userHospitalAccess = await prisma.userHospitalAccess.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many UserHospitalAccesses and only return the `id`
+     * const userHospitalAccessWithIdOnly = await prisma.userHospitalAccess.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends UserHospitalAccessCreateManyAndReturnArgs>(args?: SelectSubset<T, UserHospitalAccessCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a UserHospitalAccess.
+     * @param {UserHospitalAccessDeleteArgs} args - Arguments to delete one UserHospitalAccess.
+     * @example
+     * // Delete one UserHospitalAccess
+     * const UserHospitalAccess = await prisma.userHospitalAccess.delete({
+     *   where: {
+     *     // ... filter to delete one UserHospitalAccess
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UserHospitalAccessDeleteArgs>(args: SelectSubset<T, UserHospitalAccessDeleteArgs<ExtArgs>>): Prisma__UserHospitalAccessClient<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one UserHospitalAccess.
+     * @param {UserHospitalAccessUpdateArgs} args - Arguments to update one UserHospitalAccess.
+     * @example
+     * // Update one UserHospitalAccess
+     * const userHospitalAccess = await prisma.userHospitalAccess.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UserHospitalAccessUpdateArgs>(args: SelectSubset<T, UserHospitalAccessUpdateArgs<ExtArgs>>): Prisma__UserHospitalAccessClient<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more UserHospitalAccesses.
+     * @param {UserHospitalAccessDeleteManyArgs} args - Arguments to filter UserHospitalAccesses to delete.
+     * @example
+     * // Delete a few UserHospitalAccesses
+     * const { count } = await prisma.userHospitalAccess.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UserHospitalAccessDeleteManyArgs>(args?: SelectSubset<T, UserHospitalAccessDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserHospitalAccesses.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserHospitalAccessUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UserHospitalAccesses
+     * const userHospitalAccess = await prisma.userHospitalAccess.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UserHospitalAccessUpdateManyArgs>(args: SelectSubset<T, UserHospitalAccessUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserHospitalAccesses and returns the data updated in the database.
+     * @param {UserHospitalAccessUpdateManyAndReturnArgs} args - Arguments to update many UserHospitalAccesses.
+     * @example
+     * // Update many UserHospitalAccesses
+     * const userHospitalAccess = await prisma.userHospitalAccess.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more UserHospitalAccesses and only return the `id`
+     * const userHospitalAccessWithIdOnly = await prisma.userHospitalAccess.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UserHospitalAccessUpdateManyAndReturnArgs>(args: SelectSubset<T, UserHospitalAccessUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one UserHospitalAccess.
+     * @param {UserHospitalAccessUpsertArgs} args - Arguments to update or create a UserHospitalAccess.
+     * @example
+     * // Update or create a UserHospitalAccess
+     * const userHospitalAccess = await prisma.userHospitalAccess.upsert({
+     *   create: {
+     *     // ... data to create a UserHospitalAccess
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the UserHospitalAccess we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UserHospitalAccessUpsertArgs>(args: SelectSubset<T, UserHospitalAccessUpsertArgs<ExtArgs>>): Prisma__UserHospitalAccessClient<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of UserHospitalAccesses.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserHospitalAccessCountArgs} args - Arguments to filter UserHospitalAccesses to count.
+     * @example
+     * // Count the number of UserHospitalAccesses
+     * const count = await prisma.userHospitalAccess.count({
+     *   where: {
+     *     // ... the filter for the UserHospitalAccesses we want to count
+     *   }
+     * })
+    **/
+    count<T extends UserHospitalAccessCountArgs>(
+      args?: Subset<T, UserHospitalAccessCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UserHospitalAccessCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UserHospitalAccess.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserHospitalAccessAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UserHospitalAccessAggregateArgs>(args: Subset<T, UserHospitalAccessAggregateArgs>): Prisma.PrismaPromise<GetUserHospitalAccessAggregateType<T>>
+
+    /**
+     * Group by UserHospitalAccess.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserHospitalAccessGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UserHospitalAccessGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UserHospitalAccessGroupByArgs['orderBy'] }
+        : { orderBy?: UserHospitalAccessGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UserHospitalAccessGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserHospitalAccessGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the UserHospitalAccess model
+   */
+  readonly fields: UserHospitalAccessFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for UserHospitalAccess.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UserHospitalAccessClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    hospital<T extends HospitalDefaultArgs<ExtArgs> = {}>(args?: Subset<T, HospitalDefaultArgs<ExtArgs>>): Prisma__HospitalClient<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    role<T extends RoleDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RoleDefaultArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the UserHospitalAccess model
+   */
+  interface UserHospitalAccessFieldRefs {
+    readonly id: FieldRef<"UserHospitalAccess", 'Int'>
+    readonly userId: FieldRef<"UserHospitalAccess", 'Int'>
+    readonly hospitalId: FieldRef<"UserHospitalAccess", 'Int'>
+    readonly roleId: FieldRef<"UserHospitalAccess", 'Int'>
+    readonly createdAt: FieldRef<"UserHospitalAccess", 'DateTime'>
+    readonly updatedAt: FieldRef<"UserHospitalAccess", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * UserHospitalAccess findUnique
+   */
+  export type UserHospitalAccessFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserHospitalAccess
+     */
+    select?: UserHospitalAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserHospitalAccess
+     */
+    omit?: UserHospitalAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserHospitalAccessInclude<ExtArgs> | null
+    /**
+     * Filter, which UserHospitalAccess to fetch.
+     */
+    where: UserHospitalAccessWhereUniqueInput
+  }
+
+  /**
+   * UserHospitalAccess findUniqueOrThrow
+   */
+  export type UserHospitalAccessFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserHospitalAccess
+     */
+    select?: UserHospitalAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserHospitalAccess
+     */
+    omit?: UserHospitalAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserHospitalAccessInclude<ExtArgs> | null
+    /**
+     * Filter, which UserHospitalAccess to fetch.
+     */
+    where: UserHospitalAccessWhereUniqueInput
+  }
+
+  /**
+   * UserHospitalAccess findFirst
+   */
+  export type UserHospitalAccessFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserHospitalAccess
+     */
+    select?: UserHospitalAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserHospitalAccess
+     */
+    omit?: UserHospitalAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserHospitalAccessInclude<ExtArgs> | null
+    /**
+     * Filter, which UserHospitalAccess to fetch.
+     */
+    where?: UserHospitalAccessWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserHospitalAccesses to fetch.
+     */
+    orderBy?: UserHospitalAccessOrderByWithRelationInput | UserHospitalAccessOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserHospitalAccesses.
+     */
+    cursor?: UserHospitalAccessWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserHospitalAccesses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserHospitalAccesses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserHospitalAccesses.
+     */
+    distinct?: UserHospitalAccessScalarFieldEnum | UserHospitalAccessScalarFieldEnum[]
+  }
+
+  /**
+   * UserHospitalAccess findFirstOrThrow
+   */
+  export type UserHospitalAccessFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserHospitalAccess
+     */
+    select?: UserHospitalAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserHospitalAccess
+     */
+    omit?: UserHospitalAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserHospitalAccessInclude<ExtArgs> | null
+    /**
+     * Filter, which UserHospitalAccess to fetch.
+     */
+    where?: UserHospitalAccessWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserHospitalAccesses to fetch.
+     */
+    orderBy?: UserHospitalAccessOrderByWithRelationInput | UserHospitalAccessOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserHospitalAccesses.
+     */
+    cursor?: UserHospitalAccessWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserHospitalAccesses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserHospitalAccesses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserHospitalAccesses.
+     */
+    distinct?: UserHospitalAccessScalarFieldEnum | UserHospitalAccessScalarFieldEnum[]
+  }
+
+  /**
+   * UserHospitalAccess findMany
+   */
+  export type UserHospitalAccessFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserHospitalAccess
+     */
+    select?: UserHospitalAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserHospitalAccess
+     */
+    omit?: UserHospitalAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserHospitalAccessInclude<ExtArgs> | null
+    /**
+     * Filter, which UserHospitalAccesses to fetch.
+     */
+    where?: UserHospitalAccessWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserHospitalAccesses to fetch.
+     */
+    orderBy?: UserHospitalAccessOrderByWithRelationInput | UserHospitalAccessOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing UserHospitalAccesses.
+     */
+    cursor?: UserHospitalAccessWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserHospitalAccesses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserHospitalAccesses.
+     */
+    skip?: number
+    distinct?: UserHospitalAccessScalarFieldEnum | UserHospitalAccessScalarFieldEnum[]
+  }
+
+  /**
+   * UserHospitalAccess create
+   */
+  export type UserHospitalAccessCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserHospitalAccess
+     */
+    select?: UserHospitalAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserHospitalAccess
+     */
+    omit?: UserHospitalAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserHospitalAccessInclude<ExtArgs> | null
+    /**
+     * The data needed to create a UserHospitalAccess.
+     */
+    data: XOR<UserHospitalAccessCreateInput, UserHospitalAccessUncheckedCreateInput>
+  }
+
+  /**
+   * UserHospitalAccess createMany
+   */
+  export type UserHospitalAccessCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many UserHospitalAccesses.
+     */
+    data: UserHospitalAccessCreateManyInput | UserHospitalAccessCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * UserHospitalAccess createManyAndReturn
+   */
+  export type UserHospitalAccessCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserHospitalAccess
+     */
+    select?: UserHospitalAccessSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserHospitalAccess
+     */
+    omit?: UserHospitalAccessOmit<ExtArgs> | null
+    /**
+     * The data used to create many UserHospitalAccesses.
+     */
+    data: UserHospitalAccessCreateManyInput | UserHospitalAccessCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserHospitalAccessIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserHospitalAccess update
+   */
+  export type UserHospitalAccessUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserHospitalAccess
+     */
+    select?: UserHospitalAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserHospitalAccess
+     */
+    omit?: UserHospitalAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserHospitalAccessInclude<ExtArgs> | null
+    /**
+     * The data needed to update a UserHospitalAccess.
+     */
+    data: XOR<UserHospitalAccessUpdateInput, UserHospitalAccessUncheckedUpdateInput>
+    /**
+     * Choose, which UserHospitalAccess to update.
+     */
+    where: UserHospitalAccessWhereUniqueInput
+  }
+
+  /**
+   * UserHospitalAccess updateMany
+   */
+  export type UserHospitalAccessUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update UserHospitalAccesses.
+     */
+    data: XOR<UserHospitalAccessUpdateManyMutationInput, UserHospitalAccessUncheckedUpdateManyInput>
+    /**
+     * Filter which UserHospitalAccesses to update
+     */
+    where?: UserHospitalAccessWhereInput
+    /**
+     * Limit how many UserHospitalAccesses to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserHospitalAccess updateManyAndReturn
+   */
+  export type UserHospitalAccessUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserHospitalAccess
+     */
+    select?: UserHospitalAccessSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserHospitalAccess
+     */
+    omit?: UserHospitalAccessOmit<ExtArgs> | null
+    /**
+     * The data used to update UserHospitalAccesses.
+     */
+    data: XOR<UserHospitalAccessUpdateManyMutationInput, UserHospitalAccessUncheckedUpdateManyInput>
+    /**
+     * Filter which UserHospitalAccesses to update
+     */
+    where?: UserHospitalAccessWhereInput
+    /**
+     * Limit how many UserHospitalAccesses to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserHospitalAccessIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserHospitalAccess upsert
+   */
+  export type UserHospitalAccessUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserHospitalAccess
+     */
+    select?: UserHospitalAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserHospitalAccess
+     */
+    omit?: UserHospitalAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserHospitalAccessInclude<ExtArgs> | null
+    /**
+     * The filter to search for the UserHospitalAccess to update in case it exists.
+     */
+    where: UserHospitalAccessWhereUniqueInput
+    /**
+     * In case the UserHospitalAccess found by the `where` argument doesn't exist, create a new UserHospitalAccess with this data.
+     */
+    create: XOR<UserHospitalAccessCreateInput, UserHospitalAccessUncheckedCreateInput>
+    /**
+     * In case the UserHospitalAccess was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UserHospitalAccessUpdateInput, UserHospitalAccessUncheckedUpdateInput>
+  }
+
+  /**
+   * UserHospitalAccess delete
+   */
+  export type UserHospitalAccessDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserHospitalAccess
+     */
+    select?: UserHospitalAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserHospitalAccess
+     */
+    omit?: UserHospitalAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserHospitalAccessInclude<ExtArgs> | null
+    /**
+     * Filter which UserHospitalAccess to delete.
+     */
+    where: UserHospitalAccessWhereUniqueInput
+  }
+
+  /**
+   * UserHospitalAccess deleteMany
+   */
+  export type UserHospitalAccessDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserHospitalAccesses to delete
+     */
+    where?: UserHospitalAccessWhereInput
+    /**
+     * Limit how many UserHospitalAccesses to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserHospitalAccess without action
+   */
+  export type UserHospitalAccessDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserHospitalAccess
+     */
+    select?: UserHospitalAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserHospitalAccess
+     */
+    omit?: UserHospitalAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserHospitalAccessInclude<ExtArgs> | null
   }
 
 
@@ -5408,3409 +8327,6 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: SettingInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model Hospital
-   */
-
-  export type AggregateHospital = {
-    _count: HospitalCountAggregateOutputType | null
-    _avg: HospitalAvgAggregateOutputType | null
-    _sum: HospitalSumAggregateOutputType | null
-    _min: HospitalMinAggregateOutputType | null
-    _max: HospitalMaxAggregateOutputType | null
-  }
-
-  export type HospitalAvgAggregateOutputType = {
-    id: number | null
-    parentHospitalId: number | null
-    levelId: number | null
-  }
-
-  export type HospitalSumAggregateOutputType = {
-    id: number | null
-    parentHospitalId: number | null
-    levelId: number | null
-  }
-
-  export type HospitalMinAggregateOutputType = {
-    id: number | null
-    name: string | null
-    location: string | null
-    isActive: boolean | null
-    parentHospitalId: number | null
-    levelId: number | null
-    hospitalCode: string | null
-    superHospitalCode: string | null
-  }
-
-  export type HospitalMaxAggregateOutputType = {
-    id: number | null
-    name: string | null
-    location: string | null
-    isActive: boolean | null
-    parentHospitalId: number | null
-    levelId: number | null
-    hospitalCode: string | null
-    superHospitalCode: string | null
-  }
-
-  export type HospitalCountAggregateOutputType = {
-    id: number
-    name: number
-    location: number
-    isActive: number
-    parentHospitalId: number
-    levelId: number
-    hospitalCode: number
-    superHospitalCode: number
-    _all: number
-  }
-
-
-  export type HospitalAvgAggregateInputType = {
-    id?: true
-    parentHospitalId?: true
-    levelId?: true
-  }
-
-  export type HospitalSumAggregateInputType = {
-    id?: true
-    parentHospitalId?: true
-    levelId?: true
-  }
-
-  export type HospitalMinAggregateInputType = {
-    id?: true
-    name?: true
-    location?: true
-    isActive?: true
-    parentHospitalId?: true
-    levelId?: true
-    hospitalCode?: true
-    superHospitalCode?: true
-  }
-
-  export type HospitalMaxAggregateInputType = {
-    id?: true
-    name?: true
-    location?: true
-    isActive?: true
-    parentHospitalId?: true
-    levelId?: true
-    hospitalCode?: true
-    superHospitalCode?: true
-  }
-
-  export type HospitalCountAggregateInputType = {
-    id?: true
-    name?: true
-    location?: true
-    isActive?: true
-    parentHospitalId?: true
-    levelId?: true
-    hospitalCode?: true
-    superHospitalCode?: true
-    _all?: true
-  }
-
-  export type HospitalAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Hospital to aggregate.
-     */
-    where?: HospitalWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Hospitals to fetch.
-     */
-    orderBy?: HospitalOrderByWithRelationInput | HospitalOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: HospitalWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Hospitals from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Hospitals.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned Hospitals
-    **/
-    _count?: true | HospitalCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: HospitalAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: HospitalSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: HospitalMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: HospitalMaxAggregateInputType
-  }
-
-  export type GetHospitalAggregateType<T extends HospitalAggregateArgs> = {
-        [P in keyof T & keyof AggregateHospital]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateHospital[P]>
-      : GetScalarType<T[P], AggregateHospital[P]>
-  }
-
-
-
-
-  export type HospitalGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: HospitalWhereInput
-    orderBy?: HospitalOrderByWithAggregationInput | HospitalOrderByWithAggregationInput[]
-    by: HospitalScalarFieldEnum[] | HospitalScalarFieldEnum
-    having?: HospitalScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: HospitalCountAggregateInputType | true
-    _avg?: HospitalAvgAggregateInputType
-    _sum?: HospitalSumAggregateInputType
-    _min?: HospitalMinAggregateInputType
-    _max?: HospitalMaxAggregateInputType
-  }
-
-  export type HospitalGroupByOutputType = {
-    id: number
-    name: string
-    location: string
-    isActive: boolean
-    parentHospitalId: number | null
-    levelId: number | null
-    hospitalCode: string | null
-    superHospitalCode: string | null
-    _count: HospitalCountAggregateOutputType | null
-    _avg: HospitalAvgAggregateOutputType | null
-    _sum: HospitalSumAggregateOutputType | null
-    _min: HospitalMinAggregateOutputType | null
-    _max: HospitalMaxAggregateOutputType | null
-  }
-
-  type GetHospitalGroupByPayload<T extends HospitalGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<HospitalGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof HospitalGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], HospitalGroupByOutputType[P]>
-            : GetScalarType<T[P], HospitalGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type HospitalSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    name?: boolean
-    location?: boolean
-    isActive?: boolean
-    parentHospitalId?: boolean
-    levelId?: boolean
-    hospitalCode?: boolean
-    superHospitalCode?: boolean
-    parentHospital?: boolean | Hospital$parentHospitalArgs<ExtArgs>
-    childHospitals?: boolean | Hospital$childHospitalsArgs<ExtArgs>
-    type?: boolean | Hospital$typeArgs<ExtArgs>
-    userAccess?: boolean | Hospital$userAccessArgs<ExtArgs>
-    _count?: boolean | HospitalCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["hospital"]>
-
-  export type HospitalSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    name?: boolean
-    location?: boolean
-    isActive?: boolean
-    parentHospitalId?: boolean
-    levelId?: boolean
-    hospitalCode?: boolean
-    superHospitalCode?: boolean
-    parentHospital?: boolean | Hospital$parentHospitalArgs<ExtArgs>
-    type?: boolean | Hospital$typeArgs<ExtArgs>
-  }, ExtArgs["result"]["hospital"]>
-
-  export type HospitalSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    name?: boolean
-    location?: boolean
-    isActive?: boolean
-    parentHospitalId?: boolean
-    levelId?: boolean
-    hospitalCode?: boolean
-    superHospitalCode?: boolean
-    parentHospital?: boolean | Hospital$parentHospitalArgs<ExtArgs>
-    type?: boolean | Hospital$typeArgs<ExtArgs>
-  }, ExtArgs["result"]["hospital"]>
-
-  export type HospitalSelectScalar = {
-    id?: boolean
-    name?: boolean
-    location?: boolean
-    isActive?: boolean
-    parentHospitalId?: boolean
-    levelId?: boolean
-    hospitalCode?: boolean
-    superHospitalCode?: boolean
-  }
-
-  export type HospitalOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "location" | "isActive" | "parentHospitalId" | "levelId" | "hospitalCode" | "superHospitalCode", ExtArgs["result"]["hospital"]>
-  export type HospitalInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    parentHospital?: boolean | Hospital$parentHospitalArgs<ExtArgs>
-    childHospitals?: boolean | Hospital$childHospitalsArgs<ExtArgs>
-    type?: boolean | Hospital$typeArgs<ExtArgs>
-    userAccess?: boolean | Hospital$userAccessArgs<ExtArgs>
-    _count?: boolean | HospitalCountOutputTypeDefaultArgs<ExtArgs>
-  }
-  export type HospitalIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    parentHospital?: boolean | Hospital$parentHospitalArgs<ExtArgs>
-    type?: boolean | Hospital$typeArgs<ExtArgs>
-  }
-  export type HospitalIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    parentHospital?: boolean | Hospital$parentHospitalArgs<ExtArgs>
-    type?: boolean | Hospital$typeArgs<ExtArgs>
-  }
-
-  export type $HospitalPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Hospital"
-    objects: {
-      parentHospital: Prisma.$HospitalPayload<ExtArgs> | null
-      childHospitals: Prisma.$HospitalPayload<ExtArgs>[]
-      type: Prisma.$HospitaltypePayload<ExtArgs> | null
-      userAccess: Prisma.$UserHospitalAccessPayload<ExtArgs>[]
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: number
-      name: string
-      location: string
-      isActive: boolean
-      parentHospitalId: number | null
-      levelId: number | null
-      hospitalCode: string | null
-      superHospitalCode: string | null
-    }, ExtArgs["result"]["hospital"]>
-    composites: {}
-  }
-
-  type HospitalGetPayload<S extends boolean | null | undefined | HospitalDefaultArgs> = $Result.GetResult<Prisma.$HospitalPayload, S>
-
-  type HospitalCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<HospitalFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: HospitalCountAggregateInputType | true
-    }
-
-  export interface HospitalDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Hospital'], meta: { name: 'Hospital' } }
-    /**
-     * Find zero or one Hospital that matches the filter.
-     * @param {HospitalFindUniqueArgs} args - Arguments to find a Hospital
-     * @example
-     * // Get one Hospital
-     * const hospital = await prisma.hospital.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends HospitalFindUniqueArgs>(args: SelectSubset<T, HospitalFindUniqueArgs<ExtArgs>>): Prisma__HospitalClient<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one Hospital that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {HospitalFindUniqueOrThrowArgs} args - Arguments to find a Hospital
-     * @example
-     * // Get one Hospital
-     * const hospital = await prisma.hospital.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends HospitalFindUniqueOrThrowArgs>(args: SelectSubset<T, HospitalFindUniqueOrThrowArgs<ExtArgs>>): Prisma__HospitalClient<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first Hospital that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {HospitalFindFirstArgs} args - Arguments to find a Hospital
-     * @example
-     * // Get one Hospital
-     * const hospital = await prisma.hospital.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends HospitalFindFirstArgs>(args?: SelectSubset<T, HospitalFindFirstArgs<ExtArgs>>): Prisma__HospitalClient<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first Hospital that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {HospitalFindFirstOrThrowArgs} args - Arguments to find a Hospital
-     * @example
-     * // Get one Hospital
-     * const hospital = await prisma.hospital.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends HospitalFindFirstOrThrowArgs>(args?: SelectSubset<T, HospitalFindFirstOrThrowArgs<ExtArgs>>): Prisma__HospitalClient<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more Hospitals that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {HospitalFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all Hospitals
-     * const hospitals = await prisma.hospital.findMany()
-     * 
-     * // Get first 10 Hospitals
-     * const hospitals = await prisma.hospital.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const hospitalWithIdOnly = await prisma.hospital.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends HospitalFindManyArgs>(args?: SelectSubset<T, HospitalFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a Hospital.
-     * @param {HospitalCreateArgs} args - Arguments to create a Hospital.
-     * @example
-     * // Create one Hospital
-     * const Hospital = await prisma.hospital.create({
-     *   data: {
-     *     // ... data to create a Hospital
-     *   }
-     * })
-     * 
-     */
-    create<T extends HospitalCreateArgs>(args: SelectSubset<T, HospitalCreateArgs<ExtArgs>>): Prisma__HospitalClient<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many Hospitals.
-     * @param {HospitalCreateManyArgs} args - Arguments to create many Hospitals.
-     * @example
-     * // Create many Hospitals
-     * const hospital = await prisma.hospital.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends HospitalCreateManyArgs>(args?: SelectSubset<T, HospitalCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many Hospitals and returns the data saved in the database.
-     * @param {HospitalCreateManyAndReturnArgs} args - Arguments to create many Hospitals.
-     * @example
-     * // Create many Hospitals
-     * const hospital = await prisma.hospital.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many Hospitals and only return the `id`
-     * const hospitalWithIdOnly = await prisma.hospital.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends HospitalCreateManyAndReturnArgs>(args?: SelectSubset<T, HospitalCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a Hospital.
-     * @param {HospitalDeleteArgs} args - Arguments to delete one Hospital.
-     * @example
-     * // Delete one Hospital
-     * const Hospital = await prisma.hospital.delete({
-     *   where: {
-     *     // ... filter to delete one Hospital
-     *   }
-     * })
-     * 
-     */
-    delete<T extends HospitalDeleteArgs>(args: SelectSubset<T, HospitalDeleteArgs<ExtArgs>>): Prisma__HospitalClient<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one Hospital.
-     * @param {HospitalUpdateArgs} args - Arguments to update one Hospital.
-     * @example
-     * // Update one Hospital
-     * const hospital = await prisma.hospital.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends HospitalUpdateArgs>(args: SelectSubset<T, HospitalUpdateArgs<ExtArgs>>): Prisma__HospitalClient<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more Hospitals.
-     * @param {HospitalDeleteManyArgs} args - Arguments to filter Hospitals to delete.
-     * @example
-     * // Delete a few Hospitals
-     * const { count } = await prisma.hospital.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends HospitalDeleteManyArgs>(args?: SelectSubset<T, HospitalDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Hospitals.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {HospitalUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many Hospitals
-     * const hospital = await prisma.hospital.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends HospitalUpdateManyArgs>(args: SelectSubset<T, HospitalUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Hospitals and returns the data updated in the database.
-     * @param {HospitalUpdateManyAndReturnArgs} args - Arguments to update many Hospitals.
-     * @example
-     * // Update many Hospitals
-     * const hospital = await prisma.hospital.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more Hospitals and only return the `id`
-     * const hospitalWithIdOnly = await prisma.hospital.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends HospitalUpdateManyAndReturnArgs>(args: SelectSubset<T, HospitalUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one Hospital.
-     * @param {HospitalUpsertArgs} args - Arguments to update or create a Hospital.
-     * @example
-     * // Update or create a Hospital
-     * const hospital = await prisma.hospital.upsert({
-     *   create: {
-     *     // ... data to create a Hospital
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the Hospital we want to update
-     *   }
-     * })
-     */
-    upsert<T extends HospitalUpsertArgs>(args: SelectSubset<T, HospitalUpsertArgs<ExtArgs>>): Prisma__HospitalClient<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of Hospitals.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {HospitalCountArgs} args - Arguments to filter Hospitals to count.
-     * @example
-     * // Count the number of Hospitals
-     * const count = await prisma.hospital.count({
-     *   where: {
-     *     // ... the filter for the Hospitals we want to count
-     *   }
-     * })
-    **/
-    count<T extends HospitalCountArgs>(
-      args?: Subset<T, HospitalCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], HospitalCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a Hospital.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {HospitalAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends HospitalAggregateArgs>(args: Subset<T, HospitalAggregateArgs>): Prisma.PrismaPromise<GetHospitalAggregateType<T>>
-
-    /**
-     * Group by Hospital.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {HospitalGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends HospitalGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: HospitalGroupByArgs['orderBy'] }
-        : { orderBy?: HospitalGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, HospitalGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetHospitalGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the Hospital model
-   */
-  readonly fields: HospitalFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for Hospital.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__HospitalClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    parentHospital<T extends Hospital$parentHospitalArgs<ExtArgs> = {}>(args?: Subset<T, Hospital$parentHospitalArgs<ExtArgs>>): Prisma__HospitalClient<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    childHospitals<T extends Hospital$childHospitalsArgs<ExtArgs> = {}>(args?: Subset<T, Hospital$childHospitalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    type<T extends Hospital$typeArgs<ExtArgs> = {}>(args?: Subset<T, Hospital$typeArgs<ExtArgs>>): Prisma__HospitaltypeClient<$Result.GetResult<Prisma.$HospitaltypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    userAccess<T extends Hospital$userAccessArgs<ExtArgs> = {}>(args?: Subset<T, Hospital$userAccessArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the Hospital model
-   */
-  interface HospitalFieldRefs {
-    readonly id: FieldRef<"Hospital", 'Int'>
-    readonly name: FieldRef<"Hospital", 'String'>
-    readonly location: FieldRef<"Hospital", 'String'>
-    readonly isActive: FieldRef<"Hospital", 'Boolean'>
-    readonly parentHospitalId: FieldRef<"Hospital", 'Int'>
-    readonly levelId: FieldRef<"Hospital", 'Int'>
-    readonly hospitalCode: FieldRef<"Hospital", 'String'>
-    readonly superHospitalCode: FieldRef<"Hospital", 'String'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * Hospital findUnique
-   */
-  export type HospitalFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospital
-     */
-    select?: HospitalSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospital
-     */
-    omit?: HospitalOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitalInclude<ExtArgs> | null
-    /**
-     * Filter, which Hospital to fetch.
-     */
-    where: HospitalWhereUniqueInput
-  }
-
-  /**
-   * Hospital findUniqueOrThrow
-   */
-  export type HospitalFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospital
-     */
-    select?: HospitalSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospital
-     */
-    omit?: HospitalOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitalInclude<ExtArgs> | null
-    /**
-     * Filter, which Hospital to fetch.
-     */
-    where: HospitalWhereUniqueInput
-  }
-
-  /**
-   * Hospital findFirst
-   */
-  export type HospitalFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospital
-     */
-    select?: HospitalSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospital
-     */
-    omit?: HospitalOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitalInclude<ExtArgs> | null
-    /**
-     * Filter, which Hospital to fetch.
-     */
-    where?: HospitalWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Hospitals to fetch.
-     */
-    orderBy?: HospitalOrderByWithRelationInput | HospitalOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Hospitals.
-     */
-    cursor?: HospitalWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Hospitals from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Hospitals.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Hospitals.
-     */
-    distinct?: HospitalScalarFieldEnum | HospitalScalarFieldEnum[]
-  }
-
-  /**
-   * Hospital findFirstOrThrow
-   */
-  export type HospitalFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospital
-     */
-    select?: HospitalSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospital
-     */
-    omit?: HospitalOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitalInclude<ExtArgs> | null
-    /**
-     * Filter, which Hospital to fetch.
-     */
-    where?: HospitalWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Hospitals to fetch.
-     */
-    orderBy?: HospitalOrderByWithRelationInput | HospitalOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Hospitals.
-     */
-    cursor?: HospitalWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Hospitals from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Hospitals.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Hospitals.
-     */
-    distinct?: HospitalScalarFieldEnum | HospitalScalarFieldEnum[]
-  }
-
-  /**
-   * Hospital findMany
-   */
-  export type HospitalFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospital
-     */
-    select?: HospitalSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospital
-     */
-    omit?: HospitalOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitalInclude<ExtArgs> | null
-    /**
-     * Filter, which Hospitals to fetch.
-     */
-    where?: HospitalWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Hospitals to fetch.
-     */
-    orderBy?: HospitalOrderByWithRelationInput | HospitalOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing Hospitals.
-     */
-    cursor?: HospitalWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Hospitals from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Hospitals.
-     */
-    skip?: number
-    distinct?: HospitalScalarFieldEnum | HospitalScalarFieldEnum[]
-  }
-
-  /**
-   * Hospital create
-   */
-  export type HospitalCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospital
-     */
-    select?: HospitalSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospital
-     */
-    omit?: HospitalOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitalInclude<ExtArgs> | null
-    /**
-     * The data needed to create a Hospital.
-     */
-    data: XOR<HospitalCreateInput, HospitalUncheckedCreateInput>
-  }
-
-  /**
-   * Hospital createMany
-   */
-  export type HospitalCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many Hospitals.
-     */
-    data: HospitalCreateManyInput | HospitalCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * Hospital createManyAndReturn
-   */
-  export type HospitalCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospital
-     */
-    select?: HospitalSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospital
-     */
-    omit?: HospitalOmit<ExtArgs> | null
-    /**
-     * The data used to create many Hospitals.
-     */
-    data: HospitalCreateManyInput | HospitalCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitalIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * Hospital update
-   */
-  export type HospitalUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospital
-     */
-    select?: HospitalSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospital
-     */
-    omit?: HospitalOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitalInclude<ExtArgs> | null
-    /**
-     * The data needed to update a Hospital.
-     */
-    data: XOR<HospitalUpdateInput, HospitalUncheckedUpdateInput>
-    /**
-     * Choose, which Hospital to update.
-     */
-    where: HospitalWhereUniqueInput
-  }
-
-  /**
-   * Hospital updateMany
-   */
-  export type HospitalUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update Hospitals.
-     */
-    data: XOR<HospitalUpdateManyMutationInput, HospitalUncheckedUpdateManyInput>
-    /**
-     * Filter which Hospitals to update
-     */
-    where?: HospitalWhereInput
-    /**
-     * Limit how many Hospitals to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * Hospital updateManyAndReturn
-   */
-  export type HospitalUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospital
-     */
-    select?: HospitalSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospital
-     */
-    omit?: HospitalOmit<ExtArgs> | null
-    /**
-     * The data used to update Hospitals.
-     */
-    data: XOR<HospitalUpdateManyMutationInput, HospitalUncheckedUpdateManyInput>
-    /**
-     * Filter which Hospitals to update
-     */
-    where?: HospitalWhereInput
-    /**
-     * Limit how many Hospitals to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitalIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * Hospital upsert
-   */
-  export type HospitalUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospital
-     */
-    select?: HospitalSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospital
-     */
-    omit?: HospitalOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitalInclude<ExtArgs> | null
-    /**
-     * The filter to search for the Hospital to update in case it exists.
-     */
-    where: HospitalWhereUniqueInput
-    /**
-     * In case the Hospital found by the `where` argument doesn't exist, create a new Hospital with this data.
-     */
-    create: XOR<HospitalCreateInput, HospitalUncheckedCreateInput>
-    /**
-     * In case the Hospital was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<HospitalUpdateInput, HospitalUncheckedUpdateInput>
-  }
-
-  /**
-   * Hospital delete
-   */
-  export type HospitalDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospital
-     */
-    select?: HospitalSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospital
-     */
-    omit?: HospitalOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitalInclude<ExtArgs> | null
-    /**
-     * Filter which Hospital to delete.
-     */
-    where: HospitalWhereUniqueInput
-  }
-
-  /**
-   * Hospital deleteMany
-   */
-  export type HospitalDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Hospitals to delete
-     */
-    where?: HospitalWhereInput
-    /**
-     * Limit how many Hospitals to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * Hospital.parentHospital
-   */
-  export type Hospital$parentHospitalArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospital
-     */
-    select?: HospitalSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospital
-     */
-    omit?: HospitalOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitalInclude<ExtArgs> | null
-    where?: HospitalWhereInput
-  }
-
-  /**
-   * Hospital.childHospitals
-   */
-  export type Hospital$childHospitalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospital
-     */
-    select?: HospitalSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospital
-     */
-    omit?: HospitalOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitalInclude<ExtArgs> | null
-    where?: HospitalWhereInput
-    orderBy?: HospitalOrderByWithRelationInput | HospitalOrderByWithRelationInput[]
-    cursor?: HospitalWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: HospitalScalarFieldEnum | HospitalScalarFieldEnum[]
-  }
-
-  /**
-   * Hospital.type
-   */
-  export type Hospital$typeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospitaltype
-     */
-    select?: HospitaltypeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospitaltype
-     */
-    omit?: HospitaltypeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitaltypeInclude<ExtArgs> | null
-    where?: HospitaltypeWhereInput
-  }
-
-  /**
-   * Hospital.userAccess
-   */
-  export type Hospital$userAccessArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserHospitalAccess
-     */
-    select?: UserHospitalAccessSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserHospitalAccess
-     */
-    omit?: UserHospitalAccessOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserHospitalAccessInclude<ExtArgs> | null
-    where?: UserHospitalAccessWhereInput
-    orderBy?: UserHospitalAccessOrderByWithRelationInput | UserHospitalAccessOrderByWithRelationInput[]
-    cursor?: UserHospitalAccessWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: UserHospitalAccessScalarFieldEnum | UserHospitalAccessScalarFieldEnum[]
-  }
-
-  /**
-   * Hospital without action
-   */
-  export type HospitalDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospital
-     */
-    select?: HospitalSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospital
-     */
-    omit?: HospitalOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitalInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model Hospitaltype
-   */
-
-  export type AggregateHospitaltype = {
-    _count: HospitaltypeCountAggregateOutputType | null
-    _avg: HospitaltypeAvgAggregateOutputType | null
-    _sum: HospitaltypeSumAggregateOutputType | null
-    _min: HospitaltypeMinAggregateOutputType | null
-    _max: HospitaltypeMaxAggregateOutputType | null
-  }
-
-  export type HospitaltypeAvgAggregateOutputType = {
-    id: number | null
-  }
-
-  export type HospitaltypeSumAggregateOutputType = {
-    id: number | null
-  }
-
-  export type HospitaltypeMinAggregateOutputType = {
-    id: number | null
-    HospitalType: string | null
-  }
-
-  export type HospitaltypeMaxAggregateOutputType = {
-    id: number | null
-    HospitalType: string | null
-  }
-
-  export type HospitaltypeCountAggregateOutputType = {
-    id: number
-    HospitalType: number
-    _all: number
-  }
-
-
-  export type HospitaltypeAvgAggregateInputType = {
-    id?: true
-  }
-
-  export type HospitaltypeSumAggregateInputType = {
-    id?: true
-  }
-
-  export type HospitaltypeMinAggregateInputType = {
-    id?: true
-    HospitalType?: true
-  }
-
-  export type HospitaltypeMaxAggregateInputType = {
-    id?: true
-    HospitalType?: true
-  }
-
-  export type HospitaltypeCountAggregateInputType = {
-    id?: true
-    HospitalType?: true
-    _all?: true
-  }
-
-  export type HospitaltypeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Hospitaltype to aggregate.
-     */
-    where?: HospitaltypeWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Hospitaltypes to fetch.
-     */
-    orderBy?: HospitaltypeOrderByWithRelationInput | HospitaltypeOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: HospitaltypeWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Hospitaltypes from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Hospitaltypes.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned Hospitaltypes
-    **/
-    _count?: true | HospitaltypeCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: HospitaltypeAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: HospitaltypeSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: HospitaltypeMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: HospitaltypeMaxAggregateInputType
-  }
-
-  export type GetHospitaltypeAggregateType<T extends HospitaltypeAggregateArgs> = {
-        [P in keyof T & keyof AggregateHospitaltype]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateHospitaltype[P]>
-      : GetScalarType<T[P], AggregateHospitaltype[P]>
-  }
-
-
-
-
-  export type HospitaltypeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: HospitaltypeWhereInput
-    orderBy?: HospitaltypeOrderByWithAggregationInput | HospitaltypeOrderByWithAggregationInput[]
-    by: HospitaltypeScalarFieldEnum[] | HospitaltypeScalarFieldEnum
-    having?: HospitaltypeScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: HospitaltypeCountAggregateInputType | true
-    _avg?: HospitaltypeAvgAggregateInputType
-    _sum?: HospitaltypeSumAggregateInputType
-    _min?: HospitaltypeMinAggregateInputType
-    _max?: HospitaltypeMaxAggregateInputType
-  }
-
-  export type HospitaltypeGroupByOutputType = {
-    id: number
-    HospitalType: string
-    _count: HospitaltypeCountAggregateOutputType | null
-    _avg: HospitaltypeAvgAggregateOutputType | null
-    _sum: HospitaltypeSumAggregateOutputType | null
-    _min: HospitaltypeMinAggregateOutputType | null
-    _max: HospitaltypeMaxAggregateOutputType | null
-  }
-
-  type GetHospitaltypeGroupByPayload<T extends HospitaltypeGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<HospitaltypeGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof HospitaltypeGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], HospitaltypeGroupByOutputType[P]>
-            : GetScalarType<T[P], HospitaltypeGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type HospitaltypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    HospitalType?: boolean
-    hospitals?: boolean | Hospitaltype$hospitalsArgs<ExtArgs>
-    _count?: boolean | HospitaltypeCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["hospitaltype"]>
-
-  export type HospitaltypeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    HospitalType?: boolean
-  }, ExtArgs["result"]["hospitaltype"]>
-
-  export type HospitaltypeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    HospitalType?: boolean
-  }, ExtArgs["result"]["hospitaltype"]>
-
-  export type HospitaltypeSelectScalar = {
-    id?: boolean
-    HospitalType?: boolean
-  }
-
-  export type HospitaltypeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "HospitalType", ExtArgs["result"]["hospitaltype"]>
-  export type HospitaltypeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    hospitals?: boolean | Hospitaltype$hospitalsArgs<ExtArgs>
-    _count?: boolean | HospitaltypeCountOutputTypeDefaultArgs<ExtArgs>
-  }
-  export type HospitaltypeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
-  export type HospitaltypeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
-
-  export type $HospitaltypePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Hospitaltype"
-    objects: {
-      hospitals: Prisma.$HospitalPayload<ExtArgs>[]
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: number
-      HospitalType: string
-    }, ExtArgs["result"]["hospitaltype"]>
-    composites: {}
-  }
-
-  type HospitaltypeGetPayload<S extends boolean | null | undefined | HospitaltypeDefaultArgs> = $Result.GetResult<Prisma.$HospitaltypePayload, S>
-
-  type HospitaltypeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<HospitaltypeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: HospitaltypeCountAggregateInputType | true
-    }
-
-  export interface HospitaltypeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Hospitaltype'], meta: { name: 'Hospitaltype' } }
-    /**
-     * Find zero or one Hospitaltype that matches the filter.
-     * @param {HospitaltypeFindUniqueArgs} args - Arguments to find a Hospitaltype
-     * @example
-     * // Get one Hospitaltype
-     * const hospitaltype = await prisma.hospitaltype.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends HospitaltypeFindUniqueArgs>(args: SelectSubset<T, HospitaltypeFindUniqueArgs<ExtArgs>>): Prisma__HospitaltypeClient<$Result.GetResult<Prisma.$HospitaltypePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one Hospitaltype that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {HospitaltypeFindUniqueOrThrowArgs} args - Arguments to find a Hospitaltype
-     * @example
-     * // Get one Hospitaltype
-     * const hospitaltype = await prisma.hospitaltype.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends HospitaltypeFindUniqueOrThrowArgs>(args: SelectSubset<T, HospitaltypeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__HospitaltypeClient<$Result.GetResult<Prisma.$HospitaltypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first Hospitaltype that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {HospitaltypeFindFirstArgs} args - Arguments to find a Hospitaltype
-     * @example
-     * // Get one Hospitaltype
-     * const hospitaltype = await prisma.hospitaltype.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends HospitaltypeFindFirstArgs>(args?: SelectSubset<T, HospitaltypeFindFirstArgs<ExtArgs>>): Prisma__HospitaltypeClient<$Result.GetResult<Prisma.$HospitaltypePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first Hospitaltype that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {HospitaltypeFindFirstOrThrowArgs} args - Arguments to find a Hospitaltype
-     * @example
-     * // Get one Hospitaltype
-     * const hospitaltype = await prisma.hospitaltype.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends HospitaltypeFindFirstOrThrowArgs>(args?: SelectSubset<T, HospitaltypeFindFirstOrThrowArgs<ExtArgs>>): Prisma__HospitaltypeClient<$Result.GetResult<Prisma.$HospitaltypePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more Hospitaltypes that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {HospitaltypeFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all Hospitaltypes
-     * const hospitaltypes = await prisma.hospitaltype.findMany()
-     * 
-     * // Get first 10 Hospitaltypes
-     * const hospitaltypes = await prisma.hospitaltype.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const hospitaltypeWithIdOnly = await prisma.hospitaltype.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends HospitaltypeFindManyArgs>(args?: SelectSubset<T, HospitaltypeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HospitaltypePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a Hospitaltype.
-     * @param {HospitaltypeCreateArgs} args - Arguments to create a Hospitaltype.
-     * @example
-     * // Create one Hospitaltype
-     * const Hospitaltype = await prisma.hospitaltype.create({
-     *   data: {
-     *     // ... data to create a Hospitaltype
-     *   }
-     * })
-     * 
-     */
-    create<T extends HospitaltypeCreateArgs>(args: SelectSubset<T, HospitaltypeCreateArgs<ExtArgs>>): Prisma__HospitaltypeClient<$Result.GetResult<Prisma.$HospitaltypePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many Hospitaltypes.
-     * @param {HospitaltypeCreateManyArgs} args - Arguments to create many Hospitaltypes.
-     * @example
-     * // Create many Hospitaltypes
-     * const hospitaltype = await prisma.hospitaltype.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends HospitaltypeCreateManyArgs>(args?: SelectSubset<T, HospitaltypeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many Hospitaltypes and returns the data saved in the database.
-     * @param {HospitaltypeCreateManyAndReturnArgs} args - Arguments to create many Hospitaltypes.
-     * @example
-     * // Create many Hospitaltypes
-     * const hospitaltype = await prisma.hospitaltype.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many Hospitaltypes and only return the `id`
-     * const hospitaltypeWithIdOnly = await prisma.hospitaltype.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends HospitaltypeCreateManyAndReturnArgs>(args?: SelectSubset<T, HospitaltypeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HospitaltypePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a Hospitaltype.
-     * @param {HospitaltypeDeleteArgs} args - Arguments to delete one Hospitaltype.
-     * @example
-     * // Delete one Hospitaltype
-     * const Hospitaltype = await prisma.hospitaltype.delete({
-     *   where: {
-     *     // ... filter to delete one Hospitaltype
-     *   }
-     * })
-     * 
-     */
-    delete<T extends HospitaltypeDeleteArgs>(args: SelectSubset<T, HospitaltypeDeleteArgs<ExtArgs>>): Prisma__HospitaltypeClient<$Result.GetResult<Prisma.$HospitaltypePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one Hospitaltype.
-     * @param {HospitaltypeUpdateArgs} args - Arguments to update one Hospitaltype.
-     * @example
-     * // Update one Hospitaltype
-     * const hospitaltype = await prisma.hospitaltype.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends HospitaltypeUpdateArgs>(args: SelectSubset<T, HospitaltypeUpdateArgs<ExtArgs>>): Prisma__HospitaltypeClient<$Result.GetResult<Prisma.$HospitaltypePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more Hospitaltypes.
-     * @param {HospitaltypeDeleteManyArgs} args - Arguments to filter Hospitaltypes to delete.
-     * @example
-     * // Delete a few Hospitaltypes
-     * const { count } = await prisma.hospitaltype.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends HospitaltypeDeleteManyArgs>(args?: SelectSubset<T, HospitaltypeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Hospitaltypes.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {HospitaltypeUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many Hospitaltypes
-     * const hospitaltype = await prisma.hospitaltype.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends HospitaltypeUpdateManyArgs>(args: SelectSubset<T, HospitaltypeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Hospitaltypes and returns the data updated in the database.
-     * @param {HospitaltypeUpdateManyAndReturnArgs} args - Arguments to update many Hospitaltypes.
-     * @example
-     * // Update many Hospitaltypes
-     * const hospitaltype = await prisma.hospitaltype.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more Hospitaltypes and only return the `id`
-     * const hospitaltypeWithIdOnly = await prisma.hospitaltype.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends HospitaltypeUpdateManyAndReturnArgs>(args: SelectSubset<T, HospitaltypeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HospitaltypePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one Hospitaltype.
-     * @param {HospitaltypeUpsertArgs} args - Arguments to update or create a Hospitaltype.
-     * @example
-     * // Update or create a Hospitaltype
-     * const hospitaltype = await prisma.hospitaltype.upsert({
-     *   create: {
-     *     // ... data to create a Hospitaltype
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the Hospitaltype we want to update
-     *   }
-     * })
-     */
-    upsert<T extends HospitaltypeUpsertArgs>(args: SelectSubset<T, HospitaltypeUpsertArgs<ExtArgs>>): Prisma__HospitaltypeClient<$Result.GetResult<Prisma.$HospitaltypePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of Hospitaltypes.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {HospitaltypeCountArgs} args - Arguments to filter Hospitaltypes to count.
-     * @example
-     * // Count the number of Hospitaltypes
-     * const count = await prisma.hospitaltype.count({
-     *   where: {
-     *     // ... the filter for the Hospitaltypes we want to count
-     *   }
-     * })
-    **/
-    count<T extends HospitaltypeCountArgs>(
-      args?: Subset<T, HospitaltypeCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], HospitaltypeCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a Hospitaltype.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {HospitaltypeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends HospitaltypeAggregateArgs>(args: Subset<T, HospitaltypeAggregateArgs>): Prisma.PrismaPromise<GetHospitaltypeAggregateType<T>>
-
-    /**
-     * Group by Hospitaltype.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {HospitaltypeGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends HospitaltypeGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: HospitaltypeGroupByArgs['orderBy'] }
-        : { orderBy?: HospitaltypeGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, HospitaltypeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetHospitaltypeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the Hospitaltype model
-   */
-  readonly fields: HospitaltypeFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for Hospitaltype.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__HospitaltypeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    hospitals<T extends Hospitaltype$hospitalsArgs<ExtArgs> = {}>(args?: Subset<T, Hospitaltype$hospitalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the Hospitaltype model
-   */
-  interface HospitaltypeFieldRefs {
-    readonly id: FieldRef<"Hospitaltype", 'Int'>
-    readonly HospitalType: FieldRef<"Hospitaltype", 'String'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * Hospitaltype findUnique
-   */
-  export type HospitaltypeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospitaltype
-     */
-    select?: HospitaltypeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospitaltype
-     */
-    omit?: HospitaltypeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitaltypeInclude<ExtArgs> | null
-    /**
-     * Filter, which Hospitaltype to fetch.
-     */
-    where: HospitaltypeWhereUniqueInput
-  }
-
-  /**
-   * Hospitaltype findUniqueOrThrow
-   */
-  export type HospitaltypeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospitaltype
-     */
-    select?: HospitaltypeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospitaltype
-     */
-    omit?: HospitaltypeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitaltypeInclude<ExtArgs> | null
-    /**
-     * Filter, which Hospitaltype to fetch.
-     */
-    where: HospitaltypeWhereUniqueInput
-  }
-
-  /**
-   * Hospitaltype findFirst
-   */
-  export type HospitaltypeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospitaltype
-     */
-    select?: HospitaltypeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospitaltype
-     */
-    omit?: HospitaltypeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitaltypeInclude<ExtArgs> | null
-    /**
-     * Filter, which Hospitaltype to fetch.
-     */
-    where?: HospitaltypeWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Hospitaltypes to fetch.
-     */
-    orderBy?: HospitaltypeOrderByWithRelationInput | HospitaltypeOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Hospitaltypes.
-     */
-    cursor?: HospitaltypeWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Hospitaltypes from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Hospitaltypes.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Hospitaltypes.
-     */
-    distinct?: HospitaltypeScalarFieldEnum | HospitaltypeScalarFieldEnum[]
-  }
-
-  /**
-   * Hospitaltype findFirstOrThrow
-   */
-  export type HospitaltypeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospitaltype
-     */
-    select?: HospitaltypeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospitaltype
-     */
-    omit?: HospitaltypeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitaltypeInclude<ExtArgs> | null
-    /**
-     * Filter, which Hospitaltype to fetch.
-     */
-    where?: HospitaltypeWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Hospitaltypes to fetch.
-     */
-    orderBy?: HospitaltypeOrderByWithRelationInput | HospitaltypeOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Hospitaltypes.
-     */
-    cursor?: HospitaltypeWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Hospitaltypes from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Hospitaltypes.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Hospitaltypes.
-     */
-    distinct?: HospitaltypeScalarFieldEnum | HospitaltypeScalarFieldEnum[]
-  }
-
-  /**
-   * Hospitaltype findMany
-   */
-  export type HospitaltypeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospitaltype
-     */
-    select?: HospitaltypeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospitaltype
-     */
-    omit?: HospitaltypeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitaltypeInclude<ExtArgs> | null
-    /**
-     * Filter, which Hospitaltypes to fetch.
-     */
-    where?: HospitaltypeWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Hospitaltypes to fetch.
-     */
-    orderBy?: HospitaltypeOrderByWithRelationInput | HospitaltypeOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing Hospitaltypes.
-     */
-    cursor?: HospitaltypeWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Hospitaltypes from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Hospitaltypes.
-     */
-    skip?: number
-    distinct?: HospitaltypeScalarFieldEnum | HospitaltypeScalarFieldEnum[]
-  }
-
-  /**
-   * Hospitaltype create
-   */
-  export type HospitaltypeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospitaltype
-     */
-    select?: HospitaltypeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospitaltype
-     */
-    omit?: HospitaltypeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitaltypeInclude<ExtArgs> | null
-    /**
-     * The data needed to create a Hospitaltype.
-     */
-    data: XOR<HospitaltypeCreateInput, HospitaltypeUncheckedCreateInput>
-  }
-
-  /**
-   * Hospitaltype createMany
-   */
-  export type HospitaltypeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many Hospitaltypes.
-     */
-    data: HospitaltypeCreateManyInput | HospitaltypeCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * Hospitaltype createManyAndReturn
-   */
-  export type HospitaltypeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospitaltype
-     */
-    select?: HospitaltypeSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospitaltype
-     */
-    omit?: HospitaltypeOmit<ExtArgs> | null
-    /**
-     * The data used to create many Hospitaltypes.
-     */
-    data: HospitaltypeCreateManyInput | HospitaltypeCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * Hospitaltype update
-   */
-  export type HospitaltypeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospitaltype
-     */
-    select?: HospitaltypeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospitaltype
-     */
-    omit?: HospitaltypeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitaltypeInclude<ExtArgs> | null
-    /**
-     * The data needed to update a Hospitaltype.
-     */
-    data: XOR<HospitaltypeUpdateInput, HospitaltypeUncheckedUpdateInput>
-    /**
-     * Choose, which Hospitaltype to update.
-     */
-    where: HospitaltypeWhereUniqueInput
-  }
-
-  /**
-   * Hospitaltype updateMany
-   */
-  export type HospitaltypeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update Hospitaltypes.
-     */
-    data: XOR<HospitaltypeUpdateManyMutationInput, HospitaltypeUncheckedUpdateManyInput>
-    /**
-     * Filter which Hospitaltypes to update
-     */
-    where?: HospitaltypeWhereInput
-    /**
-     * Limit how many Hospitaltypes to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * Hospitaltype updateManyAndReturn
-   */
-  export type HospitaltypeUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospitaltype
-     */
-    select?: HospitaltypeSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospitaltype
-     */
-    omit?: HospitaltypeOmit<ExtArgs> | null
-    /**
-     * The data used to update Hospitaltypes.
-     */
-    data: XOR<HospitaltypeUpdateManyMutationInput, HospitaltypeUncheckedUpdateManyInput>
-    /**
-     * Filter which Hospitaltypes to update
-     */
-    where?: HospitaltypeWhereInput
-    /**
-     * Limit how many Hospitaltypes to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * Hospitaltype upsert
-   */
-  export type HospitaltypeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospitaltype
-     */
-    select?: HospitaltypeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospitaltype
-     */
-    omit?: HospitaltypeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitaltypeInclude<ExtArgs> | null
-    /**
-     * The filter to search for the Hospitaltype to update in case it exists.
-     */
-    where: HospitaltypeWhereUniqueInput
-    /**
-     * In case the Hospitaltype found by the `where` argument doesn't exist, create a new Hospitaltype with this data.
-     */
-    create: XOR<HospitaltypeCreateInput, HospitaltypeUncheckedCreateInput>
-    /**
-     * In case the Hospitaltype was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<HospitaltypeUpdateInput, HospitaltypeUncheckedUpdateInput>
-  }
-
-  /**
-   * Hospitaltype delete
-   */
-  export type HospitaltypeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospitaltype
-     */
-    select?: HospitaltypeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospitaltype
-     */
-    omit?: HospitaltypeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitaltypeInclude<ExtArgs> | null
-    /**
-     * Filter which Hospitaltype to delete.
-     */
-    where: HospitaltypeWhereUniqueInput
-  }
-
-  /**
-   * Hospitaltype deleteMany
-   */
-  export type HospitaltypeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Hospitaltypes to delete
-     */
-    where?: HospitaltypeWhereInput
-    /**
-     * Limit how many Hospitaltypes to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * Hospitaltype.hospitals
-   */
-  export type Hospitaltype$hospitalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospital
-     */
-    select?: HospitalSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospital
-     */
-    omit?: HospitalOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitalInclude<ExtArgs> | null
-    where?: HospitalWhereInput
-    orderBy?: HospitalOrderByWithRelationInput | HospitalOrderByWithRelationInput[]
-    cursor?: HospitalWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: HospitalScalarFieldEnum | HospitalScalarFieldEnum[]
-  }
-
-  /**
-   * Hospitaltype without action
-   */
-  export type HospitaltypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Hospitaltype
-     */
-    select?: HospitaltypeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Hospitaltype
-     */
-    omit?: HospitaltypeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: HospitaltypeInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model UserHospitalAccess
-   */
-
-  export type AggregateUserHospitalAccess = {
-    _count: UserHospitalAccessCountAggregateOutputType | null
-    _avg: UserHospitalAccessAvgAggregateOutputType | null
-    _sum: UserHospitalAccessSumAggregateOutputType | null
-    _min: UserHospitalAccessMinAggregateOutputType | null
-    _max: UserHospitalAccessMaxAggregateOutputType | null
-  }
-
-  export type UserHospitalAccessAvgAggregateOutputType = {
-    id: number | null
-    userId: number | null
-    hospitalId: number | null
-  }
-
-  export type UserHospitalAccessSumAggregateOutputType = {
-    id: number | null
-    userId: number | null
-    hospitalId: number | null
-  }
-
-  export type UserHospitalAccessMinAggregateOutputType = {
-    id: number | null
-    userId: number | null
-    hospitalId: number | null
-    isActive: boolean | null
-  }
-
-  export type UserHospitalAccessMaxAggregateOutputType = {
-    id: number | null
-    userId: number | null
-    hospitalId: number | null
-    isActive: boolean | null
-  }
-
-  export type UserHospitalAccessCountAggregateOutputType = {
-    id: number
-    userId: number
-    hospitalId: number
-    isActive: number
-    _all: number
-  }
-
-
-  export type UserHospitalAccessAvgAggregateInputType = {
-    id?: true
-    userId?: true
-    hospitalId?: true
-  }
-
-  export type UserHospitalAccessSumAggregateInputType = {
-    id?: true
-    userId?: true
-    hospitalId?: true
-  }
-
-  export type UserHospitalAccessMinAggregateInputType = {
-    id?: true
-    userId?: true
-    hospitalId?: true
-    isActive?: true
-  }
-
-  export type UserHospitalAccessMaxAggregateInputType = {
-    id?: true
-    userId?: true
-    hospitalId?: true
-    isActive?: true
-  }
-
-  export type UserHospitalAccessCountAggregateInputType = {
-    id?: true
-    userId?: true
-    hospitalId?: true
-    isActive?: true
-    _all?: true
-  }
-
-  export type UserHospitalAccessAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which UserHospitalAccess to aggregate.
-     */
-    where?: UserHospitalAccessWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of UserHospitalAccesses to fetch.
-     */
-    orderBy?: UserHospitalAccessOrderByWithRelationInput | UserHospitalAccessOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: UserHospitalAccessWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` UserHospitalAccesses from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` UserHospitalAccesses.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned UserHospitalAccesses
-    **/
-    _count?: true | UserHospitalAccessCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: UserHospitalAccessAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: UserHospitalAccessSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: UserHospitalAccessMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: UserHospitalAccessMaxAggregateInputType
-  }
-
-  export type GetUserHospitalAccessAggregateType<T extends UserHospitalAccessAggregateArgs> = {
-        [P in keyof T & keyof AggregateUserHospitalAccess]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateUserHospitalAccess[P]>
-      : GetScalarType<T[P], AggregateUserHospitalAccess[P]>
-  }
-
-
-
-
-  export type UserHospitalAccessGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: UserHospitalAccessWhereInput
-    orderBy?: UserHospitalAccessOrderByWithAggregationInput | UserHospitalAccessOrderByWithAggregationInput[]
-    by: UserHospitalAccessScalarFieldEnum[] | UserHospitalAccessScalarFieldEnum
-    having?: UserHospitalAccessScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: UserHospitalAccessCountAggregateInputType | true
-    _avg?: UserHospitalAccessAvgAggregateInputType
-    _sum?: UserHospitalAccessSumAggregateInputType
-    _min?: UserHospitalAccessMinAggregateInputType
-    _max?: UserHospitalAccessMaxAggregateInputType
-  }
-
-  export type UserHospitalAccessGroupByOutputType = {
-    id: number
-    userId: number
-    hospitalId: number
-    isActive: boolean
-    _count: UserHospitalAccessCountAggregateOutputType | null
-    _avg: UserHospitalAccessAvgAggregateOutputType | null
-    _sum: UserHospitalAccessSumAggregateOutputType | null
-    _min: UserHospitalAccessMinAggregateOutputType | null
-    _max: UserHospitalAccessMaxAggregateOutputType | null
-  }
-
-  type GetUserHospitalAccessGroupByPayload<T extends UserHospitalAccessGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<UserHospitalAccessGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof UserHospitalAccessGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], UserHospitalAccessGroupByOutputType[P]>
-            : GetScalarType<T[P], UserHospitalAccessGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type UserHospitalAccessSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    userId?: boolean
-    hospitalId?: boolean
-    isActive?: boolean
-    user?: boolean | UserDefaultArgs<ExtArgs>
-    hospital?: boolean | HospitalDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["userHospitalAccess"]>
-
-  export type UserHospitalAccessSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    userId?: boolean
-    hospitalId?: boolean
-    isActive?: boolean
-    user?: boolean | UserDefaultArgs<ExtArgs>
-    hospital?: boolean | HospitalDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["userHospitalAccess"]>
-
-  export type UserHospitalAccessSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    userId?: boolean
-    hospitalId?: boolean
-    isActive?: boolean
-    user?: boolean | UserDefaultArgs<ExtArgs>
-    hospital?: boolean | HospitalDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["userHospitalAccess"]>
-
-  export type UserHospitalAccessSelectScalar = {
-    id?: boolean
-    userId?: boolean
-    hospitalId?: boolean
-    isActive?: boolean
-  }
-
-  export type UserHospitalAccessOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "hospitalId" | "isActive", ExtArgs["result"]["userHospitalAccess"]>
-  export type UserHospitalAccessInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    user?: boolean | UserDefaultArgs<ExtArgs>
-    hospital?: boolean | HospitalDefaultArgs<ExtArgs>
-  }
-  export type UserHospitalAccessIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    user?: boolean | UserDefaultArgs<ExtArgs>
-    hospital?: boolean | HospitalDefaultArgs<ExtArgs>
-  }
-  export type UserHospitalAccessIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    user?: boolean | UserDefaultArgs<ExtArgs>
-    hospital?: boolean | HospitalDefaultArgs<ExtArgs>
-  }
-
-  export type $UserHospitalAccessPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "UserHospitalAccess"
-    objects: {
-      user: Prisma.$UserPayload<ExtArgs>
-      hospital: Prisma.$HospitalPayload<ExtArgs>
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: number
-      userId: number
-      hospitalId: number
-      isActive: boolean
-    }, ExtArgs["result"]["userHospitalAccess"]>
-    composites: {}
-  }
-
-  type UserHospitalAccessGetPayload<S extends boolean | null | undefined | UserHospitalAccessDefaultArgs> = $Result.GetResult<Prisma.$UserHospitalAccessPayload, S>
-
-  type UserHospitalAccessCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<UserHospitalAccessFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: UserHospitalAccessCountAggregateInputType | true
-    }
-
-  export interface UserHospitalAccessDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserHospitalAccess'], meta: { name: 'UserHospitalAccess' } }
-    /**
-     * Find zero or one UserHospitalAccess that matches the filter.
-     * @param {UserHospitalAccessFindUniqueArgs} args - Arguments to find a UserHospitalAccess
-     * @example
-     * // Get one UserHospitalAccess
-     * const userHospitalAccess = await prisma.userHospitalAccess.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends UserHospitalAccessFindUniqueArgs>(args: SelectSubset<T, UserHospitalAccessFindUniqueArgs<ExtArgs>>): Prisma__UserHospitalAccessClient<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one UserHospitalAccess that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {UserHospitalAccessFindUniqueOrThrowArgs} args - Arguments to find a UserHospitalAccess
-     * @example
-     * // Get one UserHospitalAccess
-     * const userHospitalAccess = await prisma.userHospitalAccess.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends UserHospitalAccessFindUniqueOrThrowArgs>(args: SelectSubset<T, UserHospitalAccessFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserHospitalAccessClient<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first UserHospitalAccess that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserHospitalAccessFindFirstArgs} args - Arguments to find a UserHospitalAccess
-     * @example
-     * // Get one UserHospitalAccess
-     * const userHospitalAccess = await prisma.userHospitalAccess.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends UserHospitalAccessFindFirstArgs>(args?: SelectSubset<T, UserHospitalAccessFindFirstArgs<ExtArgs>>): Prisma__UserHospitalAccessClient<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first UserHospitalAccess that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserHospitalAccessFindFirstOrThrowArgs} args - Arguments to find a UserHospitalAccess
-     * @example
-     * // Get one UserHospitalAccess
-     * const userHospitalAccess = await prisma.userHospitalAccess.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends UserHospitalAccessFindFirstOrThrowArgs>(args?: SelectSubset<T, UserHospitalAccessFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserHospitalAccessClient<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more UserHospitalAccesses that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserHospitalAccessFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all UserHospitalAccesses
-     * const userHospitalAccesses = await prisma.userHospitalAccess.findMany()
-     * 
-     * // Get first 10 UserHospitalAccesses
-     * const userHospitalAccesses = await prisma.userHospitalAccess.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const userHospitalAccessWithIdOnly = await prisma.userHospitalAccess.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends UserHospitalAccessFindManyArgs>(args?: SelectSubset<T, UserHospitalAccessFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a UserHospitalAccess.
-     * @param {UserHospitalAccessCreateArgs} args - Arguments to create a UserHospitalAccess.
-     * @example
-     * // Create one UserHospitalAccess
-     * const UserHospitalAccess = await prisma.userHospitalAccess.create({
-     *   data: {
-     *     // ... data to create a UserHospitalAccess
-     *   }
-     * })
-     * 
-     */
-    create<T extends UserHospitalAccessCreateArgs>(args: SelectSubset<T, UserHospitalAccessCreateArgs<ExtArgs>>): Prisma__UserHospitalAccessClient<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many UserHospitalAccesses.
-     * @param {UserHospitalAccessCreateManyArgs} args - Arguments to create many UserHospitalAccesses.
-     * @example
-     * // Create many UserHospitalAccesses
-     * const userHospitalAccess = await prisma.userHospitalAccess.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends UserHospitalAccessCreateManyArgs>(args?: SelectSubset<T, UserHospitalAccessCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many UserHospitalAccesses and returns the data saved in the database.
-     * @param {UserHospitalAccessCreateManyAndReturnArgs} args - Arguments to create many UserHospitalAccesses.
-     * @example
-     * // Create many UserHospitalAccesses
-     * const userHospitalAccess = await prisma.userHospitalAccess.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many UserHospitalAccesses and only return the `id`
-     * const userHospitalAccessWithIdOnly = await prisma.userHospitalAccess.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends UserHospitalAccessCreateManyAndReturnArgs>(args?: SelectSubset<T, UserHospitalAccessCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a UserHospitalAccess.
-     * @param {UserHospitalAccessDeleteArgs} args - Arguments to delete one UserHospitalAccess.
-     * @example
-     * // Delete one UserHospitalAccess
-     * const UserHospitalAccess = await prisma.userHospitalAccess.delete({
-     *   where: {
-     *     // ... filter to delete one UserHospitalAccess
-     *   }
-     * })
-     * 
-     */
-    delete<T extends UserHospitalAccessDeleteArgs>(args: SelectSubset<T, UserHospitalAccessDeleteArgs<ExtArgs>>): Prisma__UserHospitalAccessClient<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one UserHospitalAccess.
-     * @param {UserHospitalAccessUpdateArgs} args - Arguments to update one UserHospitalAccess.
-     * @example
-     * // Update one UserHospitalAccess
-     * const userHospitalAccess = await prisma.userHospitalAccess.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends UserHospitalAccessUpdateArgs>(args: SelectSubset<T, UserHospitalAccessUpdateArgs<ExtArgs>>): Prisma__UserHospitalAccessClient<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more UserHospitalAccesses.
-     * @param {UserHospitalAccessDeleteManyArgs} args - Arguments to filter UserHospitalAccesses to delete.
-     * @example
-     * // Delete a few UserHospitalAccesses
-     * const { count } = await prisma.userHospitalAccess.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends UserHospitalAccessDeleteManyArgs>(args?: SelectSubset<T, UserHospitalAccessDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more UserHospitalAccesses.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserHospitalAccessUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many UserHospitalAccesses
-     * const userHospitalAccess = await prisma.userHospitalAccess.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends UserHospitalAccessUpdateManyArgs>(args: SelectSubset<T, UserHospitalAccessUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more UserHospitalAccesses and returns the data updated in the database.
-     * @param {UserHospitalAccessUpdateManyAndReturnArgs} args - Arguments to update many UserHospitalAccesses.
-     * @example
-     * // Update many UserHospitalAccesses
-     * const userHospitalAccess = await prisma.userHospitalAccess.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more UserHospitalAccesses and only return the `id`
-     * const userHospitalAccessWithIdOnly = await prisma.userHospitalAccess.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends UserHospitalAccessUpdateManyAndReturnArgs>(args: SelectSubset<T, UserHospitalAccessUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one UserHospitalAccess.
-     * @param {UserHospitalAccessUpsertArgs} args - Arguments to update or create a UserHospitalAccess.
-     * @example
-     * // Update or create a UserHospitalAccess
-     * const userHospitalAccess = await prisma.userHospitalAccess.upsert({
-     *   create: {
-     *     // ... data to create a UserHospitalAccess
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the UserHospitalAccess we want to update
-     *   }
-     * })
-     */
-    upsert<T extends UserHospitalAccessUpsertArgs>(args: SelectSubset<T, UserHospitalAccessUpsertArgs<ExtArgs>>): Prisma__UserHospitalAccessClient<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of UserHospitalAccesses.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserHospitalAccessCountArgs} args - Arguments to filter UserHospitalAccesses to count.
-     * @example
-     * // Count the number of UserHospitalAccesses
-     * const count = await prisma.userHospitalAccess.count({
-     *   where: {
-     *     // ... the filter for the UserHospitalAccesses we want to count
-     *   }
-     * })
-    **/
-    count<T extends UserHospitalAccessCountArgs>(
-      args?: Subset<T, UserHospitalAccessCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], UserHospitalAccessCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a UserHospitalAccess.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserHospitalAccessAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends UserHospitalAccessAggregateArgs>(args: Subset<T, UserHospitalAccessAggregateArgs>): Prisma.PrismaPromise<GetUserHospitalAccessAggregateType<T>>
-
-    /**
-     * Group by UserHospitalAccess.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserHospitalAccessGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends UserHospitalAccessGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: UserHospitalAccessGroupByArgs['orderBy'] }
-        : { orderBy?: UserHospitalAccessGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, UserHospitalAccessGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserHospitalAccessGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the UserHospitalAccess model
-   */
-  readonly fields: UserHospitalAccessFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for UserHospitalAccess.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__UserHospitalAccessClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    hospital<T extends HospitalDefaultArgs<ExtArgs> = {}>(args?: Subset<T, HospitalDefaultArgs<ExtArgs>>): Prisma__HospitalClient<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the UserHospitalAccess model
-   */
-  interface UserHospitalAccessFieldRefs {
-    readonly id: FieldRef<"UserHospitalAccess", 'Int'>
-    readonly userId: FieldRef<"UserHospitalAccess", 'Int'>
-    readonly hospitalId: FieldRef<"UserHospitalAccess", 'Int'>
-    readonly isActive: FieldRef<"UserHospitalAccess", 'Boolean'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * UserHospitalAccess findUnique
-   */
-  export type UserHospitalAccessFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserHospitalAccess
-     */
-    select?: UserHospitalAccessSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserHospitalAccess
-     */
-    omit?: UserHospitalAccessOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserHospitalAccessInclude<ExtArgs> | null
-    /**
-     * Filter, which UserHospitalAccess to fetch.
-     */
-    where: UserHospitalAccessWhereUniqueInput
-  }
-
-  /**
-   * UserHospitalAccess findUniqueOrThrow
-   */
-  export type UserHospitalAccessFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserHospitalAccess
-     */
-    select?: UserHospitalAccessSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserHospitalAccess
-     */
-    omit?: UserHospitalAccessOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserHospitalAccessInclude<ExtArgs> | null
-    /**
-     * Filter, which UserHospitalAccess to fetch.
-     */
-    where: UserHospitalAccessWhereUniqueInput
-  }
-
-  /**
-   * UserHospitalAccess findFirst
-   */
-  export type UserHospitalAccessFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserHospitalAccess
-     */
-    select?: UserHospitalAccessSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserHospitalAccess
-     */
-    omit?: UserHospitalAccessOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserHospitalAccessInclude<ExtArgs> | null
-    /**
-     * Filter, which UserHospitalAccess to fetch.
-     */
-    where?: UserHospitalAccessWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of UserHospitalAccesses to fetch.
-     */
-    orderBy?: UserHospitalAccessOrderByWithRelationInput | UserHospitalAccessOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for UserHospitalAccesses.
-     */
-    cursor?: UserHospitalAccessWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` UserHospitalAccesses from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` UserHospitalAccesses.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of UserHospitalAccesses.
-     */
-    distinct?: UserHospitalAccessScalarFieldEnum | UserHospitalAccessScalarFieldEnum[]
-  }
-
-  /**
-   * UserHospitalAccess findFirstOrThrow
-   */
-  export type UserHospitalAccessFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserHospitalAccess
-     */
-    select?: UserHospitalAccessSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserHospitalAccess
-     */
-    omit?: UserHospitalAccessOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserHospitalAccessInclude<ExtArgs> | null
-    /**
-     * Filter, which UserHospitalAccess to fetch.
-     */
-    where?: UserHospitalAccessWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of UserHospitalAccesses to fetch.
-     */
-    orderBy?: UserHospitalAccessOrderByWithRelationInput | UserHospitalAccessOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for UserHospitalAccesses.
-     */
-    cursor?: UserHospitalAccessWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` UserHospitalAccesses from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` UserHospitalAccesses.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of UserHospitalAccesses.
-     */
-    distinct?: UserHospitalAccessScalarFieldEnum | UserHospitalAccessScalarFieldEnum[]
-  }
-
-  /**
-   * UserHospitalAccess findMany
-   */
-  export type UserHospitalAccessFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserHospitalAccess
-     */
-    select?: UserHospitalAccessSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserHospitalAccess
-     */
-    omit?: UserHospitalAccessOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserHospitalAccessInclude<ExtArgs> | null
-    /**
-     * Filter, which UserHospitalAccesses to fetch.
-     */
-    where?: UserHospitalAccessWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of UserHospitalAccesses to fetch.
-     */
-    orderBy?: UserHospitalAccessOrderByWithRelationInput | UserHospitalAccessOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing UserHospitalAccesses.
-     */
-    cursor?: UserHospitalAccessWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` UserHospitalAccesses from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` UserHospitalAccesses.
-     */
-    skip?: number
-    distinct?: UserHospitalAccessScalarFieldEnum | UserHospitalAccessScalarFieldEnum[]
-  }
-
-  /**
-   * UserHospitalAccess create
-   */
-  export type UserHospitalAccessCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserHospitalAccess
-     */
-    select?: UserHospitalAccessSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserHospitalAccess
-     */
-    omit?: UserHospitalAccessOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserHospitalAccessInclude<ExtArgs> | null
-    /**
-     * The data needed to create a UserHospitalAccess.
-     */
-    data: XOR<UserHospitalAccessCreateInput, UserHospitalAccessUncheckedCreateInput>
-  }
-
-  /**
-   * UserHospitalAccess createMany
-   */
-  export type UserHospitalAccessCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many UserHospitalAccesses.
-     */
-    data: UserHospitalAccessCreateManyInput | UserHospitalAccessCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * UserHospitalAccess createManyAndReturn
-   */
-  export type UserHospitalAccessCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserHospitalAccess
-     */
-    select?: UserHospitalAccessSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserHospitalAccess
-     */
-    omit?: UserHospitalAccessOmit<ExtArgs> | null
-    /**
-     * The data used to create many UserHospitalAccesses.
-     */
-    data: UserHospitalAccessCreateManyInput | UserHospitalAccessCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserHospitalAccessIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * UserHospitalAccess update
-   */
-  export type UserHospitalAccessUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserHospitalAccess
-     */
-    select?: UserHospitalAccessSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserHospitalAccess
-     */
-    omit?: UserHospitalAccessOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserHospitalAccessInclude<ExtArgs> | null
-    /**
-     * The data needed to update a UserHospitalAccess.
-     */
-    data: XOR<UserHospitalAccessUpdateInput, UserHospitalAccessUncheckedUpdateInput>
-    /**
-     * Choose, which UserHospitalAccess to update.
-     */
-    where: UserHospitalAccessWhereUniqueInput
-  }
-
-  /**
-   * UserHospitalAccess updateMany
-   */
-  export type UserHospitalAccessUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update UserHospitalAccesses.
-     */
-    data: XOR<UserHospitalAccessUpdateManyMutationInput, UserHospitalAccessUncheckedUpdateManyInput>
-    /**
-     * Filter which UserHospitalAccesses to update
-     */
-    where?: UserHospitalAccessWhereInput
-    /**
-     * Limit how many UserHospitalAccesses to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * UserHospitalAccess updateManyAndReturn
-   */
-  export type UserHospitalAccessUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserHospitalAccess
-     */
-    select?: UserHospitalAccessSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserHospitalAccess
-     */
-    omit?: UserHospitalAccessOmit<ExtArgs> | null
-    /**
-     * The data used to update UserHospitalAccesses.
-     */
-    data: XOR<UserHospitalAccessUpdateManyMutationInput, UserHospitalAccessUncheckedUpdateManyInput>
-    /**
-     * Filter which UserHospitalAccesses to update
-     */
-    where?: UserHospitalAccessWhereInput
-    /**
-     * Limit how many UserHospitalAccesses to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserHospitalAccessIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * UserHospitalAccess upsert
-   */
-  export type UserHospitalAccessUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserHospitalAccess
-     */
-    select?: UserHospitalAccessSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserHospitalAccess
-     */
-    omit?: UserHospitalAccessOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserHospitalAccessInclude<ExtArgs> | null
-    /**
-     * The filter to search for the UserHospitalAccess to update in case it exists.
-     */
-    where: UserHospitalAccessWhereUniqueInput
-    /**
-     * In case the UserHospitalAccess found by the `where` argument doesn't exist, create a new UserHospitalAccess with this data.
-     */
-    create: XOR<UserHospitalAccessCreateInput, UserHospitalAccessUncheckedCreateInput>
-    /**
-     * In case the UserHospitalAccess was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<UserHospitalAccessUpdateInput, UserHospitalAccessUncheckedUpdateInput>
-  }
-
-  /**
-   * UserHospitalAccess delete
-   */
-  export type UserHospitalAccessDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserHospitalAccess
-     */
-    select?: UserHospitalAccessSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserHospitalAccess
-     */
-    omit?: UserHospitalAccessOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserHospitalAccessInclude<ExtArgs> | null
-    /**
-     * Filter which UserHospitalAccess to delete.
-     */
-    where: UserHospitalAccessWhereUniqueInput
-  }
-
-  /**
-   * UserHospitalAccess deleteMany
-   */
-  export type UserHospitalAccessDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which UserHospitalAccesses to delete
-     */
-    where?: UserHospitalAccessWhereInput
-    /**
-     * Limit how many UserHospitalAccesses to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * UserHospitalAccess without action
-   */
-  export type UserHospitalAccessDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserHospitalAccess
-     */
-    select?: UserHospitalAccessSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserHospitalAccess
-     */
-    omit?: UserHospitalAccessOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserHospitalAccessInclude<ExtArgs> | null
   }
 
 
@@ -11052,356 +10568,374 @@ export namespace Prisma {
 
 
   /**
-   * Model Permission
+   * Model Role
    */
 
-  export type AggregatePermission = {
-    _count: PermissionCountAggregateOutputType | null
-    _avg: PermissionAvgAggregateOutputType | null
-    _sum: PermissionSumAggregateOutputType | null
-    _min: PermissionMinAggregateOutputType | null
-    _max: PermissionMaxAggregateOutputType | null
+  export type AggregateRole = {
+    _count: RoleCountAggregateOutputType | null
+    _avg: RoleAvgAggregateOutputType | null
+    _sum: RoleSumAggregateOutputType | null
+    _min: RoleMinAggregateOutputType | null
+    _max: RoleMaxAggregateOutputType | null
   }
 
-  export type PermissionAvgAggregateOutputType = {
+  export type RoleAvgAggregateOutputType = {
     id: number | null
   }
 
-  export type PermissionSumAggregateOutputType = {
+  export type RoleSumAggregateOutputType = {
     id: number | null
   }
 
-  export type PermissionMinAggregateOutputType = {
+  export type RoleMinAggregateOutputType = {
     id: number | null
-    name: string | null
+    Rolename: string | null
     description: string | null
+    isActive: boolean | null
   }
 
-  export type PermissionMaxAggregateOutputType = {
+  export type RoleMaxAggregateOutputType = {
     id: number | null
-    name: string | null
+    Rolename: string | null
     description: string | null
+    isActive: boolean | null
   }
 
-  export type PermissionCountAggregateOutputType = {
+  export type RoleCountAggregateOutputType = {
     id: number
-    name: number
+    Rolename: number
     description: number
+    isActive: number
     _all: number
   }
 
 
-  export type PermissionAvgAggregateInputType = {
+  export type RoleAvgAggregateInputType = {
     id?: true
   }
 
-  export type PermissionSumAggregateInputType = {
+  export type RoleSumAggregateInputType = {
     id?: true
   }
 
-  export type PermissionMinAggregateInputType = {
+  export type RoleMinAggregateInputType = {
     id?: true
-    name?: true
+    Rolename?: true
     description?: true
+    isActive?: true
   }
 
-  export type PermissionMaxAggregateInputType = {
+  export type RoleMaxAggregateInputType = {
     id?: true
-    name?: true
+    Rolename?: true
     description?: true
+    isActive?: true
   }
 
-  export type PermissionCountAggregateInputType = {
+  export type RoleCountAggregateInputType = {
     id?: true
-    name?: true
+    Rolename?: true
     description?: true
+    isActive?: true
     _all?: true
   }
 
-  export type PermissionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RoleAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Permission to aggregate.
+     * Filter which Role to aggregate.
      */
-    where?: PermissionWhereInput
+    where?: RoleWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Permissions to fetch.
+     * Determine the order of Roles to fetch.
      */
-    orderBy?: PermissionOrderByWithRelationInput | PermissionOrderByWithRelationInput[]
+    orderBy?: RoleOrderByWithRelationInput | RoleOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: PermissionWhereUniqueInput
+    cursor?: RoleWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Permissions from the position of the cursor.
+     * Take `±n` Roles from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Permissions.
+     * Skip the first `n` Roles.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned Permissions
+     * Count returned Roles
     **/
-    _count?: true | PermissionCountAggregateInputType
+    _count?: true | RoleCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: PermissionAvgAggregateInputType
+    _avg?: RoleAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: PermissionSumAggregateInputType
+    _sum?: RoleSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: PermissionMinAggregateInputType
+    _min?: RoleMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: PermissionMaxAggregateInputType
+    _max?: RoleMaxAggregateInputType
   }
 
-  export type GetPermissionAggregateType<T extends PermissionAggregateArgs> = {
-        [P in keyof T & keyof AggregatePermission]: P extends '_count' | 'count'
+  export type GetRoleAggregateType<T extends RoleAggregateArgs> = {
+        [P in keyof T & keyof AggregateRole]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregatePermission[P]>
-      : GetScalarType<T[P], AggregatePermission[P]>
+        : GetScalarType<T[P], AggregateRole[P]>
+      : GetScalarType<T[P], AggregateRole[P]>
   }
 
 
 
 
-  export type PermissionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: PermissionWhereInput
-    orderBy?: PermissionOrderByWithAggregationInput | PermissionOrderByWithAggregationInput[]
-    by: PermissionScalarFieldEnum[] | PermissionScalarFieldEnum
-    having?: PermissionScalarWhereWithAggregatesInput
+  export type RoleGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RoleWhereInput
+    orderBy?: RoleOrderByWithAggregationInput | RoleOrderByWithAggregationInput[]
+    by: RoleScalarFieldEnum[] | RoleScalarFieldEnum
+    having?: RoleScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: PermissionCountAggregateInputType | true
-    _avg?: PermissionAvgAggregateInputType
-    _sum?: PermissionSumAggregateInputType
-    _min?: PermissionMinAggregateInputType
-    _max?: PermissionMaxAggregateInputType
+    _count?: RoleCountAggregateInputType | true
+    _avg?: RoleAvgAggregateInputType
+    _sum?: RoleSumAggregateInputType
+    _min?: RoleMinAggregateInputType
+    _max?: RoleMaxAggregateInputType
   }
 
-  export type PermissionGroupByOutputType = {
+  export type RoleGroupByOutputType = {
     id: number
-    name: string
-    description: string | null
-    _count: PermissionCountAggregateOutputType | null
-    _avg: PermissionAvgAggregateOutputType | null
-    _sum: PermissionSumAggregateOutputType | null
-    _min: PermissionMinAggregateOutputType | null
-    _max: PermissionMaxAggregateOutputType | null
+    Rolename: string
+    description: string
+    isActive: boolean
+    _count: RoleCountAggregateOutputType | null
+    _avg: RoleAvgAggregateOutputType | null
+    _sum: RoleSumAggregateOutputType | null
+    _min: RoleMinAggregateOutputType | null
+    _max: RoleMaxAggregateOutputType | null
   }
 
-  type GetPermissionGroupByPayload<T extends PermissionGroupByArgs> = Prisma.PrismaPromise<
+  type GetRoleGroupByPayload<T extends RoleGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<PermissionGroupByOutputType, T['by']> &
+      PickEnumerable<RoleGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof PermissionGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof RoleGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], PermissionGroupByOutputType[P]>
-            : GetScalarType<T[P], PermissionGroupByOutputType[P]>
+              : GetScalarType<T[P], RoleGroupByOutputType[P]>
+            : GetScalarType<T[P], RoleGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type PermissionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type RoleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    name?: boolean
+    Rolename?: boolean
     description?: boolean
-    roles?: boolean | Permission$rolesArgs<ExtArgs>
-    _count?: boolean | PermissionCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["permission"]>
+    isActive?: boolean
+    users?: boolean | Role$usersArgs<ExtArgs>
+    UserHospitalAccess?: boolean | Role$UserHospitalAccessArgs<ExtArgs>
+    permissions?: boolean | Role$permissionsArgs<ExtArgs>
+    _count?: boolean | RoleCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["role"]>
 
-  export type PermissionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type RoleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    name?: boolean
+    Rolename?: boolean
     description?: boolean
-  }, ExtArgs["result"]["permission"]>
+    isActive?: boolean
+  }, ExtArgs["result"]["role"]>
 
-  export type PermissionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type RoleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    name?: boolean
+    Rolename?: boolean
     description?: boolean
-  }, ExtArgs["result"]["permission"]>
+    isActive?: boolean
+  }, ExtArgs["result"]["role"]>
 
-  export type PermissionSelectScalar = {
+  export type RoleSelectScalar = {
     id?: boolean
-    name?: boolean
+    Rolename?: boolean
     description?: boolean
+    isActive?: boolean
   }
 
-  export type PermissionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description", ExtArgs["result"]["permission"]>
-  export type PermissionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    roles?: boolean | Permission$rolesArgs<ExtArgs>
-    _count?: boolean | PermissionCountOutputTypeDefaultArgs<ExtArgs>
+  export type RoleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "Rolename" | "description" | "isActive", ExtArgs["result"]["role"]>
+  export type RoleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    users?: boolean | Role$usersArgs<ExtArgs>
+    UserHospitalAccess?: boolean | Role$UserHospitalAccessArgs<ExtArgs>
+    permissions?: boolean | Role$permissionsArgs<ExtArgs>
+    _count?: boolean | RoleCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type PermissionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
-  export type PermissionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type RoleIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type RoleIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
-  export type $PermissionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Permission"
+  export type $RolePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Role"
     objects: {
-      roles: Prisma.$RolePermissionPayload<ExtArgs>[]
+      users: Prisma.$UserPayload<ExtArgs>[]
+      UserHospitalAccess: Prisma.$UserHospitalAccessPayload<ExtArgs>[]
+      permissions: Prisma.$RolePermissionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
-      name: string
-      description: string | null
-    }, ExtArgs["result"]["permission"]>
+      Rolename: string
+      description: string
+      isActive: boolean
+    }, ExtArgs["result"]["role"]>
     composites: {}
   }
 
-  type PermissionGetPayload<S extends boolean | null | undefined | PermissionDefaultArgs> = $Result.GetResult<Prisma.$PermissionPayload, S>
+  type RoleGetPayload<S extends boolean | null | undefined | RoleDefaultArgs> = $Result.GetResult<Prisma.$RolePayload, S>
 
-  type PermissionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<PermissionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: PermissionCountAggregateInputType | true
+  type RoleCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<RoleFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: RoleCountAggregateInputType | true
     }
 
-  export interface PermissionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Permission'], meta: { name: 'Permission' } }
+  export interface RoleDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Role'], meta: { name: 'Role' } }
     /**
-     * Find zero or one Permission that matches the filter.
-     * @param {PermissionFindUniqueArgs} args - Arguments to find a Permission
+     * Find zero or one Role that matches the filter.
+     * @param {RoleFindUniqueArgs} args - Arguments to find a Role
      * @example
-     * // Get one Permission
-     * const permission = await prisma.permission.findUnique({
+     * // Get one Role
+     * const role = await prisma.role.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends PermissionFindUniqueArgs>(args: SelectSubset<T, PermissionFindUniqueArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends RoleFindUniqueArgs>(args: SelectSubset<T, RoleFindUniqueArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one Permission that matches the filter or throw an error with `error.code='P2025'`
+     * Find one Role that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
-     * @param {PermissionFindUniqueOrThrowArgs} args - Arguments to find a Permission
+     * @param {RoleFindUniqueOrThrowArgs} args - Arguments to find a Role
      * @example
-     * // Get one Permission
-     * const permission = await prisma.permission.findUniqueOrThrow({
+     * // Get one Role
+     * const role = await prisma.role.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends PermissionFindUniqueOrThrowArgs>(args: SelectSubset<T, PermissionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends RoleFindUniqueOrThrowArgs>(args: SelectSubset<T, RoleFindUniqueOrThrowArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first Permission that matches the filter.
+     * Find the first Role that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PermissionFindFirstArgs} args - Arguments to find a Permission
+     * @param {RoleFindFirstArgs} args - Arguments to find a Role
      * @example
-     * // Get one Permission
-     * const permission = await prisma.permission.findFirst({
+     * // Get one Role
+     * const role = await prisma.role.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends PermissionFindFirstArgs>(args?: SelectSubset<T, PermissionFindFirstArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends RoleFindFirstArgs>(args?: SelectSubset<T, RoleFindFirstArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first Permission that matches the filter or
+     * Find the first Role that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PermissionFindFirstOrThrowArgs} args - Arguments to find a Permission
+     * @param {RoleFindFirstOrThrowArgs} args - Arguments to find a Role
      * @example
-     * // Get one Permission
-     * const permission = await prisma.permission.findFirstOrThrow({
+     * // Get one Role
+     * const role = await prisma.role.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends PermissionFindFirstOrThrowArgs>(args?: SelectSubset<T, PermissionFindFirstOrThrowArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends RoleFindFirstOrThrowArgs>(args?: SelectSubset<T, RoleFindFirstOrThrowArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find zero or more Permissions that matches the filter.
+     * Find zero or more Roles that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PermissionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {RoleFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all Permissions
-     * const permissions = await prisma.permission.findMany()
+     * // Get all Roles
+     * const roles = await prisma.role.findMany()
      * 
-     * // Get first 10 Permissions
-     * const permissions = await prisma.permission.findMany({ take: 10 })
+     * // Get first 10 Roles
+     * const roles = await prisma.role.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const permissionWithIdOnly = await prisma.permission.findMany({ select: { id: true } })
+     * const roleWithIdOnly = await prisma.role.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends PermissionFindManyArgs>(args?: SelectSubset<T, PermissionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends RoleFindManyArgs>(args?: SelectSubset<T, RoleFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
-     * Create a Permission.
-     * @param {PermissionCreateArgs} args - Arguments to create a Permission.
+     * Create a Role.
+     * @param {RoleCreateArgs} args - Arguments to create a Role.
      * @example
-     * // Create one Permission
-     * const Permission = await prisma.permission.create({
+     * // Create one Role
+     * const Role = await prisma.role.create({
      *   data: {
-     *     // ... data to create a Permission
+     *     // ... data to create a Role
      *   }
      * })
      * 
      */
-    create<T extends PermissionCreateArgs>(args: SelectSubset<T, PermissionCreateArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends RoleCreateArgs>(args: SelectSubset<T, RoleCreateArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Create many Permissions.
-     * @param {PermissionCreateManyArgs} args - Arguments to create many Permissions.
+     * Create many Roles.
+     * @param {RoleCreateManyArgs} args - Arguments to create many Roles.
      * @example
-     * // Create many Permissions
-     * const permission = await prisma.permission.createMany({
+     * // Create many Roles
+     * const role = await prisma.role.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends PermissionCreateManyArgs>(args?: SelectSubset<T, PermissionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends RoleCreateManyArgs>(args?: SelectSubset<T, RoleCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many Permissions and returns the data saved in the database.
-     * @param {PermissionCreateManyAndReturnArgs} args - Arguments to create many Permissions.
+     * Create many Roles and returns the data saved in the database.
+     * @param {RoleCreateManyAndReturnArgs} args - Arguments to create many Roles.
      * @example
-     * // Create many Permissions
-     * const permission = await prisma.permission.createManyAndReturn({
+     * // Create many Roles
+     * const role = await prisma.role.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many Permissions and only return the `id`
-     * const permissionWithIdOnly = await prisma.permission.createManyAndReturn({
+     * // Create many Roles and only return the `id`
+     * const roleWithIdOnly = await prisma.role.createManyAndReturn({
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -11411,28 +10945,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends PermissionCreateManyAndReturnArgs>(args?: SelectSubset<T, PermissionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+    createManyAndReturn<T extends RoleCreateManyAndReturnArgs>(args?: SelectSubset<T, RoleCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Delete a Permission.
-     * @param {PermissionDeleteArgs} args - Arguments to delete one Permission.
+     * Delete a Role.
+     * @param {RoleDeleteArgs} args - Arguments to delete one Role.
      * @example
-     * // Delete one Permission
-     * const Permission = await prisma.permission.delete({
+     * // Delete one Role
+     * const Role = await prisma.role.delete({
      *   where: {
-     *     // ... filter to delete one Permission
+     *     // ... filter to delete one Role
      *   }
      * })
      * 
      */
-    delete<T extends PermissionDeleteArgs>(args: SelectSubset<T, PermissionDeleteArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends RoleDeleteArgs>(args: SelectSubset<T, RoleDeleteArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Update one Permission.
-     * @param {PermissionUpdateArgs} args - Arguments to update one Permission.
+     * Update one Role.
+     * @param {RoleUpdateArgs} args - Arguments to update one Role.
      * @example
-     * // Update one Permission
-     * const permission = await prisma.permission.update({
+     * // Update one Role
+     * const role = await prisma.role.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -11442,30 +10976,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends PermissionUpdateArgs>(args: SelectSubset<T, PermissionUpdateArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends RoleUpdateArgs>(args: SelectSubset<T, RoleUpdateArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Delete zero or more Permissions.
-     * @param {PermissionDeleteManyArgs} args - Arguments to filter Permissions to delete.
+     * Delete zero or more Roles.
+     * @param {RoleDeleteManyArgs} args - Arguments to filter Roles to delete.
      * @example
-     * // Delete a few Permissions
-     * const { count } = await prisma.permission.deleteMany({
+     * // Delete a few Roles
+     * const { count } = await prisma.role.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends PermissionDeleteManyArgs>(args?: SelectSubset<T, PermissionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends RoleDeleteManyArgs>(args?: SelectSubset<T, RoleDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Permissions.
+     * Update zero or more Roles.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PermissionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {RoleUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many Permissions
-     * const permission = await prisma.permission.updateMany({
+     * // Update many Roles
+     * const role = await prisma.role.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -11475,14 +11009,14 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends PermissionUpdateManyArgs>(args: SelectSubset<T, PermissionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends RoleUpdateManyArgs>(args: SelectSubset<T, RoleUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Permissions and returns the data updated in the database.
-     * @param {PermissionUpdateManyAndReturnArgs} args - Arguments to update many Permissions.
+     * Update zero or more Roles and returns the data updated in the database.
+     * @param {RoleUpdateManyAndReturnArgs} args - Arguments to update many Roles.
      * @example
-     * // Update many Permissions
-     * const permission = await prisma.permission.updateManyAndReturn({
+     * // Update many Roles
+     * const role = await prisma.role.updateManyAndReturn({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -11491,8 +11025,8 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Update zero or more Permissions and only return the `id`
-     * const permissionWithIdOnly = await prisma.permission.updateManyAndReturn({
+     * // Update zero or more Roles and only return the `id`
+     * const roleWithIdOnly = await prisma.role.updateManyAndReturn({
      *   select: { id: true },
      *   where: {
      *     // ... provide filter here
@@ -11505,56 +11039,56 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    updateManyAndReturn<T extends PermissionUpdateManyAndReturnArgs>(args: SelectSubset<T, PermissionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+    updateManyAndReturn<T extends RoleUpdateManyAndReturnArgs>(args: SelectSubset<T, RoleUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Create or update one Permission.
-     * @param {PermissionUpsertArgs} args - Arguments to update or create a Permission.
+     * Create or update one Role.
+     * @param {RoleUpsertArgs} args - Arguments to update or create a Role.
      * @example
-     * // Update or create a Permission
-     * const permission = await prisma.permission.upsert({
+     * // Update or create a Role
+     * const role = await prisma.role.upsert({
      *   create: {
-     *     // ... data to create a Permission
+     *     // ... data to create a Role
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the Permission we want to update
+     *     // ... the filter for the Role we want to update
      *   }
      * })
      */
-    upsert<T extends PermissionUpsertArgs>(args: SelectSubset<T, PermissionUpsertArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends RoleUpsertArgs>(args: SelectSubset<T, RoleUpsertArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
-     * Count the number of Permissions.
+     * Count the number of Roles.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PermissionCountArgs} args - Arguments to filter Permissions to count.
+     * @param {RoleCountArgs} args - Arguments to filter Roles to count.
      * @example
-     * // Count the number of Permissions
-     * const count = await prisma.permission.count({
+     * // Count the number of Roles
+     * const count = await prisma.role.count({
      *   where: {
-     *     // ... the filter for the Permissions we want to count
+     *     // ... the filter for the Roles we want to count
      *   }
      * })
     **/
-    count<T extends PermissionCountArgs>(
-      args?: Subset<T, PermissionCountArgs>,
+    count<T extends RoleCountArgs>(
+      args?: Subset<T, RoleCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], PermissionCountAggregateOutputType>
+          : GetScalarType<T['select'], RoleCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a Permission.
+     * Allows you to perform aggregations operations on a Role.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PermissionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {RoleAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -11574,13 +11108,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends PermissionAggregateArgs>(args: Subset<T, PermissionAggregateArgs>): Prisma.PrismaPromise<GetPermissionAggregateType<T>>
+    aggregate<T extends RoleAggregateArgs>(args: Subset<T, RoleAggregateArgs>): Prisma.PrismaPromise<GetRoleAggregateType<T>>
 
     /**
-     * Group by Permission.
+     * Group by Role.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PermissionGroupByArgs} args - Group by arguments.
+     * @param {RoleGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -11595,14 +11129,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends PermissionGroupByArgs,
+      T extends RoleGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: PermissionGroupByArgs['orderBy'] }
-        : { orderBy?: PermissionGroupByArgs['orderBy'] },
+        ? { orderBy: RoleGroupByArgs['orderBy'] }
+        : { orderBy?: RoleGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -11651,22 +11185,24 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, PermissionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPermissionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, RoleGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetRoleGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the Permission model
+   * Fields of the Role model
    */
-  readonly fields: PermissionFieldRefs;
+  readonly fields: RoleFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for Permission.
+   * The delegate class that acts as a "Promise-like" for Role.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__PermissionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__RoleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    roles<T extends Permission$rolesArgs<ExtArgs> = {}>(args?: Subset<T, Permission$rolesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RolePermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    users<T extends Role$usersArgs<ExtArgs> = {}>(args?: Subset<T, Role$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    UserHospitalAccess<T extends Role$UserHospitalAccessArgs<ExtArgs> = {}>(args?: Subset<T, Role$UserHospitalAccessArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    permissions<T extends Role$permissionsArgs<ExtArgs> = {}>(args?: Subset<T, Role$permissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RolePermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -11693,403 +11229,452 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the Permission model
+   * Fields of the Role model
    */
-  interface PermissionFieldRefs {
-    readonly id: FieldRef<"Permission", 'Int'>
-    readonly name: FieldRef<"Permission", 'String'>
-    readonly description: FieldRef<"Permission", 'String'>
+  interface RoleFieldRefs {
+    readonly id: FieldRef<"Role", 'Int'>
+    readonly Rolename: FieldRef<"Role", 'String'>
+    readonly description: FieldRef<"Role", 'String'>
+    readonly isActive: FieldRef<"Role", 'Boolean'>
   }
     
 
   // Custom InputTypes
   /**
-   * Permission findUnique
+   * Role findUnique
    */
-  export type PermissionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RoleFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Permission
+     * Select specific fields to fetch from the Role
      */
-    select?: PermissionSelect<ExtArgs> | null
+    select?: RoleSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Permission
+     * Omit specific fields from the Role
      */
-    omit?: PermissionOmit<ExtArgs> | null
+    omit?: RoleOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PermissionInclude<ExtArgs> | null
+    include?: RoleInclude<ExtArgs> | null
     /**
-     * Filter, which Permission to fetch.
+     * Filter, which Role to fetch.
      */
-    where: PermissionWhereUniqueInput
+    where: RoleWhereUniqueInput
   }
 
   /**
-   * Permission findUniqueOrThrow
+   * Role findUniqueOrThrow
    */
-  export type PermissionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RoleFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Permission
+     * Select specific fields to fetch from the Role
      */
-    select?: PermissionSelect<ExtArgs> | null
+    select?: RoleSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Permission
+     * Omit specific fields from the Role
      */
-    omit?: PermissionOmit<ExtArgs> | null
+    omit?: RoleOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PermissionInclude<ExtArgs> | null
+    include?: RoleInclude<ExtArgs> | null
     /**
-     * Filter, which Permission to fetch.
+     * Filter, which Role to fetch.
      */
-    where: PermissionWhereUniqueInput
+    where: RoleWhereUniqueInput
   }
 
   /**
-   * Permission findFirst
+   * Role findFirst
    */
-  export type PermissionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RoleFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Permission
+     * Select specific fields to fetch from the Role
      */
-    select?: PermissionSelect<ExtArgs> | null
+    select?: RoleSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Permission
+     * Omit specific fields from the Role
      */
-    omit?: PermissionOmit<ExtArgs> | null
+    omit?: RoleOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PermissionInclude<ExtArgs> | null
+    include?: RoleInclude<ExtArgs> | null
     /**
-     * Filter, which Permission to fetch.
+     * Filter, which Role to fetch.
      */
-    where?: PermissionWhereInput
+    where?: RoleWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Permissions to fetch.
+     * Determine the order of Roles to fetch.
      */
-    orderBy?: PermissionOrderByWithRelationInput | PermissionOrderByWithRelationInput[]
+    orderBy?: RoleOrderByWithRelationInput | RoleOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Permissions.
+     * Sets the position for searching for Roles.
      */
-    cursor?: PermissionWhereUniqueInput
+    cursor?: RoleWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Permissions from the position of the cursor.
+     * Take `±n` Roles from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Permissions.
+     * Skip the first `n` Roles.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Permissions.
+     * Filter by unique combinations of Roles.
      */
-    distinct?: PermissionScalarFieldEnum | PermissionScalarFieldEnum[]
+    distinct?: RoleScalarFieldEnum | RoleScalarFieldEnum[]
   }
 
   /**
-   * Permission findFirstOrThrow
+   * Role findFirstOrThrow
    */
-  export type PermissionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RoleFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Permission
+     * Select specific fields to fetch from the Role
      */
-    select?: PermissionSelect<ExtArgs> | null
+    select?: RoleSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Permission
+     * Omit specific fields from the Role
      */
-    omit?: PermissionOmit<ExtArgs> | null
+    omit?: RoleOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PermissionInclude<ExtArgs> | null
+    include?: RoleInclude<ExtArgs> | null
     /**
-     * Filter, which Permission to fetch.
+     * Filter, which Role to fetch.
      */
-    where?: PermissionWhereInput
+    where?: RoleWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Permissions to fetch.
+     * Determine the order of Roles to fetch.
      */
-    orderBy?: PermissionOrderByWithRelationInput | PermissionOrderByWithRelationInput[]
+    orderBy?: RoleOrderByWithRelationInput | RoleOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Permissions.
+     * Sets the position for searching for Roles.
      */
-    cursor?: PermissionWhereUniqueInput
+    cursor?: RoleWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Permissions from the position of the cursor.
+     * Take `±n` Roles from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Permissions.
+     * Skip the first `n` Roles.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Permissions.
+     * Filter by unique combinations of Roles.
      */
-    distinct?: PermissionScalarFieldEnum | PermissionScalarFieldEnum[]
+    distinct?: RoleScalarFieldEnum | RoleScalarFieldEnum[]
   }
 
   /**
-   * Permission findMany
+   * Role findMany
    */
-  export type PermissionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RoleFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Permission
+     * Select specific fields to fetch from the Role
      */
-    select?: PermissionSelect<ExtArgs> | null
+    select?: RoleSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Permission
+     * Omit specific fields from the Role
      */
-    omit?: PermissionOmit<ExtArgs> | null
+    omit?: RoleOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PermissionInclude<ExtArgs> | null
+    include?: RoleInclude<ExtArgs> | null
     /**
-     * Filter, which Permissions to fetch.
+     * Filter, which Roles to fetch.
      */
-    where?: PermissionWhereInput
+    where?: RoleWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Permissions to fetch.
+     * Determine the order of Roles to fetch.
      */
-    orderBy?: PermissionOrderByWithRelationInput | PermissionOrderByWithRelationInput[]
+    orderBy?: RoleOrderByWithRelationInput | RoleOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing Permissions.
+     * Sets the position for listing Roles.
      */
-    cursor?: PermissionWhereUniqueInput
+    cursor?: RoleWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Permissions from the position of the cursor.
+     * Take `±n` Roles from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Permissions.
+     * Skip the first `n` Roles.
      */
     skip?: number
-    distinct?: PermissionScalarFieldEnum | PermissionScalarFieldEnum[]
+    distinct?: RoleScalarFieldEnum | RoleScalarFieldEnum[]
   }
 
   /**
-   * Permission create
+   * Role create
    */
-  export type PermissionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RoleCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Permission
+     * Select specific fields to fetch from the Role
      */
-    select?: PermissionSelect<ExtArgs> | null
+    select?: RoleSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Permission
+     * Omit specific fields from the Role
      */
-    omit?: PermissionOmit<ExtArgs> | null
+    omit?: RoleOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PermissionInclude<ExtArgs> | null
+    include?: RoleInclude<ExtArgs> | null
     /**
-     * The data needed to create a Permission.
+     * The data needed to create a Role.
      */
-    data: XOR<PermissionCreateInput, PermissionUncheckedCreateInput>
+    data: XOR<RoleCreateInput, RoleUncheckedCreateInput>
   }
 
   /**
-   * Permission createMany
+   * Role createMany
    */
-  export type PermissionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RoleCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many Permissions.
+     * The data used to create many Roles.
      */
-    data: PermissionCreateManyInput | PermissionCreateManyInput[]
+    data: RoleCreateManyInput | RoleCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * Permission createManyAndReturn
+   * Role createManyAndReturn
    */
-  export type PermissionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RoleCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Permission
+     * Select specific fields to fetch from the Role
      */
-    select?: PermissionSelectCreateManyAndReturn<ExtArgs> | null
+    select?: RoleSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the Permission
+     * Omit specific fields from the Role
      */
-    omit?: PermissionOmit<ExtArgs> | null
+    omit?: RoleOmit<ExtArgs> | null
     /**
-     * The data used to create many Permissions.
+     * The data used to create many Roles.
      */
-    data: PermissionCreateManyInput | PermissionCreateManyInput[]
+    data: RoleCreateManyInput | RoleCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * Permission update
+   * Role update
    */
-  export type PermissionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RoleUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Permission
+     * Select specific fields to fetch from the Role
      */
-    select?: PermissionSelect<ExtArgs> | null
+    select?: RoleSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Permission
+     * Omit specific fields from the Role
      */
-    omit?: PermissionOmit<ExtArgs> | null
+    omit?: RoleOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PermissionInclude<ExtArgs> | null
+    include?: RoleInclude<ExtArgs> | null
     /**
-     * The data needed to update a Permission.
+     * The data needed to update a Role.
      */
-    data: XOR<PermissionUpdateInput, PermissionUncheckedUpdateInput>
+    data: XOR<RoleUpdateInput, RoleUncheckedUpdateInput>
     /**
-     * Choose, which Permission to update.
+     * Choose, which Role to update.
      */
-    where: PermissionWhereUniqueInput
+    where: RoleWhereUniqueInput
   }
 
   /**
-   * Permission updateMany
+   * Role updateMany
    */
-  export type PermissionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RoleUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update Permissions.
+     * The data used to update Roles.
      */
-    data: XOR<PermissionUpdateManyMutationInput, PermissionUncheckedUpdateManyInput>
+    data: XOR<RoleUpdateManyMutationInput, RoleUncheckedUpdateManyInput>
     /**
-     * Filter which Permissions to update
+     * Filter which Roles to update
      */
-    where?: PermissionWhereInput
+    where?: RoleWhereInput
     /**
-     * Limit how many Permissions to update.
+     * Limit how many Roles to update.
      */
     limit?: number
   }
 
   /**
-   * Permission updateManyAndReturn
+   * Role updateManyAndReturn
    */
-  export type PermissionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RoleUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Permission
+     * Select specific fields to fetch from the Role
      */
-    select?: PermissionSelectUpdateManyAndReturn<ExtArgs> | null
+    select?: RoleSelectUpdateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the Permission
+     * Omit specific fields from the Role
      */
-    omit?: PermissionOmit<ExtArgs> | null
+    omit?: RoleOmit<ExtArgs> | null
     /**
-     * The data used to update Permissions.
+     * The data used to update Roles.
      */
-    data: XOR<PermissionUpdateManyMutationInput, PermissionUncheckedUpdateManyInput>
+    data: XOR<RoleUpdateManyMutationInput, RoleUncheckedUpdateManyInput>
     /**
-     * Filter which Permissions to update
+     * Filter which Roles to update
      */
-    where?: PermissionWhereInput
+    where?: RoleWhereInput
     /**
-     * Limit how many Permissions to update.
+     * Limit how many Roles to update.
      */
     limit?: number
   }
 
   /**
-   * Permission upsert
+   * Role upsert
    */
-  export type PermissionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RoleUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Permission
+     * Select specific fields to fetch from the Role
      */
-    select?: PermissionSelect<ExtArgs> | null
+    select?: RoleSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Permission
+     * Omit specific fields from the Role
      */
-    omit?: PermissionOmit<ExtArgs> | null
+    omit?: RoleOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PermissionInclude<ExtArgs> | null
+    include?: RoleInclude<ExtArgs> | null
     /**
-     * The filter to search for the Permission to update in case it exists.
+     * The filter to search for the Role to update in case it exists.
      */
-    where: PermissionWhereUniqueInput
+    where: RoleWhereUniqueInput
     /**
-     * In case the Permission found by the `where` argument doesn't exist, create a new Permission with this data.
+     * In case the Role found by the `where` argument doesn't exist, create a new Role with this data.
      */
-    create: XOR<PermissionCreateInput, PermissionUncheckedCreateInput>
+    create: XOR<RoleCreateInput, RoleUncheckedCreateInput>
     /**
-     * In case the Permission was found with the provided `where` argument, update it with this data.
+     * In case the Role was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<PermissionUpdateInput, PermissionUncheckedUpdateInput>
+    update: XOR<RoleUpdateInput, RoleUncheckedUpdateInput>
   }
 
   /**
-   * Permission delete
+   * Role delete
    */
-  export type PermissionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RoleDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Permission
+     * Select specific fields to fetch from the Role
      */
-    select?: PermissionSelect<ExtArgs> | null
+    select?: RoleSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Permission
+     * Omit specific fields from the Role
      */
-    omit?: PermissionOmit<ExtArgs> | null
+    omit?: RoleOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PermissionInclude<ExtArgs> | null
+    include?: RoleInclude<ExtArgs> | null
     /**
-     * Filter which Permission to delete.
+     * Filter which Role to delete.
      */
-    where: PermissionWhereUniqueInput
+    where: RoleWhereUniqueInput
   }
 
   /**
-   * Permission deleteMany
+   * Role deleteMany
    */
-  export type PermissionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RoleDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Permissions to delete
+     * Filter which Roles to delete
      */
-    where?: PermissionWhereInput
+    where?: RoleWhereInput
     /**
-     * Limit how many Permissions to delete.
+     * Limit how many Roles to delete.
      */
     limit?: number
   }
 
   /**
-   * Permission.roles
+   * Role.users
    */
-  export type Permission$rolesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Role$usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
+    cursor?: UserWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
+  }
+
+  /**
+   * Role.UserHospitalAccess
+   */
+  export type Role$UserHospitalAccessArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserHospitalAccess
+     */
+    select?: UserHospitalAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserHospitalAccess
+     */
+    omit?: UserHospitalAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserHospitalAccessInclude<ExtArgs> | null
+    where?: UserHospitalAccessWhereInput
+    orderBy?: UserHospitalAccessOrderByWithRelationInput | UserHospitalAccessOrderByWithRelationInput[]
+    cursor?: UserHospitalAccessWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserHospitalAccessScalarFieldEnum | UserHospitalAccessScalarFieldEnum[]
+  }
+
+  /**
+   * Role.permissions
+   */
+  export type Role$permissionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the RolePermission
      */
@@ -12111,21 +11696,21 @@ export namespace Prisma {
   }
 
   /**
-   * Permission without action
+   * Role without action
    */
-  export type PermissionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RoleDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Permission
+     * Select specific fields to fetch from the Role
      */
-    select?: PermissionSelect<ExtArgs> | null
+    select?: RoleSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Permission
+     * Omit specific fields from the Role
      */
-    omit?: PermissionOmit<ExtArgs> | null
+    omit?: RoleOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PermissionInclude<ExtArgs> | null
+    include?: RoleInclude<ExtArgs> | null
   }
 
 
@@ -13212,6 +12797,1110 @@ export namespace Prisma {
 
 
   /**
+   * Model Permission
+   */
+
+  export type AggregatePermission = {
+    _count: PermissionCountAggregateOutputType | null
+    _avg: PermissionAvgAggregateOutputType | null
+    _sum: PermissionSumAggregateOutputType | null
+    _min: PermissionMinAggregateOutputType | null
+    _max: PermissionMaxAggregateOutputType | null
+  }
+
+  export type PermissionAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type PermissionSumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type PermissionMinAggregateOutputType = {
+    id: number | null
+    name: string | null
+    displayName: string | null
+    category: string | null
+    description: string | null
+  }
+
+  export type PermissionMaxAggregateOutputType = {
+    id: number | null
+    name: string | null
+    displayName: string | null
+    category: string | null
+    description: string | null
+  }
+
+  export type PermissionCountAggregateOutputType = {
+    id: number
+    name: number
+    displayName: number
+    category: number
+    description: number
+    _all: number
+  }
+
+
+  export type PermissionAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type PermissionSumAggregateInputType = {
+    id?: true
+  }
+
+  export type PermissionMinAggregateInputType = {
+    id?: true
+    name?: true
+    displayName?: true
+    category?: true
+    description?: true
+  }
+
+  export type PermissionMaxAggregateInputType = {
+    id?: true
+    name?: true
+    displayName?: true
+    category?: true
+    description?: true
+  }
+
+  export type PermissionCountAggregateInputType = {
+    id?: true
+    name?: true
+    displayName?: true
+    category?: true
+    description?: true
+    _all?: true
+  }
+
+  export type PermissionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Permission to aggregate.
+     */
+    where?: PermissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Permissions to fetch.
+     */
+    orderBy?: PermissionOrderByWithRelationInput | PermissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PermissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Permissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Permissions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Permissions
+    **/
+    _count?: true | PermissionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PermissionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PermissionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PermissionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PermissionMaxAggregateInputType
+  }
+
+  export type GetPermissionAggregateType<T extends PermissionAggregateArgs> = {
+        [P in keyof T & keyof AggregatePermission]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePermission[P]>
+      : GetScalarType<T[P], AggregatePermission[P]>
+  }
+
+
+
+
+  export type PermissionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PermissionWhereInput
+    orderBy?: PermissionOrderByWithAggregationInput | PermissionOrderByWithAggregationInput[]
+    by: PermissionScalarFieldEnum[] | PermissionScalarFieldEnum
+    having?: PermissionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PermissionCountAggregateInputType | true
+    _avg?: PermissionAvgAggregateInputType
+    _sum?: PermissionSumAggregateInputType
+    _min?: PermissionMinAggregateInputType
+    _max?: PermissionMaxAggregateInputType
+  }
+
+  export type PermissionGroupByOutputType = {
+    id: number
+    name: string
+    displayName: string
+    category: string
+    description: string | null
+    _count: PermissionCountAggregateOutputType | null
+    _avg: PermissionAvgAggregateOutputType | null
+    _sum: PermissionSumAggregateOutputType | null
+    _min: PermissionMinAggregateOutputType | null
+    _max: PermissionMaxAggregateOutputType | null
+  }
+
+  type GetPermissionGroupByPayload<T extends PermissionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PermissionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PermissionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PermissionGroupByOutputType[P]>
+            : GetScalarType<T[P], PermissionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PermissionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    displayName?: boolean
+    category?: boolean
+    description?: boolean
+    roles?: boolean | Permission$rolesArgs<ExtArgs>
+    _count?: boolean | PermissionCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["permission"]>
+
+  export type PermissionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    displayName?: boolean
+    category?: boolean
+    description?: boolean
+  }, ExtArgs["result"]["permission"]>
+
+  export type PermissionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    displayName?: boolean
+    category?: boolean
+    description?: boolean
+  }, ExtArgs["result"]["permission"]>
+
+  export type PermissionSelectScalar = {
+    id?: boolean
+    name?: boolean
+    displayName?: boolean
+    category?: boolean
+    description?: boolean
+  }
+
+  export type PermissionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "displayName" | "category" | "description", ExtArgs["result"]["permission"]>
+  export type PermissionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    roles?: boolean | Permission$rolesArgs<ExtArgs>
+    _count?: boolean | PermissionCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type PermissionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type PermissionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $PermissionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Permission"
+    objects: {
+      roles: Prisma.$RolePermissionPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      name: string
+      displayName: string
+      category: string
+      description: string | null
+    }, ExtArgs["result"]["permission"]>
+    composites: {}
+  }
+
+  type PermissionGetPayload<S extends boolean | null | undefined | PermissionDefaultArgs> = $Result.GetResult<Prisma.$PermissionPayload, S>
+
+  type PermissionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PermissionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PermissionCountAggregateInputType | true
+    }
+
+  export interface PermissionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Permission'], meta: { name: 'Permission' } }
+    /**
+     * Find zero or one Permission that matches the filter.
+     * @param {PermissionFindUniqueArgs} args - Arguments to find a Permission
+     * @example
+     * // Get one Permission
+     * const permission = await prisma.permission.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PermissionFindUniqueArgs>(args: SelectSubset<T, PermissionFindUniqueArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Permission that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PermissionFindUniqueOrThrowArgs} args - Arguments to find a Permission
+     * @example
+     * // Get one Permission
+     * const permission = await prisma.permission.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PermissionFindUniqueOrThrowArgs>(args: SelectSubset<T, PermissionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Permission that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PermissionFindFirstArgs} args - Arguments to find a Permission
+     * @example
+     * // Get one Permission
+     * const permission = await prisma.permission.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PermissionFindFirstArgs>(args?: SelectSubset<T, PermissionFindFirstArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Permission that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PermissionFindFirstOrThrowArgs} args - Arguments to find a Permission
+     * @example
+     * // Get one Permission
+     * const permission = await prisma.permission.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PermissionFindFirstOrThrowArgs>(args?: SelectSubset<T, PermissionFindFirstOrThrowArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Permissions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PermissionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Permissions
+     * const permissions = await prisma.permission.findMany()
+     * 
+     * // Get first 10 Permissions
+     * const permissions = await prisma.permission.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const permissionWithIdOnly = await prisma.permission.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PermissionFindManyArgs>(args?: SelectSubset<T, PermissionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Permission.
+     * @param {PermissionCreateArgs} args - Arguments to create a Permission.
+     * @example
+     * // Create one Permission
+     * const Permission = await prisma.permission.create({
+     *   data: {
+     *     // ... data to create a Permission
+     *   }
+     * })
+     * 
+     */
+    create<T extends PermissionCreateArgs>(args: SelectSubset<T, PermissionCreateArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Permissions.
+     * @param {PermissionCreateManyArgs} args - Arguments to create many Permissions.
+     * @example
+     * // Create many Permissions
+     * const permission = await prisma.permission.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PermissionCreateManyArgs>(args?: SelectSubset<T, PermissionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Permissions and returns the data saved in the database.
+     * @param {PermissionCreateManyAndReturnArgs} args - Arguments to create many Permissions.
+     * @example
+     * // Create many Permissions
+     * const permission = await prisma.permission.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Permissions and only return the `id`
+     * const permissionWithIdOnly = await prisma.permission.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PermissionCreateManyAndReturnArgs>(args?: SelectSubset<T, PermissionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Permission.
+     * @param {PermissionDeleteArgs} args - Arguments to delete one Permission.
+     * @example
+     * // Delete one Permission
+     * const Permission = await prisma.permission.delete({
+     *   where: {
+     *     // ... filter to delete one Permission
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PermissionDeleteArgs>(args: SelectSubset<T, PermissionDeleteArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Permission.
+     * @param {PermissionUpdateArgs} args - Arguments to update one Permission.
+     * @example
+     * // Update one Permission
+     * const permission = await prisma.permission.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PermissionUpdateArgs>(args: SelectSubset<T, PermissionUpdateArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Permissions.
+     * @param {PermissionDeleteManyArgs} args - Arguments to filter Permissions to delete.
+     * @example
+     * // Delete a few Permissions
+     * const { count } = await prisma.permission.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PermissionDeleteManyArgs>(args?: SelectSubset<T, PermissionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Permissions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PermissionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Permissions
+     * const permission = await prisma.permission.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PermissionUpdateManyArgs>(args: SelectSubset<T, PermissionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Permissions and returns the data updated in the database.
+     * @param {PermissionUpdateManyAndReturnArgs} args - Arguments to update many Permissions.
+     * @example
+     * // Update many Permissions
+     * const permission = await prisma.permission.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Permissions and only return the `id`
+     * const permissionWithIdOnly = await prisma.permission.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PermissionUpdateManyAndReturnArgs>(args: SelectSubset<T, PermissionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Permission.
+     * @param {PermissionUpsertArgs} args - Arguments to update or create a Permission.
+     * @example
+     * // Update or create a Permission
+     * const permission = await prisma.permission.upsert({
+     *   create: {
+     *     // ... data to create a Permission
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Permission we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PermissionUpsertArgs>(args: SelectSubset<T, PermissionUpsertArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Permissions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PermissionCountArgs} args - Arguments to filter Permissions to count.
+     * @example
+     * // Count the number of Permissions
+     * const count = await prisma.permission.count({
+     *   where: {
+     *     // ... the filter for the Permissions we want to count
+     *   }
+     * })
+    **/
+    count<T extends PermissionCountArgs>(
+      args?: Subset<T, PermissionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PermissionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Permission.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PermissionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PermissionAggregateArgs>(args: Subset<T, PermissionAggregateArgs>): Prisma.PrismaPromise<GetPermissionAggregateType<T>>
+
+    /**
+     * Group by Permission.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PermissionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PermissionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PermissionGroupByArgs['orderBy'] }
+        : { orderBy?: PermissionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PermissionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPermissionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Permission model
+   */
+  readonly fields: PermissionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Permission.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PermissionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    roles<T extends Permission$rolesArgs<ExtArgs> = {}>(args?: Subset<T, Permission$rolesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RolePermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Permission model
+   */
+  interface PermissionFieldRefs {
+    readonly id: FieldRef<"Permission", 'Int'>
+    readonly name: FieldRef<"Permission", 'String'>
+    readonly displayName: FieldRef<"Permission", 'String'>
+    readonly category: FieldRef<"Permission", 'String'>
+    readonly description: FieldRef<"Permission", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Permission findUnique
+   */
+  export type PermissionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PermissionInclude<ExtArgs> | null
+    /**
+     * Filter, which Permission to fetch.
+     */
+    where: PermissionWhereUniqueInput
+  }
+
+  /**
+   * Permission findUniqueOrThrow
+   */
+  export type PermissionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PermissionInclude<ExtArgs> | null
+    /**
+     * Filter, which Permission to fetch.
+     */
+    where: PermissionWhereUniqueInput
+  }
+
+  /**
+   * Permission findFirst
+   */
+  export type PermissionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PermissionInclude<ExtArgs> | null
+    /**
+     * Filter, which Permission to fetch.
+     */
+    where?: PermissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Permissions to fetch.
+     */
+    orderBy?: PermissionOrderByWithRelationInput | PermissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Permissions.
+     */
+    cursor?: PermissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Permissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Permissions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Permissions.
+     */
+    distinct?: PermissionScalarFieldEnum | PermissionScalarFieldEnum[]
+  }
+
+  /**
+   * Permission findFirstOrThrow
+   */
+  export type PermissionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PermissionInclude<ExtArgs> | null
+    /**
+     * Filter, which Permission to fetch.
+     */
+    where?: PermissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Permissions to fetch.
+     */
+    orderBy?: PermissionOrderByWithRelationInput | PermissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Permissions.
+     */
+    cursor?: PermissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Permissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Permissions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Permissions.
+     */
+    distinct?: PermissionScalarFieldEnum | PermissionScalarFieldEnum[]
+  }
+
+  /**
+   * Permission findMany
+   */
+  export type PermissionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PermissionInclude<ExtArgs> | null
+    /**
+     * Filter, which Permissions to fetch.
+     */
+    where?: PermissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Permissions to fetch.
+     */
+    orderBy?: PermissionOrderByWithRelationInput | PermissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Permissions.
+     */
+    cursor?: PermissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Permissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Permissions.
+     */
+    skip?: number
+    distinct?: PermissionScalarFieldEnum | PermissionScalarFieldEnum[]
+  }
+
+  /**
+   * Permission create
+   */
+  export type PermissionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PermissionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Permission.
+     */
+    data: XOR<PermissionCreateInput, PermissionUncheckedCreateInput>
+  }
+
+  /**
+   * Permission createMany
+   */
+  export type PermissionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Permissions.
+     */
+    data: PermissionCreateManyInput | PermissionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Permission createManyAndReturn
+   */
+  export type PermissionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * The data used to create many Permissions.
+     */
+    data: PermissionCreateManyInput | PermissionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Permission update
+   */
+  export type PermissionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PermissionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Permission.
+     */
+    data: XOR<PermissionUpdateInput, PermissionUncheckedUpdateInput>
+    /**
+     * Choose, which Permission to update.
+     */
+    where: PermissionWhereUniqueInput
+  }
+
+  /**
+   * Permission updateMany
+   */
+  export type PermissionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Permissions.
+     */
+    data: XOR<PermissionUpdateManyMutationInput, PermissionUncheckedUpdateManyInput>
+    /**
+     * Filter which Permissions to update
+     */
+    where?: PermissionWhereInput
+    /**
+     * Limit how many Permissions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Permission updateManyAndReturn
+   */
+  export type PermissionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * The data used to update Permissions.
+     */
+    data: XOR<PermissionUpdateManyMutationInput, PermissionUncheckedUpdateManyInput>
+    /**
+     * Filter which Permissions to update
+     */
+    where?: PermissionWhereInput
+    /**
+     * Limit how many Permissions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Permission upsert
+   */
+  export type PermissionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PermissionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Permission to update in case it exists.
+     */
+    where: PermissionWhereUniqueInput
+    /**
+     * In case the Permission found by the `where` argument doesn't exist, create a new Permission with this data.
+     */
+    create: XOR<PermissionCreateInput, PermissionUncheckedCreateInput>
+    /**
+     * In case the Permission was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PermissionUpdateInput, PermissionUncheckedUpdateInput>
+  }
+
+  /**
+   * Permission delete
+   */
+  export type PermissionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PermissionInclude<ExtArgs> | null
+    /**
+     * Filter which Permission to delete.
+     */
+    where: PermissionWhereUniqueInput
+  }
+
+  /**
+   * Permission deleteMany
+   */
+  export type PermissionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Permissions to delete
+     */
+    where?: PermissionWhereInput
+    /**
+     * Limit how many Permissions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Permission.roles
+   */
+  export type Permission$rolesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RolePermission
+     */
+    select?: RolePermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RolePermission
+     */
+    omit?: RolePermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RolePermissionInclude<ExtArgs> | null
+    where?: RolePermissionWhereInput
+    orderBy?: RolePermissionOrderByWithRelationInput | RolePermissionOrderByWithRelationInput[]
+    cursor?: RolePermissionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: RolePermissionScalarFieldEnum | RolePermissionScalarFieldEnum[]
+  }
+
+  /**
+   * Permission without action
+   */
+  export type PermissionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PermissionInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -13238,20 +13927,82 @@ export namespace Prisma {
     isActive: 'isActive',
     hashedRefreshToken: 'hashedRefreshToken',
     dateOfBirth: 'dateOfBirth',
-    roleId: 'roleId'
+    roleId: 'roleId',
+    organizationId: 'organizationId',
+    deletedAt: 'deletedAt'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
-  export const RoleScalarFieldEnum: {
+  export const OrganizationScalarFieldEnum: {
     id: 'id',
-    Rolename: 'Rolename',
+    OrganizationName: 'OrganizationName',
+    Organizationcode: 'Organizationcode',
+    logoUrl: 'logoUrl',
+    email: 'email',
+    contactNumber: 'contactNumber',
+    Orgnizationtype: 'Orgnizationtype',
+    website: 'website',
+    addressLine1: 'addressLine1',
+    addressLine2: 'addressLine2',
+    city: 'city',
+    state: 'state',
+    country: 'country',
+    postalCode: 'postalCode',
+    registrationNo: 'registrationNo',
+    establishedOn: 'establishedOn',
+    industryType: 'industryType',
+    status: 'status',
     description: 'description',
-    isActive: 'isActive'
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
-  export type RoleScalarFieldEnum = (typeof RoleScalarFieldEnum)[keyof typeof RoleScalarFieldEnum]
+  export type OrganizationScalarFieldEnum = (typeof OrganizationScalarFieldEnum)[keyof typeof OrganizationScalarFieldEnum]
+
+
+  export const HospitalScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    hospitalCode: 'hospitalCode',
+    ParentHospitalCode: 'ParentHospitalCode',
+    Organizationcode: 'Organizationcode',
+    SpecializationType: 'SpecializationType',
+    address: 'address',
+    city: 'city',
+    state: 'state',
+    country: 'country',
+    postalCode: 'postalCode',
+    contactNumber: 'contactNumber',
+    email: 'email',
+    website: 'website',
+    logoUrl: 'logoUrl',
+    latitude: 'latitude',
+    longitude: 'longitude',
+    status: 'status',
+    level: 'level',
+    parentHospitalId: 'parentHospitalId',
+    organizationId: 'organizationId',
+    isActive: 'isActive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    deletedAt: 'deletedAt'
+  };
+
+  export type HospitalScalarFieldEnum = (typeof HospitalScalarFieldEnum)[keyof typeof HospitalScalarFieldEnum]
+
+
+  export const UserHospitalAccessScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    hospitalId: 'hospitalId',
+    roleId: 'roleId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type UserHospitalAccessScalarFieldEnum = (typeof UserHospitalAccessScalarFieldEnum)[keyof typeof UserHospitalAccessScalarFieldEnum]
 
 
   export const SettingScalarFieldEnum: {
@@ -13262,38 +14013,6 @@ export namespace Prisma {
   };
 
   export type SettingScalarFieldEnum = (typeof SettingScalarFieldEnum)[keyof typeof SettingScalarFieldEnum]
-
-
-  export const HospitalScalarFieldEnum: {
-    id: 'id',
-    name: 'name',
-    location: 'location',
-    isActive: 'isActive',
-    parentHospitalId: 'parentHospitalId',
-    levelId: 'levelId',
-    hospitalCode: 'hospitalCode',
-    superHospitalCode: 'superHospitalCode'
-  };
-
-  export type HospitalScalarFieldEnum = (typeof HospitalScalarFieldEnum)[keyof typeof HospitalScalarFieldEnum]
-
-
-  export const HospitaltypeScalarFieldEnum: {
-    id: 'id',
-    HospitalType: 'HospitalType'
-  };
-
-  export type HospitaltypeScalarFieldEnum = (typeof HospitaltypeScalarFieldEnum)[keyof typeof HospitaltypeScalarFieldEnum]
-
-
-  export const UserHospitalAccessScalarFieldEnum: {
-    id: 'id',
-    userId: 'userId',
-    hospitalId: 'hospitalId',
-    isActive: 'isActive'
-  };
-
-  export type UserHospitalAccessScalarFieldEnum = (typeof UserHospitalAccessScalarFieldEnum)[keyof typeof UserHospitalAccessScalarFieldEnum]
 
 
   export const AuditLogScalarFieldEnum: {
@@ -13320,13 +14039,14 @@ export namespace Prisma {
   export type LoginSessionScalarFieldEnum = (typeof LoginSessionScalarFieldEnum)[keyof typeof LoginSessionScalarFieldEnum]
 
 
-  export const PermissionScalarFieldEnum: {
+  export const RoleScalarFieldEnum: {
     id: 'id',
-    name: 'name',
-    description: 'description'
+    Rolename: 'Rolename',
+    description: 'description',
+    isActive: 'isActive'
   };
 
-  export type PermissionScalarFieldEnum = (typeof PermissionScalarFieldEnum)[keyof typeof PermissionScalarFieldEnum]
+  export type RoleScalarFieldEnum = (typeof RoleScalarFieldEnum)[keyof typeof RoleScalarFieldEnum]
 
 
   export const RolePermissionScalarFieldEnum: {
@@ -13336,6 +14056,17 @@ export namespace Prisma {
   };
 
   export type RolePermissionScalarFieldEnum = (typeof RolePermissionScalarFieldEnum)[keyof typeof RolePermissionScalarFieldEnum]
+
+
+  export const PermissionScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    displayName: 'displayName',
+    category: 'category',
+    description: 'description'
+  };
+
+  export type PermissionScalarFieldEnum = (typeof PermissionScalarFieldEnum)[keyof typeof PermissionScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -13448,16 +14179,44 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Json'
+   * Reference to a field of type 'OrganizationType'
    */
-  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+  export type EnumOrganizationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OrganizationType'>
     
 
 
   /**
-   * Reference to a field of type 'QueryMode'
+   * Reference to a field of type 'OrganizationType[]'
    */
-  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+  export type ListEnumOrganizationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OrganizationType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Hospital_Org_status'
+   */
+  export type EnumHospital_Org_statusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Hospital_Org_status'>
+    
+
+
+  /**
+   * Reference to a field of type 'Hospital_Org_status[]'
+   */
+  export type ListEnumHospital_Org_statusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Hospital_Org_status[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'SpecializationType'
+   */
+  export type EnumSpecializationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SpecializationType'>
+    
+
+
+  /**
+   * Reference to a field of type 'SpecializationType[]'
+   */
+  export type ListEnumSpecializationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SpecializationType[]'>
     
 
 
@@ -13473,6 +14232,34 @@ export namespace Prisma {
    */
   export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
+
+
+  /**
+   * Reference to a field of type 'HospitalLevel'
+   */
+  export type EnumHospitalLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'HospitalLevel'>
+    
+
+
+  /**
+   * Reference to a field of type 'HospitalLevel[]'
+   */
+  export type ListEnumHospitalLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'HospitalLevel[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
   /**
    * Deep Input Types
    */
@@ -13483,19 +14270,22 @@ export namespace Prisma {
     OR?: UserWhereInput[]
     NOT?: UserWhereInput | UserWhereInput[]
     id?: IntFilter<"User"> | number
-    title?: EnumTitleNullableFilter<"User"> | $Enums.Title | null
-    imageUrl?: StringNullableFilter<"User"> | string | null
+    title?: EnumTitleFilter<"User"> | $Enums.Title
+    imageUrl?: StringFilter<"User"> | string
     firstName?: StringFilter<"User"> | string
     lastName?: StringFilter<"User"> | string
-    gender?: StringNullableFilter<"User"> | string | null
+    gender?: StringFilter<"User"> | string
     email?: StringFilter<"User"> | string
     mobile?: StringFilter<"User"> | string
     passwordHash?: StringFilter<"User"> | string
     isActive?: BoolFilter<"User"> | boolean
-    hashedRefreshToken?: StringNullableFilter<"User"> | string | null
-    dateOfBirth?: DateTimeNullableFilter<"User"> | Date | string | null
+    hashedRefreshToken?: StringFilter<"User"> | string
+    dateOfBirth?: DateTimeFilter<"User"> | Date | string
     roleId?: IntFilter<"User"> | number
+    organizationId?: IntFilter<"User"> | number
+    deletedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     role?: XOR<RoleScalarRelationFilter, RoleWhereInput>
+    organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
     settings?: XOR<SettingNullableScalarRelationFilter, SettingWhereInput> | null
     auditLogs?: AuditLogListRelationFilter
     loginSessions?: LoginSessionListRelationFilter
@@ -13504,19 +14294,22 @@ export namespace Prisma {
 
   export type UserOrderByWithRelationInput = {
     id?: SortOrder
-    title?: SortOrderInput | SortOrder
-    imageUrl?: SortOrderInput | SortOrder
+    title?: SortOrder
+    imageUrl?: SortOrder
     firstName?: SortOrder
     lastName?: SortOrder
-    gender?: SortOrderInput | SortOrder
+    gender?: SortOrder
     email?: SortOrder
     mobile?: SortOrder
     passwordHash?: SortOrder
     isActive?: SortOrder
-    hashedRefreshToken?: SortOrderInput | SortOrder
-    dateOfBirth?: SortOrderInput | SortOrder
+    hashedRefreshToken?: SortOrder
+    dateOfBirth?: SortOrder
     roleId?: SortOrder
+    organizationId?: SortOrder
+    deletedAt?: SortOrderInput | SortOrder
     role?: RoleOrderByWithRelationInput
+    organization?: OrganizationOrderByWithRelationInput
     settings?: SettingOrderByWithRelationInput
     auditLogs?: AuditLogOrderByRelationAggregateInput
     loginSessions?: LoginSessionOrderByRelationAggregateInput
@@ -13530,17 +14323,20 @@ export namespace Prisma {
     AND?: UserWhereInput | UserWhereInput[]
     OR?: UserWhereInput[]
     NOT?: UserWhereInput | UserWhereInput[]
-    title?: EnumTitleNullableFilter<"User"> | $Enums.Title | null
-    imageUrl?: StringNullableFilter<"User"> | string | null
+    title?: EnumTitleFilter<"User"> | $Enums.Title
+    imageUrl?: StringFilter<"User"> | string
     firstName?: StringFilter<"User"> | string
     lastName?: StringFilter<"User"> | string
-    gender?: StringNullableFilter<"User"> | string | null
+    gender?: StringFilter<"User"> | string
     passwordHash?: StringFilter<"User"> | string
     isActive?: BoolFilter<"User"> | boolean
-    hashedRefreshToken?: StringNullableFilter<"User"> | string | null
-    dateOfBirth?: DateTimeNullableFilter<"User"> | Date | string | null
+    hashedRefreshToken?: StringFilter<"User"> | string
+    dateOfBirth?: DateTimeFilter<"User"> | Date | string
     roleId?: IntFilter<"User"> | number
+    organizationId?: IntFilter<"User"> | number
+    deletedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     role?: XOR<RoleScalarRelationFilter, RoleWhereInput>
+    organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
     settings?: XOR<SettingNullableScalarRelationFilter, SettingWhereInput> | null
     auditLogs?: AuditLogListRelationFilter
     loginSessions?: LoginSessionListRelationFilter
@@ -13549,18 +14345,20 @@ export namespace Prisma {
 
   export type UserOrderByWithAggregationInput = {
     id?: SortOrder
-    title?: SortOrderInput | SortOrder
-    imageUrl?: SortOrderInput | SortOrder
+    title?: SortOrder
+    imageUrl?: SortOrder
     firstName?: SortOrder
     lastName?: SortOrder
-    gender?: SortOrderInput | SortOrder
+    gender?: SortOrder
     email?: SortOrder
     mobile?: SortOrder
     passwordHash?: SortOrder
     isActive?: SortOrder
-    hashedRefreshToken?: SortOrderInput | SortOrder
-    dateOfBirth?: SortOrderInput | SortOrder
+    hashedRefreshToken?: SortOrder
+    dateOfBirth?: SortOrder
     roleId?: SortOrder
+    organizationId?: SortOrder
+    deletedAt?: SortOrderInput | SortOrder
     _count?: UserCountOrderByAggregateInput
     _avg?: UserAvgOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
@@ -13573,73 +14371,395 @@ export namespace Prisma {
     OR?: UserScalarWhereWithAggregatesInput[]
     NOT?: UserScalarWhereWithAggregatesInput | UserScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"User"> | number
-    title?: EnumTitleNullableWithAggregatesFilter<"User"> | $Enums.Title | null
-    imageUrl?: StringNullableWithAggregatesFilter<"User"> | string | null
+    title?: EnumTitleWithAggregatesFilter<"User"> | $Enums.Title
+    imageUrl?: StringWithAggregatesFilter<"User"> | string
     firstName?: StringWithAggregatesFilter<"User"> | string
     lastName?: StringWithAggregatesFilter<"User"> | string
-    gender?: StringNullableWithAggregatesFilter<"User"> | string | null
+    gender?: StringWithAggregatesFilter<"User"> | string
     email?: StringWithAggregatesFilter<"User"> | string
     mobile?: StringWithAggregatesFilter<"User"> | string
     passwordHash?: StringWithAggregatesFilter<"User"> | string
     isActive?: BoolWithAggregatesFilter<"User"> | boolean
-    hashedRefreshToken?: StringNullableWithAggregatesFilter<"User"> | string | null
-    dateOfBirth?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+    hashedRefreshToken?: StringWithAggregatesFilter<"User"> | string
+    dateOfBirth?: DateTimeWithAggregatesFilter<"User"> | Date | string
     roleId?: IntWithAggregatesFilter<"User"> | number
+    organizationId?: IntWithAggregatesFilter<"User"> | number
+    deletedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   }
 
-  export type RoleWhereInput = {
-    AND?: RoleWhereInput | RoleWhereInput[]
-    OR?: RoleWhereInput[]
-    NOT?: RoleWhereInput | RoleWhereInput[]
-    id?: IntFilter<"Role"> | number
-    Rolename?: StringNullableFilter<"Role"> | string | null
-    description?: StringFilter<"Role"> | string
-    isActive?: BoolFilter<"Role"> | boolean
-    permissions?: RolePermissionListRelationFilter
+  export type OrganizationWhereInput = {
+    AND?: OrganizationWhereInput | OrganizationWhereInput[]
+    OR?: OrganizationWhereInput[]
+    NOT?: OrganizationWhereInput | OrganizationWhereInput[]
+    id?: IntFilter<"Organization"> | number
+    OrganizationName?: StringFilter<"Organization"> | string
+    Organizationcode?: StringFilter<"Organization"> | string
+    logoUrl?: StringFilter<"Organization"> | string
+    email?: StringFilter<"Organization"> | string
+    contactNumber?: StringFilter<"Organization"> | string
+    Orgnizationtype?: EnumOrganizationTypeNullableFilter<"Organization"> | $Enums.OrganizationType | null
+    website?: StringFilter<"Organization"> | string
+    addressLine1?: StringFilter<"Organization"> | string
+    addressLine2?: StringFilter<"Organization"> | string
+    city?: StringFilter<"Organization"> | string
+    state?: StringFilter<"Organization"> | string
+    country?: StringFilter<"Organization"> | string
+    postalCode?: StringFilter<"Organization"> | string
+    registrationNo?: StringFilter<"Organization"> | string
+    establishedOn?: DateTimeFilter<"Organization"> | Date | string
+    industryType?: StringFilter<"Organization"> | string
+    status?: EnumHospital_Org_statusFilter<"Organization"> | $Enums.Hospital_Org_status
+    description?: StringNullableFilter<"Organization"> | string | null
+    createdAt?: DateTimeFilter<"Organization"> | Date | string
+    updatedAt?: DateTimeFilter<"Organization"> | Date | string
+    hospitals?: HospitalListRelationFilter
     users?: UserListRelationFilter
   }
 
-  export type RoleOrderByWithRelationInput = {
+  export type OrganizationOrderByWithRelationInput = {
     id?: SortOrder
-    Rolename?: SortOrderInput | SortOrder
-    description?: SortOrder
-    isActive?: SortOrder
-    permissions?: RolePermissionOrderByRelationAggregateInput
+    OrganizationName?: SortOrder
+    Organizationcode?: SortOrder
+    logoUrl?: SortOrder
+    email?: SortOrder
+    contactNumber?: SortOrder
+    Orgnizationtype?: SortOrderInput | SortOrder
+    website?: SortOrder
+    addressLine1?: SortOrder
+    addressLine2?: SortOrder
+    city?: SortOrder
+    state?: SortOrder
+    country?: SortOrder
+    postalCode?: SortOrder
+    registrationNo?: SortOrder
+    establishedOn?: SortOrder
+    industryType?: SortOrder
+    status?: SortOrder
+    description?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    hospitals?: HospitalOrderByRelationAggregateInput
     users?: UserOrderByRelationAggregateInput
   }
 
-  export type RoleWhereUniqueInput = Prisma.AtLeast<{
+  export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
     id?: number
-    Rolename?: string
-    AND?: RoleWhereInput | RoleWhereInput[]
-    OR?: RoleWhereInput[]
-    NOT?: RoleWhereInput | RoleWhereInput[]
-    description?: StringFilter<"Role"> | string
-    isActive?: BoolFilter<"Role"> | boolean
-    permissions?: RolePermissionListRelationFilter
+    Organizationcode?: string
+    email?: string
+    AND?: OrganizationWhereInput | OrganizationWhereInput[]
+    OR?: OrganizationWhereInput[]
+    NOT?: OrganizationWhereInput | OrganizationWhereInput[]
+    OrganizationName?: StringFilter<"Organization"> | string
+    logoUrl?: StringFilter<"Organization"> | string
+    contactNumber?: StringFilter<"Organization"> | string
+    Orgnizationtype?: EnumOrganizationTypeNullableFilter<"Organization"> | $Enums.OrganizationType | null
+    website?: StringFilter<"Organization"> | string
+    addressLine1?: StringFilter<"Organization"> | string
+    addressLine2?: StringFilter<"Organization"> | string
+    city?: StringFilter<"Organization"> | string
+    state?: StringFilter<"Organization"> | string
+    country?: StringFilter<"Organization"> | string
+    postalCode?: StringFilter<"Organization"> | string
+    registrationNo?: StringFilter<"Organization"> | string
+    establishedOn?: DateTimeFilter<"Organization"> | Date | string
+    industryType?: StringFilter<"Organization"> | string
+    status?: EnumHospital_Org_statusFilter<"Organization"> | $Enums.Hospital_Org_status
+    description?: StringNullableFilter<"Organization"> | string | null
+    createdAt?: DateTimeFilter<"Organization"> | Date | string
+    updatedAt?: DateTimeFilter<"Organization"> | Date | string
+    hospitals?: HospitalListRelationFilter
     users?: UserListRelationFilter
-  }, "id" | "Rolename">
+  }, "id" | "Organizationcode" | "email">
 
-  export type RoleOrderByWithAggregationInput = {
+  export type OrganizationOrderByWithAggregationInput = {
     id?: SortOrder
-    Rolename?: SortOrderInput | SortOrder
-    description?: SortOrder
-    isActive?: SortOrder
-    _count?: RoleCountOrderByAggregateInput
-    _avg?: RoleAvgOrderByAggregateInput
-    _max?: RoleMaxOrderByAggregateInput
-    _min?: RoleMinOrderByAggregateInput
-    _sum?: RoleSumOrderByAggregateInput
+    OrganizationName?: SortOrder
+    Organizationcode?: SortOrder
+    logoUrl?: SortOrder
+    email?: SortOrder
+    contactNumber?: SortOrder
+    Orgnizationtype?: SortOrderInput | SortOrder
+    website?: SortOrder
+    addressLine1?: SortOrder
+    addressLine2?: SortOrder
+    city?: SortOrder
+    state?: SortOrder
+    country?: SortOrder
+    postalCode?: SortOrder
+    registrationNo?: SortOrder
+    establishedOn?: SortOrder
+    industryType?: SortOrder
+    status?: SortOrder
+    description?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: OrganizationCountOrderByAggregateInput
+    _avg?: OrganizationAvgOrderByAggregateInput
+    _max?: OrganizationMaxOrderByAggregateInput
+    _min?: OrganizationMinOrderByAggregateInput
+    _sum?: OrganizationSumOrderByAggregateInput
   }
 
-  export type RoleScalarWhereWithAggregatesInput = {
-    AND?: RoleScalarWhereWithAggregatesInput | RoleScalarWhereWithAggregatesInput[]
-    OR?: RoleScalarWhereWithAggregatesInput[]
-    NOT?: RoleScalarWhereWithAggregatesInput | RoleScalarWhereWithAggregatesInput[]
-    id?: IntWithAggregatesFilter<"Role"> | number
-    Rolename?: StringNullableWithAggregatesFilter<"Role"> | string | null
-    description?: StringWithAggregatesFilter<"Role"> | string
-    isActive?: BoolWithAggregatesFilter<"Role"> | boolean
+  export type OrganizationScalarWhereWithAggregatesInput = {
+    AND?: OrganizationScalarWhereWithAggregatesInput | OrganizationScalarWhereWithAggregatesInput[]
+    OR?: OrganizationScalarWhereWithAggregatesInput[]
+    NOT?: OrganizationScalarWhereWithAggregatesInput | OrganizationScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"Organization"> | number
+    OrganizationName?: StringWithAggregatesFilter<"Organization"> | string
+    Organizationcode?: StringWithAggregatesFilter<"Organization"> | string
+    logoUrl?: StringWithAggregatesFilter<"Organization"> | string
+    email?: StringWithAggregatesFilter<"Organization"> | string
+    contactNumber?: StringWithAggregatesFilter<"Organization"> | string
+    Orgnizationtype?: EnumOrganizationTypeNullableWithAggregatesFilter<"Organization"> | $Enums.OrganizationType | null
+    website?: StringWithAggregatesFilter<"Organization"> | string
+    addressLine1?: StringWithAggregatesFilter<"Organization"> | string
+    addressLine2?: StringWithAggregatesFilter<"Organization"> | string
+    city?: StringWithAggregatesFilter<"Organization"> | string
+    state?: StringWithAggregatesFilter<"Organization"> | string
+    country?: StringWithAggregatesFilter<"Organization"> | string
+    postalCode?: StringWithAggregatesFilter<"Organization"> | string
+    registrationNo?: StringWithAggregatesFilter<"Organization"> | string
+    establishedOn?: DateTimeWithAggregatesFilter<"Organization"> | Date | string
+    industryType?: StringWithAggregatesFilter<"Organization"> | string
+    status?: EnumHospital_Org_statusWithAggregatesFilter<"Organization"> | $Enums.Hospital_Org_status
+    description?: StringNullableWithAggregatesFilter<"Organization"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"Organization"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Organization"> | Date | string
+  }
+
+  export type HospitalWhereInput = {
+    AND?: HospitalWhereInput | HospitalWhereInput[]
+    OR?: HospitalWhereInput[]
+    NOT?: HospitalWhereInput | HospitalWhereInput[]
+    id?: IntFilter<"Hospital"> | number
+    name?: StringFilter<"Hospital"> | string
+    hospitalCode?: StringFilter<"Hospital"> | string
+    ParentHospitalCode?: StringNullableFilter<"Hospital"> | string | null
+    Organizationcode?: StringNullableFilter<"Hospital"> | string | null
+    SpecializationType?: EnumSpecializationTypeFilter<"Hospital"> | $Enums.SpecializationType
+    address?: StringFilter<"Hospital"> | string
+    city?: StringFilter<"Hospital"> | string
+    state?: StringFilter<"Hospital"> | string
+    country?: StringFilter<"Hospital"> | string
+    postalCode?: StringFilter<"Hospital"> | string
+    contactNumber?: StringFilter<"Hospital"> | string
+    email?: StringFilter<"Hospital"> | string
+    website?: StringFilter<"Hospital"> | string
+    logoUrl?: StringFilter<"Hospital"> | string
+    latitude?: FloatFilter<"Hospital"> | number
+    longitude?: FloatFilter<"Hospital"> | number
+    status?: EnumHospital_Org_statusFilter<"Hospital"> | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFilter<"Hospital"> | $Enums.HospitalLevel
+    parentHospitalId?: IntNullableFilter<"Hospital"> | number | null
+    organizationId?: IntFilter<"Hospital"> | number
+    isActive?: BoolFilter<"Hospital"> | boolean
+    createdAt?: DateTimeFilter<"Hospital"> | Date | string
+    updatedAt?: DateTimeFilter<"Hospital"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"Hospital"> | Date | string | null
+    parentHospital?: XOR<HospitalNullableScalarRelationFilter, HospitalWhereInput> | null
+    childHospital?: HospitalListRelationFilter
+    Organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
+    users?: UserHospitalAccessListRelationFilter
+  }
+
+  export type HospitalOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    hospitalCode?: SortOrder
+    ParentHospitalCode?: SortOrderInput | SortOrder
+    Organizationcode?: SortOrderInput | SortOrder
+    SpecializationType?: SortOrder
+    address?: SortOrder
+    city?: SortOrder
+    state?: SortOrder
+    country?: SortOrder
+    postalCode?: SortOrder
+    contactNumber?: SortOrder
+    email?: SortOrder
+    website?: SortOrder
+    logoUrl?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    status?: SortOrder
+    level?: SortOrder
+    parentHospitalId?: SortOrderInput | SortOrder
+    organizationId?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    deletedAt?: SortOrderInput | SortOrder
+    parentHospital?: HospitalOrderByWithRelationInput
+    childHospital?: HospitalOrderByRelationAggregateInput
+    Organization?: OrganizationOrderByWithRelationInput
+    users?: UserHospitalAccessOrderByRelationAggregateInput
+  }
+
+  export type HospitalWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    hospitalCode?: string
+    AND?: HospitalWhereInput | HospitalWhereInput[]
+    OR?: HospitalWhereInput[]
+    NOT?: HospitalWhereInput | HospitalWhereInput[]
+    name?: StringFilter<"Hospital"> | string
+    ParentHospitalCode?: StringNullableFilter<"Hospital"> | string | null
+    Organizationcode?: StringNullableFilter<"Hospital"> | string | null
+    SpecializationType?: EnumSpecializationTypeFilter<"Hospital"> | $Enums.SpecializationType
+    address?: StringFilter<"Hospital"> | string
+    city?: StringFilter<"Hospital"> | string
+    state?: StringFilter<"Hospital"> | string
+    country?: StringFilter<"Hospital"> | string
+    postalCode?: StringFilter<"Hospital"> | string
+    contactNumber?: StringFilter<"Hospital"> | string
+    email?: StringFilter<"Hospital"> | string
+    website?: StringFilter<"Hospital"> | string
+    logoUrl?: StringFilter<"Hospital"> | string
+    latitude?: FloatFilter<"Hospital"> | number
+    longitude?: FloatFilter<"Hospital"> | number
+    status?: EnumHospital_Org_statusFilter<"Hospital"> | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFilter<"Hospital"> | $Enums.HospitalLevel
+    parentHospitalId?: IntNullableFilter<"Hospital"> | number | null
+    organizationId?: IntFilter<"Hospital"> | number
+    isActive?: BoolFilter<"Hospital"> | boolean
+    createdAt?: DateTimeFilter<"Hospital"> | Date | string
+    updatedAt?: DateTimeFilter<"Hospital"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"Hospital"> | Date | string | null
+    parentHospital?: XOR<HospitalNullableScalarRelationFilter, HospitalWhereInput> | null
+    childHospital?: HospitalListRelationFilter
+    Organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
+    users?: UserHospitalAccessListRelationFilter
+  }, "id" | "hospitalCode">
+
+  export type HospitalOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    hospitalCode?: SortOrder
+    ParentHospitalCode?: SortOrderInput | SortOrder
+    Organizationcode?: SortOrderInput | SortOrder
+    SpecializationType?: SortOrder
+    address?: SortOrder
+    city?: SortOrder
+    state?: SortOrder
+    country?: SortOrder
+    postalCode?: SortOrder
+    contactNumber?: SortOrder
+    email?: SortOrder
+    website?: SortOrder
+    logoUrl?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    status?: SortOrder
+    level?: SortOrder
+    parentHospitalId?: SortOrderInput | SortOrder
+    organizationId?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    deletedAt?: SortOrderInput | SortOrder
+    _count?: HospitalCountOrderByAggregateInput
+    _avg?: HospitalAvgOrderByAggregateInput
+    _max?: HospitalMaxOrderByAggregateInput
+    _min?: HospitalMinOrderByAggregateInput
+    _sum?: HospitalSumOrderByAggregateInput
+  }
+
+  export type HospitalScalarWhereWithAggregatesInput = {
+    AND?: HospitalScalarWhereWithAggregatesInput | HospitalScalarWhereWithAggregatesInput[]
+    OR?: HospitalScalarWhereWithAggregatesInput[]
+    NOT?: HospitalScalarWhereWithAggregatesInput | HospitalScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"Hospital"> | number
+    name?: StringWithAggregatesFilter<"Hospital"> | string
+    hospitalCode?: StringWithAggregatesFilter<"Hospital"> | string
+    ParentHospitalCode?: StringNullableWithAggregatesFilter<"Hospital"> | string | null
+    Organizationcode?: StringNullableWithAggregatesFilter<"Hospital"> | string | null
+    SpecializationType?: EnumSpecializationTypeWithAggregatesFilter<"Hospital"> | $Enums.SpecializationType
+    address?: StringWithAggregatesFilter<"Hospital"> | string
+    city?: StringWithAggregatesFilter<"Hospital"> | string
+    state?: StringWithAggregatesFilter<"Hospital"> | string
+    country?: StringWithAggregatesFilter<"Hospital"> | string
+    postalCode?: StringWithAggregatesFilter<"Hospital"> | string
+    contactNumber?: StringWithAggregatesFilter<"Hospital"> | string
+    email?: StringWithAggregatesFilter<"Hospital"> | string
+    website?: StringWithAggregatesFilter<"Hospital"> | string
+    logoUrl?: StringWithAggregatesFilter<"Hospital"> | string
+    latitude?: FloatWithAggregatesFilter<"Hospital"> | number
+    longitude?: FloatWithAggregatesFilter<"Hospital"> | number
+    status?: EnumHospital_Org_statusWithAggregatesFilter<"Hospital"> | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelWithAggregatesFilter<"Hospital"> | $Enums.HospitalLevel
+    parentHospitalId?: IntNullableWithAggregatesFilter<"Hospital"> | number | null
+    organizationId?: IntWithAggregatesFilter<"Hospital"> | number
+    isActive?: BoolWithAggregatesFilter<"Hospital"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"Hospital"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Hospital"> | Date | string
+    deletedAt?: DateTimeNullableWithAggregatesFilter<"Hospital"> | Date | string | null
+  }
+
+  export type UserHospitalAccessWhereInput = {
+    AND?: UserHospitalAccessWhereInput | UserHospitalAccessWhereInput[]
+    OR?: UserHospitalAccessWhereInput[]
+    NOT?: UserHospitalAccessWhereInput | UserHospitalAccessWhereInput[]
+    id?: IntFilter<"UserHospitalAccess"> | number
+    userId?: IntFilter<"UserHospitalAccess"> | number
+    hospitalId?: IntFilter<"UserHospitalAccess"> | number
+    roleId?: IntFilter<"UserHospitalAccess"> | number
+    createdAt?: DateTimeFilter<"UserHospitalAccess"> | Date | string
+    updatedAt?: DateTimeFilter<"UserHospitalAccess"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    hospital?: XOR<HospitalScalarRelationFilter, HospitalWhereInput>
+    role?: XOR<RoleScalarRelationFilter, RoleWhereInput>
+  }
+
+  export type UserHospitalAccessOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    hospitalId?: SortOrder
+    roleId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    hospital?: HospitalOrderByWithRelationInput
+    role?: RoleOrderByWithRelationInput
+  }
+
+  export type UserHospitalAccessWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    userId_hospitalId?: UserHospitalAccessUserIdHospitalIdCompoundUniqueInput
+    AND?: UserHospitalAccessWhereInput | UserHospitalAccessWhereInput[]
+    OR?: UserHospitalAccessWhereInput[]
+    NOT?: UserHospitalAccessWhereInput | UserHospitalAccessWhereInput[]
+    userId?: IntFilter<"UserHospitalAccess"> | number
+    hospitalId?: IntFilter<"UserHospitalAccess"> | number
+    roleId?: IntFilter<"UserHospitalAccess"> | number
+    createdAt?: DateTimeFilter<"UserHospitalAccess"> | Date | string
+    updatedAt?: DateTimeFilter<"UserHospitalAccess"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    hospital?: XOR<HospitalScalarRelationFilter, HospitalWhereInput>
+    role?: XOR<RoleScalarRelationFilter, RoleWhereInput>
+  }, "id" | "userId_hospitalId">
+
+  export type UserHospitalAccessOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    hospitalId?: SortOrder
+    roleId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: UserHospitalAccessCountOrderByAggregateInput
+    _avg?: UserHospitalAccessAvgOrderByAggregateInput
+    _max?: UserHospitalAccessMaxOrderByAggregateInput
+    _min?: UserHospitalAccessMinOrderByAggregateInput
+    _sum?: UserHospitalAccessSumOrderByAggregateInput
+  }
+
+  export type UserHospitalAccessScalarWhereWithAggregatesInput = {
+    AND?: UserHospitalAccessScalarWhereWithAggregatesInput | UserHospitalAccessScalarWhereWithAggregatesInput[]
+    OR?: UserHospitalAccessScalarWhereWithAggregatesInput[]
+    NOT?: UserHospitalAccessScalarWhereWithAggregatesInput | UserHospitalAccessScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"UserHospitalAccess"> | number
+    userId?: IntWithAggregatesFilter<"UserHospitalAccess"> | number
+    hospitalId?: IntWithAggregatesFilter<"UserHospitalAccess"> | number
+    roleId?: IntWithAggregatesFilter<"UserHospitalAccess"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"UserHospitalAccess"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"UserHospitalAccess"> | Date | string
   }
 
   export type SettingWhereInput = {
@@ -13692,185 +14812,6 @@ export namespace Prisma {
     userId?: IntWithAggregatesFilter<"Setting"> | number
     theme?: StringWithAggregatesFilter<"Setting"> | string
     language?: StringWithAggregatesFilter<"Setting"> | string
-  }
-
-  export type HospitalWhereInput = {
-    AND?: HospitalWhereInput | HospitalWhereInput[]
-    OR?: HospitalWhereInput[]
-    NOT?: HospitalWhereInput | HospitalWhereInput[]
-    id?: IntFilter<"Hospital"> | number
-    name?: StringFilter<"Hospital"> | string
-    location?: StringFilter<"Hospital"> | string
-    isActive?: BoolFilter<"Hospital"> | boolean
-    parentHospitalId?: IntNullableFilter<"Hospital"> | number | null
-    levelId?: IntNullableFilter<"Hospital"> | number | null
-    hospitalCode?: StringNullableFilter<"Hospital"> | string | null
-    superHospitalCode?: StringNullableFilter<"Hospital"> | string | null
-    parentHospital?: XOR<HospitalNullableScalarRelationFilter, HospitalWhereInput> | null
-    childHospitals?: HospitalListRelationFilter
-    type?: XOR<HospitaltypeNullableScalarRelationFilter, HospitaltypeWhereInput> | null
-    userAccess?: UserHospitalAccessListRelationFilter
-  }
-
-  export type HospitalOrderByWithRelationInput = {
-    id?: SortOrder
-    name?: SortOrder
-    location?: SortOrder
-    isActive?: SortOrder
-    parentHospitalId?: SortOrderInput | SortOrder
-    levelId?: SortOrderInput | SortOrder
-    hospitalCode?: SortOrderInput | SortOrder
-    superHospitalCode?: SortOrderInput | SortOrder
-    parentHospital?: HospitalOrderByWithRelationInput
-    childHospitals?: HospitalOrderByRelationAggregateInput
-    type?: HospitaltypeOrderByWithRelationInput
-    userAccess?: UserHospitalAccessOrderByRelationAggregateInput
-  }
-
-  export type HospitalWhereUniqueInput = Prisma.AtLeast<{
-    id?: number
-    AND?: HospitalWhereInput | HospitalWhereInput[]
-    OR?: HospitalWhereInput[]
-    NOT?: HospitalWhereInput | HospitalWhereInput[]
-    name?: StringFilter<"Hospital"> | string
-    location?: StringFilter<"Hospital"> | string
-    isActive?: BoolFilter<"Hospital"> | boolean
-    parentHospitalId?: IntNullableFilter<"Hospital"> | number | null
-    levelId?: IntNullableFilter<"Hospital"> | number | null
-    hospitalCode?: StringNullableFilter<"Hospital"> | string | null
-    superHospitalCode?: StringNullableFilter<"Hospital"> | string | null
-    parentHospital?: XOR<HospitalNullableScalarRelationFilter, HospitalWhereInput> | null
-    childHospitals?: HospitalListRelationFilter
-    type?: XOR<HospitaltypeNullableScalarRelationFilter, HospitaltypeWhereInput> | null
-    userAccess?: UserHospitalAccessListRelationFilter
-  }, "id">
-
-  export type HospitalOrderByWithAggregationInput = {
-    id?: SortOrder
-    name?: SortOrder
-    location?: SortOrder
-    isActive?: SortOrder
-    parentHospitalId?: SortOrderInput | SortOrder
-    levelId?: SortOrderInput | SortOrder
-    hospitalCode?: SortOrderInput | SortOrder
-    superHospitalCode?: SortOrderInput | SortOrder
-    _count?: HospitalCountOrderByAggregateInput
-    _avg?: HospitalAvgOrderByAggregateInput
-    _max?: HospitalMaxOrderByAggregateInput
-    _min?: HospitalMinOrderByAggregateInput
-    _sum?: HospitalSumOrderByAggregateInput
-  }
-
-  export type HospitalScalarWhereWithAggregatesInput = {
-    AND?: HospitalScalarWhereWithAggregatesInput | HospitalScalarWhereWithAggregatesInput[]
-    OR?: HospitalScalarWhereWithAggregatesInput[]
-    NOT?: HospitalScalarWhereWithAggregatesInput | HospitalScalarWhereWithAggregatesInput[]
-    id?: IntWithAggregatesFilter<"Hospital"> | number
-    name?: StringWithAggregatesFilter<"Hospital"> | string
-    location?: StringWithAggregatesFilter<"Hospital"> | string
-    isActive?: BoolWithAggregatesFilter<"Hospital"> | boolean
-    parentHospitalId?: IntNullableWithAggregatesFilter<"Hospital"> | number | null
-    levelId?: IntNullableWithAggregatesFilter<"Hospital"> | number | null
-    hospitalCode?: StringNullableWithAggregatesFilter<"Hospital"> | string | null
-    superHospitalCode?: StringNullableWithAggregatesFilter<"Hospital"> | string | null
-  }
-
-  export type HospitaltypeWhereInput = {
-    AND?: HospitaltypeWhereInput | HospitaltypeWhereInput[]
-    OR?: HospitaltypeWhereInput[]
-    NOT?: HospitaltypeWhereInput | HospitaltypeWhereInput[]
-    id?: IntFilter<"Hospitaltype"> | number
-    HospitalType?: StringFilter<"Hospitaltype"> | string
-    hospitals?: HospitalListRelationFilter
-  }
-
-  export type HospitaltypeOrderByWithRelationInput = {
-    id?: SortOrder
-    HospitalType?: SortOrder
-    hospitals?: HospitalOrderByRelationAggregateInput
-  }
-
-  export type HospitaltypeWhereUniqueInput = Prisma.AtLeast<{
-    id?: number
-    HospitalType?: string
-    AND?: HospitaltypeWhereInput | HospitaltypeWhereInput[]
-    OR?: HospitaltypeWhereInput[]
-    NOT?: HospitaltypeWhereInput | HospitaltypeWhereInput[]
-    hospitals?: HospitalListRelationFilter
-  }, "id" | "HospitalType">
-
-  export type HospitaltypeOrderByWithAggregationInput = {
-    id?: SortOrder
-    HospitalType?: SortOrder
-    _count?: HospitaltypeCountOrderByAggregateInput
-    _avg?: HospitaltypeAvgOrderByAggregateInput
-    _max?: HospitaltypeMaxOrderByAggregateInput
-    _min?: HospitaltypeMinOrderByAggregateInput
-    _sum?: HospitaltypeSumOrderByAggregateInput
-  }
-
-  export type HospitaltypeScalarWhereWithAggregatesInput = {
-    AND?: HospitaltypeScalarWhereWithAggregatesInput | HospitaltypeScalarWhereWithAggregatesInput[]
-    OR?: HospitaltypeScalarWhereWithAggregatesInput[]
-    NOT?: HospitaltypeScalarWhereWithAggregatesInput | HospitaltypeScalarWhereWithAggregatesInput[]
-    id?: IntWithAggregatesFilter<"Hospitaltype"> | number
-    HospitalType?: StringWithAggregatesFilter<"Hospitaltype"> | string
-  }
-
-  export type UserHospitalAccessWhereInput = {
-    AND?: UserHospitalAccessWhereInput | UserHospitalAccessWhereInput[]
-    OR?: UserHospitalAccessWhereInput[]
-    NOT?: UserHospitalAccessWhereInput | UserHospitalAccessWhereInput[]
-    id?: IntFilter<"UserHospitalAccess"> | number
-    userId?: IntFilter<"UserHospitalAccess"> | number
-    hospitalId?: IntFilter<"UserHospitalAccess"> | number
-    isActive?: BoolFilter<"UserHospitalAccess"> | boolean
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
-    hospital?: XOR<HospitalScalarRelationFilter, HospitalWhereInput>
-  }
-
-  export type UserHospitalAccessOrderByWithRelationInput = {
-    id?: SortOrder
-    userId?: SortOrder
-    hospitalId?: SortOrder
-    isActive?: SortOrder
-    user?: UserOrderByWithRelationInput
-    hospital?: HospitalOrderByWithRelationInput
-  }
-
-  export type UserHospitalAccessWhereUniqueInput = Prisma.AtLeast<{
-    id?: number
-    userId_hospitalId?: UserHospitalAccessUserIdHospitalIdCompoundUniqueInput
-    AND?: UserHospitalAccessWhereInput | UserHospitalAccessWhereInput[]
-    OR?: UserHospitalAccessWhereInput[]
-    NOT?: UserHospitalAccessWhereInput | UserHospitalAccessWhereInput[]
-    userId?: IntFilter<"UserHospitalAccess"> | number
-    hospitalId?: IntFilter<"UserHospitalAccess"> | number
-    isActive?: BoolFilter<"UserHospitalAccess"> | boolean
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
-    hospital?: XOR<HospitalScalarRelationFilter, HospitalWhereInput>
-  }, "id" | "userId_hospitalId">
-
-  export type UserHospitalAccessOrderByWithAggregationInput = {
-    id?: SortOrder
-    userId?: SortOrder
-    hospitalId?: SortOrder
-    isActive?: SortOrder
-    _count?: UserHospitalAccessCountOrderByAggregateInput
-    _avg?: UserHospitalAccessAvgOrderByAggregateInput
-    _max?: UserHospitalAccessMaxOrderByAggregateInput
-    _min?: UserHospitalAccessMinOrderByAggregateInput
-    _sum?: UserHospitalAccessSumOrderByAggregateInput
-  }
-
-  export type UserHospitalAccessScalarWhereWithAggregatesInput = {
-    AND?: UserHospitalAccessScalarWhereWithAggregatesInput | UserHospitalAccessScalarWhereWithAggregatesInput[]
-    OR?: UserHospitalAccessScalarWhereWithAggregatesInput[]
-    NOT?: UserHospitalAccessScalarWhereWithAggregatesInput | UserHospitalAccessScalarWhereWithAggregatesInput[]
-    id?: IntWithAggregatesFilter<"UserHospitalAccess"> | number
-    userId?: IntWithAggregatesFilter<"UserHospitalAccess"> | number
-    hospitalId?: IntWithAggregatesFilter<"UserHospitalAccess"> | number
-    isActive?: BoolWithAggregatesFilter<"UserHospitalAccess"> | boolean
   }
 
   export type AuditLogWhereInput = {
@@ -13997,51 +14938,62 @@ export namespace Prisma {
     loginAt?: DateTimeWithAggregatesFilter<"LoginSession"> | Date | string
   }
 
-  export type PermissionWhereInput = {
-    AND?: PermissionWhereInput | PermissionWhereInput[]
-    OR?: PermissionWhereInput[]
-    NOT?: PermissionWhereInput | PermissionWhereInput[]
-    id?: IntFilter<"Permission"> | number
-    name?: StringFilter<"Permission"> | string
-    description?: StringNullableFilter<"Permission"> | string | null
-    roles?: RolePermissionListRelationFilter
+  export type RoleWhereInput = {
+    AND?: RoleWhereInput | RoleWhereInput[]
+    OR?: RoleWhereInput[]
+    NOT?: RoleWhereInput | RoleWhereInput[]
+    id?: IntFilter<"Role"> | number
+    Rolename?: StringFilter<"Role"> | string
+    description?: StringFilter<"Role"> | string
+    isActive?: BoolFilter<"Role"> | boolean
+    users?: UserListRelationFilter
+    UserHospitalAccess?: UserHospitalAccessListRelationFilter
+    permissions?: RolePermissionListRelationFilter
   }
 
-  export type PermissionOrderByWithRelationInput = {
+  export type RoleOrderByWithRelationInput = {
     id?: SortOrder
-    name?: SortOrder
-    description?: SortOrderInput | SortOrder
-    roles?: RolePermissionOrderByRelationAggregateInput
+    Rolename?: SortOrder
+    description?: SortOrder
+    isActive?: SortOrder
+    users?: UserOrderByRelationAggregateInput
+    UserHospitalAccess?: UserHospitalAccessOrderByRelationAggregateInput
+    permissions?: RolePermissionOrderByRelationAggregateInput
   }
 
-  export type PermissionWhereUniqueInput = Prisma.AtLeast<{
+  export type RoleWhereUniqueInput = Prisma.AtLeast<{
     id?: number
-    name?: string
-    AND?: PermissionWhereInput | PermissionWhereInput[]
-    OR?: PermissionWhereInput[]
-    NOT?: PermissionWhereInput | PermissionWhereInput[]
-    description?: StringNullableFilter<"Permission"> | string | null
-    roles?: RolePermissionListRelationFilter
-  }, "id" | "name">
+    Rolename?: string
+    AND?: RoleWhereInput | RoleWhereInput[]
+    OR?: RoleWhereInput[]
+    NOT?: RoleWhereInput | RoleWhereInput[]
+    description?: StringFilter<"Role"> | string
+    isActive?: BoolFilter<"Role"> | boolean
+    users?: UserListRelationFilter
+    UserHospitalAccess?: UserHospitalAccessListRelationFilter
+    permissions?: RolePermissionListRelationFilter
+  }, "id" | "Rolename">
 
-  export type PermissionOrderByWithAggregationInput = {
+  export type RoleOrderByWithAggregationInput = {
     id?: SortOrder
-    name?: SortOrder
-    description?: SortOrderInput | SortOrder
-    _count?: PermissionCountOrderByAggregateInput
-    _avg?: PermissionAvgOrderByAggregateInput
-    _max?: PermissionMaxOrderByAggregateInput
-    _min?: PermissionMinOrderByAggregateInput
-    _sum?: PermissionSumOrderByAggregateInput
+    Rolename?: SortOrder
+    description?: SortOrder
+    isActive?: SortOrder
+    _count?: RoleCountOrderByAggregateInput
+    _avg?: RoleAvgOrderByAggregateInput
+    _max?: RoleMaxOrderByAggregateInput
+    _min?: RoleMinOrderByAggregateInput
+    _sum?: RoleSumOrderByAggregateInput
   }
 
-  export type PermissionScalarWhereWithAggregatesInput = {
-    AND?: PermissionScalarWhereWithAggregatesInput | PermissionScalarWhereWithAggregatesInput[]
-    OR?: PermissionScalarWhereWithAggregatesInput[]
-    NOT?: PermissionScalarWhereWithAggregatesInput | PermissionScalarWhereWithAggregatesInput[]
-    id?: IntWithAggregatesFilter<"Permission"> | number
-    name?: StringWithAggregatesFilter<"Permission"> | string
-    description?: StringNullableWithAggregatesFilter<"Permission"> | string | null
+  export type RoleScalarWhereWithAggregatesInput = {
+    AND?: RoleScalarWhereWithAggregatesInput | RoleScalarWhereWithAggregatesInput[]
+    OR?: RoleScalarWhereWithAggregatesInput[]
+    NOT?: RoleScalarWhereWithAggregatesInput | RoleScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"Role"> | number
+    Rolename?: StringWithAggregatesFilter<"Role"> | string
+    description?: StringWithAggregatesFilter<"Role"> | string
+    isActive?: BoolWithAggregatesFilter<"Role"> | boolean
   }
 
   export type RolePermissionWhereInput = {
@@ -14095,19 +15047,78 @@ export namespace Prisma {
     permissionId?: IntWithAggregatesFilter<"RolePermission"> | number
   }
 
+  export type PermissionWhereInput = {
+    AND?: PermissionWhereInput | PermissionWhereInput[]
+    OR?: PermissionWhereInput[]
+    NOT?: PermissionWhereInput | PermissionWhereInput[]
+    id?: IntFilter<"Permission"> | number
+    name?: StringFilter<"Permission"> | string
+    displayName?: StringFilter<"Permission"> | string
+    category?: StringFilter<"Permission"> | string
+    description?: StringNullableFilter<"Permission"> | string | null
+    roles?: RolePermissionListRelationFilter
+  }
+
+  export type PermissionOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    displayName?: SortOrder
+    category?: SortOrder
+    description?: SortOrderInput | SortOrder
+    roles?: RolePermissionOrderByRelationAggregateInput
+  }
+
+  export type PermissionWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    name?: string
+    AND?: PermissionWhereInput | PermissionWhereInput[]
+    OR?: PermissionWhereInput[]
+    NOT?: PermissionWhereInput | PermissionWhereInput[]
+    displayName?: StringFilter<"Permission"> | string
+    category?: StringFilter<"Permission"> | string
+    description?: StringNullableFilter<"Permission"> | string | null
+    roles?: RolePermissionListRelationFilter
+  }, "id" | "name">
+
+  export type PermissionOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    displayName?: SortOrder
+    category?: SortOrder
+    description?: SortOrderInput | SortOrder
+    _count?: PermissionCountOrderByAggregateInput
+    _avg?: PermissionAvgOrderByAggregateInput
+    _max?: PermissionMaxOrderByAggregateInput
+    _min?: PermissionMinOrderByAggregateInput
+    _sum?: PermissionSumOrderByAggregateInput
+  }
+
+  export type PermissionScalarWhereWithAggregatesInput = {
+    AND?: PermissionScalarWhereWithAggregatesInput | PermissionScalarWhereWithAggregatesInput[]
+    OR?: PermissionScalarWhereWithAggregatesInput[]
+    NOT?: PermissionScalarWhereWithAggregatesInput | PermissionScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"Permission"> | number
+    name?: StringWithAggregatesFilter<"Permission"> | string
+    displayName?: StringWithAggregatesFilter<"Permission"> | string
+    category?: StringWithAggregatesFilter<"Permission"> | string
+    description?: StringNullableWithAggregatesFilter<"Permission"> | string | null
+  }
+
   export type UserCreateInput = {
-    title?: $Enums.Title | null
-    imageUrl?: string | null
+    title: $Enums.Title
+    imageUrl: string
     firstName: string
     lastName: string
-    gender?: string | null
+    gender: string
     email: string
     mobile: string
     passwordHash: string
     isActive?: boolean
-    hashedRefreshToken?: string | null
-    dateOfBirth?: Date | string | null
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
@@ -14116,18 +15127,20 @@ export namespace Prisma {
 
   export type UserUncheckedCreateInput = {
     id?: number
-    title?: $Enums.Title | null
-    imageUrl?: string | null
+    title: $Enums.Title
+    imageUrl: string
     firstName: string
     lastName: string
-    gender?: string | null
+    gender: string
     email: string
     mobile: string
     passwordHash: string
     isActive?: boolean
-    hashedRefreshToken?: string | null
-    dateOfBirth?: Date | string | null
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
     roleId: number
+    organizationId: number
+    deletedAt?: Date | string | null
     settings?: SettingUncheckedCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
@@ -14135,18 +15148,20 @@ export namespace Prisma {
   }
 
   export type UserUpdateInput = {
-    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     mobile?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
-    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
@@ -14155,18 +15170,20 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
-    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     mobile?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
-    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
     roleId?: IntFieldUpdateOperationsInput | number
+    organizationId?: IntFieldUpdateOperationsInput | number
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
@@ -14175,102 +15192,482 @@ export namespace Prisma {
 
   export type UserCreateManyInput = {
     id?: number
-    title?: $Enums.Title | null
-    imageUrl?: string | null
+    title: $Enums.Title
+    imageUrl: string
     firstName: string
     lastName: string
-    gender?: string | null
+    gender: string
     email: string
     mobile: string
     passwordHash: string
     isActive?: boolean
-    hashedRefreshToken?: string | null
-    dateOfBirth?: Date | string | null
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
     roleId: number
+    organizationId: number
+    deletedAt?: Date | string | null
   }
 
   export type UserUpdateManyMutationInput = {
-    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     mobile?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
-    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type UserUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
-    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     mobile?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
-    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
     roleId?: IntFieldUpdateOperationsInput | number
+    organizationId?: IntFieldUpdateOperationsInput | number
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
-  export type RoleCreateInput = {
-    Rolename?: string | null
-    description: string
-    isActive?: boolean
-    permissions?: RolePermissionCreateNestedManyWithoutRoleInput
-    users?: UserCreateNestedManyWithoutRoleInput
+  export type OrganizationCreateInput = {
+    OrganizationName: string
+    Organizationcode: string
+    logoUrl: string
+    email: string
+    contactNumber: string
+    Orgnizationtype?: $Enums.OrganizationType | null
+    website: string
+    addressLine1: string
+    addressLine2: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    registrationNo: string
+    establishedOn: Date | string
+    industryType: string
+    status?: $Enums.Hospital_Org_status
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    hospitals?: HospitalCreateNestedManyWithoutOrganizationInput
+    users?: UserCreateNestedManyWithoutOrganizationInput
   }
 
-  export type RoleUncheckedCreateInput = {
+  export type OrganizationUncheckedCreateInput = {
     id?: number
-    Rolename?: string | null
-    description: string
-    isActive?: boolean
-    permissions?: RolePermissionUncheckedCreateNestedManyWithoutRoleInput
-    users?: UserUncheckedCreateNestedManyWithoutRoleInput
+    OrganizationName: string
+    Organizationcode: string
+    logoUrl: string
+    email: string
+    contactNumber: string
+    Orgnizationtype?: $Enums.OrganizationType | null
+    website: string
+    addressLine1: string
+    addressLine2: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    registrationNo: string
+    establishedOn: Date | string
+    industryType: string
+    status?: $Enums.Hospital_Org_status
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    hospitals?: HospitalUncheckedCreateNestedManyWithoutOrganizationInput
+    users?: UserUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
-  export type RoleUpdateInput = {
-    Rolename?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    permissions?: RolePermissionUpdateManyWithoutRoleNestedInput
-    users?: UserUpdateManyWithoutRoleNestedInput
+  export type OrganizationUpdateInput = {
+    OrganizationName?: StringFieldUpdateOperationsInput | string
+    Organizationcode?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    Orgnizationtype?: NullableEnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType | null
+    website?: StringFieldUpdateOperationsInput | string
+    addressLine1?: StringFieldUpdateOperationsInput | string
+    addressLine2?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    registrationNo?: StringFieldUpdateOperationsInput | string
+    establishedOn?: DateTimeFieldUpdateOperationsInput | Date | string
+    industryType?: StringFieldUpdateOperationsInput | string
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    hospitals?: HospitalUpdateManyWithoutOrganizationNestedInput
+    users?: UserUpdateManyWithoutOrganizationNestedInput
   }
 
-  export type RoleUncheckedUpdateInput = {
+  export type OrganizationUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
-    Rolename?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    permissions?: RolePermissionUncheckedUpdateManyWithoutRoleNestedInput
-    users?: UserUncheckedUpdateManyWithoutRoleNestedInput
+    OrganizationName?: StringFieldUpdateOperationsInput | string
+    Organizationcode?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    Orgnizationtype?: NullableEnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType | null
+    website?: StringFieldUpdateOperationsInput | string
+    addressLine1?: StringFieldUpdateOperationsInput | string
+    addressLine2?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    registrationNo?: StringFieldUpdateOperationsInput | string
+    establishedOn?: DateTimeFieldUpdateOperationsInput | Date | string
+    industryType?: StringFieldUpdateOperationsInput | string
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    hospitals?: HospitalUncheckedUpdateManyWithoutOrganizationNestedInput
+    users?: UserUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
-  export type RoleCreateManyInput = {
+  export type OrganizationCreateManyInput = {
     id?: number
-    Rolename?: string | null
-    description: string
-    isActive?: boolean
+    OrganizationName: string
+    Organizationcode: string
+    logoUrl: string
+    email: string
+    contactNumber: string
+    Orgnizationtype?: $Enums.OrganizationType | null
+    website: string
+    addressLine1: string
+    addressLine2: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    registrationNo: string
+    establishedOn: Date | string
+    industryType: string
+    status?: $Enums.Hospital_Org_status
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
-  export type RoleUpdateManyMutationInput = {
-    Rolename?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
+  export type OrganizationUpdateManyMutationInput = {
+    OrganizationName?: StringFieldUpdateOperationsInput | string
+    Organizationcode?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    Orgnizationtype?: NullableEnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType | null
+    website?: StringFieldUpdateOperationsInput | string
+    addressLine1?: StringFieldUpdateOperationsInput | string
+    addressLine2?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    registrationNo?: StringFieldUpdateOperationsInput | string
+    establishedOn?: DateTimeFieldUpdateOperationsInput | Date | string
+    industryType?: StringFieldUpdateOperationsInput | string
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type RoleUncheckedUpdateManyInput = {
+  export type OrganizationUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
-    Rolename?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: StringFieldUpdateOperationsInput | string
+    OrganizationName?: StringFieldUpdateOperationsInput | string
+    Organizationcode?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    Orgnizationtype?: NullableEnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType | null
+    website?: StringFieldUpdateOperationsInput | string
+    addressLine1?: StringFieldUpdateOperationsInput | string
+    addressLine2?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    registrationNo?: StringFieldUpdateOperationsInput | string
+    establishedOn?: DateTimeFieldUpdateOperationsInput | Date | string
+    industryType?: StringFieldUpdateOperationsInput | string
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type HospitalCreateInput = {
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website: string
+    logoUrl: string
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    parentHospital?: HospitalCreateNestedOneWithoutChildHospitalInput
+    childHospital?: HospitalCreateNestedManyWithoutParentHospitalInput
+    Organization: OrganizationCreateNestedOneWithoutHospitalsInput
+    users?: UserHospitalAccessCreateNestedManyWithoutHospitalInput
+  }
+
+  export type HospitalUncheckedCreateInput = {
+    id?: number
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website: string
+    logoUrl: string
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    parentHospitalId?: number | null
+    organizationId: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    childHospital?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
+    users?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
+  }
+
+  export type HospitalUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parentHospital?: HospitalUpdateOneWithoutChildHospitalNestedInput
+    childHospital?: HospitalUpdateManyWithoutParentHospitalNestedInput
+    Organization?: OrganizationUpdateOneRequiredWithoutHospitalsNestedInput
+    users?: UserHospitalAccessUpdateManyWithoutHospitalNestedInput
+  }
+
+  export type HospitalUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
+    organizationId?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    childHospital?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
+    users?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
+  }
+
+  export type HospitalCreateManyInput = {
+    id?: number
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website: string
+    logoUrl: string
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    parentHospitalId?: number | null
+    organizationId: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+  }
+
+  export type HospitalUpdateManyMutationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type HospitalUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
+    organizationId?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserHospitalAccessCreateInput = {
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutAdminAccessInput
+    hospital: HospitalCreateNestedOneWithoutUsersInput
+    role: RoleCreateNestedOneWithoutUserHospitalAccessInput
+  }
+
+  export type UserHospitalAccessUncheckedCreateInput = {
+    id?: number
+    userId: number
+    hospitalId: number
+    roleId: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type UserHospitalAccessUpdateInput = {
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAdminAccessNestedInput
+    hospital?: HospitalUpdateOneRequiredWithoutUsersNestedInput
+    role?: RoleUpdateOneRequiredWithoutUserHospitalAccessNestedInput
+  }
+
+  export type UserHospitalAccessUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    hospitalId?: IntFieldUpdateOperationsInput | number
+    roleId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserHospitalAccessCreateManyInput = {
+    id?: number
+    userId: number
+    hospitalId: number
+    roleId: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type UserHospitalAccessUpdateManyMutationInput = {
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserHospitalAccessUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    hospitalId?: IntFieldUpdateOperationsInput | number
+    roleId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SettingCreateInput = {
@@ -14316,166 +15713,6 @@ export namespace Prisma {
     userId?: IntFieldUpdateOperationsInput | number
     theme?: StringFieldUpdateOperationsInput | string
     language?: StringFieldUpdateOperationsInput | string
-  }
-
-  export type HospitalCreateInput = {
-    name: string
-    location: string
-    isActive?: boolean
-    hospitalCode?: string | null
-    superHospitalCode?: string | null
-    parentHospital?: HospitalCreateNestedOneWithoutChildHospitalsInput
-    childHospitals?: HospitalCreateNestedManyWithoutParentHospitalInput
-    type?: HospitaltypeCreateNestedOneWithoutHospitalsInput
-    userAccess?: UserHospitalAccessCreateNestedManyWithoutHospitalInput
-  }
-
-  export type HospitalUncheckedCreateInput = {
-    id?: number
-    name: string
-    location: string
-    isActive?: boolean
-    parentHospitalId?: number | null
-    levelId?: number | null
-    hospitalCode?: string | null
-    superHospitalCode?: string | null
-    childHospitals?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
-    userAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
-  }
-
-  export type HospitalUpdateInput = {
-    name?: StringFieldUpdateOperationsInput | string
-    location?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    hospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    superHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    parentHospital?: HospitalUpdateOneWithoutChildHospitalsNestedInput
-    childHospitals?: HospitalUpdateManyWithoutParentHospitalNestedInput
-    type?: HospitaltypeUpdateOneWithoutHospitalsNestedInput
-    userAccess?: UserHospitalAccessUpdateManyWithoutHospitalNestedInput
-  }
-
-  export type HospitalUncheckedUpdateInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    name?: StringFieldUpdateOperationsInput | string
-    location?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
-    levelId?: NullableIntFieldUpdateOperationsInput | number | null
-    hospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    superHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    childHospitals?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
-    userAccess?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
-  }
-
-  export type HospitalCreateManyInput = {
-    id?: number
-    name: string
-    location: string
-    isActive?: boolean
-    parentHospitalId?: number | null
-    levelId?: number | null
-    hospitalCode?: string | null
-    superHospitalCode?: string | null
-  }
-
-  export type HospitalUpdateManyMutationInput = {
-    name?: StringFieldUpdateOperationsInput | string
-    location?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    hospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    superHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type HospitalUncheckedUpdateManyInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    name?: StringFieldUpdateOperationsInput | string
-    location?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
-    levelId?: NullableIntFieldUpdateOperationsInput | number | null
-    hospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    superHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type HospitaltypeCreateInput = {
-    HospitalType: string
-    hospitals?: HospitalCreateNestedManyWithoutTypeInput
-  }
-
-  export type HospitaltypeUncheckedCreateInput = {
-    id?: number
-    HospitalType: string
-    hospitals?: HospitalUncheckedCreateNestedManyWithoutTypeInput
-  }
-
-  export type HospitaltypeUpdateInput = {
-    HospitalType?: StringFieldUpdateOperationsInput | string
-    hospitals?: HospitalUpdateManyWithoutTypeNestedInput
-  }
-
-  export type HospitaltypeUncheckedUpdateInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    HospitalType?: StringFieldUpdateOperationsInput | string
-    hospitals?: HospitalUncheckedUpdateManyWithoutTypeNestedInput
-  }
-
-  export type HospitaltypeCreateManyInput = {
-    id?: number
-    HospitalType: string
-  }
-
-  export type HospitaltypeUpdateManyMutationInput = {
-    HospitalType?: StringFieldUpdateOperationsInput | string
-  }
-
-  export type HospitaltypeUncheckedUpdateManyInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    HospitalType?: StringFieldUpdateOperationsInput | string
-  }
-
-  export type UserHospitalAccessCreateInput = {
-    isActive?: boolean
-    user: UserCreateNestedOneWithoutAdminAccessInput
-    hospital: HospitalCreateNestedOneWithoutUserAccessInput
-  }
-
-  export type UserHospitalAccessUncheckedCreateInput = {
-    id?: number
-    userId: number
-    hospitalId: number
-    isActive?: boolean
-  }
-
-  export type UserHospitalAccessUpdateInput = {
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    user?: UserUpdateOneRequiredWithoutAdminAccessNestedInput
-    hospital?: HospitalUpdateOneRequiredWithoutUserAccessNestedInput
-  }
-
-  export type UserHospitalAccessUncheckedUpdateInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    userId?: IntFieldUpdateOperationsInput | number
-    hospitalId?: IntFieldUpdateOperationsInput | number
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-  }
-
-  export type UserHospitalAccessCreateManyInput = {
-    id?: number
-    userId: number
-    hospitalId: number
-    isActive?: boolean
-  }
-
-  export type UserHospitalAccessUpdateManyMutationInput = {
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-  }
-
-  export type UserHospitalAccessUncheckedUpdateManyInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    userId?: IntFieldUpdateOperationsInput | number
-    hospitalId?: IntFieldUpdateOperationsInput | number
-    isActive?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type AuditLogCreateInput = {
@@ -14596,47 +15833,62 @@ export namespace Prisma {
     loginAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PermissionCreateInput = {
-    name: string
-    description?: string | null
-    roles?: RolePermissionCreateNestedManyWithoutPermissionInput
+  export type RoleCreateInput = {
+    Rolename: string
+    description: string
+    isActive?: boolean
+    users?: UserCreateNestedManyWithoutRoleInput
+    UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutRoleInput
+    permissions?: RolePermissionCreateNestedManyWithoutRoleInput
   }
 
-  export type PermissionUncheckedCreateInput = {
+  export type RoleUncheckedCreateInput = {
     id?: number
-    name: string
-    description?: string | null
-    roles?: RolePermissionUncheckedCreateNestedManyWithoutPermissionInput
+    Rolename: string
+    description: string
+    isActive?: boolean
+    users?: UserUncheckedCreateNestedManyWithoutRoleInput
+    UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutRoleInput
+    permissions?: RolePermissionUncheckedCreateNestedManyWithoutRoleInput
   }
 
-  export type PermissionUpdateInput = {
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    roles?: RolePermissionUpdateManyWithoutPermissionNestedInput
+  export type RoleUpdateInput = {
+    Rolename?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    users?: UserUpdateManyWithoutRoleNestedInput
+    UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutRoleNestedInput
+    permissions?: RolePermissionUpdateManyWithoutRoleNestedInput
   }
 
-  export type PermissionUncheckedUpdateInput = {
+  export type RoleUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    roles?: RolePermissionUncheckedUpdateManyWithoutPermissionNestedInput
+    Rolename?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    users?: UserUncheckedUpdateManyWithoutRoleNestedInput
+    UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutRoleNestedInput
+    permissions?: RolePermissionUncheckedUpdateManyWithoutRoleNestedInput
   }
 
-  export type PermissionCreateManyInput = {
+  export type RoleCreateManyInput = {
     id?: number
-    name: string
-    description?: string | null
+    Rolename: string
+    description: string
+    isActive?: boolean
   }
 
-  export type PermissionUpdateManyMutationInput = {
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
+  export type RoleUpdateManyMutationInput = {
+    Rolename?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
   }
 
-  export type PermissionUncheckedUpdateManyInput = {
+  export type RoleUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
+    Rolename?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type RolePermissionCreateInput = {
@@ -14677,6 +15929,63 @@ export namespace Prisma {
     permissionId?: IntFieldUpdateOperationsInput | number
   }
 
+  export type PermissionCreateInput = {
+    name: string
+    displayName: string
+    category: string
+    description?: string | null
+    roles?: RolePermissionCreateNestedManyWithoutPermissionInput
+  }
+
+  export type PermissionUncheckedCreateInput = {
+    id?: number
+    name: string
+    displayName: string
+    category: string
+    description?: string | null
+    roles?: RolePermissionUncheckedCreateNestedManyWithoutPermissionInput
+  }
+
+  export type PermissionUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    displayName?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    roles?: RolePermissionUpdateManyWithoutPermissionNestedInput
+  }
+
+  export type PermissionUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    displayName?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    roles?: RolePermissionUncheckedUpdateManyWithoutPermissionNestedInput
+  }
+
+  export type PermissionCreateManyInput = {
+    id?: number
+    name: string
+    displayName: string
+    category: string
+    description?: string | null
+  }
+
+  export type PermissionUpdateManyMutationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    displayName?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type PermissionUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    displayName?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -14688,26 +15997,11 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
-  export type EnumTitleNullableFilter<$PrismaModel = never> = {
-    equals?: $Enums.Title | EnumTitleFieldRefInput<$PrismaModel> | null
-    in?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumTitleNullableFilter<$PrismaModel> | $Enums.Title | null
-  }
-
-  export type StringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  export type EnumTitleFilter<$PrismaModel = never> = {
+    equals?: $Enums.Title | EnumTitleFieldRefInput<$PrismaModel>
+    in?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel>
+    not?: NestedEnumTitleFilter<$PrismaModel> | $Enums.Title
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -14730,6 +16024,17 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type DateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
   export type DateTimeNullableFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -14744,6 +16049,11 @@ export namespace Prisma {
   export type RoleScalarRelationFilter = {
     is?: RoleWhereInput
     isNot?: RoleWhereInput
+  }
+
+  export type OrganizationScalarRelationFilter = {
+    is?: OrganizationWhereInput
+    isNot?: OrganizationWhereInput
   }
 
   export type SettingNullableScalarRelationFilter = {
@@ -14800,11 +16110,14 @@ export namespace Prisma {
     hashedRefreshToken?: SortOrder
     dateOfBirth?: SortOrder
     roleId?: SortOrder
+    organizationId?: SortOrder
+    deletedAt?: SortOrder
   }
 
   export type UserAvgOrderByAggregateInput = {
     id?: SortOrder
     roleId?: SortOrder
+    organizationId?: SortOrder
   }
 
   export type UserMaxOrderByAggregateInput = {
@@ -14821,6 +16134,8 @@ export namespace Prisma {
     hashedRefreshToken?: SortOrder
     dateOfBirth?: SortOrder
     roleId?: SortOrder
+    organizationId?: SortOrder
+    deletedAt?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -14837,11 +16152,14 @@ export namespace Prisma {
     hashedRefreshToken?: SortOrder
     dateOfBirth?: SortOrder
     roleId?: SortOrder
+    organizationId?: SortOrder
+    deletedAt?: SortOrder
   }
 
   export type UserSumOrderByAggregateInput = {
     id?: SortOrder
     roleId?: SortOrder
+    organizationId?: SortOrder
   }
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -14860,32 +16178,14 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
-  export type EnumTitleNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.Title | EnumTitleFieldRefInput<$PrismaModel> | null
-    in?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumTitleNullableWithAggregatesFilter<$PrismaModel> | $Enums.Title | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedEnumTitleNullableFilter<$PrismaModel>
-    _max?: NestedEnumTitleNullableFilter<$PrismaModel>
-  }
-
-  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
+  export type EnumTitleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Title | EnumTitleFieldRefInput<$PrismaModel>
+    in?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel>
+    not?: NestedEnumTitleWithAggregatesFilter<$PrismaModel> | $Enums.Title
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTitleFilter<$PrismaModel>
+    _max?: NestedEnumTitleFilter<$PrismaModel>
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -14914,6 +16214,20 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
+  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -14928,10 +16242,39 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
-  export type RolePermissionListRelationFilter = {
-    every?: RolePermissionWhereInput
-    some?: RolePermissionWhereInput
-    none?: RolePermissionWhereInput
+  export type EnumOrganizationTypeNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrganizationType | EnumOrganizationTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.OrganizationType[] | ListEnumOrganizationTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.OrganizationType[] | ListEnumOrganizationTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumOrganizationTypeNullableFilter<$PrismaModel> | $Enums.OrganizationType | null
+  }
+
+  export type EnumHospital_Org_statusFilter<$PrismaModel = never> = {
+    equals?: $Enums.Hospital_Org_status | EnumHospital_Org_statusFieldRefInput<$PrismaModel>
+    in?: $Enums.Hospital_Org_status[] | ListEnumHospital_Org_statusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Hospital_Org_status[] | ListEnumHospital_Org_statusFieldRefInput<$PrismaModel>
+    not?: NestedEnumHospital_Org_statusFilter<$PrismaModel> | $Enums.Hospital_Org_status
+  }
+
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type HospitalListRelationFilter = {
+    every?: HospitalWhereInput
+    some?: HospitalWhereInput
+    none?: HospitalWhereInput
   }
 
   export type UserListRelationFilter = {
@@ -14940,7 +16283,7 @@ export namespace Prisma {
     none?: UserWhereInput
   }
 
-  export type RolePermissionOrderByRelationAggregateInput = {
+  export type HospitalOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -14948,38 +16291,371 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-  export type RoleCountOrderByAggregateInput = {
+  export type OrganizationCountOrderByAggregateInput = {
     id?: SortOrder
-    Rolename?: SortOrder
+    OrganizationName?: SortOrder
+    Organizationcode?: SortOrder
+    logoUrl?: SortOrder
+    email?: SortOrder
+    contactNumber?: SortOrder
+    Orgnizationtype?: SortOrder
+    website?: SortOrder
+    addressLine1?: SortOrder
+    addressLine2?: SortOrder
+    city?: SortOrder
+    state?: SortOrder
+    country?: SortOrder
+    postalCode?: SortOrder
+    registrationNo?: SortOrder
+    establishedOn?: SortOrder
+    industryType?: SortOrder
+    status?: SortOrder
     description?: SortOrder
-    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
-  export type RoleAvgOrderByAggregateInput = {
+  export type OrganizationAvgOrderByAggregateInput = {
     id?: SortOrder
   }
 
-  export type RoleMaxOrderByAggregateInput = {
+  export type OrganizationMaxOrderByAggregateInput = {
     id?: SortOrder
-    Rolename?: SortOrder
+    OrganizationName?: SortOrder
+    Organizationcode?: SortOrder
+    logoUrl?: SortOrder
+    email?: SortOrder
+    contactNumber?: SortOrder
+    Orgnizationtype?: SortOrder
+    website?: SortOrder
+    addressLine1?: SortOrder
+    addressLine2?: SortOrder
+    city?: SortOrder
+    state?: SortOrder
+    country?: SortOrder
+    postalCode?: SortOrder
+    registrationNo?: SortOrder
+    establishedOn?: SortOrder
+    industryType?: SortOrder
+    status?: SortOrder
     description?: SortOrder
-    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
-  export type RoleMinOrderByAggregateInput = {
+  export type OrganizationMinOrderByAggregateInput = {
     id?: SortOrder
-    Rolename?: SortOrder
+    OrganizationName?: SortOrder
+    Organizationcode?: SortOrder
+    logoUrl?: SortOrder
+    email?: SortOrder
+    contactNumber?: SortOrder
+    Orgnizationtype?: SortOrder
+    website?: SortOrder
+    addressLine1?: SortOrder
+    addressLine2?: SortOrder
+    city?: SortOrder
+    state?: SortOrder
+    country?: SortOrder
+    postalCode?: SortOrder
+    registrationNo?: SortOrder
+    establishedOn?: SortOrder
+    industryType?: SortOrder
+    status?: SortOrder
     description?: SortOrder
-    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
-  export type RoleSumOrderByAggregateInput = {
+  export type OrganizationSumOrderByAggregateInput = {
     id?: SortOrder
+  }
+
+  export type EnumOrganizationTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrganizationType | EnumOrganizationTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.OrganizationType[] | ListEnumOrganizationTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.OrganizationType[] | ListEnumOrganizationTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumOrganizationTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.OrganizationType | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumOrganizationTypeNullableFilter<$PrismaModel>
+    _max?: NestedEnumOrganizationTypeNullableFilter<$PrismaModel>
+  }
+
+  export type EnumHospital_Org_statusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Hospital_Org_status | EnumHospital_Org_statusFieldRefInput<$PrismaModel>
+    in?: $Enums.Hospital_Org_status[] | ListEnumHospital_Org_statusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Hospital_Org_status[] | ListEnumHospital_Org_statusFieldRefInput<$PrismaModel>
+    not?: NestedEnumHospital_Org_statusWithAggregatesFilter<$PrismaModel> | $Enums.Hospital_Org_status
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumHospital_Org_statusFilter<$PrismaModel>
+    _max?: NestedEnumHospital_Org_statusFilter<$PrismaModel>
+  }
+
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type EnumSpecializationTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.SpecializationType | EnumSpecializationTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.SpecializationType[] | ListEnumSpecializationTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SpecializationType[] | ListEnumSpecializationTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumSpecializationTypeFilter<$PrismaModel> | $Enums.SpecializationType
+  }
+
+  export type FloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type EnumHospitalLevelFilter<$PrismaModel = never> = {
+    equals?: $Enums.HospitalLevel | EnumHospitalLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel>
+    not?: NestedEnumHospitalLevelFilter<$PrismaModel> | $Enums.HospitalLevel
+  }
+
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type HospitalNullableScalarRelationFilter = {
+    is?: HospitalWhereInput | null
+    isNot?: HospitalWhereInput | null
+  }
+
+  export type HospitalCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    hospitalCode?: SortOrder
+    ParentHospitalCode?: SortOrder
+    Organizationcode?: SortOrder
+    SpecializationType?: SortOrder
+    address?: SortOrder
+    city?: SortOrder
+    state?: SortOrder
+    country?: SortOrder
+    postalCode?: SortOrder
+    contactNumber?: SortOrder
+    email?: SortOrder
+    website?: SortOrder
+    logoUrl?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    status?: SortOrder
+    level?: SortOrder
+    parentHospitalId?: SortOrder
+    organizationId?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    deletedAt?: SortOrder
+  }
+
+  export type HospitalAvgOrderByAggregateInput = {
+    id?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    parentHospitalId?: SortOrder
+    organizationId?: SortOrder
+  }
+
+  export type HospitalMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    hospitalCode?: SortOrder
+    ParentHospitalCode?: SortOrder
+    Organizationcode?: SortOrder
+    SpecializationType?: SortOrder
+    address?: SortOrder
+    city?: SortOrder
+    state?: SortOrder
+    country?: SortOrder
+    postalCode?: SortOrder
+    contactNumber?: SortOrder
+    email?: SortOrder
+    website?: SortOrder
+    logoUrl?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    status?: SortOrder
+    level?: SortOrder
+    parentHospitalId?: SortOrder
+    organizationId?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    deletedAt?: SortOrder
+  }
+
+  export type HospitalMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    hospitalCode?: SortOrder
+    ParentHospitalCode?: SortOrder
+    Organizationcode?: SortOrder
+    SpecializationType?: SortOrder
+    address?: SortOrder
+    city?: SortOrder
+    state?: SortOrder
+    country?: SortOrder
+    postalCode?: SortOrder
+    contactNumber?: SortOrder
+    email?: SortOrder
+    website?: SortOrder
+    logoUrl?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    status?: SortOrder
+    level?: SortOrder
+    parentHospitalId?: SortOrder
+    organizationId?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    deletedAt?: SortOrder
+  }
+
+  export type HospitalSumOrderByAggregateInput = {
+    id?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    parentHospitalId?: SortOrder
+    organizationId?: SortOrder
+  }
+
+  export type EnumSpecializationTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SpecializationType | EnumSpecializationTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.SpecializationType[] | ListEnumSpecializationTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SpecializationType[] | ListEnumSpecializationTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumSpecializationTypeWithAggregatesFilter<$PrismaModel> | $Enums.SpecializationType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSpecializationTypeFilter<$PrismaModel>
+    _max?: NestedEnumSpecializationTypeFilter<$PrismaModel>
+  }
+
+  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
+  export type EnumHospitalLevelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.HospitalLevel | EnumHospitalLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel>
+    not?: NestedEnumHospitalLevelWithAggregatesFilter<$PrismaModel> | $Enums.HospitalLevel
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumHospitalLevelFilter<$PrismaModel>
+    _max?: NestedEnumHospitalLevelFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
+  }
+
+  export type HospitalScalarRelationFilter = {
+    is?: HospitalWhereInput
+    isNot?: HospitalWhereInput
+  }
+
+  export type UserHospitalAccessUserIdHospitalIdCompoundUniqueInput = {
+    userId: number
+    hospitalId: number
+  }
+
+  export type UserHospitalAccessCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    hospitalId?: SortOrder
+    roleId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UserHospitalAccessAvgOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    hospitalId?: SortOrder
+    roleId?: SortOrder
+  }
+
+  export type UserHospitalAccessMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    hospitalId?: SortOrder
+    roleId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UserHospitalAccessMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    hospitalId?: SortOrder
+    roleId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UserHospitalAccessSumOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    hospitalId?: SortOrder
+    roleId?: SortOrder
   }
 
   export type SettingCountOrderByAggregateInput = {
@@ -15011,175 +16687,6 @@ export namespace Prisma {
   export type SettingSumOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
-  }
-
-  export type IntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
-  }
-
-  export type HospitalNullableScalarRelationFilter = {
-    is?: HospitalWhereInput | null
-    isNot?: HospitalWhereInput | null
-  }
-
-  export type HospitalListRelationFilter = {
-    every?: HospitalWhereInput
-    some?: HospitalWhereInput
-    none?: HospitalWhereInput
-  }
-
-  export type HospitaltypeNullableScalarRelationFilter = {
-    is?: HospitaltypeWhereInput | null
-    isNot?: HospitaltypeWhereInput | null
-  }
-
-  export type HospitalOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type HospitalCountOrderByAggregateInput = {
-    id?: SortOrder
-    name?: SortOrder
-    location?: SortOrder
-    isActive?: SortOrder
-    parentHospitalId?: SortOrder
-    levelId?: SortOrder
-    hospitalCode?: SortOrder
-    superHospitalCode?: SortOrder
-  }
-
-  export type HospitalAvgOrderByAggregateInput = {
-    id?: SortOrder
-    parentHospitalId?: SortOrder
-    levelId?: SortOrder
-  }
-
-  export type HospitalMaxOrderByAggregateInput = {
-    id?: SortOrder
-    name?: SortOrder
-    location?: SortOrder
-    isActive?: SortOrder
-    parentHospitalId?: SortOrder
-    levelId?: SortOrder
-    hospitalCode?: SortOrder
-    superHospitalCode?: SortOrder
-  }
-
-  export type HospitalMinOrderByAggregateInput = {
-    id?: SortOrder
-    name?: SortOrder
-    location?: SortOrder
-    isActive?: SortOrder
-    parentHospitalId?: SortOrder
-    levelId?: SortOrder
-    hospitalCode?: SortOrder
-    superHospitalCode?: SortOrder
-  }
-
-  export type HospitalSumOrderByAggregateInput = {
-    id?: SortOrder
-    parentHospitalId?: SortOrder
-    levelId?: SortOrder
-  }
-
-  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
-  }
-
-  export type HospitaltypeCountOrderByAggregateInput = {
-    id?: SortOrder
-    HospitalType?: SortOrder
-  }
-
-  export type HospitaltypeAvgOrderByAggregateInput = {
-    id?: SortOrder
-  }
-
-  export type HospitaltypeMaxOrderByAggregateInput = {
-    id?: SortOrder
-    HospitalType?: SortOrder
-  }
-
-  export type HospitaltypeMinOrderByAggregateInput = {
-    id?: SortOrder
-    HospitalType?: SortOrder
-  }
-
-  export type HospitaltypeSumOrderByAggregateInput = {
-    id?: SortOrder
-  }
-
-  export type HospitalScalarRelationFilter = {
-    is?: HospitalWhereInput
-    isNot?: HospitalWhereInput
-  }
-
-  export type UserHospitalAccessUserIdHospitalIdCompoundUniqueInput = {
-    userId: number
-    hospitalId: number
-  }
-
-  export type UserHospitalAccessCountOrderByAggregateInput = {
-    id?: SortOrder
-    userId?: SortOrder
-    hospitalId?: SortOrder
-    isActive?: SortOrder
-  }
-
-  export type UserHospitalAccessAvgOrderByAggregateInput = {
-    id?: SortOrder
-    userId?: SortOrder
-    hospitalId?: SortOrder
-  }
-
-  export type UserHospitalAccessMaxOrderByAggregateInput = {
-    id?: SortOrder
-    userId?: SortOrder
-    hospitalId?: SortOrder
-    isActive?: SortOrder
-  }
-
-  export type UserHospitalAccessMinOrderByAggregateInput = {
-    id?: SortOrder
-    userId?: SortOrder
-    hospitalId?: SortOrder
-    isActive?: SortOrder
-  }
-
-  export type UserHospitalAccessSumOrderByAggregateInput = {
-    id?: SortOrder
-    userId?: SortOrder
-    hospitalId?: SortOrder
-  }
-
-  export type DateTimeFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
   export type JsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -15249,20 +16756,6 @@ export namespace Prisma {
     userId?: SortOrder
     entityId?: SortOrder
   }
-
-  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
-  }
   export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
@@ -15324,29 +16817,42 @@ export namespace Prisma {
     userId?: SortOrder
   }
 
-  export type PermissionCountOrderByAggregateInput = {
+  export type RolePermissionListRelationFilter = {
+    every?: RolePermissionWhereInput
+    some?: RolePermissionWhereInput
+    none?: RolePermissionWhereInput
+  }
+
+  export type RolePermissionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type RoleCountOrderByAggregateInput = {
     id?: SortOrder
-    name?: SortOrder
+    Rolename?: SortOrder
     description?: SortOrder
+    isActive?: SortOrder
   }
 
-  export type PermissionAvgOrderByAggregateInput = {
+  export type RoleAvgOrderByAggregateInput = {
     id?: SortOrder
   }
 
-  export type PermissionMaxOrderByAggregateInput = {
+  export type RoleMaxOrderByAggregateInput = {
     id?: SortOrder
-    name?: SortOrder
+    Rolename?: SortOrder
     description?: SortOrder
+    isActive?: SortOrder
   }
 
-  export type PermissionMinOrderByAggregateInput = {
+  export type RoleMinOrderByAggregateInput = {
     id?: SortOrder
-    name?: SortOrder
+    Rolename?: SortOrder
     description?: SortOrder
+    isActive?: SortOrder
   }
 
-  export type PermissionSumOrderByAggregateInput = {
+  export type RoleSumOrderByAggregateInput = {
     id?: SortOrder
   }
 
@@ -15390,10 +16896,48 @@ export namespace Prisma {
     permissionId?: SortOrder
   }
 
+  export type PermissionCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    displayName?: SortOrder
+    category?: SortOrder
+    description?: SortOrder
+  }
+
+  export type PermissionAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type PermissionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    displayName?: SortOrder
+    category?: SortOrder
+    description?: SortOrder
+  }
+
+  export type PermissionMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    displayName?: SortOrder
+    category?: SortOrder
+    description?: SortOrder
+  }
+
+  export type PermissionSumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
   export type RoleCreateNestedOneWithoutUsersInput = {
     create?: XOR<RoleCreateWithoutUsersInput, RoleUncheckedCreateWithoutUsersInput>
     connectOrCreate?: RoleCreateOrConnectWithoutUsersInput
     connect?: RoleWhereUniqueInput
+  }
+
+  export type OrganizationCreateNestedOneWithoutUsersInput = {
+    create?: XOR<OrganizationCreateWithoutUsersInput, OrganizationUncheckedCreateWithoutUsersInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutUsersInput
+    connect?: OrganizationWhereUniqueInput
   }
 
   export type SettingCreateNestedOneWithoutUserInput = {
@@ -15450,12 +16994,8 @@ export namespace Prisma {
     connect?: UserHospitalAccessWhereUniqueInput | UserHospitalAccessWhereUniqueInput[]
   }
 
-  export type NullableEnumTitleFieldUpdateOperationsInput = {
-    set?: $Enums.Title | null
-  }
-
-  export type NullableStringFieldUpdateOperationsInput = {
-    set?: string | null
+  export type EnumTitleFieldUpdateOperationsInput = {
+    set?: $Enums.Title
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -15464,6 +17004,10 @@ export namespace Prisma {
 
   export type BoolFieldUpdateOperationsInput = {
     set?: boolean
+  }
+
+  export type DateTimeFieldUpdateOperationsInput = {
+    set?: Date | string
   }
 
   export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -15476,6 +17020,14 @@ export namespace Prisma {
     upsert?: RoleUpsertWithoutUsersInput
     connect?: RoleWhereUniqueInput
     update?: XOR<XOR<RoleUpdateToOneWithWhereWithoutUsersInput, RoleUpdateWithoutUsersInput>, RoleUncheckedUpdateWithoutUsersInput>
+  }
+
+  export type OrganizationUpdateOneRequiredWithoutUsersNestedInput = {
+    create?: XOR<OrganizationCreateWithoutUsersInput, OrganizationUncheckedCreateWithoutUsersInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutUsersInput
+    upsert?: OrganizationUpsertWithoutUsersInput
+    connect?: OrganizationWhereUniqueInput
+    update?: XOR<XOR<OrganizationUpdateToOneWithWhereWithoutUsersInput, OrganizationUpdateWithoutUsersInput>, OrganizationUncheckedUpdateWithoutUsersInput>
   }
 
   export type SettingUpdateOneWithoutUserNestedInput = {
@@ -15590,107 +17142,105 @@ export namespace Prisma {
     deleteMany?: UserHospitalAccessScalarWhereInput | UserHospitalAccessScalarWhereInput[]
   }
 
-  export type RolePermissionCreateNestedManyWithoutRoleInput = {
-    create?: XOR<RolePermissionCreateWithoutRoleInput, RolePermissionUncheckedCreateWithoutRoleInput> | RolePermissionCreateWithoutRoleInput[] | RolePermissionUncheckedCreateWithoutRoleInput[]
-    connectOrCreate?: RolePermissionCreateOrConnectWithoutRoleInput | RolePermissionCreateOrConnectWithoutRoleInput[]
-    createMany?: RolePermissionCreateManyRoleInputEnvelope
-    connect?: RolePermissionWhereUniqueInput | RolePermissionWhereUniqueInput[]
+  export type HospitalCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<HospitalCreateWithoutOrganizationInput, HospitalUncheckedCreateWithoutOrganizationInput> | HospitalCreateWithoutOrganizationInput[] | HospitalUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: HospitalCreateOrConnectWithoutOrganizationInput | HospitalCreateOrConnectWithoutOrganizationInput[]
+    createMany?: HospitalCreateManyOrganizationInputEnvelope
+    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
   }
 
-  export type UserCreateNestedManyWithoutRoleInput = {
-    create?: XOR<UserCreateWithoutRoleInput, UserUncheckedCreateWithoutRoleInput> | UserCreateWithoutRoleInput[] | UserUncheckedCreateWithoutRoleInput[]
-    connectOrCreate?: UserCreateOrConnectWithoutRoleInput | UserCreateOrConnectWithoutRoleInput[]
-    createMany?: UserCreateManyRoleInputEnvelope
+  export type UserCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput> | UserCreateWithoutOrganizationInput[] | UserUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutOrganizationInput | UserCreateOrConnectWithoutOrganizationInput[]
+    createMany?: UserCreateManyOrganizationInputEnvelope
     connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
   }
 
-  export type RolePermissionUncheckedCreateNestedManyWithoutRoleInput = {
-    create?: XOR<RolePermissionCreateWithoutRoleInput, RolePermissionUncheckedCreateWithoutRoleInput> | RolePermissionCreateWithoutRoleInput[] | RolePermissionUncheckedCreateWithoutRoleInput[]
-    connectOrCreate?: RolePermissionCreateOrConnectWithoutRoleInput | RolePermissionCreateOrConnectWithoutRoleInput[]
-    createMany?: RolePermissionCreateManyRoleInputEnvelope
-    connect?: RolePermissionWhereUniqueInput | RolePermissionWhereUniqueInput[]
+  export type HospitalUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<HospitalCreateWithoutOrganizationInput, HospitalUncheckedCreateWithoutOrganizationInput> | HospitalCreateWithoutOrganizationInput[] | HospitalUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: HospitalCreateOrConnectWithoutOrganizationInput | HospitalCreateOrConnectWithoutOrganizationInput[]
+    createMany?: HospitalCreateManyOrganizationInputEnvelope
+    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
   }
 
-  export type UserUncheckedCreateNestedManyWithoutRoleInput = {
-    create?: XOR<UserCreateWithoutRoleInput, UserUncheckedCreateWithoutRoleInput> | UserCreateWithoutRoleInput[] | UserUncheckedCreateWithoutRoleInput[]
-    connectOrCreate?: UserCreateOrConnectWithoutRoleInput | UserCreateOrConnectWithoutRoleInput[]
-    createMany?: UserCreateManyRoleInputEnvelope
+  export type UserUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput> | UserCreateWithoutOrganizationInput[] | UserUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutOrganizationInput | UserCreateOrConnectWithoutOrganizationInput[]
+    createMany?: UserCreateManyOrganizationInputEnvelope
     connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
   }
 
-  export type RolePermissionUpdateManyWithoutRoleNestedInput = {
-    create?: XOR<RolePermissionCreateWithoutRoleInput, RolePermissionUncheckedCreateWithoutRoleInput> | RolePermissionCreateWithoutRoleInput[] | RolePermissionUncheckedCreateWithoutRoleInput[]
-    connectOrCreate?: RolePermissionCreateOrConnectWithoutRoleInput | RolePermissionCreateOrConnectWithoutRoleInput[]
-    upsert?: RolePermissionUpsertWithWhereUniqueWithoutRoleInput | RolePermissionUpsertWithWhereUniqueWithoutRoleInput[]
-    createMany?: RolePermissionCreateManyRoleInputEnvelope
-    set?: RolePermissionWhereUniqueInput | RolePermissionWhereUniqueInput[]
-    disconnect?: RolePermissionWhereUniqueInput | RolePermissionWhereUniqueInput[]
-    delete?: RolePermissionWhereUniqueInput | RolePermissionWhereUniqueInput[]
-    connect?: RolePermissionWhereUniqueInput | RolePermissionWhereUniqueInput[]
-    update?: RolePermissionUpdateWithWhereUniqueWithoutRoleInput | RolePermissionUpdateWithWhereUniqueWithoutRoleInput[]
-    updateMany?: RolePermissionUpdateManyWithWhereWithoutRoleInput | RolePermissionUpdateManyWithWhereWithoutRoleInput[]
-    deleteMany?: RolePermissionScalarWhereInput | RolePermissionScalarWhereInput[]
+  export type NullableEnumOrganizationTypeFieldUpdateOperationsInput = {
+    set?: $Enums.OrganizationType | null
   }
 
-  export type UserUpdateManyWithoutRoleNestedInput = {
-    create?: XOR<UserCreateWithoutRoleInput, UserUncheckedCreateWithoutRoleInput> | UserCreateWithoutRoleInput[] | UserUncheckedCreateWithoutRoleInput[]
-    connectOrCreate?: UserCreateOrConnectWithoutRoleInput | UserCreateOrConnectWithoutRoleInput[]
-    upsert?: UserUpsertWithWhereUniqueWithoutRoleInput | UserUpsertWithWhereUniqueWithoutRoleInput[]
-    createMany?: UserCreateManyRoleInputEnvelope
+  export type EnumHospital_Org_statusFieldUpdateOperationsInput = {
+    set?: $Enums.Hospital_Org_status
+  }
+
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
+  export type HospitalUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<HospitalCreateWithoutOrganizationInput, HospitalUncheckedCreateWithoutOrganizationInput> | HospitalCreateWithoutOrganizationInput[] | HospitalUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: HospitalCreateOrConnectWithoutOrganizationInput | HospitalCreateOrConnectWithoutOrganizationInput[]
+    upsert?: HospitalUpsertWithWhereUniqueWithoutOrganizationInput | HospitalUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: HospitalCreateManyOrganizationInputEnvelope
+    set?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    disconnect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    delete?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    update?: HospitalUpdateWithWhereUniqueWithoutOrganizationInput | HospitalUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: HospitalUpdateManyWithWhereWithoutOrganizationInput | HospitalUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
+  }
+
+  export type UserUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput> | UserCreateWithoutOrganizationInput[] | UserUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutOrganizationInput | UserCreateOrConnectWithoutOrganizationInput[]
+    upsert?: UserUpsertWithWhereUniqueWithoutOrganizationInput | UserUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: UserCreateManyOrganizationInputEnvelope
     set?: UserWhereUniqueInput | UserWhereUniqueInput[]
     disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
     delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
     connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    update?: UserUpdateWithWhereUniqueWithoutRoleInput | UserUpdateWithWhereUniqueWithoutRoleInput[]
-    updateMany?: UserUpdateManyWithWhereWithoutRoleInput | UserUpdateManyWithWhereWithoutRoleInput[]
+    update?: UserUpdateWithWhereUniqueWithoutOrganizationInput | UserUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: UserUpdateManyWithWhereWithoutOrganizationInput | UserUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
-  export type RolePermissionUncheckedUpdateManyWithoutRoleNestedInput = {
-    create?: XOR<RolePermissionCreateWithoutRoleInput, RolePermissionUncheckedCreateWithoutRoleInput> | RolePermissionCreateWithoutRoleInput[] | RolePermissionUncheckedCreateWithoutRoleInput[]
-    connectOrCreate?: RolePermissionCreateOrConnectWithoutRoleInput | RolePermissionCreateOrConnectWithoutRoleInput[]
-    upsert?: RolePermissionUpsertWithWhereUniqueWithoutRoleInput | RolePermissionUpsertWithWhereUniqueWithoutRoleInput[]
-    createMany?: RolePermissionCreateManyRoleInputEnvelope
-    set?: RolePermissionWhereUniqueInput | RolePermissionWhereUniqueInput[]
-    disconnect?: RolePermissionWhereUniqueInput | RolePermissionWhereUniqueInput[]
-    delete?: RolePermissionWhereUniqueInput | RolePermissionWhereUniqueInput[]
-    connect?: RolePermissionWhereUniqueInput | RolePermissionWhereUniqueInput[]
-    update?: RolePermissionUpdateWithWhereUniqueWithoutRoleInput | RolePermissionUpdateWithWhereUniqueWithoutRoleInput[]
-    updateMany?: RolePermissionUpdateManyWithWhereWithoutRoleInput | RolePermissionUpdateManyWithWhereWithoutRoleInput[]
-    deleteMany?: RolePermissionScalarWhereInput | RolePermissionScalarWhereInput[]
+  export type HospitalUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<HospitalCreateWithoutOrganizationInput, HospitalUncheckedCreateWithoutOrganizationInput> | HospitalCreateWithoutOrganizationInput[] | HospitalUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: HospitalCreateOrConnectWithoutOrganizationInput | HospitalCreateOrConnectWithoutOrganizationInput[]
+    upsert?: HospitalUpsertWithWhereUniqueWithoutOrganizationInput | HospitalUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: HospitalCreateManyOrganizationInputEnvelope
+    set?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    disconnect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    delete?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    update?: HospitalUpdateWithWhereUniqueWithoutOrganizationInput | HospitalUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: HospitalUpdateManyWithWhereWithoutOrganizationInput | HospitalUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
   }
 
-  export type UserUncheckedUpdateManyWithoutRoleNestedInput = {
-    create?: XOR<UserCreateWithoutRoleInput, UserUncheckedCreateWithoutRoleInput> | UserCreateWithoutRoleInput[] | UserUncheckedCreateWithoutRoleInput[]
-    connectOrCreate?: UserCreateOrConnectWithoutRoleInput | UserCreateOrConnectWithoutRoleInput[]
-    upsert?: UserUpsertWithWhereUniqueWithoutRoleInput | UserUpsertWithWhereUniqueWithoutRoleInput[]
-    createMany?: UserCreateManyRoleInputEnvelope
+  export type UserUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput> | UserCreateWithoutOrganizationInput[] | UserUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutOrganizationInput | UserCreateOrConnectWithoutOrganizationInput[]
+    upsert?: UserUpsertWithWhereUniqueWithoutOrganizationInput | UserUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: UserCreateManyOrganizationInputEnvelope
     set?: UserWhereUniqueInput | UserWhereUniqueInput[]
     disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
     delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
     connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    update?: UserUpdateWithWhereUniqueWithoutRoleInput | UserUpdateWithWhereUniqueWithoutRoleInput[]
-    updateMany?: UserUpdateManyWithWhereWithoutRoleInput | UserUpdateManyWithWhereWithoutRoleInput[]
+    update?: UserUpdateWithWhereUniqueWithoutOrganizationInput | UserUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: UserUpdateManyWithWhereWithoutOrganizationInput | UserUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
-  export type UserCreateNestedOneWithoutSettingsInput = {
-    create?: XOR<UserCreateWithoutSettingsInput, UserUncheckedCreateWithoutSettingsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutSettingsInput
-    connect?: UserWhereUniqueInput
-  }
-
-  export type UserUpdateOneRequiredWithoutSettingsNestedInput = {
-    create?: XOR<UserCreateWithoutSettingsInput, UserUncheckedCreateWithoutSettingsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutSettingsInput
-    upsert?: UserUpsertWithoutSettingsInput
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSettingsInput, UserUpdateWithoutSettingsInput>, UserUncheckedUpdateWithoutSettingsInput>
-  }
-
-  export type HospitalCreateNestedOneWithoutChildHospitalsInput = {
-    create?: XOR<HospitalCreateWithoutChildHospitalsInput, HospitalUncheckedCreateWithoutChildHospitalsInput>
-    connectOrCreate?: HospitalCreateOrConnectWithoutChildHospitalsInput
+  export type HospitalCreateNestedOneWithoutChildHospitalInput = {
+    create?: XOR<HospitalCreateWithoutChildHospitalInput, HospitalUncheckedCreateWithoutChildHospitalInput>
+    connectOrCreate?: HospitalCreateOrConnectWithoutChildHospitalInput
     connect?: HospitalWhereUniqueInput
   }
 
@@ -15701,10 +17251,10 @@ export namespace Prisma {
     connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
   }
 
-  export type HospitaltypeCreateNestedOneWithoutHospitalsInput = {
-    create?: XOR<HospitaltypeCreateWithoutHospitalsInput, HospitaltypeUncheckedCreateWithoutHospitalsInput>
-    connectOrCreate?: HospitaltypeCreateOrConnectWithoutHospitalsInput
-    connect?: HospitaltypeWhereUniqueInput
+  export type OrganizationCreateNestedOneWithoutHospitalsInput = {
+    create?: XOR<OrganizationCreateWithoutHospitalsInput, OrganizationUncheckedCreateWithoutHospitalsInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutHospitalsInput
+    connect?: OrganizationWhereUniqueInput
   }
 
   export type UserHospitalAccessCreateNestedManyWithoutHospitalInput = {
@@ -15728,14 +17278,30 @@ export namespace Prisma {
     connect?: UserHospitalAccessWhereUniqueInput | UserHospitalAccessWhereUniqueInput[]
   }
 
-  export type HospitalUpdateOneWithoutChildHospitalsNestedInput = {
-    create?: XOR<HospitalCreateWithoutChildHospitalsInput, HospitalUncheckedCreateWithoutChildHospitalsInput>
-    connectOrCreate?: HospitalCreateOrConnectWithoutChildHospitalsInput
-    upsert?: HospitalUpsertWithoutChildHospitalsInput
+  export type EnumSpecializationTypeFieldUpdateOperationsInput = {
+    set?: $Enums.SpecializationType
+  }
+
+  export type FloatFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type EnumHospitalLevelFieldUpdateOperationsInput = {
+    set?: $Enums.HospitalLevel
+  }
+
+  export type HospitalUpdateOneWithoutChildHospitalNestedInput = {
+    create?: XOR<HospitalCreateWithoutChildHospitalInput, HospitalUncheckedCreateWithoutChildHospitalInput>
+    connectOrCreate?: HospitalCreateOrConnectWithoutChildHospitalInput
+    upsert?: HospitalUpsertWithoutChildHospitalInput
     disconnect?: HospitalWhereInput | boolean
     delete?: HospitalWhereInput | boolean
     connect?: HospitalWhereUniqueInput
-    update?: XOR<XOR<HospitalUpdateToOneWithWhereWithoutChildHospitalsInput, HospitalUpdateWithoutChildHospitalsInput>, HospitalUncheckedUpdateWithoutChildHospitalsInput>
+    update?: XOR<XOR<HospitalUpdateToOneWithWhereWithoutChildHospitalInput, HospitalUpdateWithoutChildHospitalInput>, HospitalUncheckedUpdateWithoutChildHospitalInput>
   }
 
   export type HospitalUpdateManyWithoutParentHospitalNestedInput = {
@@ -15752,14 +17318,12 @@ export namespace Prisma {
     deleteMany?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
   }
 
-  export type HospitaltypeUpdateOneWithoutHospitalsNestedInput = {
-    create?: XOR<HospitaltypeCreateWithoutHospitalsInput, HospitaltypeUncheckedCreateWithoutHospitalsInput>
-    connectOrCreate?: HospitaltypeCreateOrConnectWithoutHospitalsInput
-    upsert?: HospitaltypeUpsertWithoutHospitalsInput
-    disconnect?: HospitaltypeWhereInput | boolean
-    delete?: HospitaltypeWhereInput | boolean
-    connect?: HospitaltypeWhereUniqueInput
-    update?: XOR<XOR<HospitaltypeUpdateToOneWithWhereWithoutHospitalsInput, HospitaltypeUpdateWithoutHospitalsInput>, HospitaltypeUncheckedUpdateWithoutHospitalsInput>
+  export type OrganizationUpdateOneRequiredWithoutHospitalsNestedInput = {
+    create?: XOR<OrganizationCreateWithoutHospitalsInput, OrganizationUncheckedCreateWithoutHospitalsInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutHospitalsInput
+    upsert?: OrganizationUpsertWithoutHospitalsInput
+    connect?: OrganizationWhereUniqueInput
+    update?: XOR<XOR<OrganizationUpdateToOneWithWhereWithoutHospitalsInput, OrganizationUpdateWithoutHospitalsInput>, OrganizationUncheckedUpdateWithoutHospitalsInput>
   }
 
   export type UserHospitalAccessUpdateManyWithoutHospitalNestedInput = {
@@ -15812,58 +17376,22 @@ export namespace Prisma {
     deleteMany?: UserHospitalAccessScalarWhereInput | UserHospitalAccessScalarWhereInput[]
   }
 
-  export type HospitalCreateNestedManyWithoutTypeInput = {
-    create?: XOR<HospitalCreateWithoutTypeInput, HospitalUncheckedCreateWithoutTypeInput> | HospitalCreateWithoutTypeInput[] | HospitalUncheckedCreateWithoutTypeInput[]
-    connectOrCreate?: HospitalCreateOrConnectWithoutTypeInput | HospitalCreateOrConnectWithoutTypeInput[]
-    createMany?: HospitalCreateManyTypeInputEnvelope
-    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
-  }
-
-  export type HospitalUncheckedCreateNestedManyWithoutTypeInput = {
-    create?: XOR<HospitalCreateWithoutTypeInput, HospitalUncheckedCreateWithoutTypeInput> | HospitalCreateWithoutTypeInput[] | HospitalUncheckedCreateWithoutTypeInput[]
-    connectOrCreate?: HospitalCreateOrConnectWithoutTypeInput | HospitalCreateOrConnectWithoutTypeInput[]
-    createMany?: HospitalCreateManyTypeInputEnvelope
-    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
-  }
-
-  export type HospitalUpdateManyWithoutTypeNestedInput = {
-    create?: XOR<HospitalCreateWithoutTypeInput, HospitalUncheckedCreateWithoutTypeInput> | HospitalCreateWithoutTypeInput[] | HospitalUncheckedCreateWithoutTypeInput[]
-    connectOrCreate?: HospitalCreateOrConnectWithoutTypeInput | HospitalCreateOrConnectWithoutTypeInput[]
-    upsert?: HospitalUpsertWithWhereUniqueWithoutTypeInput | HospitalUpsertWithWhereUniqueWithoutTypeInput[]
-    createMany?: HospitalCreateManyTypeInputEnvelope
-    set?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
-    disconnect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
-    delete?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
-    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
-    update?: HospitalUpdateWithWhereUniqueWithoutTypeInput | HospitalUpdateWithWhereUniqueWithoutTypeInput[]
-    updateMany?: HospitalUpdateManyWithWhereWithoutTypeInput | HospitalUpdateManyWithWhereWithoutTypeInput[]
-    deleteMany?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
-  }
-
-  export type HospitalUncheckedUpdateManyWithoutTypeNestedInput = {
-    create?: XOR<HospitalCreateWithoutTypeInput, HospitalUncheckedCreateWithoutTypeInput> | HospitalCreateWithoutTypeInput[] | HospitalUncheckedCreateWithoutTypeInput[]
-    connectOrCreate?: HospitalCreateOrConnectWithoutTypeInput | HospitalCreateOrConnectWithoutTypeInput[]
-    upsert?: HospitalUpsertWithWhereUniqueWithoutTypeInput | HospitalUpsertWithWhereUniqueWithoutTypeInput[]
-    createMany?: HospitalCreateManyTypeInputEnvelope
-    set?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
-    disconnect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
-    delete?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
-    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
-    update?: HospitalUpdateWithWhereUniqueWithoutTypeInput | HospitalUpdateWithWhereUniqueWithoutTypeInput[]
-    updateMany?: HospitalUpdateManyWithWhereWithoutTypeInput | HospitalUpdateManyWithWhereWithoutTypeInput[]
-    deleteMany?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
-  }
-
   export type UserCreateNestedOneWithoutAdminAccessInput = {
     create?: XOR<UserCreateWithoutAdminAccessInput, UserUncheckedCreateWithoutAdminAccessInput>
     connectOrCreate?: UserCreateOrConnectWithoutAdminAccessInput
     connect?: UserWhereUniqueInput
   }
 
-  export type HospitalCreateNestedOneWithoutUserAccessInput = {
-    create?: XOR<HospitalCreateWithoutUserAccessInput, HospitalUncheckedCreateWithoutUserAccessInput>
-    connectOrCreate?: HospitalCreateOrConnectWithoutUserAccessInput
+  export type HospitalCreateNestedOneWithoutUsersInput = {
+    create?: XOR<HospitalCreateWithoutUsersInput, HospitalUncheckedCreateWithoutUsersInput>
+    connectOrCreate?: HospitalCreateOrConnectWithoutUsersInput
     connect?: HospitalWhereUniqueInput
+  }
+
+  export type RoleCreateNestedOneWithoutUserHospitalAccessInput = {
+    create?: XOR<RoleCreateWithoutUserHospitalAccessInput, RoleUncheckedCreateWithoutUserHospitalAccessInput>
+    connectOrCreate?: RoleCreateOrConnectWithoutUserHospitalAccessInput
+    connect?: RoleWhereUniqueInput
   }
 
   export type UserUpdateOneRequiredWithoutAdminAccessNestedInput = {
@@ -15874,22 +17402,40 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAdminAccessInput, UserUpdateWithoutAdminAccessInput>, UserUncheckedUpdateWithoutAdminAccessInput>
   }
 
-  export type HospitalUpdateOneRequiredWithoutUserAccessNestedInput = {
-    create?: XOR<HospitalCreateWithoutUserAccessInput, HospitalUncheckedCreateWithoutUserAccessInput>
-    connectOrCreate?: HospitalCreateOrConnectWithoutUserAccessInput
-    upsert?: HospitalUpsertWithoutUserAccessInput
+  export type HospitalUpdateOneRequiredWithoutUsersNestedInput = {
+    create?: XOR<HospitalCreateWithoutUsersInput, HospitalUncheckedCreateWithoutUsersInput>
+    connectOrCreate?: HospitalCreateOrConnectWithoutUsersInput
+    upsert?: HospitalUpsertWithoutUsersInput
     connect?: HospitalWhereUniqueInput
-    update?: XOR<XOR<HospitalUpdateToOneWithWhereWithoutUserAccessInput, HospitalUpdateWithoutUserAccessInput>, HospitalUncheckedUpdateWithoutUserAccessInput>
+    update?: XOR<XOR<HospitalUpdateToOneWithWhereWithoutUsersInput, HospitalUpdateWithoutUsersInput>, HospitalUncheckedUpdateWithoutUsersInput>
+  }
+
+  export type RoleUpdateOneRequiredWithoutUserHospitalAccessNestedInput = {
+    create?: XOR<RoleCreateWithoutUserHospitalAccessInput, RoleUncheckedCreateWithoutUserHospitalAccessInput>
+    connectOrCreate?: RoleCreateOrConnectWithoutUserHospitalAccessInput
+    upsert?: RoleUpsertWithoutUserHospitalAccessInput
+    connect?: RoleWhereUniqueInput
+    update?: XOR<XOR<RoleUpdateToOneWithWhereWithoutUserHospitalAccessInput, RoleUpdateWithoutUserHospitalAccessInput>, RoleUncheckedUpdateWithoutUserHospitalAccessInput>
+  }
+
+  export type UserCreateNestedOneWithoutSettingsInput = {
+    create?: XOR<UserCreateWithoutSettingsInput, UserUncheckedCreateWithoutSettingsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSettingsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutSettingsNestedInput = {
+    create?: XOR<UserCreateWithoutSettingsInput, UserUncheckedCreateWithoutSettingsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSettingsInput
+    upsert?: UserUpsertWithoutSettingsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSettingsInput, UserUpdateWithoutSettingsInput>, UserUncheckedUpdateWithoutSettingsInput>
   }
 
   export type UserCreateNestedOneWithoutAuditLogsInput = {
     create?: XOR<UserCreateWithoutAuditLogsInput, UserUncheckedCreateWithoutAuditLogsInput>
     connectOrCreate?: UserCreateOrConnectWithoutAuditLogsInput
     connect?: UserWhereUniqueInput
-  }
-
-  export type DateTimeFieldUpdateOperationsInput = {
-    set?: Date | string
   }
 
   export type UserUpdateOneWithoutAuditLogsNestedInput = {
@@ -15914,6 +17460,160 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutLoginSessionsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutLoginSessionsInput, UserUpdateWithoutLoginSessionsInput>, UserUncheckedUpdateWithoutLoginSessionsInput>
+  }
+
+  export type UserCreateNestedManyWithoutRoleInput = {
+    create?: XOR<UserCreateWithoutRoleInput, UserUncheckedCreateWithoutRoleInput> | UserCreateWithoutRoleInput[] | UserUncheckedCreateWithoutRoleInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutRoleInput | UserCreateOrConnectWithoutRoleInput[]
+    createMany?: UserCreateManyRoleInputEnvelope
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+  }
+
+  export type UserHospitalAccessCreateNestedManyWithoutRoleInput = {
+    create?: XOR<UserHospitalAccessCreateWithoutRoleInput, UserHospitalAccessUncheckedCreateWithoutRoleInput> | UserHospitalAccessCreateWithoutRoleInput[] | UserHospitalAccessUncheckedCreateWithoutRoleInput[]
+    connectOrCreate?: UserHospitalAccessCreateOrConnectWithoutRoleInput | UserHospitalAccessCreateOrConnectWithoutRoleInput[]
+    createMany?: UserHospitalAccessCreateManyRoleInputEnvelope
+    connect?: UserHospitalAccessWhereUniqueInput | UserHospitalAccessWhereUniqueInput[]
+  }
+
+  export type RolePermissionCreateNestedManyWithoutRoleInput = {
+    create?: XOR<RolePermissionCreateWithoutRoleInput, RolePermissionUncheckedCreateWithoutRoleInput> | RolePermissionCreateWithoutRoleInput[] | RolePermissionUncheckedCreateWithoutRoleInput[]
+    connectOrCreate?: RolePermissionCreateOrConnectWithoutRoleInput | RolePermissionCreateOrConnectWithoutRoleInput[]
+    createMany?: RolePermissionCreateManyRoleInputEnvelope
+    connect?: RolePermissionWhereUniqueInput | RolePermissionWhereUniqueInput[]
+  }
+
+  export type UserUncheckedCreateNestedManyWithoutRoleInput = {
+    create?: XOR<UserCreateWithoutRoleInput, UserUncheckedCreateWithoutRoleInput> | UserCreateWithoutRoleInput[] | UserUncheckedCreateWithoutRoleInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutRoleInput | UserCreateOrConnectWithoutRoleInput[]
+    createMany?: UserCreateManyRoleInputEnvelope
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+  }
+
+  export type UserHospitalAccessUncheckedCreateNestedManyWithoutRoleInput = {
+    create?: XOR<UserHospitalAccessCreateWithoutRoleInput, UserHospitalAccessUncheckedCreateWithoutRoleInput> | UserHospitalAccessCreateWithoutRoleInput[] | UserHospitalAccessUncheckedCreateWithoutRoleInput[]
+    connectOrCreate?: UserHospitalAccessCreateOrConnectWithoutRoleInput | UserHospitalAccessCreateOrConnectWithoutRoleInput[]
+    createMany?: UserHospitalAccessCreateManyRoleInputEnvelope
+    connect?: UserHospitalAccessWhereUniqueInput | UserHospitalAccessWhereUniqueInput[]
+  }
+
+  export type RolePermissionUncheckedCreateNestedManyWithoutRoleInput = {
+    create?: XOR<RolePermissionCreateWithoutRoleInput, RolePermissionUncheckedCreateWithoutRoleInput> | RolePermissionCreateWithoutRoleInput[] | RolePermissionUncheckedCreateWithoutRoleInput[]
+    connectOrCreate?: RolePermissionCreateOrConnectWithoutRoleInput | RolePermissionCreateOrConnectWithoutRoleInput[]
+    createMany?: RolePermissionCreateManyRoleInputEnvelope
+    connect?: RolePermissionWhereUniqueInput | RolePermissionWhereUniqueInput[]
+  }
+
+  export type UserUpdateManyWithoutRoleNestedInput = {
+    create?: XOR<UserCreateWithoutRoleInput, UserUncheckedCreateWithoutRoleInput> | UserCreateWithoutRoleInput[] | UserUncheckedCreateWithoutRoleInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutRoleInput | UserCreateOrConnectWithoutRoleInput[]
+    upsert?: UserUpsertWithWhereUniqueWithoutRoleInput | UserUpsertWithWhereUniqueWithoutRoleInput[]
+    createMany?: UserCreateManyRoleInputEnvelope
+    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    update?: UserUpdateWithWhereUniqueWithoutRoleInput | UserUpdateWithWhereUniqueWithoutRoleInput[]
+    updateMany?: UserUpdateManyWithWhereWithoutRoleInput | UserUpdateManyWithWhereWithoutRoleInput[]
+    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
+  }
+
+  export type UserHospitalAccessUpdateManyWithoutRoleNestedInput = {
+    create?: XOR<UserHospitalAccessCreateWithoutRoleInput, UserHospitalAccessUncheckedCreateWithoutRoleInput> | UserHospitalAccessCreateWithoutRoleInput[] | UserHospitalAccessUncheckedCreateWithoutRoleInput[]
+    connectOrCreate?: UserHospitalAccessCreateOrConnectWithoutRoleInput | UserHospitalAccessCreateOrConnectWithoutRoleInput[]
+    upsert?: UserHospitalAccessUpsertWithWhereUniqueWithoutRoleInput | UserHospitalAccessUpsertWithWhereUniqueWithoutRoleInput[]
+    createMany?: UserHospitalAccessCreateManyRoleInputEnvelope
+    set?: UserHospitalAccessWhereUniqueInput | UserHospitalAccessWhereUniqueInput[]
+    disconnect?: UserHospitalAccessWhereUniqueInput | UserHospitalAccessWhereUniqueInput[]
+    delete?: UserHospitalAccessWhereUniqueInput | UserHospitalAccessWhereUniqueInput[]
+    connect?: UserHospitalAccessWhereUniqueInput | UserHospitalAccessWhereUniqueInput[]
+    update?: UserHospitalAccessUpdateWithWhereUniqueWithoutRoleInput | UserHospitalAccessUpdateWithWhereUniqueWithoutRoleInput[]
+    updateMany?: UserHospitalAccessUpdateManyWithWhereWithoutRoleInput | UserHospitalAccessUpdateManyWithWhereWithoutRoleInput[]
+    deleteMany?: UserHospitalAccessScalarWhereInput | UserHospitalAccessScalarWhereInput[]
+  }
+
+  export type RolePermissionUpdateManyWithoutRoleNestedInput = {
+    create?: XOR<RolePermissionCreateWithoutRoleInput, RolePermissionUncheckedCreateWithoutRoleInput> | RolePermissionCreateWithoutRoleInput[] | RolePermissionUncheckedCreateWithoutRoleInput[]
+    connectOrCreate?: RolePermissionCreateOrConnectWithoutRoleInput | RolePermissionCreateOrConnectWithoutRoleInput[]
+    upsert?: RolePermissionUpsertWithWhereUniqueWithoutRoleInput | RolePermissionUpsertWithWhereUniqueWithoutRoleInput[]
+    createMany?: RolePermissionCreateManyRoleInputEnvelope
+    set?: RolePermissionWhereUniqueInput | RolePermissionWhereUniqueInput[]
+    disconnect?: RolePermissionWhereUniqueInput | RolePermissionWhereUniqueInput[]
+    delete?: RolePermissionWhereUniqueInput | RolePermissionWhereUniqueInput[]
+    connect?: RolePermissionWhereUniqueInput | RolePermissionWhereUniqueInput[]
+    update?: RolePermissionUpdateWithWhereUniqueWithoutRoleInput | RolePermissionUpdateWithWhereUniqueWithoutRoleInput[]
+    updateMany?: RolePermissionUpdateManyWithWhereWithoutRoleInput | RolePermissionUpdateManyWithWhereWithoutRoleInput[]
+    deleteMany?: RolePermissionScalarWhereInput | RolePermissionScalarWhereInput[]
+  }
+
+  export type UserUncheckedUpdateManyWithoutRoleNestedInput = {
+    create?: XOR<UserCreateWithoutRoleInput, UserUncheckedCreateWithoutRoleInput> | UserCreateWithoutRoleInput[] | UserUncheckedCreateWithoutRoleInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutRoleInput | UserCreateOrConnectWithoutRoleInput[]
+    upsert?: UserUpsertWithWhereUniqueWithoutRoleInput | UserUpsertWithWhereUniqueWithoutRoleInput[]
+    createMany?: UserCreateManyRoleInputEnvelope
+    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    update?: UserUpdateWithWhereUniqueWithoutRoleInput | UserUpdateWithWhereUniqueWithoutRoleInput[]
+    updateMany?: UserUpdateManyWithWhereWithoutRoleInput | UserUpdateManyWithWhereWithoutRoleInput[]
+    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
+  }
+
+  export type UserHospitalAccessUncheckedUpdateManyWithoutRoleNestedInput = {
+    create?: XOR<UserHospitalAccessCreateWithoutRoleInput, UserHospitalAccessUncheckedCreateWithoutRoleInput> | UserHospitalAccessCreateWithoutRoleInput[] | UserHospitalAccessUncheckedCreateWithoutRoleInput[]
+    connectOrCreate?: UserHospitalAccessCreateOrConnectWithoutRoleInput | UserHospitalAccessCreateOrConnectWithoutRoleInput[]
+    upsert?: UserHospitalAccessUpsertWithWhereUniqueWithoutRoleInput | UserHospitalAccessUpsertWithWhereUniqueWithoutRoleInput[]
+    createMany?: UserHospitalAccessCreateManyRoleInputEnvelope
+    set?: UserHospitalAccessWhereUniqueInput | UserHospitalAccessWhereUniqueInput[]
+    disconnect?: UserHospitalAccessWhereUniqueInput | UserHospitalAccessWhereUniqueInput[]
+    delete?: UserHospitalAccessWhereUniqueInput | UserHospitalAccessWhereUniqueInput[]
+    connect?: UserHospitalAccessWhereUniqueInput | UserHospitalAccessWhereUniqueInput[]
+    update?: UserHospitalAccessUpdateWithWhereUniqueWithoutRoleInput | UserHospitalAccessUpdateWithWhereUniqueWithoutRoleInput[]
+    updateMany?: UserHospitalAccessUpdateManyWithWhereWithoutRoleInput | UserHospitalAccessUpdateManyWithWhereWithoutRoleInput[]
+    deleteMany?: UserHospitalAccessScalarWhereInput | UserHospitalAccessScalarWhereInput[]
+  }
+
+  export type RolePermissionUncheckedUpdateManyWithoutRoleNestedInput = {
+    create?: XOR<RolePermissionCreateWithoutRoleInput, RolePermissionUncheckedCreateWithoutRoleInput> | RolePermissionCreateWithoutRoleInput[] | RolePermissionUncheckedCreateWithoutRoleInput[]
+    connectOrCreate?: RolePermissionCreateOrConnectWithoutRoleInput | RolePermissionCreateOrConnectWithoutRoleInput[]
+    upsert?: RolePermissionUpsertWithWhereUniqueWithoutRoleInput | RolePermissionUpsertWithWhereUniqueWithoutRoleInput[]
+    createMany?: RolePermissionCreateManyRoleInputEnvelope
+    set?: RolePermissionWhereUniqueInput | RolePermissionWhereUniqueInput[]
+    disconnect?: RolePermissionWhereUniqueInput | RolePermissionWhereUniqueInput[]
+    delete?: RolePermissionWhereUniqueInput | RolePermissionWhereUniqueInput[]
+    connect?: RolePermissionWhereUniqueInput | RolePermissionWhereUniqueInput[]
+    update?: RolePermissionUpdateWithWhereUniqueWithoutRoleInput | RolePermissionUpdateWithWhereUniqueWithoutRoleInput[]
+    updateMany?: RolePermissionUpdateManyWithWhereWithoutRoleInput | RolePermissionUpdateManyWithWhereWithoutRoleInput[]
+    deleteMany?: RolePermissionScalarWhereInput | RolePermissionScalarWhereInput[]
+  }
+
+  export type RoleCreateNestedOneWithoutPermissionsInput = {
+    create?: XOR<RoleCreateWithoutPermissionsInput, RoleUncheckedCreateWithoutPermissionsInput>
+    connectOrCreate?: RoleCreateOrConnectWithoutPermissionsInput
+    connect?: RoleWhereUniqueInput
+  }
+
+  export type PermissionCreateNestedOneWithoutRolesInput = {
+    create?: XOR<PermissionCreateWithoutRolesInput, PermissionUncheckedCreateWithoutRolesInput>
+    connectOrCreate?: PermissionCreateOrConnectWithoutRolesInput
+    connect?: PermissionWhereUniqueInput
+  }
+
+  export type RoleUpdateOneRequiredWithoutPermissionsNestedInput = {
+    create?: XOR<RoleCreateWithoutPermissionsInput, RoleUncheckedCreateWithoutPermissionsInput>
+    connectOrCreate?: RoleCreateOrConnectWithoutPermissionsInput
+    upsert?: RoleUpsertWithoutPermissionsInput
+    connect?: RoleWhereUniqueInput
+    update?: XOR<XOR<RoleUpdateToOneWithWhereWithoutPermissionsInput, RoleUpdateWithoutPermissionsInput>, RoleUncheckedUpdateWithoutPermissionsInput>
+  }
+
+  export type PermissionUpdateOneRequiredWithoutRolesNestedInput = {
+    create?: XOR<PermissionCreateWithoutRolesInput, PermissionUncheckedCreateWithoutRolesInput>
+    connectOrCreate?: PermissionCreateOrConnectWithoutRolesInput
+    upsert?: PermissionUpsertWithoutRolesInput
+    connect?: PermissionWhereUniqueInput
+    update?: XOR<XOR<PermissionUpdateToOneWithWhereWithoutRolesInput, PermissionUpdateWithoutRolesInput>, PermissionUncheckedUpdateWithoutRolesInput>
   }
 
   export type RolePermissionCreateNestedManyWithoutPermissionInput = {
@@ -15958,34 +17658,6 @@ export namespace Prisma {
     deleteMany?: RolePermissionScalarWhereInput | RolePermissionScalarWhereInput[]
   }
 
-  export type RoleCreateNestedOneWithoutPermissionsInput = {
-    create?: XOR<RoleCreateWithoutPermissionsInput, RoleUncheckedCreateWithoutPermissionsInput>
-    connectOrCreate?: RoleCreateOrConnectWithoutPermissionsInput
-    connect?: RoleWhereUniqueInput
-  }
-
-  export type PermissionCreateNestedOneWithoutRolesInput = {
-    create?: XOR<PermissionCreateWithoutRolesInput, PermissionUncheckedCreateWithoutRolesInput>
-    connectOrCreate?: PermissionCreateOrConnectWithoutRolesInput
-    connect?: PermissionWhereUniqueInput
-  }
-
-  export type RoleUpdateOneRequiredWithoutPermissionsNestedInput = {
-    create?: XOR<RoleCreateWithoutPermissionsInput, RoleUncheckedCreateWithoutPermissionsInput>
-    connectOrCreate?: RoleCreateOrConnectWithoutPermissionsInput
-    upsert?: RoleUpsertWithoutPermissionsInput
-    connect?: RoleWhereUniqueInput
-    update?: XOR<XOR<RoleUpdateToOneWithWhereWithoutPermissionsInput, RoleUpdateWithoutPermissionsInput>, RoleUncheckedUpdateWithoutPermissionsInput>
-  }
-
-  export type PermissionUpdateOneRequiredWithoutRolesNestedInput = {
-    create?: XOR<PermissionCreateWithoutRolesInput, PermissionUncheckedCreateWithoutRolesInput>
-    connectOrCreate?: PermissionCreateOrConnectWithoutRolesInput
-    upsert?: PermissionUpsertWithoutRolesInput
-    connect?: PermissionWhereUniqueInput
-    update?: XOR<XOR<PermissionUpdateToOneWithWhereWithoutRolesInput, PermissionUpdateWithoutRolesInput>, PermissionUncheckedUpdateWithoutRolesInput>
-  }
-
   export type NestedIntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -15997,25 +17669,11 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
-  export type NestedEnumTitleNullableFilter<$PrismaModel = never> = {
-    equals?: $Enums.Title | EnumTitleFieldRefInput<$PrismaModel> | null
-    in?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumTitleNullableFilter<$PrismaModel> | $Enums.Title | null
-  }
-
-  export type NestedStringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  export type NestedEnumTitleFilter<$PrismaModel = never> = {
+    equals?: $Enums.Title | EnumTitleFieldRefInput<$PrismaModel>
+    in?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel>
+    not?: NestedEnumTitleFilter<$PrismaModel> | $Enums.Title
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -16035,6 +17693,17 @@ export namespace Prisma {
   export type NestedBoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedDateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
   export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
@@ -16075,42 +17744,14 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
-  export type NestedEnumTitleNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.Title | EnumTitleFieldRefInput<$PrismaModel> | null
-    in?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumTitleNullableWithAggregatesFilter<$PrismaModel> | $Enums.Title | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedEnumTitleNullableFilter<$PrismaModel>
-    _max?: NestedEnumTitleNullableFilter<$PrismaModel>
-  }
-
-  export type NestedIntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
-  }
-
-  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
+  export type NestedEnumTitleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Title | EnumTitleFieldRefInput<$PrismaModel>
+    in?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Title[] | ListEnumTitleFieldRefInput<$PrismaModel>
+    not?: NestedEnumTitleWithAggregatesFilter<$PrismaModel> | $Enums.Title
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTitleFilter<$PrismaModel>
+    _max?: NestedEnumTitleFilter<$PrismaModel>
   }
 
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
@@ -16138,6 +17779,20 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
+  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -16150,6 +17805,132 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedEnumOrganizationTypeNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrganizationType | EnumOrganizationTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.OrganizationType[] | ListEnumOrganizationTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.OrganizationType[] | ListEnumOrganizationTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumOrganizationTypeNullableFilter<$PrismaModel> | $Enums.OrganizationType | null
+  }
+
+  export type NestedEnumHospital_Org_statusFilter<$PrismaModel = never> = {
+    equals?: $Enums.Hospital_Org_status | EnumHospital_Org_statusFieldRefInput<$PrismaModel>
+    in?: $Enums.Hospital_Org_status[] | ListEnumHospital_Org_statusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Hospital_Org_status[] | ListEnumHospital_Org_statusFieldRefInput<$PrismaModel>
+    not?: NestedEnumHospital_Org_statusFilter<$PrismaModel> | $Enums.Hospital_Org_status
+  }
+
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedEnumOrganizationTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrganizationType | EnumOrganizationTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.OrganizationType[] | ListEnumOrganizationTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.OrganizationType[] | ListEnumOrganizationTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumOrganizationTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.OrganizationType | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumOrganizationTypeNullableFilter<$PrismaModel>
+    _max?: NestedEnumOrganizationTypeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumHospital_Org_statusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Hospital_Org_status | EnumHospital_Org_statusFieldRefInput<$PrismaModel>
+    in?: $Enums.Hospital_Org_status[] | ListEnumHospital_Org_statusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Hospital_Org_status[] | ListEnumHospital_Org_statusFieldRefInput<$PrismaModel>
+    not?: NestedEnumHospital_Org_statusWithAggregatesFilter<$PrismaModel> | $Enums.Hospital_Org_status
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumHospital_Org_statusFilter<$PrismaModel>
+    _max?: NestedEnumHospital_Org_statusFilter<$PrismaModel>
+  }
+
+  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumSpecializationTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.SpecializationType | EnumSpecializationTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.SpecializationType[] | ListEnumSpecializationTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SpecializationType[] | ListEnumSpecializationTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumSpecializationTypeFilter<$PrismaModel> | $Enums.SpecializationType
+  }
+
+  export type NestedEnumHospitalLevelFilter<$PrismaModel = never> = {
+    equals?: $Enums.HospitalLevel | EnumHospitalLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel>
+    not?: NestedEnumHospitalLevelFilter<$PrismaModel> | $Enums.HospitalLevel
+  }
+
+  export type NestedEnumSpecializationTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SpecializationType | EnumSpecializationTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.SpecializationType[] | ListEnumSpecializationTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SpecializationType[] | ListEnumSpecializationTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumSpecializationTypeWithAggregatesFilter<$PrismaModel> | $Enums.SpecializationType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSpecializationTypeFilter<$PrismaModel>
+    _max?: NestedEnumSpecializationTypeFilter<$PrismaModel>
+  }
+
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
+  export type NestedEnumHospitalLevelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.HospitalLevel | EnumHospitalLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel>
+    not?: NestedEnumHospitalLevelWithAggregatesFilter<$PrismaModel> | $Enums.HospitalLevel
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumHospitalLevelFilter<$PrismaModel>
+    _max?: NestedEnumHospitalLevelFilter<$PrismaModel>
   }
 
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -16178,31 +17959,6 @@ export namespace Prisma {
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
-
-  export type NestedDateTimeFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
-  }
-
-  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
-  }
   export type NestedJsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
@@ -16228,23 +17984,79 @@ export namespace Prisma {
   }
 
   export type RoleCreateWithoutUsersInput = {
-    Rolename?: string | null
+    Rolename: string
     description: string
     isActive?: boolean
+    UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutRoleInput
     permissions?: RolePermissionCreateNestedManyWithoutRoleInput
   }
 
   export type RoleUncheckedCreateWithoutUsersInput = {
     id?: number
-    Rolename?: string | null
+    Rolename: string
     description: string
     isActive?: boolean
+    UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutRoleInput
     permissions?: RolePermissionUncheckedCreateNestedManyWithoutRoleInput
   }
 
   export type RoleCreateOrConnectWithoutUsersInput = {
     where: RoleWhereUniqueInput
     create: XOR<RoleCreateWithoutUsersInput, RoleUncheckedCreateWithoutUsersInput>
+  }
+
+  export type OrganizationCreateWithoutUsersInput = {
+    OrganizationName: string
+    Organizationcode: string
+    logoUrl: string
+    email: string
+    contactNumber: string
+    Orgnizationtype?: $Enums.OrganizationType | null
+    website: string
+    addressLine1: string
+    addressLine2: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    registrationNo: string
+    establishedOn: Date | string
+    industryType: string
+    status?: $Enums.Hospital_Org_status
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    hospitals?: HospitalCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationUncheckedCreateWithoutUsersInput = {
+    id?: number
+    OrganizationName: string
+    Organizationcode: string
+    logoUrl: string
+    email: string
+    contactNumber: string
+    Orgnizationtype?: $Enums.OrganizationType | null
+    website: string
+    addressLine1: string
+    addressLine2: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    registrationNo: string
+    establishedOn: Date | string
+    industryType: string
+    status?: $Enums.Hospital_Org_status
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    hospitals?: HospitalUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationCreateOrConnectWithoutUsersInput = {
+    where: OrganizationWhereUniqueInput
+    create: XOR<OrganizationCreateWithoutUsersInput, OrganizationUncheckedCreateWithoutUsersInput>
   }
 
   export type SettingCreateWithoutUserInput = {
@@ -16314,14 +18126,18 @@ export namespace Prisma {
   }
 
   export type UserHospitalAccessCreateWithoutUserInput = {
-    isActive?: boolean
-    hospital: HospitalCreateNestedOneWithoutUserAccessInput
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    hospital: HospitalCreateNestedOneWithoutUsersInput
+    role: RoleCreateNestedOneWithoutUserHospitalAccessInput
   }
 
   export type UserHospitalAccessUncheckedCreateWithoutUserInput = {
     id?: number
     hospitalId: number
-    isActive?: boolean
+    roleId: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type UserHospitalAccessCreateOrConnectWithoutUserInput = {
@@ -16346,18 +18162,80 @@ export namespace Prisma {
   }
 
   export type RoleUpdateWithoutUsersInput = {
-    Rolename?: NullableStringFieldUpdateOperationsInput | string | null
+    Rolename?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutRoleNestedInput
     permissions?: RolePermissionUpdateManyWithoutRoleNestedInput
   }
 
   export type RoleUncheckedUpdateWithoutUsersInput = {
     id?: IntFieldUpdateOperationsInput | number
-    Rolename?: NullableStringFieldUpdateOperationsInput | string | null
+    Rolename?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutRoleNestedInput
     permissions?: RolePermissionUncheckedUpdateManyWithoutRoleNestedInput
+  }
+
+  export type OrganizationUpsertWithoutUsersInput = {
+    update: XOR<OrganizationUpdateWithoutUsersInput, OrganizationUncheckedUpdateWithoutUsersInput>
+    create: XOR<OrganizationCreateWithoutUsersInput, OrganizationUncheckedCreateWithoutUsersInput>
+    where?: OrganizationWhereInput
+  }
+
+  export type OrganizationUpdateToOneWithWhereWithoutUsersInput = {
+    where?: OrganizationWhereInput
+    data: XOR<OrganizationUpdateWithoutUsersInput, OrganizationUncheckedUpdateWithoutUsersInput>
+  }
+
+  export type OrganizationUpdateWithoutUsersInput = {
+    OrganizationName?: StringFieldUpdateOperationsInput | string
+    Organizationcode?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    Orgnizationtype?: NullableEnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType | null
+    website?: StringFieldUpdateOperationsInput | string
+    addressLine1?: StringFieldUpdateOperationsInput | string
+    addressLine2?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    registrationNo?: StringFieldUpdateOperationsInput | string
+    establishedOn?: DateTimeFieldUpdateOperationsInput | Date | string
+    industryType?: StringFieldUpdateOperationsInput | string
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    hospitals?: HospitalUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationUncheckedUpdateWithoutUsersInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    OrganizationName?: StringFieldUpdateOperationsInput | string
+    Organizationcode?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    Orgnizationtype?: NullableEnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType | null
+    website?: StringFieldUpdateOperationsInput | string
+    addressLine1?: StringFieldUpdateOperationsInput | string
+    addressLine2?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    registrationNo?: StringFieldUpdateOperationsInput | string
+    establishedOn?: DateTimeFieldUpdateOperationsInput | Date | string
+    industryType?: StringFieldUpdateOperationsInput | string
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    hospitals?: HospitalUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type SettingUpsertWithoutUserInput = {
@@ -16461,7 +18339,1227 @@ export namespace Prisma {
     id?: IntFilter<"UserHospitalAccess"> | number
     userId?: IntFilter<"UserHospitalAccess"> | number
     hospitalId?: IntFilter<"UserHospitalAccess"> | number
-    isActive?: BoolFilter<"UserHospitalAccess"> | boolean
+    roleId?: IntFilter<"UserHospitalAccess"> | number
+    createdAt?: DateTimeFilter<"UserHospitalAccess"> | Date | string
+    updatedAt?: DateTimeFilter<"UserHospitalAccess"> | Date | string
+  }
+
+  export type HospitalCreateWithoutOrganizationInput = {
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website: string
+    logoUrl: string
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    parentHospital?: HospitalCreateNestedOneWithoutChildHospitalInput
+    childHospital?: HospitalCreateNestedManyWithoutParentHospitalInput
+    users?: UserHospitalAccessCreateNestedManyWithoutHospitalInput
+  }
+
+  export type HospitalUncheckedCreateWithoutOrganizationInput = {
+    id?: number
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website: string
+    logoUrl: string
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    parentHospitalId?: number | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    childHospital?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
+    users?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
+  }
+
+  export type HospitalCreateOrConnectWithoutOrganizationInput = {
+    where: HospitalWhereUniqueInput
+    create: XOR<HospitalCreateWithoutOrganizationInput, HospitalUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type HospitalCreateManyOrganizationInputEnvelope = {
+    data: HospitalCreateManyOrganizationInput | HospitalCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserCreateWithoutOrganizationInput = {
+    title: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    deletedAt?: Date | string | null
+    role: RoleCreateNestedOneWithoutUsersInput
+    settings?: SettingCreateNestedOneWithoutUserInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
+    AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutOrganizationInput = {
+    id?: number
+    title: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    roleId: number
+    deletedAt?: Date | string | null
+    settings?: SettingUncheckedCreateNestedOneWithoutUserInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
+    AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutOrganizationInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type UserCreateManyOrganizationInputEnvelope = {
+    data: UserCreateManyOrganizationInput | UserCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type HospitalUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: HospitalWhereUniqueInput
+    update: XOR<HospitalUpdateWithoutOrganizationInput, HospitalUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<HospitalCreateWithoutOrganizationInput, HospitalUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type HospitalUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: HospitalWhereUniqueInput
+    data: XOR<HospitalUpdateWithoutOrganizationInput, HospitalUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type HospitalUpdateManyWithWhereWithoutOrganizationInput = {
+    where: HospitalScalarWhereInput
+    data: XOR<HospitalUpdateManyMutationInput, HospitalUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type HospitalScalarWhereInput = {
+    AND?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
+    OR?: HospitalScalarWhereInput[]
+    NOT?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
+    id?: IntFilter<"Hospital"> | number
+    name?: StringFilter<"Hospital"> | string
+    hospitalCode?: StringFilter<"Hospital"> | string
+    ParentHospitalCode?: StringNullableFilter<"Hospital"> | string | null
+    Organizationcode?: StringNullableFilter<"Hospital"> | string | null
+    SpecializationType?: EnumSpecializationTypeFilter<"Hospital"> | $Enums.SpecializationType
+    address?: StringFilter<"Hospital"> | string
+    city?: StringFilter<"Hospital"> | string
+    state?: StringFilter<"Hospital"> | string
+    country?: StringFilter<"Hospital"> | string
+    postalCode?: StringFilter<"Hospital"> | string
+    contactNumber?: StringFilter<"Hospital"> | string
+    email?: StringFilter<"Hospital"> | string
+    website?: StringFilter<"Hospital"> | string
+    logoUrl?: StringFilter<"Hospital"> | string
+    latitude?: FloatFilter<"Hospital"> | number
+    longitude?: FloatFilter<"Hospital"> | number
+    status?: EnumHospital_Org_statusFilter<"Hospital"> | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFilter<"Hospital"> | $Enums.HospitalLevel
+    parentHospitalId?: IntNullableFilter<"Hospital"> | number | null
+    organizationId?: IntFilter<"Hospital"> | number
+    isActive?: BoolFilter<"Hospital"> | boolean
+    createdAt?: DateTimeFilter<"Hospital"> | Date | string
+    updatedAt?: DateTimeFilter<"Hospital"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"Hospital"> | Date | string | null
+  }
+
+  export type UserUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: UserWhereUniqueInput
+    update: XOR<UserUpdateWithoutOrganizationInput, UserUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type UserUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: UserWhereUniqueInput
+    data: XOR<UserUpdateWithoutOrganizationInput, UserUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type UserUpdateManyWithWhereWithoutOrganizationInput = {
+    where: UserScalarWhereInput
+    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type UserScalarWhereInput = {
+    AND?: UserScalarWhereInput | UserScalarWhereInput[]
+    OR?: UserScalarWhereInput[]
+    NOT?: UserScalarWhereInput | UserScalarWhereInput[]
+    id?: IntFilter<"User"> | number
+    title?: EnumTitleFilter<"User"> | $Enums.Title
+    imageUrl?: StringFilter<"User"> | string
+    firstName?: StringFilter<"User"> | string
+    lastName?: StringFilter<"User"> | string
+    gender?: StringFilter<"User"> | string
+    email?: StringFilter<"User"> | string
+    mobile?: StringFilter<"User"> | string
+    passwordHash?: StringFilter<"User"> | string
+    isActive?: BoolFilter<"User"> | boolean
+    hashedRefreshToken?: StringFilter<"User"> | string
+    dateOfBirth?: DateTimeFilter<"User"> | Date | string
+    roleId?: IntFilter<"User"> | number
+    organizationId?: IntFilter<"User"> | number
+    deletedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+  }
+
+  export type HospitalCreateWithoutChildHospitalInput = {
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website: string
+    logoUrl: string
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    parentHospital?: HospitalCreateNestedOneWithoutChildHospitalInput
+    Organization: OrganizationCreateNestedOneWithoutHospitalsInput
+    users?: UserHospitalAccessCreateNestedManyWithoutHospitalInput
+  }
+
+  export type HospitalUncheckedCreateWithoutChildHospitalInput = {
+    id?: number
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website: string
+    logoUrl: string
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    parentHospitalId?: number | null
+    organizationId: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    users?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
+  }
+
+  export type HospitalCreateOrConnectWithoutChildHospitalInput = {
+    where: HospitalWhereUniqueInput
+    create: XOR<HospitalCreateWithoutChildHospitalInput, HospitalUncheckedCreateWithoutChildHospitalInput>
+  }
+
+  export type HospitalCreateWithoutParentHospitalInput = {
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website: string
+    logoUrl: string
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    childHospital?: HospitalCreateNestedManyWithoutParentHospitalInput
+    Organization: OrganizationCreateNestedOneWithoutHospitalsInput
+    users?: UserHospitalAccessCreateNestedManyWithoutHospitalInput
+  }
+
+  export type HospitalUncheckedCreateWithoutParentHospitalInput = {
+    id?: number
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website: string
+    logoUrl: string
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    organizationId: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    childHospital?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
+    users?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
+  }
+
+  export type HospitalCreateOrConnectWithoutParentHospitalInput = {
+    where: HospitalWhereUniqueInput
+    create: XOR<HospitalCreateWithoutParentHospitalInput, HospitalUncheckedCreateWithoutParentHospitalInput>
+  }
+
+  export type HospitalCreateManyParentHospitalInputEnvelope = {
+    data: HospitalCreateManyParentHospitalInput | HospitalCreateManyParentHospitalInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OrganizationCreateWithoutHospitalsInput = {
+    OrganizationName: string
+    Organizationcode: string
+    logoUrl: string
+    email: string
+    contactNumber: string
+    Orgnizationtype?: $Enums.OrganizationType | null
+    website: string
+    addressLine1: string
+    addressLine2: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    registrationNo: string
+    establishedOn: Date | string
+    industryType: string
+    status?: $Enums.Hospital_Org_status
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationUncheckedCreateWithoutHospitalsInput = {
+    id?: number
+    OrganizationName: string
+    Organizationcode: string
+    logoUrl: string
+    email: string
+    contactNumber: string
+    Orgnizationtype?: $Enums.OrganizationType | null
+    website: string
+    addressLine1: string
+    addressLine2: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    registrationNo: string
+    establishedOn: Date | string
+    industryType: string
+    status?: $Enums.Hospital_Org_status
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationCreateOrConnectWithoutHospitalsInput = {
+    where: OrganizationWhereUniqueInput
+    create: XOR<OrganizationCreateWithoutHospitalsInput, OrganizationUncheckedCreateWithoutHospitalsInput>
+  }
+
+  export type UserHospitalAccessCreateWithoutHospitalInput = {
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutAdminAccessInput
+    role: RoleCreateNestedOneWithoutUserHospitalAccessInput
+  }
+
+  export type UserHospitalAccessUncheckedCreateWithoutHospitalInput = {
+    id?: number
+    userId: number
+    roleId: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type UserHospitalAccessCreateOrConnectWithoutHospitalInput = {
+    where: UserHospitalAccessWhereUniqueInput
+    create: XOR<UserHospitalAccessCreateWithoutHospitalInput, UserHospitalAccessUncheckedCreateWithoutHospitalInput>
+  }
+
+  export type UserHospitalAccessCreateManyHospitalInputEnvelope = {
+    data: UserHospitalAccessCreateManyHospitalInput | UserHospitalAccessCreateManyHospitalInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type HospitalUpsertWithoutChildHospitalInput = {
+    update: XOR<HospitalUpdateWithoutChildHospitalInput, HospitalUncheckedUpdateWithoutChildHospitalInput>
+    create: XOR<HospitalCreateWithoutChildHospitalInput, HospitalUncheckedCreateWithoutChildHospitalInput>
+    where?: HospitalWhereInput
+  }
+
+  export type HospitalUpdateToOneWithWhereWithoutChildHospitalInput = {
+    where?: HospitalWhereInput
+    data: XOR<HospitalUpdateWithoutChildHospitalInput, HospitalUncheckedUpdateWithoutChildHospitalInput>
+  }
+
+  export type HospitalUpdateWithoutChildHospitalInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parentHospital?: HospitalUpdateOneWithoutChildHospitalNestedInput
+    Organization?: OrganizationUpdateOneRequiredWithoutHospitalsNestedInput
+    users?: UserHospitalAccessUpdateManyWithoutHospitalNestedInput
+  }
+
+  export type HospitalUncheckedUpdateWithoutChildHospitalInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
+    organizationId?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    users?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
+  }
+
+  export type HospitalUpsertWithWhereUniqueWithoutParentHospitalInput = {
+    where: HospitalWhereUniqueInput
+    update: XOR<HospitalUpdateWithoutParentHospitalInput, HospitalUncheckedUpdateWithoutParentHospitalInput>
+    create: XOR<HospitalCreateWithoutParentHospitalInput, HospitalUncheckedCreateWithoutParentHospitalInput>
+  }
+
+  export type HospitalUpdateWithWhereUniqueWithoutParentHospitalInput = {
+    where: HospitalWhereUniqueInput
+    data: XOR<HospitalUpdateWithoutParentHospitalInput, HospitalUncheckedUpdateWithoutParentHospitalInput>
+  }
+
+  export type HospitalUpdateManyWithWhereWithoutParentHospitalInput = {
+    where: HospitalScalarWhereInput
+    data: XOR<HospitalUpdateManyMutationInput, HospitalUncheckedUpdateManyWithoutParentHospitalInput>
+  }
+
+  export type OrganizationUpsertWithoutHospitalsInput = {
+    update: XOR<OrganizationUpdateWithoutHospitalsInput, OrganizationUncheckedUpdateWithoutHospitalsInput>
+    create: XOR<OrganizationCreateWithoutHospitalsInput, OrganizationUncheckedCreateWithoutHospitalsInput>
+    where?: OrganizationWhereInput
+  }
+
+  export type OrganizationUpdateToOneWithWhereWithoutHospitalsInput = {
+    where?: OrganizationWhereInput
+    data: XOR<OrganizationUpdateWithoutHospitalsInput, OrganizationUncheckedUpdateWithoutHospitalsInput>
+  }
+
+  export type OrganizationUpdateWithoutHospitalsInput = {
+    OrganizationName?: StringFieldUpdateOperationsInput | string
+    Organizationcode?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    Orgnizationtype?: NullableEnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType | null
+    website?: StringFieldUpdateOperationsInput | string
+    addressLine1?: StringFieldUpdateOperationsInput | string
+    addressLine2?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    registrationNo?: StringFieldUpdateOperationsInput | string
+    establishedOn?: DateTimeFieldUpdateOperationsInput | Date | string
+    industryType?: StringFieldUpdateOperationsInput | string
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationUncheckedUpdateWithoutHospitalsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    OrganizationName?: StringFieldUpdateOperationsInput | string
+    Organizationcode?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    Orgnizationtype?: NullableEnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType | null
+    website?: StringFieldUpdateOperationsInput | string
+    addressLine1?: StringFieldUpdateOperationsInput | string
+    addressLine2?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    registrationNo?: StringFieldUpdateOperationsInput | string
+    establishedOn?: DateTimeFieldUpdateOperationsInput | Date | string
+    industryType?: StringFieldUpdateOperationsInput | string
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type UserHospitalAccessUpsertWithWhereUniqueWithoutHospitalInput = {
+    where: UserHospitalAccessWhereUniqueInput
+    update: XOR<UserHospitalAccessUpdateWithoutHospitalInput, UserHospitalAccessUncheckedUpdateWithoutHospitalInput>
+    create: XOR<UserHospitalAccessCreateWithoutHospitalInput, UserHospitalAccessUncheckedCreateWithoutHospitalInput>
+  }
+
+  export type UserHospitalAccessUpdateWithWhereUniqueWithoutHospitalInput = {
+    where: UserHospitalAccessWhereUniqueInput
+    data: XOR<UserHospitalAccessUpdateWithoutHospitalInput, UserHospitalAccessUncheckedUpdateWithoutHospitalInput>
+  }
+
+  export type UserHospitalAccessUpdateManyWithWhereWithoutHospitalInput = {
+    where: UserHospitalAccessScalarWhereInput
+    data: XOR<UserHospitalAccessUpdateManyMutationInput, UserHospitalAccessUncheckedUpdateManyWithoutHospitalInput>
+  }
+
+  export type UserCreateWithoutAdminAccessInput = {
+    title: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    deletedAt?: Date | string | null
+    role: RoleCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
+    settings?: SettingCreateNestedOneWithoutUserInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutAdminAccessInput = {
+    id?: number
+    title: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    roleId: number
+    organizationId: number
+    deletedAt?: Date | string | null
+    settings?: SettingUncheckedCreateNestedOneWithoutUserInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutAdminAccessInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAdminAccessInput, UserUncheckedCreateWithoutAdminAccessInput>
+  }
+
+  export type HospitalCreateWithoutUsersInput = {
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website: string
+    logoUrl: string
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    parentHospital?: HospitalCreateNestedOneWithoutChildHospitalInput
+    childHospital?: HospitalCreateNestedManyWithoutParentHospitalInput
+    Organization: OrganizationCreateNestedOneWithoutHospitalsInput
+  }
+
+  export type HospitalUncheckedCreateWithoutUsersInput = {
+    id?: number
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website: string
+    logoUrl: string
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    parentHospitalId?: number | null
+    organizationId: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    childHospital?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
+  }
+
+  export type HospitalCreateOrConnectWithoutUsersInput = {
+    where: HospitalWhereUniqueInput
+    create: XOR<HospitalCreateWithoutUsersInput, HospitalUncheckedCreateWithoutUsersInput>
+  }
+
+  export type RoleCreateWithoutUserHospitalAccessInput = {
+    Rolename: string
+    description: string
+    isActive?: boolean
+    users?: UserCreateNestedManyWithoutRoleInput
+    permissions?: RolePermissionCreateNestedManyWithoutRoleInput
+  }
+
+  export type RoleUncheckedCreateWithoutUserHospitalAccessInput = {
+    id?: number
+    Rolename: string
+    description: string
+    isActive?: boolean
+    users?: UserUncheckedCreateNestedManyWithoutRoleInput
+    permissions?: RolePermissionUncheckedCreateNestedManyWithoutRoleInput
+  }
+
+  export type RoleCreateOrConnectWithoutUserHospitalAccessInput = {
+    where: RoleWhereUniqueInput
+    create: XOR<RoleCreateWithoutUserHospitalAccessInput, RoleUncheckedCreateWithoutUserHospitalAccessInput>
+  }
+
+  export type UserUpsertWithoutAdminAccessInput = {
+    update: XOR<UserUpdateWithoutAdminAccessInput, UserUncheckedUpdateWithoutAdminAccessInput>
+    create: XOR<UserCreateWithoutAdminAccessInput, UserUncheckedCreateWithoutAdminAccessInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAdminAccessInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAdminAccessInput, UserUncheckedUpdateWithoutAdminAccessInput>
+  }
+
+  export type UserUpdateWithoutAdminAccessInput = {
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    role?: RoleUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    settings?: SettingUpdateOneWithoutUserNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAdminAccessInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    roleId?: IntFieldUpdateOperationsInput | number
+    organizationId?: IntFieldUpdateOperationsInput | number
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type HospitalUpsertWithoutUsersInput = {
+    update: XOR<HospitalUpdateWithoutUsersInput, HospitalUncheckedUpdateWithoutUsersInput>
+    create: XOR<HospitalCreateWithoutUsersInput, HospitalUncheckedCreateWithoutUsersInput>
+    where?: HospitalWhereInput
+  }
+
+  export type HospitalUpdateToOneWithWhereWithoutUsersInput = {
+    where?: HospitalWhereInput
+    data: XOR<HospitalUpdateWithoutUsersInput, HospitalUncheckedUpdateWithoutUsersInput>
+  }
+
+  export type HospitalUpdateWithoutUsersInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parentHospital?: HospitalUpdateOneWithoutChildHospitalNestedInput
+    childHospital?: HospitalUpdateManyWithoutParentHospitalNestedInput
+    Organization?: OrganizationUpdateOneRequiredWithoutHospitalsNestedInput
+  }
+
+  export type HospitalUncheckedUpdateWithoutUsersInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
+    organizationId?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    childHospital?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
+  }
+
+  export type RoleUpsertWithoutUserHospitalAccessInput = {
+    update: XOR<RoleUpdateWithoutUserHospitalAccessInput, RoleUncheckedUpdateWithoutUserHospitalAccessInput>
+    create: XOR<RoleCreateWithoutUserHospitalAccessInput, RoleUncheckedCreateWithoutUserHospitalAccessInput>
+    where?: RoleWhereInput
+  }
+
+  export type RoleUpdateToOneWithWhereWithoutUserHospitalAccessInput = {
+    where?: RoleWhereInput
+    data: XOR<RoleUpdateWithoutUserHospitalAccessInput, RoleUncheckedUpdateWithoutUserHospitalAccessInput>
+  }
+
+  export type RoleUpdateWithoutUserHospitalAccessInput = {
+    Rolename?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    users?: UserUpdateManyWithoutRoleNestedInput
+    permissions?: RolePermissionUpdateManyWithoutRoleNestedInput
+  }
+
+  export type RoleUncheckedUpdateWithoutUserHospitalAccessInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    Rolename?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    users?: UserUncheckedUpdateManyWithoutRoleNestedInput
+    permissions?: RolePermissionUncheckedUpdateManyWithoutRoleNestedInput
+  }
+
+  export type UserCreateWithoutSettingsInput = {
+    title: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    deletedAt?: Date | string | null
+    role: RoleCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
+    AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutSettingsInput = {
+    id?: number
+    title: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    roleId: number
+    organizationId: number
+    deletedAt?: Date | string | null
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
+    AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutSettingsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutSettingsInput, UserUncheckedCreateWithoutSettingsInput>
+  }
+
+  export type UserUpsertWithoutSettingsInput = {
+    update: XOR<UserUpdateWithoutSettingsInput, UserUncheckedUpdateWithoutSettingsInput>
+    create: XOR<UserCreateWithoutSettingsInput, UserUncheckedCreateWithoutSettingsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutSettingsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutSettingsInput, UserUncheckedUpdateWithoutSettingsInput>
+  }
+
+  export type UserUpdateWithoutSettingsInput = {
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    role?: RoleUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
+    AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutSettingsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    roleId?: IntFieldUpdateOperationsInput | number
+    organizationId?: IntFieldUpdateOperationsInput | number
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
+    AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutAuditLogsInput = {
+    title: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    deletedAt?: Date | string | null
+    role: RoleCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
+    settings?: SettingCreateNestedOneWithoutUserInput
+    loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
+    AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutAuditLogsInput = {
+    id?: number
+    title: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    roleId: number
+    organizationId: number
+    deletedAt?: Date | string | null
+    settings?: SettingUncheckedCreateNestedOneWithoutUserInput
+    loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
+    AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutAuditLogsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAuditLogsInput, UserUncheckedCreateWithoutAuditLogsInput>
+  }
+
+  export type UserUpsertWithoutAuditLogsInput = {
+    update: XOR<UserUpdateWithoutAuditLogsInput, UserUncheckedUpdateWithoutAuditLogsInput>
+    create: XOR<UserCreateWithoutAuditLogsInput, UserUncheckedCreateWithoutAuditLogsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAuditLogsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAuditLogsInput, UserUncheckedUpdateWithoutAuditLogsInput>
+  }
+
+  export type UserUpdateWithoutAuditLogsInput = {
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    role?: RoleUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    settings?: SettingUpdateOneWithoutUserNestedInput
+    loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
+    AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAuditLogsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    roleId?: IntFieldUpdateOperationsInput | number
+    organizationId?: IntFieldUpdateOperationsInput | number
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
+    loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
+    AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutLoginSessionsInput = {
+    title: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    deletedAt?: Date | string | null
+    role: RoleCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
+    settings?: SettingCreateNestedOneWithoutUserInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutLoginSessionsInput = {
+    id?: number
+    title: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    roleId: number
+    organizationId: number
+    deletedAt?: Date | string | null
+    settings?: SettingUncheckedCreateNestedOneWithoutUserInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutLoginSessionsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutLoginSessionsInput, UserUncheckedCreateWithoutLoginSessionsInput>
+  }
+
+  export type UserUpsertWithoutLoginSessionsInput = {
+    update: XOR<UserUpdateWithoutLoginSessionsInput, UserUncheckedUpdateWithoutLoginSessionsInput>
+    create: XOR<UserCreateWithoutLoginSessionsInput, UserUncheckedCreateWithoutLoginSessionsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutLoginSessionsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutLoginSessionsInput, UserUncheckedUpdateWithoutLoginSessionsInput>
+  }
+
+  export type UserUpdateWithoutLoginSessionsInput = {
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    role?: RoleUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    settings?: SettingUpdateOneWithoutUserNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutLoginSessionsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    roleId?: IntFieldUpdateOperationsInput | number
+    organizationId?: IntFieldUpdateOperationsInput | number
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutRoleInput = {
+    title: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    deletedAt?: Date | string | null
+    organization: OrganizationCreateNestedOneWithoutUsersInput
+    settings?: SettingCreateNestedOneWithoutUserInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
+    AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutRoleInput = {
+    id?: number
+    title: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    organizationId: number
+    deletedAt?: Date | string | null
+    settings?: SettingUncheckedCreateNestedOneWithoutUserInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
+    AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutRoleInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutRoleInput, UserUncheckedCreateWithoutRoleInput>
+  }
+
+  export type UserCreateManyRoleInputEnvelope = {
+    data: UserCreateManyRoleInput | UserCreateManyRoleInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserHospitalAccessCreateWithoutRoleInput = {
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutAdminAccessInput
+    hospital: HospitalCreateNestedOneWithoutUsersInput
+  }
+
+  export type UserHospitalAccessUncheckedCreateWithoutRoleInput = {
+    id?: number
+    userId: number
+    hospitalId: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type UserHospitalAccessCreateOrConnectWithoutRoleInput = {
+    where: UserHospitalAccessWhereUniqueInput
+    create: XOR<UserHospitalAccessCreateWithoutRoleInput, UserHospitalAccessUncheckedCreateWithoutRoleInput>
+  }
+
+  export type UserHospitalAccessCreateManyRoleInputEnvelope = {
+    data: UserHospitalAccessCreateManyRoleInput | UserHospitalAccessCreateManyRoleInput[]
+    skipDuplicates?: boolean
   }
 
   export type RolePermissionCreateWithoutRoleInput = {
@@ -16483,51 +19581,36 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type UserCreateWithoutRoleInput = {
-    title?: $Enums.Title | null
-    imageUrl?: string | null
-    firstName: string
-    lastName: string
-    gender?: string | null
-    email: string
-    mobile: string
-    passwordHash: string
-    isActive?: boolean
-    hashedRefreshToken?: string | null
-    dateOfBirth?: Date | string | null
-    settings?: SettingCreateNestedOneWithoutUserInput
-    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
-    loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
-    AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
-  }
-
-  export type UserUncheckedCreateWithoutRoleInput = {
-    id?: number
-    title?: $Enums.Title | null
-    imageUrl?: string | null
-    firstName: string
-    lastName: string
-    gender?: string | null
-    email: string
-    mobile: string
-    passwordHash: string
-    isActive?: boolean
-    hashedRefreshToken?: string | null
-    dateOfBirth?: Date | string | null
-    settings?: SettingUncheckedCreateNestedOneWithoutUserInput
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
-    loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
-    AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
-  }
-
-  export type UserCreateOrConnectWithoutRoleInput = {
+  export type UserUpsertWithWhereUniqueWithoutRoleInput = {
     where: UserWhereUniqueInput
+    update: XOR<UserUpdateWithoutRoleInput, UserUncheckedUpdateWithoutRoleInput>
     create: XOR<UserCreateWithoutRoleInput, UserUncheckedCreateWithoutRoleInput>
   }
 
-  export type UserCreateManyRoleInputEnvelope = {
-    data: UserCreateManyRoleInput | UserCreateManyRoleInput[]
-    skipDuplicates?: boolean
+  export type UserUpdateWithWhereUniqueWithoutRoleInput = {
+    where: UserWhereUniqueInput
+    data: XOR<UserUpdateWithoutRoleInput, UserUncheckedUpdateWithoutRoleInput>
+  }
+
+  export type UserUpdateManyWithWhereWithoutRoleInput = {
+    where: UserScalarWhereInput
+    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyWithoutRoleInput>
+  }
+
+  export type UserHospitalAccessUpsertWithWhereUniqueWithoutRoleInput = {
+    where: UserHospitalAccessWhereUniqueInput
+    update: XOR<UserHospitalAccessUpdateWithoutRoleInput, UserHospitalAccessUncheckedUpdateWithoutRoleInput>
+    create: XOR<UserHospitalAccessCreateWithoutRoleInput, UserHospitalAccessUncheckedCreateWithoutRoleInput>
+  }
+
+  export type UserHospitalAccessUpdateWithWhereUniqueWithoutRoleInput = {
+    where: UserHospitalAccessWhereUniqueInput
+    data: XOR<UserHospitalAccessUpdateWithoutRoleInput, UserHospitalAccessUncheckedUpdateWithoutRoleInput>
+  }
+
+  export type UserHospitalAccessUpdateManyWithWhereWithoutRoleInput = {
+    where: UserHospitalAccessScalarWhereInput
+    data: XOR<UserHospitalAccessUpdateManyMutationInput, UserHospitalAccessUncheckedUpdateManyWithoutRoleInput>
   }
 
   export type RolePermissionUpsertWithWhereUniqueWithoutRoleInput = {
@@ -16555,706 +19638,100 @@ export namespace Prisma {
     permissionId?: IntFilter<"RolePermission"> | number
   }
 
-  export type UserUpsertWithWhereUniqueWithoutRoleInput = {
-    where: UserWhereUniqueInput
-    update: XOR<UserUpdateWithoutRoleInput, UserUncheckedUpdateWithoutRoleInput>
-    create: XOR<UserCreateWithoutRoleInput, UserUncheckedCreateWithoutRoleInput>
-  }
-
-  export type UserUpdateWithWhereUniqueWithoutRoleInput = {
-    where: UserWhereUniqueInput
-    data: XOR<UserUpdateWithoutRoleInput, UserUncheckedUpdateWithoutRoleInput>
-  }
-
-  export type UserUpdateManyWithWhereWithoutRoleInput = {
-    where: UserScalarWhereInput
-    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyWithoutRoleInput>
-  }
-
-  export type UserScalarWhereInput = {
-    AND?: UserScalarWhereInput | UserScalarWhereInput[]
-    OR?: UserScalarWhereInput[]
-    NOT?: UserScalarWhereInput | UserScalarWhereInput[]
-    id?: IntFilter<"User"> | number
-    title?: EnumTitleNullableFilter<"User"> | $Enums.Title | null
-    imageUrl?: StringNullableFilter<"User"> | string | null
-    firstName?: StringFilter<"User"> | string
-    lastName?: StringFilter<"User"> | string
-    gender?: StringNullableFilter<"User"> | string | null
-    email?: StringFilter<"User"> | string
-    mobile?: StringFilter<"User"> | string
-    passwordHash?: StringFilter<"User"> | string
-    isActive?: BoolFilter<"User"> | boolean
-    hashedRefreshToken?: StringNullableFilter<"User"> | string | null
-    dateOfBirth?: DateTimeNullableFilter<"User"> | Date | string | null
-    roleId?: IntFilter<"User"> | number
-  }
-
-  export type UserCreateWithoutSettingsInput = {
-    title?: $Enums.Title | null
-    imageUrl?: string | null
-    firstName: string
-    lastName: string
-    gender?: string | null
-    email: string
-    mobile: string
-    passwordHash: string
+  export type RoleCreateWithoutPermissionsInput = {
+    Rolename: string
+    description: string
     isActive?: boolean
-    hashedRefreshToken?: string | null
-    dateOfBirth?: Date | string | null
-    role: RoleCreateNestedOneWithoutUsersInput
-    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
-    loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
-    AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
+    users?: UserCreateNestedManyWithoutRoleInput
+    UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutRoleInput
   }
 
-  export type UserUncheckedCreateWithoutSettingsInput = {
+  export type RoleUncheckedCreateWithoutPermissionsInput = {
     id?: number
-    title?: $Enums.Title | null
-    imageUrl?: string | null
-    firstName: string
-    lastName: string
-    gender?: string | null
-    email: string
-    mobile: string
-    passwordHash: string
+    Rolename: string
+    description: string
     isActive?: boolean
-    hashedRefreshToken?: string | null
-    dateOfBirth?: Date | string | null
-    roleId: number
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
-    loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
-    AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
+    users?: UserUncheckedCreateNestedManyWithoutRoleInput
+    UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutRoleInput
   }
 
-  export type UserCreateOrConnectWithoutSettingsInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutSettingsInput, UserUncheckedCreateWithoutSettingsInput>
+  export type RoleCreateOrConnectWithoutPermissionsInput = {
+    where: RoleWhereUniqueInput
+    create: XOR<RoleCreateWithoutPermissionsInput, RoleUncheckedCreateWithoutPermissionsInput>
   }
 
-  export type UserUpsertWithoutSettingsInput = {
-    update: XOR<UserUpdateWithoutSettingsInput, UserUncheckedUpdateWithoutSettingsInput>
-    create: XOR<UserCreateWithoutSettingsInput, UserUncheckedCreateWithoutSettingsInput>
-    where?: UserWhereInput
+  export type PermissionCreateWithoutRolesInput = {
+    name: string
+    displayName: string
+    category: string
+    description?: string | null
   }
 
-  export type UserUpdateToOneWithWhereWithoutSettingsInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutSettingsInput, UserUncheckedUpdateWithoutSettingsInput>
+  export type PermissionUncheckedCreateWithoutRolesInput = {
+    id?: number
+    name: string
+    displayName: string
+    category: string
+    description?: string | null
   }
 
-  export type UserUpdateWithoutSettingsInput = {
-    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    firstName?: StringFieldUpdateOperationsInput | string
-    lastName?: StringFieldUpdateOperationsInput | string
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: StringFieldUpdateOperationsInput | string
-    mobile?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
+  export type PermissionCreateOrConnectWithoutRolesInput = {
+    where: PermissionWhereUniqueInput
+    create: XOR<PermissionCreateWithoutRolesInput, PermissionUncheckedCreateWithoutRolesInput>
+  }
+
+  export type RoleUpsertWithoutPermissionsInput = {
+    update: XOR<RoleUpdateWithoutPermissionsInput, RoleUncheckedUpdateWithoutPermissionsInput>
+    create: XOR<RoleCreateWithoutPermissionsInput, RoleUncheckedCreateWithoutPermissionsInput>
+    where?: RoleWhereInput
+  }
+
+  export type RoleUpdateToOneWithWhereWithoutPermissionsInput = {
+    where?: RoleWhereInput
+    data: XOR<RoleUpdateWithoutPermissionsInput, RoleUncheckedUpdateWithoutPermissionsInput>
+  }
+
+  export type RoleUpdateWithoutPermissionsInput = {
+    Rolename?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
-    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    role?: RoleUpdateOneRequiredWithoutUsersNestedInput
-    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
-    loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
-    AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
+    users?: UserUpdateManyWithoutRoleNestedInput
+    UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutRoleNestedInput
   }
 
-  export type UserUncheckedUpdateWithoutSettingsInput = {
+  export type RoleUncheckedUpdateWithoutPermissionsInput = {
     id?: IntFieldUpdateOperationsInput | number
-    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    firstName?: StringFieldUpdateOperationsInput | string
-    lastName?: StringFieldUpdateOperationsInput | string
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: StringFieldUpdateOperationsInput | string
-    mobile?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
+    Rolename?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
-    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    roleId?: IntFieldUpdateOperationsInput | number
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
-    loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
-    AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
+    users?: UserUncheckedUpdateManyWithoutRoleNestedInput
+    UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutRoleNestedInput
   }
 
-  export type HospitalCreateWithoutChildHospitalsInput = {
-    name: string
-    location: string
-    isActive?: boolean
-    hospitalCode?: string | null
-    superHospitalCode?: string | null
-    parentHospital?: HospitalCreateNestedOneWithoutChildHospitalsInput
-    type?: HospitaltypeCreateNestedOneWithoutHospitalsInput
-    userAccess?: UserHospitalAccessCreateNestedManyWithoutHospitalInput
+  export type PermissionUpsertWithoutRolesInput = {
+    update: XOR<PermissionUpdateWithoutRolesInput, PermissionUncheckedUpdateWithoutRolesInput>
+    create: XOR<PermissionCreateWithoutRolesInput, PermissionUncheckedCreateWithoutRolesInput>
+    where?: PermissionWhereInput
   }
 
-  export type HospitalUncheckedCreateWithoutChildHospitalsInput = {
-    id?: number
-    name: string
-    location: string
-    isActive?: boolean
-    parentHospitalId?: number | null
-    levelId?: number | null
-    hospitalCode?: string | null
-    superHospitalCode?: string | null
-    userAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
+  export type PermissionUpdateToOneWithWhereWithoutRolesInput = {
+    where?: PermissionWhereInput
+    data: XOR<PermissionUpdateWithoutRolesInput, PermissionUncheckedUpdateWithoutRolesInput>
   }
 
-  export type HospitalCreateOrConnectWithoutChildHospitalsInput = {
-    where: HospitalWhereUniqueInput
-    create: XOR<HospitalCreateWithoutChildHospitalsInput, HospitalUncheckedCreateWithoutChildHospitalsInput>
-  }
-
-  export type HospitalCreateWithoutParentHospitalInput = {
-    name: string
-    location: string
-    isActive?: boolean
-    hospitalCode?: string | null
-    superHospitalCode?: string | null
-    childHospitals?: HospitalCreateNestedManyWithoutParentHospitalInput
-    type?: HospitaltypeCreateNestedOneWithoutHospitalsInput
-    userAccess?: UserHospitalAccessCreateNestedManyWithoutHospitalInput
-  }
-
-  export type HospitalUncheckedCreateWithoutParentHospitalInput = {
-    id?: number
-    name: string
-    location: string
-    isActive?: boolean
-    levelId?: number | null
-    hospitalCode?: string | null
-    superHospitalCode?: string | null
-    childHospitals?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
-    userAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
-  }
-
-  export type HospitalCreateOrConnectWithoutParentHospitalInput = {
-    where: HospitalWhereUniqueInput
-    create: XOR<HospitalCreateWithoutParentHospitalInput, HospitalUncheckedCreateWithoutParentHospitalInput>
-  }
-
-  export type HospitalCreateManyParentHospitalInputEnvelope = {
-    data: HospitalCreateManyParentHospitalInput | HospitalCreateManyParentHospitalInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type HospitaltypeCreateWithoutHospitalsInput = {
-    HospitalType: string
-  }
-
-  export type HospitaltypeUncheckedCreateWithoutHospitalsInput = {
-    id?: number
-    HospitalType: string
-  }
-
-  export type HospitaltypeCreateOrConnectWithoutHospitalsInput = {
-    where: HospitaltypeWhereUniqueInput
-    create: XOR<HospitaltypeCreateWithoutHospitalsInput, HospitaltypeUncheckedCreateWithoutHospitalsInput>
-  }
-
-  export type UserHospitalAccessCreateWithoutHospitalInput = {
-    isActive?: boolean
-    user: UserCreateNestedOneWithoutAdminAccessInput
-  }
-
-  export type UserHospitalAccessUncheckedCreateWithoutHospitalInput = {
-    id?: number
-    userId: number
-    isActive?: boolean
-  }
-
-  export type UserHospitalAccessCreateOrConnectWithoutHospitalInput = {
-    where: UserHospitalAccessWhereUniqueInput
-    create: XOR<UserHospitalAccessCreateWithoutHospitalInput, UserHospitalAccessUncheckedCreateWithoutHospitalInput>
-  }
-
-  export type UserHospitalAccessCreateManyHospitalInputEnvelope = {
-    data: UserHospitalAccessCreateManyHospitalInput | UserHospitalAccessCreateManyHospitalInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type HospitalUpsertWithoutChildHospitalsInput = {
-    update: XOR<HospitalUpdateWithoutChildHospitalsInput, HospitalUncheckedUpdateWithoutChildHospitalsInput>
-    create: XOR<HospitalCreateWithoutChildHospitalsInput, HospitalUncheckedCreateWithoutChildHospitalsInput>
-    where?: HospitalWhereInput
-  }
-
-  export type HospitalUpdateToOneWithWhereWithoutChildHospitalsInput = {
-    where?: HospitalWhereInput
-    data: XOR<HospitalUpdateWithoutChildHospitalsInput, HospitalUncheckedUpdateWithoutChildHospitalsInput>
-  }
-
-  export type HospitalUpdateWithoutChildHospitalsInput = {
+  export type PermissionUpdateWithoutRolesInput = {
     name?: StringFieldUpdateOperationsInput | string
-    location?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    hospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    superHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    parentHospital?: HospitalUpdateOneWithoutChildHospitalsNestedInput
-    type?: HospitaltypeUpdateOneWithoutHospitalsNestedInput
-    userAccess?: UserHospitalAccessUpdateManyWithoutHospitalNestedInput
+    displayName?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type HospitalUncheckedUpdateWithoutChildHospitalsInput = {
+  export type PermissionUncheckedUpdateWithoutRolesInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
-    location?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
-    levelId?: NullableIntFieldUpdateOperationsInput | number | null
-    hospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    superHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    userAccess?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
-  }
-
-  export type HospitalUpsertWithWhereUniqueWithoutParentHospitalInput = {
-    where: HospitalWhereUniqueInput
-    update: XOR<HospitalUpdateWithoutParentHospitalInput, HospitalUncheckedUpdateWithoutParentHospitalInput>
-    create: XOR<HospitalCreateWithoutParentHospitalInput, HospitalUncheckedCreateWithoutParentHospitalInput>
-  }
-
-  export type HospitalUpdateWithWhereUniqueWithoutParentHospitalInput = {
-    where: HospitalWhereUniqueInput
-    data: XOR<HospitalUpdateWithoutParentHospitalInput, HospitalUncheckedUpdateWithoutParentHospitalInput>
-  }
-
-  export type HospitalUpdateManyWithWhereWithoutParentHospitalInput = {
-    where: HospitalScalarWhereInput
-    data: XOR<HospitalUpdateManyMutationInput, HospitalUncheckedUpdateManyWithoutParentHospitalInput>
-  }
-
-  export type HospitalScalarWhereInput = {
-    AND?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
-    OR?: HospitalScalarWhereInput[]
-    NOT?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
-    id?: IntFilter<"Hospital"> | number
-    name?: StringFilter<"Hospital"> | string
-    location?: StringFilter<"Hospital"> | string
-    isActive?: BoolFilter<"Hospital"> | boolean
-    parentHospitalId?: IntNullableFilter<"Hospital"> | number | null
-    levelId?: IntNullableFilter<"Hospital"> | number | null
-    hospitalCode?: StringNullableFilter<"Hospital"> | string | null
-    superHospitalCode?: StringNullableFilter<"Hospital"> | string | null
-  }
-
-  export type HospitaltypeUpsertWithoutHospitalsInput = {
-    update: XOR<HospitaltypeUpdateWithoutHospitalsInput, HospitaltypeUncheckedUpdateWithoutHospitalsInput>
-    create: XOR<HospitaltypeCreateWithoutHospitalsInput, HospitaltypeUncheckedCreateWithoutHospitalsInput>
-    where?: HospitaltypeWhereInput
-  }
-
-  export type HospitaltypeUpdateToOneWithWhereWithoutHospitalsInput = {
-    where?: HospitaltypeWhereInput
-    data: XOR<HospitaltypeUpdateWithoutHospitalsInput, HospitaltypeUncheckedUpdateWithoutHospitalsInput>
-  }
-
-  export type HospitaltypeUpdateWithoutHospitalsInput = {
-    HospitalType?: StringFieldUpdateOperationsInput | string
-  }
-
-  export type HospitaltypeUncheckedUpdateWithoutHospitalsInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    HospitalType?: StringFieldUpdateOperationsInput | string
-  }
-
-  export type UserHospitalAccessUpsertWithWhereUniqueWithoutHospitalInput = {
-    where: UserHospitalAccessWhereUniqueInput
-    update: XOR<UserHospitalAccessUpdateWithoutHospitalInput, UserHospitalAccessUncheckedUpdateWithoutHospitalInput>
-    create: XOR<UserHospitalAccessCreateWithoutHospitalInput, UserHospitalAccessUncheckedCreateWithoutHospitalInput>
-  }
-
-  export type UserHospitalAccessUpdateWithWhereUniqueWithoutHospitalInput = {
-    where: UserHospitalAccessWhereUniqueInput
-    data: XOR<UserHospitalAccessUpdateWithoutHospitalInput, UserHospitalAccessUncheckedUpdateWithoutHospitalInput>
-  }
-
-  export type UserHospitalAccessUpdateManyWithWhereWithoutHospitalInput = {
-    where: UserHospitalAccessScalarWhereInput
-    data: XOR<UserHospitalAccessUpdateManyMutationInput, UserHospitalAccessUncheckedUpdateManyWithoutHospitalInput>
-  }
-
-  export type HospitalCreateWithoutTypeInput = {
-    name: string
-    location: string
-    isActive?: boolean
-    hospitalCode?: string | null
-    superHospitalCode?: string | null
-    parentHospital?: HospitalCreateNestedOneWithoutChildHospitalsInput
-    childHospitals?: HospitalCreateNestedManyWithoutParentHospitalInput
-    userAccess?: UserHospitalAccessCreateNestedManyWithoutHospitalInput
-  }
-
-  export type HospitalUncheckedCreateWithoutTypeInput = {
-    id?: number
-    name: string
-    location: string
-    isActive?: boolean
-    parentHospitalId?: number | null
-    hospitalCode?: string | null
-    superHospitalCode?: string | null
-    childHospitals?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
-    userAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
-  }
-
-  export type HospitalCreateOrConnectWithoutTypeInput = {
-    where: HospitalWhereUniqueInput
-    create: XOR<HospitalCreateWithoutTypeInput, HospitalUncheckedCreateWithoutTypeInput>
-  }
-
-  export type HospitalCreateManyTypeInputEnvelope = {
-    data: HospitalCreateManyTypeInput | HospitalCreateManyTypeInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type HospitalUpsertWithWhereUniqueWithoutTypeInput = {
-    where: HospitalWhereUniqueInput
-    update: XOR<HospitalUpdateWithoutTypeInput, HospitalUncheckedUpdateWithoutTypeInput>
-    create: XOR<HospitalCreateWithoutTypeInput, HospitalUncheckedCreateWithoutTypeInput>
-  }
-
-  export type HospitalUpdateWithWhereUniqueWithoutTypeInput = {
-    where: HospitalWhereUniqueInput
-    data: XOR<HospitalUpdateWithoutTypeInput, HospitalUncheckedUpdateWithoutTypeInput>
-  }
-
-  export type HospitalUpdateManyWithWhereWithoutTypeInput = {
-    where: HospitalScalarWhereInput
-    data: XOR<HospitalUpdateManyMutationInput, HospitalUncheckedUpdateManyWithoutTypeInput>
-  }
-
-  export type UserCreateWithoutAdminAccessInput = {
-    title?: $Enums.Title | null
-    imageUrl?: string | null
-    firstName: string
-    lastName: string
-    gender?: string | null
-    email: string
-    mobile: string
-    passwordHash: string
-    isActive?: boolean
-    hashedRefreshToken?: string | null
-    dateOfBirth?: Date | string | null
-    role: RoleCreateNestedOneWithoutUsersInput
-    settings?: SettingCreateNestedOneWithoutUserInput
-    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
-    loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
-  }
-
-  export type UserUncheckedCreateWithoutAdminAccessInput = {
-    id?: number
-    title?: $Enums.Title | null
-    imageUrl?: string | null
-    firstName: string
-    lastName: string
-    gender?: string | null
-    email: string
-    mobile: string
-    passwordHash: string
-    isActive?: boolean
-    hashedRefreshToken?: string | null
-    dateOfBirth?: Date | string | null
-    roleId: number
-    settings?: SettingUncheckedCreateNestedOneWithoutUserInput
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
-    loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
-  }
-
-  export type UserCreateOrConnectWithoutAdminAccessInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutAdminAccessInput, UserUncheckedCreateWithoutAdminAccessInput>
-  }
-
-  export type HospitalCreateWithoutUserAccessInput = {
-    name: string
-    location: string
-    isActive?: boolean
-    hospitalCode?: string | null
-    superHospitalCode?: string | null
-    parentHospital?: HospitalCreateNestedOneWithoutChildHospitalsInput
-    childHospitals?: HospitalCreateNestedManyWithoutParentHospitalInput
-    type?: HospitaltypeCreateNestedOneWithoutHospitalsInput
-  }
-
-  export type HospitalUncheckedCreateWithoutUserAccessInput = {
-    id?: number
-    name: string
-    location: string
-    isActive?: boolean
-    parentHospitalId?: number | null
-    levelId?: number | null
-    hospitalCode?: string | null
-    superHospitalCode?: string | null
-    childHospitals?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
-  }
-
-  export type HospitalCreateOrConnectWithoutUserAccessInput = {
-    where: HospitalWhereUniqueInput
-    create: XOR<HospitalCreateWithoutUserAccessInput, HospitalUncheckedCreateWithoutUserAccessInput>
-  }
-
-  export type UserUpsertWithoutAdminAccessInput = {
-    update: XOR<UserUpdateWithoutAdminAccessInput, UserUncheckedUpdateWithoutAdminAccessInput>
-    create: XOR<UserCreateWithoutAdminAccessInput, UserUncheckedCreateWithoutAdminAccessInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutAdminAccessInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutAdminAccessInput, UserUncheckedUpdateWithoutAdminAccessInput>
-  }
-
-  export type UserUpdateWithoutAdminAccessInput = {
-    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    firstName?: StringFieldUpdateOperationsInput | string
-    lastName?: StringFieldUpdateOperationsInput | string
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: StringFieldUpdateOperationsInput | string
-    mobile?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
-    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    role?: RoleUpdateOneRequiredWithoutUsersNestedInput
-    settings?: SettingUpdateOneWithoutUserNestedInput
-    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
-    loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutAdminAccessInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    firstName?: StringFieldUpdateOperationsInput | string
-    lastName?: StringFieldUpdateOperationsInput | string
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: StringFieldUpdateOperationsInput | string
-    mobile?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
-    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    roleId?: IntFieldUpdateOperationsInput | number
-    settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
-    loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
-  }
-
-  export type HospitalUpsertWithoutUserAccessInput = {
-    update: XOR<HospitalUpdateWithoutUserAccessInput, HospitalUncheckedUpdateWithoutUserAccessInput>
-    create: XOR<HospitalCreateWithoutUserAccessInput, HospitalUncheckedCreateWithoutUserAccessInput>
-    where?: HospitalWhereInput
-  }
-
-  export type HospitalUpdateToOneWithWhereWithoutUserAccessInput = {
-    where?: HospitalWhereInput
-    data: XOR<HospitalUpdateWithoutUserAccessInput, HospitalUncheckedUpdateWithoutUserAccessInput>
-  }
-
-  export type HospitalUpdateWithoutUserAccessInput = {
-    name?: StringFieldUpdateOperationsInput | string
-    location?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    hospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    superHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    parentHospital?: HospitalUpdateOneWithoutChildHospitalsNestedInput
-    childHospitals?: HospitalUpdateManyWithoutParentHospitalNestedInput
-    type?: HospitaltypeUpdateOneWithoutHospitalsNestedInput
-  }
-
-  export type HospitalUncheckedUpdateWithoutUserAccessInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    name?: StringFieldUpdateOperationsInput | string
-    location?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
-    levelId?: NullableIntFieldUpdateOperationsInput | number | null
-    hospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    superHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    childHospitals?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
-  }
-
-  export type UserCreateWithoutAuditLogsInput = {
-    title?: $Enums.Title | null
-    imageUrl?: string | null
-    firstName: string
-    lastName: string
-    gender?: string | null
-    email: string
-    mobile: string
-    passwordHash: string
-    isActive?: boolean
-    hashedRefreshToken?: string | null
-    dateOfBirth?: Date | string | null
-    role: RoleCreateNestedOneWithoutUsersInput
-    settings?: SettingCreateNestedOneWithoutUserInput
-    loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
-    AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
-  }
-
-  export type UserUncheckedCreateWithoutAuditLogsInput = {
-    id?: number
-    title?: $Enums.Title | null
-    imageUrl?: string | null
-    firstName: string
-    lastName: string
-    gender?: string | null
-    email: string
-    mobile: string
-    passwordHash: string
-    isActive?: boolean
-    hashedRefreshToken?: string | null
-    dateOfBirth?: Date | string | null
-    roleId: number
-    settings?: SettingUncheckedCreateNestedOneWithoutUserInput
-    loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
-    AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
-  }
-
-  export type UserCreateOrConnectWithoutAuditLogsInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutAuditLogsInput, UserUncheckedCreateWithoutAuditLogsInput>
-  }
-
-  export type UserUpsertWithoutAuditLogsInput = {
-    update: XOR<UserUpdateWithoutAuditLogsInput, UserUncheckedUpdateWithoutAuditLogsInput>
-    create: XOR<UserCreateWithoutAuditLogsInput, UserUncheckedCreateWithoutAuditLogsInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutAuditLogsInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutAuditLogsInput, UserUncheckedUpdateWithoutAuditLogsInput>
-  }
-
-  export type UserUpdateWithoutAuditLogsInput = {
-    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    firstName?: StringFieldUpdateOperationsInput | string
-    lastName?: StringFieldUpdateOperationsInput | string
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: StringFieldUpdateOperationsInput | string
-    mobile?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
-    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    role?: RoleUpdateOneRequiredWithoutUsersNestedInput
-    settings?: SettingUpdateOneWithoutUserNestedInput
-    loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
-    AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutAuditLogsInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    firstName?: StringFieldUpdateOperationsInput | string
-    lastName?: StringFieldUpdateOperationsInput | string
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: StringFieldUpdateOperationsInput | string
-    mobile?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
-    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    roleId?: IntFieldUpdateOperationsInput | number
-    settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
-    loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
-    AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
-  }
-
-  export type UserCreateWithoutLoginSessionsInput = {
-    title?: $Enums.Title | null
-    imageUrl?: string | null
-    firstName: string
-    lastName: string
-    gender?: string | null
-    email: string
-    mobile: string
-    passwordHash: string
-    isActive?: boolean
-    hashedRefreshToken?: string | null
-    dateOfBirth?: Date | string | null
-    role: RoleCreateNestedOneWithoutUsersInput
-    settings?: SettingCreateNestedOneWithoutUserInput
-    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
-    AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
-  }
-
-  export type UserUncheckedCreateWithoutLoginSessionsInput = {
-    id?: number
-    title?: $Enums.Title | null
-    imageUrl?: string | null
-    firstName: string
-    lastName: string
-    gender?: string | null
-    email: string
-    mobile: string
-    passwordHash: string
-    isActive?: boolean
-    hashedRefreshToken?: string | null
-    dateOfBirth?: Date | string | null
-    roleId: number
-    settings?: SettingUncheckedCreateNestedOneWithoutUserInput
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
-    AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
-  }
-
-  export type UserCreateOrConnectWithoutLoginSessionsInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutLoginSessionsInput, UserUncheckedCreateWithoutLoginSessionsInput>
-  }
-
-  export type UserUpsertWithoutLoginSessionsInput = {
-    update: XOR<UserUpdateWithoutLoginSessionsInput, UserUncheckedUpdateWithoutLoginSessionsInput>
-    create: XOR<UserCreateWithoutLoginSessionsInput, UserUncheckedCreateWithoutLoginSessionsInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutLoginSessionsInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutLoginSessionsInput, UserUncheckedUpdateWithoutLoginSessionsInput>
-  }
-
-  export type UserUpdateWithoutLoginSessionsInput = {
-    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    firstName?: StringFieldUpdateOperationsInput | string
-    lastName?: StringFieldUpdateOperationsInput | string
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: StringFieldUpdateOperationsInput | string
-    mobile?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
-    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    role?: RoleUpdateOneRequiredWithoutUsersNestedInput
-    settings?: SettingUpdateOneWithoutUserNestedInput
-    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
-    AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutLoginSessionsInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    firstName?: StringFieldUpdateOperationsInput | string
-    lastName?: StringFieldUpdateOperationsInput | string
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: StringFieldUpdateOperationsInput | string
-    mobile?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
-    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    roleId?: IntFieldUpdateOperationsInput | number
-    settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
-    AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
+    displayName?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type RolePermissionCreateWithoutPermissionInput = {
@@ -17292,90 +19769,6 @@ export namespace Prisma {
     data: XOR<RolePermissionUpdateManyMutationInput, RolePermissionUncheckedUpdateManyWithoutPermissionInput>
   }
 
-  export type RoleCreateWithoutPermissionsInput = {
-    Rolename?: string | null
-    description: string
-    isActive?: boolean
-    users?: UserCreateNestedManyWithoutRoleInput
-  }
-
-  export type RoleUncheckedCreateWithoutPermissionsInput = {
-    id?: number
-    Rolename?: string | null
-    description: string
-    isActive?: boolean
-    users?: UserUncheckedCreateNestedManyWithoutRoleInput
-  }
-
-  export type RoleCreateOrConnectWithoutPermissionsInput = {
-    where: RoleWhereUniqueInput
-    create: XOR<RoleCreateWithoutPermissionsInput, RoleUncheckedCreateWithoutPermissionsInput>
-  }
-
-  export type PermissionCreateWithoutRolesInput = {
-    name: string
-    description?: string | null
-  }
-
-  export type PermissionUncheckedCreateWithoutRolesInput = {
-    id?: number
-    name: string
-    description?: string | null
-  }
-
-  export type PermissionCreateOrConnectWithoutRolesInput = {
-    where: PermissionWhereUniqueInput
-    create: XOR<PermissionCreateWithoutRolesInput, PermissionUncheckedCreateWithoutRolesInput>
-  }
-
-  export type RoleUpsertWithoutPermissionsInput = {
-    update: XOR<RoleUpdateWithoutPermissionsInput, RoleUncheckedUpdateWithoutPermissionsInput>
-    create: XOR<RoleCreateWithoutPermissionsInput, RoleUncheckedCreateWithoutPermissionsInput>
-    where?: RoleWhereInput
-  }
-
-  export type RoleUpdateToOneWithWhereWithoutPermissionsInput = {
-    where?: RoleWhereInput
-    data: XOR<RoleUpdateWithoutPermissionsInput, RoleUncheckedUpdateWithoutPermissionsInput>
-  }
-
-  export type RoleUpdateWithoutPermissionsInput = {
-    Rolename?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    users?: UserUpdateManyWithoutRoleNestedInput
-  }
-
-  export type RoleUncheckedUpdateWithoutPermissionsInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    Rolename?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    users?: UserUncheckedUpdateManyWithoutRoleNestedInput
-  }
-
-  export type PermissionUpsertWithoutRolesInput = {
-    update: XOR<PermissionUpdateWithoutRolesInput, PermissionUncheckedUpdateWithoutRolesInput>
-    create: XOR<PermissionCreateWithoutRolesInput, PermissionUncheckedCreateWithoutRolesInput>
-    where?: PermissionWhereInput
-  }
-
-  export type PermissionUpdateToOneWithWhereWithoutRolesInput = {
-    where?: PermissionWhereInput
-    data: XOR<PermissionUpdateWithoutRolesInput, PermissionUncheckedUpdateWithoutRolesInput>
-  }
-
-  export type PermissionUpdateWithoutRolesInput = {
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type PermissionUncheckedUpdateWithoutRolesInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
   export type AuditLogCreateManyUserInput = {
     id?: number
     action: string
@@ -17395,7 +19788,9 @@ export namespace Prisma {
   export type UserHospitalAccessCreateManyUserInput = {
     id?: number
     hospitalId: number
-    isActive?: boolean
+    roleId: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type AuditLogUpdateWithoutUserInput = {
@@ -17445,20 +19840,379 @@ export namespace Prisma {
   }
 
   export type UserHospitalAccessUpdateWithoutUserInput = {
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    hospital?: HospitalUpdateOneRequiredWithoutUserAccessNestedInput
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    hospital?: HospitalUpdateOneRequiredWithoutUsersNestedInput
+    role?: RoleUpdateOneRequiredWithoutUserHospitalAccessNestedInput
   }
 
   export type UserHospitalAccessUncheckedUpdateWithoutUserInput = {
     id?: IntFieldUpdateOperationsInput | number
     hospitalId?: IntFieldUpdateOperationsInput | number
-    isActive?: BoolFieldUpdateOperationsInput | boolean
+    roleId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserHospitalAccessUncheckedUpdateManyWithoutUserInput = {
     id?: IntFieldUpdateOperationsInput | number
     hospitalId?: IntFieldUpdateOperationsInput | number
+    roleId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type HospitalCreateManyOrganizationInput = {
+    id?: number
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website: string
+    logoUrl: string
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    parentHospitalId?: number | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+  }
+
+  export type UserCreateManyOrganizationInput = {
+    id?: number
+    title: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    roleId: number
+    deletedAt?: Date | string | null
+  }
+
+  export type HospitalUpdateWithoutOrganizationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parentHospital?: HospitalUpdateOneWithoutChildHospitalNestedInput
+    childHospital?: HospitalUpdateManyWithoutParentHospitalNestedInput
+    users?: UserHospitalAccessUpdateManyWithoutHospitalNestedInput
+  }
+
+  export type HospitalUncheckedUpdateWithoutOrganizationInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    childHospital?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
+    users?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
+  }
+
+  export type HospitalUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserUpdateWithoutOrganizationInput = {
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    role?: RoleUpdateOneRequiredWithoutUsersNestedInput
+    settings?: SettingUpdateOneWithoutUserNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
+    AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutOrganizationInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    roleId?: IntFieldUpdateOperationsInput | number
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
+    AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    roleId?: IntFieldUpdateOperationsInput | number
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type HospitalCreateManyParentHospitalInput = {
+    id?: number
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website: string
+    logoUrl: string
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    organizationId: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+  }
+
+  export type UserHospitalAccessCreateManyHospitalInput = {
+    id?: number
+    userId: number
+    roleId: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type HospitalUpdateWithoutParentHospitalInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    childHospital?: HospitalUpdateManyWithoutParentHospitalNestedInput
+    Organization?: OrganizationUpdateOneRequiredWithoutHospitalsNestedInput
+    users?: UserHospitalAccessUpdateManyWithoutHospitalNestedInput
+  }
+
+  export type HospitalUncheckedUpdateWithoutParentHospitalInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    organizationId?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    childHospital?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
+    users?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
+  }
+
+  export type HospitalUncheckedUpdateManyWithoutParentHospitalInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    organizationId?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserHospitalAccessUpdateWithoutHospitalInput = {
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAdminAccessNestedInput
+    role?: RoleUpdateOneRequiredWithoutUserHospitalAccessNestedInput
+  }
+
+  export type UserHospitalAccessUncheckedUpdateWithoutHospitalInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    roleId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserHospitalAccessUncheckedUpdateManyWithoutHospitalInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    roleId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserCreateManyRoleInput = {
+    id?: number
+    title: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    organizationId: number
+    deletedAt?: Date | string | null
+  }
+
+  export type UserHospitalAccessCreateManyRoleInput = {
+    id?: number
+    userId: number
+    hospitalId: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type RolePermissionCreateManyRoleInput = {
@@ -17466,19 +20220,85 @@ export namespace Prisma {
     permissionId: number
   }
 
-  export type UserCreateManyRoleInput = {
-    id?: number
-    title?: $Enums.Title | null
-    imageUrl?: string | null
-    firstName: string
-    lastName: string
-    gender?: string | null
-    email: string
-    mobile: string
-    passwordHash: string
-    isActive?: boolean
-    hashedRefreshToken?: string | null
-    dateOfBirth?: Date | string | null
+  export type UserUpdateWithoutRoleInput = {
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    settings?: SettingUpdateOneWithoutUserNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
+    AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutRoleInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    organizationId?: IntFieldUpdateOperationsInput | number
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
+    AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateManyWithoutRoleInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    organizationId?: IntFieldUpdateOperationsInput | number
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserHospitalAccessUpdateWithoutRoleInput = {
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAdminAccessNestedInput
+    hospital?: HospitalUpdateOneRequiredWithoutUsersNestedInput
+  }
+
+  export type UserHospitalAccessUncheckedUpdateWithoutRoleInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    hospitalId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserHospitalAccessUncheckedUpdateManyWithoutRoleInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    hospitalId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RolePermissionUpdateWithoutRoleInput = {
@@ -17493,167 +20313,6 @@ export namespace Prisma {
   export type RolePermissionUncheckedUpdateManyWithoutRoleInput = {
     id?: IntFieldUpdateOperationsInput | number
     permissionId?: IntFieldUpdateOperationsInput | number
-  }
-
-  export type UserUpdateWithoutRoleInput = {
-    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    firstName?: StringFieldUpdateOperationsInput | string
-    lastName?: StringFieldUpdateOperationsInput | string
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: StringFieldUpdateOperationsInput | string
-    mobile?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
-    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    settings?: SettingUpdateOneWithoutUserNestedInput
-    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
-    loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
-    AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutRoleInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    firstName?: StringFieldUpdateOperationsInput | string
-    lastName?: StringFieldUpdateOperationsInput | string
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: StringFieldUpdateOperationsInput | string
-    mobile?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
-    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
-    loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
-    AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
-  }
-
-  export type UserUncheckedUpdateManyWithoutRoleInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    title?: NullableEnumTitleFieldUpdateOperationsInput | $Enums.Title | null
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    firstName?: StringFieldUpdateOperationsInput | string
-    lastName?: StringFieldUpdateOperationsInput | string
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: StringFieldUpdateOperationsInput | string
-    mobile?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    hashedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
-    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type HospitalCreateManyParentHospitalInput = {
-    id?: number
-    name: string
-    location: string
-    isActive?: boolean
-    levelId?: number | null
-    hospitalCode?: string | null
-    superHospitalCode?: string | null
-  }
-
-  export type UserHospitalAccessCreateManyHospitalInput = {
-    id?: number
-    userId: number
-    isActive?: boolean
-  }
-
-  export type HospitalUpdateWithoutParentHospitalInput = {
-    name?: StringFieldUpdateOperationsInput | string
-    location?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    hospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    superHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    childHospitals?: HospitalUpdateManyWithoutParentHospitalNestedInput
-    type?: HospitaltypeUpdateOneWithoutHospitalsNestedInput
-    userAccess?: UserHospitalAccessUpdateManyWithoutHospitalNestedInput
-  }
-
-  export type HospitalUncheckedUpdateWithoutParentHospitalInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    name?: StringFieldUpdateOperationsInput | string
-    location?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    levelId?: NullableIntFieldUpdateOperationsInput | number | null
-    hospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    superHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    childHospitals?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
-    userAccess?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
-  }
-
-  export type HospitalUncheckedUpdateManyWithoutParentHospitalInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    name?: StringFieldUpdateOperationsInput | string
-    location?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    levelId?: NullableIntFieldUpdateOperationsInput | number | null
-    hospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    superHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type UserHospitalAccessUpdateWithoutHospitalInput = {
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    user?: UserUpdateOneRequiredWithoutAdminAccessNestedInput
-  }
-
-  export type UserHospitalAccessUncheckedUpdateWithoutHospitalInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    userId?: IntFieldUpdateOperationsInput | number
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-  }
-
-  export type UserHospitalAccessUncheckedUpdateManyWithoutHospitalInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    userId?: IntFieldUpdateOperationsInput | number
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-  }
-
-  export type HospitalCreateManyTypeInput = {
-    id?: number
-    name: string
-    location: string
-    isActive?: boolean
-    parentHospitalId?: number | null
-    hospitalCode?: string | null
-    superHospitalCode?: string | null
-  }
-
-  export type HospitalUpdateWithoutTypeInput = {
-    name?: StringFieldUpdateOperationsInput | string
-    location?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    hospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    superHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    parentHospital?: HospitalUpdateOneWithoutChildHospitalsNestedInput
-    childHospitals?: HospitalUpdateManyWithoutParentHospitalNestedInput
-    userAccess?: UserHospitalAccessUpdateManyWithoutHospitalNestedInput
-  }
-
-  export type HospitalUncheckedUpdateWithoutTypeInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    name?: StringFieldUpdateOperationsInput | string
-    location?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
-    hospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    superHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    childHospitals?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
-    userAccess?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
-  }
-
-  export type HospitalUncheckedUpdateManyWithoutTypeInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    name?: StringFieldUpdateOperationsInput | string
-    location?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
-    hospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
-    superHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type RolePermissionCreateManyPermissionInput = {

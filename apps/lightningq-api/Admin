@@ -1,0 +1,8 @@
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "Dev_LightningQ", schema "public" at "localhost:5432"
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "Dev_LightningQ", schema "public" at "localhost:5432"
+
