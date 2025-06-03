@@ -1769,12 +1769,20 @@ export namespace Prisma {
     auditLogs: number
     loginSessions: number
     AdminAccess: number
+    mappedHospitals: number
+    HospitalCreatedBy: number
+    HospitalUpdatedBy: number
+    HospitalDeletedBy: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
     loginSessions?: boolean | UserCountOutputTypeCountLoginSessionsArgs
     AdminAccess?: boolean | UserCountOutputTypeCountAdminAccessArgs
+    mappedHospitals?: boolean | UserCountOutputTypeCountMappedHospitalsArgs
+    HospitalCreatedBy?: boolean | UserCountOutputTypeCountHospitalCreatedByArgs
+    HospitalUpdatedBy?: boolean | UserCountOutputTypeCountHospitalUpdatedByArgs
+    HospitalDeletedBy?: boolean | UserCountOutputTypeCountHospitalDeletedByArgs
   }
 
   // Custom InputTypes
@@ -1807,6 +1815,34 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountAdminAccessArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UserHospitalAccessWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountMappedHospitalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HospitalWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountHospitalCreatedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HospitalWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountHospitalUpdatedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HospitalWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountHospitalDeletedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HospitalWhereInput
   }
 
 
@@ -1857,11 +1893,13 @@ export namespace Prisma {
   export type HospitalCountOutputType = {
     childHospital: number
     users: number
+    mappedUsers: number
   }
 
   export type HospitalCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     childHospital?: boolean | HospitalCountOutputTypeCountChildHospitalArgs
     users?: boolean | HospitalCountOutputTypeCountUsersArgs
+    mappedUsers?: boolean | HospitalCountOutputTypeCountMappedUsersArgs
   }
 
   // Custom InputTypes
@@ -1887,6 +1925,13 @@ export namespace Prisma {
    */
   export type HospitalCountOutputTypeCountUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UserHospitalAccessWhereInput
+  }
+
+  /**
+   * HospitalCountOutputType without action
+   */
+  export type HospitalCountOutputTypeCountMappedUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserWhereInput
   }
 
 
@@ -2266,6 +2311,10 @@ export namespace Prisma {
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
     loginSessions?: boolean | User$loginSessionsArgs<ExtArgs>
     AdminAccess?: boolean | User$AdminAccessArgs<ExtArgs>
+    mappedHospitals?: boolean | User$mappedHospitalsArgs<ExtArgs>
+    HospitalCreatedBy?: boolean | User$HospitalCreatedByArgs<ExtArgs>
+    HospitalUpdatedBy?: boolean | User$HospitalUpdatedByArgs<ExtArgs>
+    HospitalDeletedBy?: boolean | User$HospitalDeletedByArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -2335,6 +2384,10 @@ export namespace Prisma {
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
     loginSessions?: boolean | User$loginSessionsArgs<ExtArgs>
     AdminAccess?: boolean | User$AdminAccessArgs<ExtArgs>
+    mappedHospitals?: boolean | User$mappedHospitalsArgs<ExtArgs>
+    HospitalCreatedBy?: boolean | User$HospitalCreatedByArgs<ExtArgs>
+    HospitalUpdatedBy?: boolean | User$HospitalUpdatedByArgs<ExtArgs>
+    HospitalDeletedBy?: boolean | User$HospitalDeletedByArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2355,6 +2408,10 @@ export namespace Prisma {
       auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
       loginSessions: Prisma.$LoginSessionPayload<ExtArgs>[]
       AdminAccess: Prisma.$UserHospitalAccessPayload<ExtArgs>[]
+      mappedHospitals: Prisma.$HospitalPayload<ExtArgs>[]
+      HospitalCreatedBy: Prisma.$HospitalPayload<ExtArgs>[]
+      HospitalUpdatedBy: Prisma.$HospitalPayload<ExtArgs>[]
+      HospitalDeletedBy: Prisma.$HospitalPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -2772,6 +2829,10 @@ export namespace Prisma {
     auditLogs<T extends User$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     loginSessions<T extends User$loginSessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$loginSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LoginSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     AdminAccess<T extends User$AdminAccessArgs<ExtArgs> = {}>(args?: Subset<T, User$AdminAccessArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    mappedHospitals<T extends User$mappedHospitalsArgs<ExtArgs> = {}>(args?: Subset<T, User$mappedHospitalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    HospitalCreatedBy<T extends User$HospitalCreatedByArgs<ExtArgs> = {}>(args?: Subset<T, User$HospitalCreatedByArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    HospitalUpdatedBy<T extends User$HospitalUpdatedByArgs<ExtArgs> = {}>(args?: Subset<T, User$HospitalUpdatedByArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    HospitalDeletedBy<T extends User$HospitalDeletedByArgs<ExtArgs> = {}>(args?: Subset<T, User$HospitalDeletedByArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3300,6 +3361,102 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: UserHospitalAccessScalarFieldEnum | UserHospitalAccessScalarFieldEnum[]
+  }
+
+  /**
+   * User.mappedHospitals
+   */
+  export type User$mappedHospitalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Hospital
+     */
+    select?: HospitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Hospital
+     */
+    omit?: HospitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HospitalInclude<ExtArgs> | null
+    where?: HospitalWhereInput
+    orderBy?: HospitalOrderByWithRelationInput | HospitalOrderByWithRelationInput[]
+    cursor?: HospitalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: HospitalScalarFieldEnum | HospitalScalarFieldEnum[]
+  }
+
+  /**
+   * User.HospitalCreatedBy
+   */
+  export type User$HospitalCreatedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Hospital
+     */
+    select?: HospitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Hospital
+     */
+    omit?: HospitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HospitalInclude<ExtArgs> | null
+    where?: HospitalWhereInput
+    orderBy?: HospitalOrderByWithRelationInput | HospitalOrderByWithRelationInput[]
+    cursor?: HospitalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: HospitalScalarFieldEnum | HospitalScalarFieldEnum[]
+  }
+
+  /**
+   * User.HospitalUpdatedBy
+   */
+  export type User$HospitalUpdatedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Hospital
+     */
+    select?: HospitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Hospital
+     */
+    omit?: HospitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HospitalInclude<ExtArgs> | null
+    where?: HospitalWhereInput
+    orderBy?: HospitalOrderByWithRelationInput | HospitalOrderByWithRelationInput[]
+    cursor?: HospitalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: HospitalScalarFieldEnum | HospitalScalarFieldEnum[]
+  }
+
+  /**
+   * User.HospitalDeletedBy
+   */
+  export type User$HospitalDeletedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Hospital
+     */
+    select?: HospitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Hospital
+     */
+    omit?: HospitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HospitalInclude<ExtArgs> | null
+    where?: HospitalWhereInput
+    orderBy?: HospitalOrderByWithRelationInput | HospitalOrderByWithRelationInput[]
+    cursor?: HospitalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: HospitalScalarFieldEnum | HospitalScalarFieldEnum[]
   }
 
   /**
@@ -4679,6 +4836,9 @@ export namespace Prisma {
     longitude: number | null
     parentHospitalId: number | null
     organizationId: number | null
+    createdById: number | null
+    updatedById: number | null
+    deletedById: number | null
   }
 
   export type HospitalSumAggregateOutputType = {
@@ -4687,6 +4847,9 @@ export namespace Prisma {
     longitude: number | null
     parentHospitalId: number | null
     organizationId: number | null
+    createdById: number | null
+    updatedById: number | null
+    deletedById: number | null
   }
 
   export type HospitalMinAggregateOutputType = {
@@ -4712,6 +4875,9 @@ export namespace Prisma {
     parentHospitalId: number | null
     organizationId: number | null
     isActive: boolean | null
+    createdById: number | null
+    updatedById: number | null
+    deletedById: number | null
     createdAt: Date | null
     updatedAt: Date | null
     deletedAt: Date | null
@@ -4740,6 +4906,9 @@ export namespace Prisma {
     parentHospitalId: number | null
     organizationId: number | null
     isActive: boolean | null
+    createdById: number | null
+    updatedById: number | null
+    deletedById: number | null
     createdAt: Date | null
     updatedAt: Date | null
     deletedAt: Date | null
@@ -4768,6 +4937,9 @@ export namespace Prisma {
     parentHospitalId: number
     organizationId: number
     isActive: number
+    createdById: number
+    updatedById: number
+    deletedById: number
     createdAt: number
     updatedAt: number
     deletedAt: number
@@ -4781,6 +4953,9 @@ export namespace Prisma {
     longitude?: true
     parentHospitalId?: true
     organizationId?: true
+    createdById?: true
+    updatedById?: true
+    deletedById?: true
   }
 
   export type HospitalSumAggregateInputType = {
@@ -4789,6 +4964,9 @@ export namespace Prisma {
     longitude?: true
     parentHospitalId?: true
     organizationId?: true
+    createdById?: true
+    updatedById?: true
+    deletedById?: true
   }
 
   export type HospitalMinAggregateInputType = {
@@ -4814,6 +4992,9 @@ export namespace Prisma {
     parentHospitalId?: true
     organizationId?: true
     isActive?: true
+    createdById?: true
+    updatedById?: true
+    deletedById?: true
     createdAt?: true
     updatedAt?: true
     deletedAt?: true
@@ -4842,6 +5023,9 @@ export namespace Prisma {
     parentHospitalId?: true
     organizationId?: true
     isActive?: true
+    createdById?: true
+    updatedById?: true
+    deletedById?: true
     createdAt?: true
     updatedAt?: true
     deletedAt?: true
@@ -4870,6 +5054,9 @@ export namespace Prisma {
     parentHospitalId?: true
     organizationId?: true
     isActive?: true
+    createdById?: true
+    updatedById?: true
+    deletedById?: true
     createdAt?: true
     updatedAt?: true
     deletedAt?: true
@@ -4976,8 +5163,8 @@ export namespace Prisma {
     postalCode: string
     contactNumber: string
     email: string
-    website: string
-    logoUrl: string
+    website: string | null
+    logoUrl: string | null
     latitude: number
     longitude: number
     status: $Enums.Hospital_Org_status
@@ -4985,6 +5172,9 @@ export namespace Prisma {
     parentHospitalId: number | null
     organizationId: number
     isActive: boolean
+    createdById: number | null
+    updatedById: number | null
+    deletedById: number | null
     createdAt: Date
     updatedAt: Date
     deletedAt: Date | null
@@ -5032,6 +5222,9 @@ export namespace Prisma {
     parentHospitalId?: boolean
     organizationId?: boolean
     isActive?: boolean
+    createdById?: boolean
+    updatedById?: boolean
+    deletedById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     deletedAt?: boolean
@@ -5039,6 +5232,10 @@ export namespace Prisma {
     childHospital?: boolean | Hospital$childHospitalArgs<ExtArgs>
     Organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     users?: boolean | Hospital$usersArgs<ExtArgs>
+    mappedUsers?: boolean | Hospital$mappedUsersArgs<ExtArgs>
+    CreatedBy?: boolean | Hospital$CreatedByArgs<ExtArgs>
+    UpdatedBy?: boolean | Hospital$UpdatedByArgs<ExtArgs>
+    DeletedBy?: boolean | Hospital$DeletedByArgs<ExtArgs>
     _count?: boolean | HospitalCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["hospital"]>
 
@@ -5065,11 +5262,17 @@ export namespace Prisma {
     parentHospitalId?: boolean
     organizationId?: boolean
     isActive?: boolean
+    createdById?: boolean
+    updatedById?: boolean
+    deletedById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     deletedAt?: boolean
     parentHospital?: boolean | Hospital$parentHospitalArgs<ExtArgs>
     Organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+    CreatedBy?: boolean | Hospital$CreatedByArgs<ExtArgs>
+    UpdatedBy?: boolean | Hospital$UpdatedByArgs<ExtArgs>
+    DeletedBy?: boolean | Hospital$DeletedByArgs<ExtArgs>
   }, ExtArgs["result"]["hospital"]>
 
   export type HospitalSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -5095,11 +5298,17 @@ export namespace Prisma {
     parentHospitalId?: boolean
     organizationId?: boolean
     isActive?: boolean
+    createdById?: boolean
+    updatedById?: boolean
+    deletedById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     deletedAt?: boolean
     parentHospital?: boolean | Hospital$parentHospitalArgs<ExtArgs>
     Organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+    CreatedBy?: boolean | Hospital$CreatedByArgs<ExtArgs>
+    UpdatedBy?: boolean | Hospital$UpdatedByArgs<ExtArgs>
+    DeletedBy?: boolean | Hospital$DeletedByArgs<ExtArgs>
   }, ExtArgs["result"]["hospital"]>
 
   export type HospitalSelectScalar = {
@@ -5125,26 +5334,39 @@ export namespace Prisma {
     parentHospitalId?: boolean
     organizationId?: boolean
     isActive?: boolean
+    createdById?: boolean
+    updatedById?: boolean
+    deletedById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     deletedAt?: boolean
   }
 
-  export type HospitalOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "hospitalCode" | "ParentHospitalCode" | "Organizationcode" | "SpecializationType" | "address" | "city" | "state" | "country" | "postalCode" | "contactNumber" | "email" | "website" | "logoUrl" | "latitude" | "longitude" | "status" | "level" | "parentHospitalId" | "organizationId" | "isActive" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["hospital"]>
+  export type HospitalOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "hospitalCode" | "ParentHospitalCode" | "Organizationcode" | "SpecializationType" | "address" | "city" | "state" | "country" | "postalCode" | "contactNumber" | "email" | "website" | "logoUrl" | "latitude" | "longitude" | "status" | "level" | "parentHospitalId" | "organizationId" | "isActive" | "createdById" | "updatedById" | "deletedById" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["hospital"]>
   export type HospitalInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     parentHospital?: boolean | Hospital$parentHospitalArgs<ExtArgs>
     childHospital?: boolean | Hospital$childHospitalArgs<ExtArgs>
     Organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     users?: boolean | Hospital$usersArgs<ExtArgs>
+    mappedUsers?: boolean | Hospital$mappedUsersArgs<ExtArgs>
+    CreatedBy?: boolean | Hospital$CreatedByArgs<ExtArgs>
+    UpdatedBy?: boolean | Hospital$UpdatedByArgs<ExtArgs>
+    DeletedBy?: boolean | Hospital$DeletedByArgs<ExtArgs>
     _count?: boolean | HospitalCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type HospitalIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     parentHospital?: boolean | Hospital$parentHospitalArgs<ExtArgs>
     Organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+    CreatedBy?: boolean | Hospital$CreatedByArgs<ExtArgs>
+    UpdatedBy?: boolean | Hospital$UpdatedByArgs<ExtArgs>
+    DeletedBy?: boolean | Hospital$DeletedByArgs<ExtArgs>
   }
   export type HospitalIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     parentHospital?: boolean | Hospital$parentHospitalArgs<ExtArgs>
     Organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+    CreatedBy?: boolean | Hospital$CreatedByArgs<ExtArgs>
+    UpdatedBy?: boolean | Hospital$UpdatedByArgs<ExtArgs>
+    DeletedBy?: boolean | Hospital$DeletedByArgs<ExtArgs>
   }
 
   export type $HospitalPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5154,6 +5376,10 @@ export namespace Prisma {
       childHospital: Prisma.$HospitalPayload<ExtArgs>[]
       Organization: Prisma.$OrganizationPayload<ExtArgs>
       users: Prisma.$UserHospitalAccessPayload<ExtArgs>[]
+      mappedUsers: Prisma.$UserPayload<ExtArgs>[]
+      CreatedBy: Prisma.$UserPayload<ExtArgs> | null
+      UpdatedBy: Prisma.$UserPayload<ExtArgs> | null
+      DeletedBy: Prisma.$UserPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -5169,8 +5395,8 @@ export namespace Prisma {
       postalCode: string
       contactNumber: string
       email: string
-      website: string
-      logoUrl: string
+      website: string | null
+      logoUrl: string | null
       latitude: number
       longitude: number
       status: $Enums.Hospital_Org_status
@@ -5178,6 +5404,9 @@ export namespace Prisma {
       parentHospitalId: number | null
       organizationId: number
       isActive: boolean
+      createdById: number | null
+      updatedById: number | null
+      deletedById: number | null
       createdAt: Date
       updatedAt: Date
       deletedAt: Date | null
@@ -5579,6 +5808,10 @@ export namespace Prisma {
     childHospital<T extends Hospital$childHospitalArgs<ExtArgs> = {}>(args?: Subset<T, Hospital$childHospitalArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     Organization<T extends OrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizationDefaultArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     users<T extends Hospital$usersArgs<ExtArgs> = {}>(args?: Subset<T, Hospital$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    mappedUsers<T extends Hospital$mappedUsersArgs<ExtArgs> = {}>(args?: Subset<T, Hospital$mappedUsersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    CreatedBy<T extends Hospital$CreatedByArgs<ExtArgs> = {}>(args?: Subset<T, Hospital$CreatedByArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    UpdatedBy<T extends Hospital$UpdatedByArgs<ExtArgs> = {}>(args?: Subset<T, Hospital$UpdatedByArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    DeletedBy<T extends Hospital$DeletedByArgs<ExtArgs> = {}>(args?: Subset<T, Hospital$DeletedByArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5630,6 +5863,9 @@ export namespace Prisma {
     readonly parentHospitalId: FieldRef<"Hospital", 'Int'>
     readonly organizationId: FieldRef<"Hospital", 'Int'>
     readonly isActive: FieldRef<"Hospital", 'Boolean'>
+    readonly createdById: FieldRef<"Hospital", 'Int'>
+    readonly updatedById: FieldRef<"Hospital", 'Int'>
+    readonly deletedById: FieldRef<"Hospital", 'Int'>
     readonly createdAt: FieldRef<"Hospital", 'DateTime'>
     readonly updatedAt: FieldRef<"Hospital", 'DateTime'>
     readonly deletedAt: FieldRef<"Hospital", 'DateTime'>
@@ -6093,6 +6329,87 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: UserHospitalAccessScalarFieldEnum | UserHospitalAccessScalarFieldEnum[]
+  }
+
+  /**
+   * Hospital.mappedUsers
+   */
+  export type Hospital$mappedUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
+    cursor?: UserWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
+  }
+
+  /**
+   * Hospital.CreatedBy
+   */
+  export type Hospital$CreatedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * Hospital.UpdatedBy
+   */
+  export type Hospital$UpdatedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * Hospital.DeletedBy
+   */
+  export type Hospital$DeletedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
   }
 
   /**
@@ -13985,6 +14302,9 @@ export namespace Prisma {
     parentHospitalId: 'parentHospitalId',
     organizationId: 'organizationId',
     isActive: 'isActive',
+    createdById: 'createdById',
+    updatedById: 'updatedById',
+    deletedById: 'deletedById',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     deletedAt: 'deletedAt'
@@ -14290,6 +14610,10 @@ export namespace Prisma {
     auditLogs?: AuditLogListRelationFilter
     loginSessions?: LoginSessionListRelationFilter
     AdminAccess?: UserHospitalAccessListRelationFilter
+    mappedHospitals?: HospitalListRelationFilter
+    HospitalCreatedBy?: HospitalListRelationFilter
+    HospitalUpdatedBy?: HospitalListRelationFilter
+    HospitalDeletedBy?: HospitalListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -14314,6 +14638,10 @@ export namespace Prisma {
     auditLogs?: AuditLogOrderByRelationAggregateInput
     loginSessions?: LoginSessionOrderByRelationAggregateInput
     AdminAccess?: UserHospitalAccessOrderByRelationAggregateInput
+    mappedHospitals?: HospitalOrderByRelationAggregateInput
+    HospitalCreatedBy?: HospitalOrderByRelationAggregateInput
+    HospitalUpdatedBy?: HospitalOrderByRelationAggregateInput
+    HospitalDeletedBy?: HospitalOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -14341,6 +14669,10 @@ export namespace Prisma {
     auditLogs?: AuditLogListRelationFilter
     loginSessions?: LoginSessionListRelationFilter
     AdminAccess?: UserHospitalAccessListRelationFilter
+    mappedHospitals?: HospitalListRelationFilter
+    HospitalCreatedBy?: HospitalListRelationFilter
+    HospitalUpdatedBy?: HospitalListRelationFilter
+    HospitalDeletedBy?: HospitalListRelationFilter
   }, "id" | "email" | "mobile">
 
   export type UserOrderByWithAggregationInput = {
@@ -14544,8 +14876,8 @@ export namespace Prisma {
     postalCode?: StringFilter<"Hospital"> | string
     contactNumber?: StringFilter<"Hospital"> | string
     email?: StringFilter<"Hospital"> | string
-    website?: StringFilter<"Hospital"> | string
-    logoUrl?: StringFilter<"Hospital"> | string
+    website?: StringNullableFilter<"Hospital"> | string | null
+    logoUrl?: StringNullableFilter<"Hospital"> | string | null
     latitude?: FloatFilter<"Hospital"> | number
     longitude?: FloatFilter<"Hospital"> | number
     status?: EnumHospital_Org_statusFilter<"Hospital"> | $Enums.Hospital_Org_status
@@ -14553,6 +14885,9 @@ export namespace Prisma {
     parentHospitalId?: IntNullableFilter<"Hospital"> | number | null
     organizationId?: IntFilter<"Hospital"> | number
     isActive?: BoolFilter<"Hospital"> | boolean
+    createdById?: IntNullableFilter<"Hospital"> | number | null
+    updatedById?: IntNullableFilter<"Hospital"> | number | null
+    deletedById?: IntNullableFilter<"Hospital"> | number | null
     createdAt?: DateTimeFilter<"Hospital"> | Date | string
     updatedAt?: DateTimeFilter<"Hospital"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Hospital"> | Date | string | null
@@ -14560,6 +14895,10 @@ export namespace Prisma {
     childHospital?: HospitalListRelationFilter
     Organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
     users?: UserHospitalAccessListRelationFilter
+    mappedUsers?: UserListRelationFilter
+    CreatedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    UpdatedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    DeletedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }
 
   export type HospitalOrderByWithRelationInput = {
@@ -14576,8 +14915,8 @@ export namespace Prisma {
     postalCode?: SortOrder
     contactNumber?: SortOrder
     email?: SortOrder
-    website?: SortOrder
-    logoUrl?: SortOrder
+    website?: SortOrderInput | SortOrder
+    logoUrl?: SortOrderInput | SortOrder
     latitude?: SortOrder
     longitude?: SortOrder
     status?: SortOrder
@@ -14585,6 +14924,9 @@ export namespace Prisma {
     parentHospitalId?: SortOrderInput | SortOrder
     organizationId?: SortOrder
     isActive?: SortOrder
+    createdById?: SortOrderInput | SortOrder
+    updatedById?: SortOrderInput | SortOrder
+    deletedById?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
@@ -14592,6 +14934,10 @@ export namespace Prisma {
     childHospital?: HospitalOrderByRelationAggregateInput
     Organization?: OrganizationOrderByWithRelationInput
     users?: UserHospitalAccessOrderByRelationAggregateInput
+    mappedUsers?: UserOrderByRelationAggregateInput
+    CreatedBy?: UserOrderByWithRelationInput
+    UpdatedBy?: UserOrderByWithRelationInput
+    DeletedBy?: UserOrderByWithRelationInput
   }
 
   export type HospitalWhereUniqueInput = Prisma.AtLeast<{
@@ -14611,8 +14957,8 @@ export namespace Prisma {
     postalCode?: StringFilter<"Hospital"> | string
     contactNumber?: StringFilter<"Hospital"> | string
     email?: StringFilter<"Hospital"> | string
-    website?: StringFilter<"Hospital"> | string
-    logoUrl?: StringFilter<"Hospital"> | string
+    website?: StringNullableFilter<"Hospital"> | string | null
+    logoUrl?: StringNullableFilter<"Hospital"> | string | null
     latitude?: FloatFilter<"Hospital"> | number
     longitude?: FloatFilter<"Hospital"> | number
     status?: EnumHospital_Org_statusFilter<"Hospital"> | $Enums.Hospital_Org_status
@@ -14620,6 +14966,9 @@ export namespace Prisma {
     parentHospitalId?: IntNullableFilter<"Hospital"> | number | null
     organizationId?: IntFilter<"Hospital"> | number
     isActive?: BoolFilter<"Hospital"> | boolean
+    createdById?: IntNullableFilter<"Hospital"> | number | null
+    updatedById?: IntNullableFilter<"Hospital"> | number | null
+    deletedById?: IntNullableFilter<"Hospital"> | number | null
     createdAt?: DateTimeFilter<"Hospital"> | Date | string
     updatedAt?: DateTimeFilter<"Hospital"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Hospital"> | Date | string | null
@@ -14627,6 +14976,10 @@ export namespace Prisma {
     childHospital?: HospitalListRelationFilter
     Organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
     users?: UserHospitalAccessListRelationFilter
+    mappedUsers?: UserListRelationFilter
+    CreatedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    UpdatedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    DeletedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }, "id" | "hospitalCode">
 
   export type HospitalOrderByWithAggregationInput = {
@@ -14643,8 +14996,8 @@ export namespace Prisma {
     postalCode?: SortOrder
     contactNumber?: SortOrder
     email?: SortOrder
-    website?: SortOrder
-    logoUrl?: SortOrder
+    website?: SortOrderInput | SortOrder
+    logoUrl?: SortOrderInput | SortOrder
     latitude?: SortOrder
     longitude?: SortOrder
     status?: SortOrder
@@ -14652,6 +15005,9 @@ export namespace Prisma {
     parentHospitalId?: SortOrderInput | SortOrder
     organizationId?: SortOrder
     isActive?: SortOrder
+    createdById?: SortOrderInput | SortOrder
+    updatedById?: SortOrderInput | SortOrder
+    deletedById?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
@@ -14679,8 +15035,8 @@ export namespace Prisma {
     postalCode?: StringWithAggregatesFilter<"Hospital"> | string
     contactNumber?: StringWithAggregatesFilter<"Hospital"> | string
     email?: StringWithAggregatesFilter<"Hospital"> | string
-    website?: StringWithAggregatesFilter<"Hospital"> | string
-    logoUrl?: StringWithAggregatesFilter<"Hospital"> | string
+    website?: StringNullableWithAggregatesFilter<"Hospital"> | string | null
+    logoUrl?: StringNullableWithAggregatesFilter<"Hospital"> | string | null
     latitude?: FloatWithAggregatesFilter<"Hospital"> | number
     longitude?: FloatWithAggregatesFilter<"Hospital"> | number
     status?: EnumHospital_Org_statusWithAggregatesFilter<"Hospital"> | $Enums.Hospital_Org_status
@@ -14688,6 +15044,9 @@ export namespace Prisma {
     parentHospitalId?: IntNullableWithAggregatesFilter<"Hospital"> | number | null
     organizationId?: IntWithAggregatesFilter<"Hospital"> | number
     isActive?: BoolWithAggregatesFilter<"Hospital"> | boolean
+    createdById?: IntNullableWithAggregatesFilter<"Hospital"> | number | null
+    updatedById?: IntNullableWithAggregatesFilter<"Hospital"> | number | null
+    deletedById?: IntNullableWithAggregatesFilter<"Hospital"> | number | null
     createdAt?: DateTimeWithAggregatesFilter<"Hospital"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Hospital"> | Date | string
     deletedAt?: DateTimeNullableWithAggregatesFilter<"Hospital"> | Date | string | null
@@ -15123,6 +15482,10 @@ export namespace Prisma {
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
     AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
+    mappedHospitals?: HospitalCreateNestedManyWithoutMappedUsersInput
+    HospitalCreatedBy?: HospitalCreateNestedManyWithoutCreatedByInput
+    HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
+    HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -15145,6 +15508,10 @@ export namespace Prisma {
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
     AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
+    mappedHospitals?: HospitalUncheckedCreateNestedManyWithoutMappedUsersInput
+    HospitalCreatedBy?: HospitalUncheckedCreateNestedManyWithoutCreatedByInput
+    HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
+    HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
   }
 
   export type UserUpdateInput = {
@@ -15166,6 +15533,10 @@ export namespace Prisma {
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
     AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
+    mappedHospitals?: HospitalUpdateManyWithoutMappedUsersNestedInput
+    HospitalCreatedBy?: HospitalUpdateManyWithoutCreatedByNestedInput
+    HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
+    HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -15188,6 +15559,10 @@ export namespace Prisma {
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
     AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
+    mappedHospitals?: HospitalUncheckedUpdateManyWithoutMappedUsersNestedInput
+    HospitalCreatedBy?: HospitalUncheckedUpdateManyWithoutCreatedByNestedInput
+    HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
+    HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -15427,8 +15802,8 @@ export namespace Prisma {
     postalCode: string
     contactNumber: string
     email: string
-    website: string
-    logoUrl: string
+    website?: string | null
+    logoUrl?: string | null
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
@@ -15441,6 +15816,10 @@ export namespace Prisma {
     childHospital?: HospitalCreateNestedManyWithoutParentHospitalInput
     Organization: OrganizationCreateNestedOneWithoutHospitalsInput
     users?: UserHospitalAccessCreateNestedManyWithoutHospitalInput
+    mappedUsers?: UserCreateNestedManyWithoutMappedHospitalsInput
+    CreatedBy?: UserCreateNestedOneWithoutHospitalCreatedByInput
+    UpdatedBy?: UserCreateNestedOneWithoutHospitalUpdatedByInput
+    DeletedBy?: UserCreateNestedOneWithoutHospitalDeletedByInput
   }
 
   export type HospitalUncheckedCreateInput = {
@@ -15457,8 +15836,8 @@ export namespace Prisma {
     postalCode: string
     contactNumber: string
     email: string
-    website: string
-    logoUrl: string
+    website?: string | null
+    logoUrl?: string | null
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
@@ -15466,11 +15845,15 @@ export namespace Prisma {
     parentHospitalId?: number | null
     organizationId: number
     isActive?: boolean
+    createdById?: number | null
+    updatedById?: number | null
+    deletedById?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     childHospital?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
     users?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
+    mappedUsers?: UserUncheckedCreateNestedManyWithoutMappedHospitalsInput
   }
 
   export type HospitalUpdateInput = {
@@ -15486,8 +15869,8 @@ export namespace Prisma {
     postalCode?: StringFieldUpdateOperationsInput | string
     contactNumber?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    website?: StringFieldUpdateOperationsInput | string
-    logoUrl?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
@@ -15500,6 +15883,10 @@ export namespace Prisma {
     childHospital?: HospitalUpdateManyWithoutParentHospitalNestedInput
     Organization?: OrganizationUpdateOneRequiredWithoutHospitalsNestedInput
     users?: UserHospitalAccessUpdateManyWithoutHospitalNestedInput
+    mappedUsers?: UserUpdateManyWithoutMappedHospitalsNestedInput
+    CreatedBy?: UserUpdateOneWithoutHospitalCreatedByNestedInput
+    UpdatedBy?: UserUpdateOneWithoutHospitalUpdatedByNestedInput
+    DeletedBy?: UserUpdateOneWithoutHospitalDeletedByNestedInput
   }
 
   export type HospitalUncheckedUpdateInput = {
@@ -15516,8 +15903,8 @@ export namespace Prisma {
     postalCode?: StringFieldUpdateOperationsInput | string
     contactNumber?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    website?: StringFieldUpdateOperationsInput | string
-    logoUrl?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
@@ -15525,11 +15912,15 @@ export namespace Prisma {
     parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
     organizationId?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedById?: NullableIntFieldUpdateOperationsInput | number | null
+    deletedById?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     childHospital?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
     users?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
+    mappedUsers?: UserUncheckedUpdateManyWithoutMappedHospitalsNestedInput
   }
 
   export type HospitalCreateManyInput = {
@@ -15546,8 +15937,8 @@ export namespace Prisma {
     postalCode: string
     contactNumber: string
     email: string
-    website: string
-    logoUrl: string
+    website?: string | null
+    logoUrl?: string | null
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
@@ -15555,6 +15946,9 @@ export namespace Prisma {
     parentHospitalId?: number | null
     organizationId: number
     isActive?: boolean
+    createdById?: number | null
+    updatedById?: number | null
+    deletedById?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
@@ -15573,8 +15967,8 @@ export namespace Prisma {
     postalCode?: StringFieldUpdateOperationsInput | string
     contactNumber?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    website?: StringFieldUpdateOperationsInput | string
-    logoUrl?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
@@ -15599,8 +15993,8 @@ export namespace Prisma {
     postalCode?: StringFieldUpdateOperationsInput | string
     contactNumber?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    website?: StringFieldUpdateOperationsInput | string
-    logoUrl?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
@@ -15608,6 +16002,9 @@ export namespace Prisma {
     parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
     organizationId?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedById?: NullableIntFieldUpdateOperationsInput | number | null
+    deletedById?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -16079,6 +16476,12 @@ export namespace Prisma {
     none?: UserHospitalAccessWhereInput
   }
 
+  export type HospitalListRelationFilter = {
+    every?: HospitalWhereInput
+    some?: HospitalWhereInput
+    none?: HospitalWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -16093,6 +16496,10 @@ export namespace Prisma {
   }
 
   export type UserHospitalAccessOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type HospitalOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -16271,20 +16678,10 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
-  export type HospitalListRelationFilter = {
-    every?: HospitalWhereInput
-    some?: HospitalWhereInput
-    none?: HospitalWhereInput
-  }
-
   export type UserListRelationFilter = {
     every?: UserWhereInput
     some?: UserWhereInput
     none?: UserWhereInput
-  }
-
-  export type HospitalOrderByRelationAggregateInput = {
-    _count?: SortOrder
   }
 
   export type UserOrderByRelationAggregateInput = {
@@ -16450,6 +16847,11 @@ export namespace Prisma {
     isNot?: HospitalWhereInput | null
   }
 
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
+  }
+
   export type HospitalCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
@@ -16473,6 +16875,9 @@ export namespace Prisma {
     parentHospitalId?: SortOrder
     organizationId?: SortOrder
     isActive?: SortOrder
+    createdById?: SortOrder
+    updatedById?: SortOrder
+    deletedById?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrder
@@ -16484,6 +16889,9 @@ export namespace Prisma {
     longitude?: SortOrder
     parentHospitalId?: SortOrder
     organizationId?: SortOrder
+    createdById?: SortOrder
+    updatedById?: SortOrder
+    deletedById?: SortOrder
   }
 
   export type HospitalMaxOrderByAggregateInput = {
@@ -16509,6 +16917,9 @@ export namespace Prisma {
     parentHospitalId?: SortOrder
     organizationId?: SortOrder
     isActive?: SortOrder
+    createdById?: SortOrder
+    updatedById?: SortOrder
+    deletedById?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrder
@@ -16537,6 +16948,9 @@ export namespace Prisma {
     parentHospitalId?: SortOrder
     organizationId?: SortOrder
     isActive?: SortOrder
+    createdById?: SortOrder
+    updatedById?: SortOrder
+    deletedById?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrder
@@ -16548,6 +16962,9 @@ export namespace Prisma {
     longitude?: SortOrder
     parentHospitalId?: SortOrder
     organizationId?: SortOrder
+    createdById?: SortOrder
+    updatedById?: SortOrder
+    deletedById?: SortOrder
   }
 
   export type EnumSpecializationTypeWithAggregatesFilter<$PrismaModel = never> = {
@@ -16710,11 +17127,6 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-
-  export type UserNullableScalarRelationFilter = {
-    is?: UserWhereInput | null
-    isNot?: UserWhereInput | null
   }
 
   export type AuditLogCountOrderByAggregateInput = {
@@ -16967,6 +17379,33 @@ export namespace Prisma {
     connect?: UserHospitalAccessWhereUniqueInput | UserHospitalAccessWhereUniqueInput[]
   }
 
+  export type HospitalCreateNestedManyWithoutMappedUsersInput = {
+    create?: XOR<HospitalCreateWithoutMappedUsersInput, HospitalUncheckedCreateWithoutMappedUsersInput> | HospitalCreateWithoutMappedUsersInput[] | HospitalUncheckedCreateWithoutMappedUsersInput[]
+    connectOrCreate?: HospitalCreateOrConnectWithoutMappedUsersInput | HospitalCreateOrConnectWithoutMappedUsersInput[]
+    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+  }
+
+  export type HospitalCreateNestedManyWithoutCreatedByInput = {
+    create?: XOR<HospitalCreateWithoutCreatedByInput, HospitalUncheckedCreateWithoutCreatedByInput> | HospitalCreateWithoutCreatedByInput[] | HospitalUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: HospitalCreateOrConnectWithoutCreatedByInput | HospitalCreateOrConnectWithoutCreatedByInput[]
+    createMany?: HospitalCreateManyCreatedByInputEnvelope
+    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+  }
+
+  export type HospitalCreateNestedManyWithoutUpdatedByInput = {
+    create?: XOR<HospitalCreateWithoutUpdatedByInput, HospitalUncheckedCreateWithoutUpdatedByInput> | HospitalCreateWithoutUpdatedByInput[] | HospitalUncheckedCreateWithoutUpdatedByInput[]
+    connectOrCreate?: HospitalCreateOrConnectWithoutUpdatedByInput | HospitalCreateOrConnectWithoutUpdatedByInput[]
+    createMany?: HospitalCreateManyUpdatedByInputEnvelope
+    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+  }
+
+  export type HospitalCreateNestedManyWithoutDeletedByInput = {
+    create?: XOR<HospitalCreateWithoutDeletedByInput, HospitalUncheckedCreateWithoutDeletedByInput> | HospitalCreateWithoutDeletedByInput[] | HospitalUncheckedCreateWithoutDeletedByInput[]
+    connectOrCreate?: HospitalCreateOrConnectWithoutDeletedByInput | HospitalCreateOrConnectWithoutDeletedByInput[]
+    createMany?: HospitalCreateManyDeletedByInputEnvelope
+    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+  }
+
   export type SettingUncheckedCreateNestedOneWithoutUserInput = {
     create?: XOR<SettingCreateWithoutUserInput, SettingUncheckedCreateWithoutUserInput>
     connectOrCreate?: SettingCreateOrConnectWithoutUserInput
@@ -16992,6 +17431,33 @@ export namespace Prisma {
     connectOrCreate?: UserHospitalAccessCreateOrConnectWithoutUserInput | UserHospitalAccessCreateOrConnectWithoutUserInput[]
     createMany?: UserHospitalAccessCreateManyUserInputEnvelope
     connect?: UserHospitalAccessWhereUniqueInput | UserHospitalAccessWhereUniqueInput[]
+  }
+
+  export type HospitalUncheckedCreateNestedManyWithoutMappedUsersInput = {
+    create?: XOR<HospitalCreateWithoutMappedUsersInput, HospitalUncheckedCreateWithoutMappedUsersInput> | HospitalCreateWithoutMappedUsersInput[] | HospitalUncheckedCreateWithoutMappedUsersInput[]
+    connectOrCreate?: HospitalCreateOrConnectWithoutMappedUsersInput | HospitalCreateOrConnectWithoutMappedUsersInput[]
+    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+  }
+
+  export type HospitalUncheckedCreateNestedManyWithoutCreatedByInput = {
+    create?: XOR<HospitalCreateWithoutCreatedByInput, HospitalUncheckedCreateWithoutCreatedByInput> | HospitalCreateWithoutCreatedByInput[] | HospitalUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: HospitalCreateOrConnectWithoutCreatedByInput | HospitalCreateOrConnectWithoutCreatedByInput[]
+    createMany?: HospitalCreateManyCreatedByInputEnvelope
+    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+  }
+
+  export type HospitalUncheckedCreateNestedManyWithoutUpdatedByInput = {
+    create?: XOR<HospitalCreateWithoutUpdatedByInput, HospitalUncheckedCreateWithoutUpdatedByInput> | HospitalCreateWithoutUpdatedByInput[] | HospitalUncheckedCreateWithoutUpdatedByInput[]
+    connectOrCreate?: HospitalCreateOrConnectWithoutUpdatedByInput | HospitalCreateOrConnectWithoutUpdatedByInput[]
+    createMany?: HospitalCreateManyUpdatedByInputEnvelope
+    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+  }
+
+  export type HospitalUncheckedCreateNestedManyWithoutDeletedByInput = {
+    create?: XOR<HospitalCreateWithoutDeletedByInput, HospitalUncheckedCreateWithoutDeletedByInput> | HospitalCreateWithoutDeletedByInput[] | HospitalUncheckedCreateWithoutDeletedByInput[]
+    connectOrCreate?: HospitalCreateOrConnectWithoutDeletedByInput | HospitalCreateOrConnectWithoutDeletedByInput[]
+    createMany?: HospitalCreateManyDeletedByInputEnvelope
+    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
   }
 
   export type EnumTitleFieldUpdateOperationsInput = {
@@ -17082,6 +17548,61 @@ export namespace Prisma {
     deleteMany?: UserHospitalAccessScalarWhereInput | UserHospitalAccessScalarWhereInput[]
   }
 
+  export type HospitalUpdateManyWithoutMappedUsersNestedInput = {
+    create?: XOR<HospitalCreateWithoutMappedUsersInput, HospitalUncheckedCreateWithoutMappedUsersInput> | HospitalCreateWithoutMappedUsersInput[] | HospitalUncheckedCreateWithoutMappedUsersInput[]
+    connectOrCreate?: HospitalCreateOrConnectWithoutMappedUsersInput | HospitalCreateOrConnectWithoutMappedUsersInput[]
+    upsert?: HospitalUpsertWithWhereUniqueWithoutMappedUsersInput | HospitalUpsertWithWhereUniqueWithoutMappedUsersInput[]
+    set?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    disconnect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    delete?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    update?: HospitalUpdateWithWhereUniqueWithoutMappedUsersInput | HospitalUpdateWithWhereUniqueWithoutMappedUsersInput[]
+    updateMany?: HospitalUpdateManyWithWhereWithoutMappedUsersInput | HospitalUpdateManyWithWhereWithoutMappedUsersInput[]
+    deleteMany?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
+  }
+
+  export type HospitalUpdateManyWithoutCreatedByNestedInput = {
+    create?: XOR<HospitalCreateWithoutCreatedByInput, HospitalUncheckedCreateWithoutCreatedByInput> | HospitalCreateWithoutCreatedByInput[] | HospitalUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: HospitalCreateOrConnectWithoutCreatedByInput | HospitalCreateOrConnectWithoutCreatedByInput[]
+    upsert?: HospitalUpsertWithWhereUniqueWithoutCreatedByInput | HospitalUpsertWithWhereUniqueWithoutCreatedByInput[]
+    createMany?: HospitalCreateManyCreatedByInputEnvelope
+    set?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    disconnect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    delete?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    update?: HospitalUpdateWithWhereUniqueWithoutCreatedByInput | HospitalUpdateWithWhereUniqueWithoutCreatedByInput[]
+    updateMany?: HospitalUpdateManyWithWhereWithoutCreatedByInput | HospitalUpdateManyWithWhereWithoutCreatedByInput[]
+    deleteMany?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
+  }
+
+  export type HospitalUpdateManyWithoutUpdatedByNestedInput = {
+    create?: XOR<HospitalCreateWithoutUpdatedByInput, HospitalUncheckedCreateWithoutUpdatedByInput> | HospitalCreateWithoutUpdatedByInput[] | HospitalUncheckedCreateWithoutUpdatedByInput[]
+    connectOrCreate?: HospitalCreateOrConnectWithoutUpdatedByInput | HospitalCreateOrConnectWithoutUpdatedByInput[]
+    upsert?: HospitalUpsertWithWhereUniqueWithoutUpdatedByInput | HospitalUpsertWithWhereUniqueWithoutUpdatedByInput[]
+    createMany?: HospitalCreateManyUpdatedByInputEnvelope
+    set?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    disconnect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    delete?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    update?: HospitalUpdateWithWhereUniqueWithoutUpdatedByInput | HospitalUpdateWithWhereUniqueWithoutUpdatedByInput[]
+    updateMany?: HospitalUpdateManyWithWhereWithoutUpdatedByInput | HospitalUpdateManyWithWhereWithoutUpdatedByInput[]
+    deleteMany?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
+  }
+
+  export type HospitalUpdateManyWithoutDeletedByNestedInput = {
+    create?: XOR<HospitalCreateWithoutDeletedByInput, HospitalUncheckedCreateWithoutDeletedByInput> | HospitalCreateWithoutDeletedByInput[] | HospitalUncheckedCreateWithoutDeletedByInput[]
+    connectOrCreate?: HospitalCreateOrConnectWithoutDeletedByInput | HospitalCreateOrConnectWithoutDeletedByInput[]
+    upsert?: HospitalUpsertWithWhereUniqueWithoutDeletedByInput | HospitalUpsertWithWhereUniqueWithoutDeletedByInput[]
+    createMany?: HospitalCreateManyDeletedByInputEnvelope
+    set?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    disconnect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    delete?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    update?: HospitalUpdateWithWhereUniqueWithoutDeletedByInput | HospitalUpdateWithWhereUniqueWithoutDeletedByInput[]
+    updateMany?: HospitalUpdateManyWithWhereWithoutDeletedByInput | HospitalUpdateManyWithWhereWithoutDeletedByInput[]
+    deleteMany?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
+  }
+
   export type IntFieldUpdateOperationsInput = {
     set?: number
     increment?: number
@@ -17140,6 +17661,61 @@ export namespace Prisma {
     update?: UserHospitalAccessUpdateWithWhereUniqueWithoutUserInput | UserHospitalAccessUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: UserHospitalAccessUpdateManyWithWhereWithoutUserInput | UserHospitalAccessUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: UserHospitalAccessScalarWhereInput | UserHospitalAccessScalarWhereInput[]
+  }
+
+  export type HospitalUncheckedUpdateManyWithoutMappedUsersNestedInput = {
+    create?: XOR<HospitalCreateWithoutMappedUsersInput, HospitalUncheckedCreateWithoutMappedUsersInput> | HospitalCreateWithoutMappedUsersInput[] | HospitalUncheckedCreateWithoutMappedUsersInput[]
+    connectOrCreate?: HospitalCreateOrConnectWithoutMappedUsersInput | HospitalCreateOrConnectWithoutMappedUsersInput[]
+    upsert?: HospitalUpsertWithWhereUniqueWithoutMappedUsersInput | HospitalUpsertWithWhereUniqueWithoutMappedUsersInput[]
+    set?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    disconnect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    delete?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    update?: HospitalUpdateWithWhereUniqueWithoutMappedUsersInput | HospitalUpdateWithWhereUniqueWithoutMappedUsersInput[]
+    updateMany?: HospitalUpdateManyWithWhereWithoutMappedUsersInput | HospitalUpdateManyWithWhereWithoutMappedUsersInput[]
+    deleteMany?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
+  }
+
+  export type HospitalUncheckedUpdateManyWithoutCreatedByNestedInput = {
+    create?: XOR<HospitalCreateWithoutCreatedByInput, HospitalUncheckedCreateWithoutCreatedByInput> | HospitalCreateWithoutCreatedByInput[] | HospitalUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: HospitalCreateOrConnectWithoutCreatedByInput | HospitalCreateOrConnectWithoutCreatedByInput[]
+    upsert?: HospitalUpsertWithWhereUniqueWithoutCreatedByInput | HospitalUpsertWithWhereUniqueWithoutCreatedByInput[]
+    createMany?: HospitalCreateManyCreatedByInputEnvelope
+    set?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    disconnect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    delete?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    update?: HospitalUpdateWithWhereUniqueWithoutCreatedByInput | HospitalUpdateWithWhereUniqueWithoutCreatedByInput[]
+    updateMany?: HospitalUpdateManyWithWhereWithoutCreatedByInput | HospitalUpdateManyWithWhereWithoutCreatedByInput[]
+    deleteMany?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
+  }
+
+  export type HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput = {
+    create?: XOR<HospitalCreateWithoutUpdatedByInput, HospitalUncheckedCreateWithoutUpdatedByInput> | HospitalCreateWithoutUpdatedByInput[] | HospitalUncheckedCreateWithoutUpdatedByInput[]
+    connectOrCreate?: HospitalCreateOrConnectWithoutUpdatedByInput | HospitalCreateOrConnectWithoutUpdatedByInput[]
+    upsert?: HospitalUpsertWithWhereUniqueWithoutUpdatedByInput | HospitalUpsertWithWhereUniqueWithoutUpdatedByInput[]
+    createMany?: HospitalCreateManyUpdatedByInputEnvelope
+    set?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    disconnect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    delete?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    update?: HospitalUpdateWithWhereUniqueWithoutUpdatedByInput | HospitalUpdateWithWhereUniqueWithoutUpdatedByInput[]
+    updateMany?: HospitalUpdateManyWithWhereWithoutUpdatedByInput | HospitalUpdateManyWithWhereWithoutUpdatedByInput[]
+    deleteMany?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
+  }
+
+  export type HospitalUncheckedUpdateManyWithoutDeletedByNestedInput = {
+    create?: XOR<HospitalCreateWithoutDeletedByInput, HospitalUncheckedCreateWithoutDeletedByInput> | HospitalCreateWithoutDeletedByInput[] | HospitalUncheckedCreateWithoutDeletedByInput[]
+    connectOrCreate?: HospitalCreateOrConnectWithoutDeletedByInput | HospitalCreateOrConnectWithoutDeletedByInput[]
+    upsert?: HospitalUpsertWithWhereUniqueWithoutDeletedByInput | HospitalUpsertWithWhereUniqueWithoutDeletedByInput[]
+    createMany?: HospitalCreateManyDeletedByInputEnvelope
+    set?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    disconnect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    delete?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
+    update?: HospitalUpdateWithWhereUniqueWithoutDeletedByInput | HospitalUpdateWithWhereUniqueWithoutDeletedByInput[]
+    updateMany?: HospitalUpdateManyWithWhereWithoutDeletedByInput | HospitalUpdateManyWithWhereWithoutDeletedByInput[]
+    deleteMany?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
   }
 
   export type HospitalCreateNestedManyWithoutOrganizationInput = {
@@ -17264,6 +17840,30 @@ export namespace Prisma {
     connect?: UserHospitalAccessWhereUniqueInput | UserHospitalAccessWhereUniqueInput[]
   }
 
+  export type UserCreateNestedManyWithoutMappedHospitalsInput = {
+    create?: XOR<UserCreateWithoutMappedHospitalsInput, UserUncheckedCreateWithoutMappedHospitalsInput> | UserCreateWithoutMappedHospitalsInput[] | UserUncheckedCreateWithoutMappedHospitalsInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutMappedHospitalsInput | UserCreateOrConnectWithoutMappedHospitalsInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+  }
+
+  export type UserCreateNestedOneWithoutHospitalCreatedByInput = {
+    create?: XOR<UserCreateWithoutHospitalCreatedByInput, UserUncheckedCreateWithoutHospitalCreatedByInput>
+    connectOrCreate?: UserCreateOrConnectWithoutHospitalCreatedByInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutHospitalUpdatedByInput = {
+    create?: XOR<UserCreateWithoutHospitalUpdatedByInput, UserUncheckedCreateWithoutHospitalUpdatedByInput>
+    connectOrCreate?: UserCreateOrConnectWithoutHospitalUpdatedByInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutHospitalDeletedByInput = {
+    create?: XOR<UserCreateWithoutHospitalDeletedByInput, UserUncheckedCreateWithoutHospitalDeletedByInput>
+    connectOrCreate?: UserCreateOrConnectWithoutHospitalDeletedByInput
+    connect?: UserWhereUniqueInput
+  }
+
   export type HospitalUncheckedCreateNestedManyWithoutParentHospitalInput = {
     create?: XOR<HospitalCreateWithoutParentHospitalInput, HospitalUncheckedCreateWithoutParentHospitalInput> | HospitalCreateWithoutParentHospitalInput[] | HospitalUncheckedCreateWithoutParentHospitalInput[]
     connectOrCreate?: HospitalCreateOrConnectWithoutParentHospitalInput | HospitalCreateOrConnectWithoutParentHospitalInput[]
@@ -17276,6 +17876,12 @@ export namespace Prisma {
     connectOrCreate?: UserHospitalAccessCreateOrConnectWithoutHospitalInput | UserHospitalAccessCreateOrConnectWithoutHospitalInput[]
     createMany?: UserHospitalAccessCreateManyHospitalInputEnvelope
     connect?: UserHospitalAccessWhereUniqueInput | UserHospitalAccessWhereUniqueInput[]
+  }
+
+  export type UserUncheckedCreateNestedManyWithoutMappedHospitalsInput = {
+    create?: XOR<UserCreateWithoutMappedHospitalsInput, UserUncheckedCreateWithoutMappedHospitalsInput> | UserCreateWithoutMappedHospitalsInput[] | UserUncheckedCreateWithoutMappedHospitalsInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutMappedHospitalsInput | UserCreateOrConnectWithoutMappedHospitalsInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
   }
 
   export type EnumSpecializationTypeFieldUpdateOperationsInput = {
@@ -17340,6 +17946,49 @@ export namespace Prisma {
     deleteMany?: UserHospitalAccessScalarWhereInput | UserHospitalAccessScalarWhereInput[]
   }
 
+  export type UserUpdateManyWithoutMappedHospitalsNestedInput = {
+    create?: XOR<UserCreateWithoutMappedHospitalsInput, UserUncheckedCreateWithoutMappedHospitalsInput> | UserCreateWithoutMappedHospitalsInput[] | UserUncheckedCreateWithoutMappedHospitalsInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutMappedHospitalsInput | UserCreateOrConnectWithoutMappedHospitalsInput[]
+    upsert?: UserUpsertWithWhereUniqueWithoutMappedHospitalsInput | UserUpsertWithWhereUniqueWithoutMappedHospitalsInput[]
+    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    update?: UserUpdateWithWhereUniqueWithoutMappedHospitalsInput | UserUpdateWithWhereUniqueWithoutMappedHospitalsInput[]
+    updateMany?: UserUpdateManyWithWhereWithoutMappedHospitalsInput | UserUpdateManyWithWhereWithoutMappedHospitalsInput[]
+    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
+  }
+
+  export type UserUpdateOneWithoutHospitalCreatedByNestedInput = {
+    create?: XOR<UserCreateWithoutHospitalCreatedByInput, UserUncheckedCreateWithoutHospitalCreatedByInput>
+    connectOrCreate?: UserCreateOrConnectWithoutHospitalCreatedByInput
+    upsert?: UserUpsertWithoutHospitalCreatedByInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutHospitalCreatedByInput, UserUpdateWithoutHospitalCreatedByInput>, UserUncheckedUpdateWithoutHospitalCreatedByInput>
+  }
+
+  export type UserUpdateOneWithoutHospitalUpdatedByNestedInput = {
+    create?: XOR<UserCreateWithoutHospitalUpdatedByInput, UserUncheckedCreateWithoutHospitalUpdatedByInput>
+    connectOrCreate?: UserCreateOrConnectWithoutHospitalUpdatedByInput
+    upsert?: UserUpsertWithoutHospitalUpdatedByInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutHospitalUpdatedByInput, UserUpdateWithoutHospitalUpdatedByInput>, UserUncheckedUpdateWithoutHospitalUpdatedByInput>
+  }
+
+  export type UserUpdateOneWithoutHospitalDeletedByNestedInput = {
+    create?: XOR<UserCreateWithoutHospitalDeletedByInput, UserUncheckedCreateWithoutHospitalDeletedByInput>
+    connectOrCreate?: UserCreateOrConnectWithoutHospitalDeletedByInput
+    upsert?: UserUpsertWithoutHospitalDeletedByInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutHospitalDeletedByInput, UserUpdateWithoutHospitalDeletedByInput>, UserUncheckedUpdateWithoutHospitalDeletedByInput>
+  }
+
   export type NullableIntFieldUpdateOperationsInput = {
     set?: number | null
     increment?: number
@@ -17374,6 +18023,19 @@ export namespace Prisma {
     update?: UserHospitalAccessUpdateWithWhereUniqueWithoutHospitalInput | UserHospitalAccessUpdateWithWhereUniqueWithoutHospitalInput[]
     updateMany?: UserHospitalAccessUpdateManyWithWhereWithoutHospitalInput | UserHospitalAccessUpdateManyWithWhereWithoutHospitalInput[]
     deleteMany?: UserHospitalAccessScalarWhereInput | UserHospitalAccessScalarWhereInput[]
+  }
+
+  export type UserUncheckedUpdateManyWithoutMappedHospitalsNestedInput = {
+    create?: XOR<UserCreateWithoutMappedHospitalsInput, UserUncheckedCreateWithoutMappedHospitalsInput> | UserCreateWithoutMappedHospitalsInput[] | UserUncheckedCreateWithoutMappedHospitalsInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutMappedHospitalsInput | UserCreateOrConnectWithoutMappedHospitalsInput[]
+    upsert?: UserUpsertWithWhereUniqueWithoutMappedHospitalsInput | UserUpsertWithWhereUniqueWithoutMappedHospitalsInput[]
+    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    update?: UserUpdateWithWhereUniqueWithoutMappedHospitalsInput | UserUpdateWithWhereUniqueWithoutMappedHospitalsInput[]
+    updateMany?: UserUpdateManyWithWhereWithoutMappedHospitalsInput | UserUpdateManyWithWhereWithoutMappedHospitalsInput[]
+    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutAdminAccessInput = {
@@ -18150,6 +18812,301 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type HospitalCreateWithoutMappedUsersInput = {
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website?: string | null
+    logoUrl?: string | null
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    parentHospital?: HospitalCreateNestedOneWithoutChildHospitalInput
+    childHospital?: HospitalCreateNestedManyWithoutParentHospitalInput
+    Organization: OrganizationCreateNestedOneWithoutHospitalsInput
+    users?: UserHospitalAccessCreateNestedManyWithoutHospitalInput
+    CreatedBy?: UserCreateNestedOneWithoutHospitalCreatedByInput
+    UpdatedBy?: UserCreateNestedOneWithoutHospitalUpdatedByInput
+    DeletedBy?: UserCreateNestedOneWithoutHospitalDeletedByInput
+  }
+
+  export type HospitalUncheckedCreateWithoutMappedUsersInput = {
+    id?: number
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website?: string | null
+    logoUrl?: string | null
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    parentHospitalId?: number | null
+    organizationId: number
+    isActive?: boolean
+    createdById?: number | null
+    updatedById?: number | null
+    deletedById?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    childHospital?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
+    users?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
+  }
+
+  export type HospitalCreateOrConnectWithoutMappedUsersInput = {
+    where: HospitalWhereUniqueInput
+    create: XOR<HospitalCreateWithoutMappedUsersInput, HospitalUncheckedCreateWithoutMappedUsersInput>
+  }
+
+  export type HospitalCreateWithoutCreatedByInput = {
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website?: string | null
+    logoUrl?: string | null
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    parentHospital?: HospitalCreateNestedOneWithoutChildHospitalInput
+    childHospital?: HospitalCreateNestedManyWithoutParentHospitalInput
+    Organization: OrganizationCreateNestedOneWithoutHospitalsInput
+    users?: UserHospitalAccessCreateNestedManyWithoutHospitalInput
+    mappedUsers?: UserCreateNestedManyWithoutMappedHospitalsInput
+    UpdatedBy?: UserCreateNestedOneWithoutHospitalUpdatedByInput
+    DeletedBy?: UserCreateNestedOneWithoutHospitalDeletedByInput
+  }
+
+  export type HospitalUncheckedCreateWithoutCreatedByInput = {
+    id?: number
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website?: string | null
+    logoUrl?: string | null
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    parentHospitalId?: number | null
+    organizationId: number
+    isActive?: boolean
+    updatedById?: number | null
+    deletedById?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    childHospital?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
+    users?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
+    mappedUsers?: UserUncheckedCreateNestedManyWithoutMappedHospitalsInput
+  }
+
+  export type HospitalCreateOrConnectWithoutCreatedByInput = {
+    where: HospitalWhereUniqueInput
+    create: XOR<HospitalCreateWithoutCreatedByInput, HospitalUncheckedCreateWithoutCreatedByInput>
+  }
+
+  export type HospitalCreateManyCreatedByInputEnvelope = {
+    data: HospitalCreateManyCreatedByInput | HospitalCreateManyCreatedByInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type HospitalCreateWithoutUpdatedByInput = {
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website?: string | null
+    logoUrl?: string | null
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    parentHospital?: HospitalCreateNestedOneWithoutChildHospitalInput
+    childHospital?: HospitalCreateNestedManyWithoutParentHospitalInput
+    Organization: OrganizationCreateNestedOneWithoutHospitalsInput
+    users?: UserHospitalAccessCreateNestedManyWithoutHospitalInput
+    mappedUsers?: UserCreateNestedManyWithoutMappedHospitalsInput
+    CreatedBy?: UserCreateNestedOneWithoutHospitalCreatedByInput
+    DeletedBy?: UserCreateNestedOneWithoutHospitalDeletedByInput
+  }
+
+  export type HospitalUncheckedCreateWithoutUpdatedByInput = {
+    id?: number
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website?: string | null
+    logoUrl?: string | null
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    parentHospitalId?: number | null
+    organizationId: number
+    isActive?: boolean
+    createdById?: number | null
+    deletedById?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    childHospital?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
+    users?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
+    mappedUsers?: UserUncheckedCreateNestedManyWithoutMappedHospitalsInput
+  }
+
+  export type HospitalCreateOrConnectWithoutUpdatedByInput = {
+    where: HospitalWhereUniqueInput
+    create: XOR<HospitalCreateWithoutUpdatedByInput, HospitalUncheckedCreateWithoutUpdatedByInput>
+  }
+
+  export type HospitalCreateManyUpdatedByInputEnvelope = {
+    data: HospitalCreateManyUpdatedByInput | HospitalCreateManyUpdatedByInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type HospitalCreateWithoutDeletedByInput = {
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website?: string | null
+    logoUrl?: string | null
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    parentHospital?: HospitalCreateNestedOneWithoutChildHospitalInput
+    childHospital?: HospitalCreateNestedManyWithoutParentHospitalInput
+    Organization: OrganizationCreateNestedOneWithoutHospitalsInput
+    users?: UserHospitalAccessCreateNestedManyWithoutHospitalInput
+    mappedUsers?: UserCreateNestedManyWithoutMappedHospitalsInput
+    CreatedBy?: UserCreateNestedOneWithoutHospitalCreatedByInput
+    UpdatedBy?: UserCreateNestedOneWithoutHospitalUpdatedByInput
+  }
+
+  export type HospitalUncheckedCreateWithoutDeletedByInput = {
+    id?: number
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website?: string | null
+    logoUrl?: string | null
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    parentHospitalId?: number | null
+    organizationId: number
+    isActive?: boolean
+    createdById?: number | null
+    updatedById?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    childHospital?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
+    users?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
+    mappedUsers?: UserUncheckedCreateNestedManyWithoutMappedHospitalsInput
+  }
+
+  export type HospitalCreateOrConnectWithoutDeletedByInput = {
+    where: HospitalWhereUniqueInput
+    create: XOR<HospitalCreateWithoutDeletedByInput, HospitalUncheckedCreateWithoutDeletedByInput>
+  }
+
+  export type HospitalCreateManyDeletedByInputEnvelope = {
+    data: HospitalCreateManyDeletedByInput | HospitalCreateManyDeletedByInput[]
+    skipDuplicates?: boolean
+  }
+
   export type RoleUpsertWithoutUsersInput = {
     update: XOR<RoleUpdateWithoutUsersInput, RoleUncheckedUpdateWithoutUsersInput>
     create: XOR<RoleCreateWithoutUsersInput, RoleUncheckedCreateWithoutUsersInput>
@@ -18344,6 +19301,104 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"UserHospitalAccess"> | Date | string
   }
 
+  export type HospitalUpsertWithWhereUniqueWithoutMappedUsersInput = {
+    where: HospitalWhereUniqueInput
+    update: XOR<HospitalUpdateWithoutMappedUsersInput, HospitalUncheckedUpdateWithoutMappedUsersInput>
+    create: XOR<HospitalCreateWithoutMappedUsersInput, HospitalUncheckedCreateWithoutMappedUsersInput>
+  }
+
+  export type HospitalUpdateWithWhereUniqueWithoutMappedUsersInput = {
+    where: HospitalWhereUniqueInput
+    data: XOR<HospitalUpdateWithoutMappedUsersInput, HospitalUncheckedUpdateWithoutMappedUsersInput>
+  }
+
+  export type HospitalUpdateManyWithWhereWithoutMappedUsersInput = {
+    where: HospitalScalarWhereInput
+    data: XOR<HospitalUpdateManyMutationInput, HospitalUncheckedUpdateManyWithoutMappedUsersInput>
+  }
+
+  export type HospitalScalarWhereInput = {
+    AND?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
+    OR?: HospitalScalarWhereInput[]
+    NOT?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
+    id?: IntFilter<"Hospital"> | number
+    name?: StringFilter<"Hospital"> | string
+    hospitalCode?: StringFilter<"Hospital"> | string
+    ParentHospitalCode?: StringNullableFilter<"Hospital"> | string | null
+    Organizationcode?: StringNullableFilter<"Hospital"> | string | null
+    SpecializationType?: EnumSpecializationTypeFilter<"Hospital"> | $Enums.SpecializationType
+    address?: StringFilter<"Hospital"> | string
+    city?: StringFilter<"Hospital"> | string
+    state?: StringFilter<"Hospital"> | string
+    country?: StringFilter<"Hospital"> | string
+    postalCode?: StringFilter<"Hospital"> | string
+    contactNumber?: StringFilter<"Hospital"> | string
+    email?: StringFilter<"Hospital"> | string
+    website?: StringNullableFilter<"Hospital"> | string | null
+    logoUrl?: StringNullableFilter<"Hospital"> | string | null
+    latitude?: FloatFilter<"Hospital"> | number
+    longitude?: FloatFilter<"Hospital"> | number
+    status?: EnumHospital_Org_statusFilter<"Hospital"> | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFilter<"Hospital"> | $Enums.HospitalLevel
+    parentHospitalId?: IntNullableFilter<"Hospital"> | number | null
+    organizationId?: IntFilter<"Hospital"> | number
+    isActive?: BoolFilter<"Hospital"> | boolean
+    createdById?: IntNullableFilter<"Hospital"> | number | null
+    updatedById?: IntNullableFilter<"Hospital"> | number | null
+    deletedById?: IntNullableFilter<"Hospital"> | number | null
+    createdAt?: DateTimeFilter<"Hospital"> | Date | string
+    updatedAt?: DateTimeFilter<"Hospital"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"Hospital"> | Date | string | null
+  }
+
+  export type HospitalUpsertWithWhereUniqueWithoutCreatedByInput = {
+    where: HospitalWhereUniqueInput
+    update: XOR<HospitalUpdateWithoutCreatedByInput, HospitalUncheckedUpdateWithoutCreatedByInput>
+    create: XOR<HospitalCreateWithoutCreatedByInput, HospitalUncheckedCreateWithoutCreatedByInput>
+  }
+
+  export type HospitalUpdateWithWhereUniqueWithoutCreatedByInput = {
+    where: HospitalWhereUniqueInput
+    data: XOR<HospitalUpdateWithoutCreatedByInput, HospitalUncheckedUpdateWithoutCreatedByInput>
+  }
+
+  export type HospitalUpdateManyWithWhereWithoutCreatedByInput = {
+    where: HospitalScalarWhereInput
+    data: XOR<HospitalUpdateManyMutationInput, HospitalUncheckedUpdateManyWithoutCreatedByInput>
+  }
+
+  export type HospitalUpsertWithWhereUniqueWithoutUpdatedByInput = {
+    where: HospitalWhereUniqueInput
+    update: XOR<HospitalUpdateWithoutUpdatedByInput, HospitalUncheckedUpdateWithoutUpdatedByInput>
+    create: XOR<HospitalCreateWithoutUpdatedByInput, HospitalUncheckedCreateWithoutUpdatedByInput>
+  }
+
+  export type HospitalUpdateWithWhereUniqueWithoutUpdatedByInput = {
+    where: HospitalWhereUniqueInput
+    data: XOR<HospitalUpdateWithoutUpdatedByInput, HospitalUncheckedUpdateWithoutUpdatedByInput>
+  }
+
+  export type HospitalUpdateManyWithWhereWithoutUpdatedByInput = {
+    where: HospitalScalarWhereInput
+    data: XOR<HospitalUpdateManyMutationInput, HospitalUncheckedUpdateManyWithoutUpdatedByInput>
+  }
+
+  export type HospitalUpsertWithWhereUniqueWithoutDeletedByInput = {
+    where: HospitalWhereUniqueInput
+    update: XOR<HospitalUpdateWithoutDeletedByInput, HospitalUncheckedUpdateWithoutDeletedByInput>
+    create: XOR<HospitalCreateWithoutDeletedByInput, HospitalUncheckedCreateWithoutDeletedByInput>
+  }
+
+  export type HospitalUpdateWithWhereUniqueWithoutDeletedByInput = {
+    where: HospitalWhereUniqueInput
+    data: XOR<HospitalUpdateWithoutDeletedByInput, HospitalUncheckedUpdateWithoutDeletedByInput>
+  }
+
+  export type HospitalUpdateManyWithWhereWithoutDeletedByInput = {
+    where: HospitalScalarWhereInput
+    data: XOR<HospitalUpdateManyMutationInput, HospitalUncheckedUpdateManyWithoutDeletedByInput>
+  }
+
   export type HospitalCreateWithoutOrganizationInput = {
     name: string
     hospitalCode: string
@@ -18357,8 +19412,8 @@ export namespace Prisma {
     postalCode: string
     contactNumber: string
     email: string
-    website: string
-    logoUrl: string
+    website?: string | null
+    logoUrl?: string | null
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
@@ -18370,6 +19425,10 @@ export namespace Prisma {
     parentHospital?: HospitalCreateNestedOneWithoutChildHospitalInput
     childHospital?: HospitalCreateNestedManyWithoutParentHospitalInput
     users?: UserHospitalAccessCreateNestedManyWithoutHospitalInput
+    mappedUsers?: UserCreateNestedManyWithoutMappedHospitalsInput
+    CreatedBy?: UserCreateNestedOneWithoutHospitalCreatedByInput
+    UpdatedBy?: UserCreateNestedOneWithoutHospitalUpdatedByInput
+    DeletedBy?: UserCreateNestedOneWithoutHospitalDeletedByInput
   }
 
   export type HospitalUncheckedCreateWithoutOrganizationInput = {
@@ -18386,19 +19445,23 @@ export namespace Prisma {
     postalCode: string
     contactNumber: string
     email: string
-    website: string
-    logoUrl: string
+    website?: string | null
+    logoUrl?: string | null
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
     level: $Enums.HospitalLevel
     parentHospitalId?: number | null
     isActive?: boolean
+    createdById?: number | null
+    updatedById?: number | null
+    deletedById?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     childHospital?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
     users?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
+    mappedUsers?: UserUncheckedCreateNestedManyWithoutMappedHospitalsInput
   }
 
   export type HospitalCreateOrConnectWithoutOrganizationInput = {
@@ -18429,6 +19492,10 @@ export namespace Prisma {
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
     AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
+    mappedHospitals?: HospitalCreateNestedManyWithoutMappedUsersInput
+    HospitalCreatedBy?: HospitalCreateNestedManyWithoutCreatedByInput
+    HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
+    HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
   }
 
   export type UserUncheckedCreateWithoutOrganizationInput = {
@@ -18450,6 +19517,10 @@ export namespace Prisma {
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
     AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
+    mappedHospitals?: HospitalUncheckedCreateNestedManyWithoutMappedUsersInput
+    HospitalCreatedBy?: HospitalUncheckedCreateNestedManyWithoutCreatedByInput
+    HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
+    HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
   }
 
   export type UserCreateOrConnectWithoutOrganizationInput = {
@@ -18476,37 +19547,6 @@ export namespace Prisma {
   export type HospitalUpdateManyWithWhereWithoutOrganizationInput = {
     where: HospitalScalarWhereInput
     data: XOR<HospitalUpdateManyMutationInput, HospitalUncheckedUpdateManyWithoutOrganizationInput>
-  }
-
-  export type HospitalScalarWhereInput = {
-    AND?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
-    OR?: HospitalScalarWhereInput[]
-    NOT?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
-    id?: IntFilter<"Hospital"> | number
-    name?: StringFilter<"Hospital"> | string
-    hospitalCode?: StringFilter<"Hospital"> | string
-    ParentHospitalCode?: StringNullableFilter<"Hospital"> | string | null
-    Organizationcode?: StringNullableFilter<"Hospital"> | string | null
-    SpecializationType?: EnumSpecializationTypeFilter<"Hospital"> | $Enums.SpecializationType
-    address?: StringFilter<"Hospital"> | string
-    city?: StringFilter<"Hospital"> | string
-    state?: StringFilter<"Hospital"> | string
-    country?: StringFilter<"Hospital"> | string
-    postalCode?: StringFilter<"Hospital"> | string
-    contactNumber?: StringFilter<"Hospital"> | string
-    email?: StringFilter<"Hospital"> | string
-    website?: StringFilter<"Hospital"> | string
-    logoUrl?: StringFilter<"Hospital"> | string
-    latitude?: FloatFilter<"Hospital"> | number
-    longitude?: FloatFilter<"Hospital"> | number
-    status?: EnumHospital_Org_statusFilter<"Hospital"> | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFilter<"Hospital"> | $Enums.HospitalLevel
-    parentHospitalId?: IntNullableFilter<"Hospital"> | number | null
-    organizationId?: IntFilter<"Hospital"> | number
-    isActive?: BoolFilter<"Hospital"> | boolean
-    createdAt?: DateTimeFilter<"Hospital"> | Date | string
-    updatedAt?: DateTimeFilter<"Hospital"> | Date | string
-    deletedAt?: DateTimeNullableFilter<"Hospital"> | Date | string | null
   }
 
   export type UserUpsertWithWhereUniqueWithoutOrganizationInput = {
@@ -18559,8 +19599,8 @@ export namespace Prisma {
     postalCode: string
     contactNumber: string
     email: string
-    website: string
-    logoUrl: string
+    website?: string | null
+    logoUrl?: string | null
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
@@ -18572,6 +19612,10 @@ export namespace Prisma {
     parentHospital?: HospitalCreateNestedOneWithoutChildHospitalInput
     Organization: OrganizationCreateNestedOneWithoutHospitalsInput
     users?: UserHospitalAccessCreateNestedManyWithoutHospitalInput
+    mappedUsers?: UserCreateNestedManyWithoutMappedHospitalsInput
+    CreatedBy?: UserCreateNestedOneWithoutHospitalCreatedByInput
+    UpdatedBy?: UserCreateNestedOneWithoutHospitalUpdatedByInput
+    DeletedBy?: UserCreateNestedOneWithoutHospitalDeletedByInput
   }
 
   export type HospitalUncheckedCreateWithoutChildHospitalInput = {
@@ -18588,8 +19632,8 @@ export namespace Prisma {
     postalCode: string
     contactNumber: string
     email: string
-    website: string
-    logoUrl: string
+    website?: string | null
+    logoUrl?: string | null
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
@@ -18597,10 +19641,14 @@ export namespace Prisma {
     parentHospitalId?: number | null
     organizationId: number
     isActive?: boolean
+    createdById?: number | null
+    updatedById?: number | null
+    deletedById?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     users?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
+    mappedUsers?: UserUncheckedCreateNestedManyWithoutMappedHospitalsInput
   }
 
   export type HospitalCreateOrConnectWithoutChildHospitalInput = {
@@ -18621,8 +19669,8 @@ export namespace Prisma {
     postalCode: string
     contactNumber: string
     email: string
-    website: string
-    logoUrl: string
+    website?: string | null
+    logoUrl?: string | null
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
@@ -18634,6 +19682,10 @@ export namespace Prisma {
     childHospital?: HospitalCreateNestedManyWithoutParentHospitalInput
     Organization: OrganizationCreateNestedOneWithoutHospitalsInput
     users?: UserHospitalAccessCreateNestedManyWithoutHospitalInput
+    mappedUsers?: UserCreateNestedManyWithoutMappedHospitalsInput
+    CreatedBy?: UserCreateNestedOneWithoutHospitalCreatedByInput
+    UpdatedBy?: UserCreateNestedOneWithoutHospitalUpdatedByInput
+    DeletedBy?: UserCreateNestedOneWithoutHospitalDeletedByInput
   }
 
   export type HospitalUncheckedCreateWithoutParentHospitalInput = {
@@ -18650,19 +19702,23 @@ export namespace Prisma {
     postalCode: string
     contactNumber: string
     email: string
-    website: string
-    logoUrl: string
+    website?: string | null
+    logoUrl?: string | null
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
     level: $Enums.HospitalLevel
     organizationId: number
     isActive?: boolean
+    createdById?: number | null
+    updatedById?: number | null
+    deletedById?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     childHospital?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
     users?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
+    mappedUsers?: UserUncheckedCreateNestedManyWithoutMappedHospitalsInput
   }
 
   export type HospitalCreateOrConnectWithoutParentHospitalInput = {
@@ -18754,6 +19810,222 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type UserCreateWithoutMappedHospitalsInput = {
+    title: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    deletedAt?: Date | string | null
+    role: RoleCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
+    settings?: SettingCreateNestedOneWithoutUserInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
+    AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
+    HospitalCreatedBy?: HospitalCreateNestedManyWithoutCreatedByInput
+    HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
+    HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
+  }
+
+  export type UserUncheckedCreateWithoutMappedHospitalsInput = {
+    id?: number
+    title: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    roleId: number
+    organizationId: number
+    deletedAt?: Date | string | null
+    settings?: SettingUncheckedCreateNestedOneWithoutUserInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
+    AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
+    HospitalCreatedBy?: HospitalUncheckedCreateNestedManyWithoutCreatedByInput
+    HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
+    HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
+  }
+
+  export type UserCreateOrConnectWithoutMappedHospitalsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutMappedHospitalsInput, UserUncheckedCreateWithoutMappedHospitalsInput>
+  }
+
+  export type UserCreateWithoutHospitalCreatedByInput = {
+    title: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    deletedAt?: Date | string | null
+    role: RoleCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
+    settings?: SettingCreateNestedOneWithoutUserInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
+    AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
+    mappedHospitals?: HospitalCreateNestedManyWithoutMappedUsersInput
+    HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
+    HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
+  }
+
+  export type UserUncheckedCreateWithoutHospitalCreatedByInput = {
+    id?: number
+    title: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    roleId: number
+    organizationId: number
+    deletedAt?: Date | string | null
+    settings?: SettingUncheckedCreateNestedOneWithoutUserInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
+    AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
+    mappedHospitals?: HospitalUncheckedCreateNestedManyWithoutMappedUsersInput
+    HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
+    HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
+  }
+
+  export type UserCreateOrConnectWithoutHospitalCreatedByInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutHospitalCreatedByInput, UserUncheckedCreateWithoutHospitalCreatedByInput>
+  }
+
+  export type UserCreateWithoutHospitalUpdatedByInput = {
+    title: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    deletedAt?: Date | string | null
+    role: RoleCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
+    settings?: SettingCreateNestedOneWithoutUserInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
+    AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
+    mappedHospitals?: HospitalCreateNestedManyWithoutMappedUsersInput
+    HospitalCreatedBy?: HospitalCreateNestedManyWithoutCreatedByInput
+    HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
+  }
+
+  export type UserUncheckedCreateWithoutHospitalUpdatedByInput = {
+    id?: number
+    title: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    roleId: number
+    organizationId: number
+    deletedAt?: Date | string | null
+    settings?: SettingUncheckedCreateNestedOneWithoutUserInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
+    AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
+    mappedHospitals?: HospitalUncheckedCreateNestedManyWithoutMappedUsersInput
+    HospitalCreatedBy?: HospitalUncheckedCreateNestedManyWithoutCreatedByInput
+    HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
+  }
+
+  export type UserCreateOrConnectWithoutHospitalUpdatedByInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutHospitalUpdatedByInput, UserUncheckedCreateWithoutHospitalUpdatedByInput>
+  }
+
+  export type UserCreateWithoutHospitalDeletedByInput = {
+    title: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    deletedAt?: Date | string | null
+    role: RoleCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
+    settings?: SettingCreateNestedOneWithoutUserInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
+    AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
+    mappedHospitals?: HospitalCreateNestedManyWithoutMappedUsersInput
+    HospitalCreatedBy?: HospitalCreateNestedManyWithoutCreatedByInput
+    HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
+  }
+
+  export type UserUncheckedCreateWithoutHospitalDeletedByInput = {
+    id?: number
+    title: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    roleId: number
+    organizationId: number
+    deletedAt?: Date | string | null
+    settings?: SettingUncheckedCreateNestedOneWithoutUserInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
+    AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
+    mappedHospitals?: HospitalUncheckedCreateNestedManyWithoutMappedUsersInput
+    HospitalCreatedBy?: HospitalUncheckedCreateNestedManyWithoutCreatedByInput
+    HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
+  }
+
+  export type UserCreateOrConnectWithoutHospitalDeletedByInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutHospitalDeletedByInput, UserUncheckedCreateWithoutHospitalDeletedByInput>
+  }
+
   export type HospitalUpsertWithoutChildHospitalInput = {
     update: XOR<HospitalUpdateWithoutChildHospitalInput, HospitalUncheckedUpdateWithoutChildHospitalInput>
     create: XOR<HospitalCreateWithoutChildHospitalInput, HospitalUncheckedCreateWithoutChildHospitalInput>
@@ -18778,8 +20050,8 @@ export namespace Prisma {
     postalCode?: StringFieldUpdateOperationsInput | string
     contactNumber?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    website?: StringFieldUpdateOperationsInput | string
-    logoUrl?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
@@ -18791,6 +20063,10 @@ export namespace Prisma {
     parentHospital?: HospitalUpdateOneWithoutChildHospitalNestedInput
     Organization?: OrganizationUpdateOneRequiredWithoutHospitalsNestedInput
     users?: UserHospitalAccessUpdateManyWithoutHospitalNestedInput
+    mappedUsers?: UserUpdateManyWithoutMappedHospitalsNestedInput
+    CreatedBy?: UserUpdateOneWithoutHospitalCreatedByNestedInput
+    UpdatedBy?: UserUpdateOneWithoutHospitalUpdatedByNestedInput
+    DeletedBy?: UserUpdateOneWithoutHospitalDeletedByNestedInput
   }
 
   export type HospitalUncheckedUpdateWithoutChildHospitalInput = {
@@ -18807,8 +20083,8 @@ export namespace Prisma {
     postalCode?: StringFieldUpdateOperationsInput | string
     contactNumber?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    website?: StringFieldUpdateOperationsInput | string
-    logoUrl?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
@@ -18816,10 +20092,14 @@ export namespace Prisma {
     parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
     organizationId?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedById?: NullableIntFieldUpdateOperationsInput | number | null
+    deletedById?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     users?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
+    mappedUsers?: UserUncheckedUpdateManyWithoutMappedHospitalsNestedInput
   }
 
   export type HospitalUpsertWithWhereUniqueWithoutParentHospitalInput = {
@@ -18914,6 +20194,202 @@ export namespace Prisma {
     data: XOR<UserHospitalAccessUpdateManyMutationInput, UserHospitalAccessUncheckedUpdateManyWithoutHospitalInput>
   }
 
+  export type UserUpsertWithWhereUniqueWithoutMappedHospitalsInput = {
+    where: UserWhereUniqueInput
+    update: XOR<UserUpdateWithoutMappedHospitalsInput, UserUncheckedUpdateWithoutMappedHospitalsInput>
+    create: XOR<UserCreateWithoutMappedHospitalsInput, UserUncheckedCreateWithoutMappedHospitalsInput>
+  }
+
+  export type UserUpdateWithWhereUniqueWithoutMappedHospitalsInput = {
+    where: UserWhereUniqueInput
+    data: XOR<UserUpdateWithoutMappedHospitalsInput, UserUncheckedUpdateWithoutMappedHospitalsInput>
+  }
+
+  export type UserUpdateManyWithWhereWithoutMappedHospitalsInput = {
+    where: UserScalarWhereInput
+    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyWithoutMappedHospitalsInput>
+  }
+
+  export type UserUpsertWithoutHospitalCreatedByInput = {
+    update: XOR<UserUpdateWithoutHospitalCreatedByInput, UserUncheckedUpdateWithoutHospitalCreatedByInput>
+    create: XOR<UserCreateWithoutHospitalCreatedByInput, UserUncheckedCreateWithoutHospitalCreatedByInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutHospitalCreatedByInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutHospitalCreatedByInput, UserUncheckedUpdateWithoutHospitalCreatedByInput>
+  }
+
+  export type UserUpdateWithoutHospitalCreatedByInput = {
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    role?: RoleUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    settings?: SettingUpdateOneWithoutUserNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
+    AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
+    mappedHospitals?: HospitalUpdateManyWithoutMappedUsersNestedInput
+    HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
+    HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutHospitalCreatedByInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    roleId?: IntFieldUpdateOperationsInput | number
+    organizationId?: IntFieldUpdateOperationsInput | number
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
+    AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
+    mappedHospitals?: HospitalUncheckedUpdateManyWithoutMappedUsersNestedInput
+    HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
+    HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
+  }
+
+  export type UserUpsertWithoutHospitalUpdatedByInput = {
+    update: XOR<UserUpdateWithoutHospitalUpdatedByInput, UserUncheckedUpdateWithoutHospitalUpdatedByInput>
+    create: XOR<UserCreateWithoutHospitalUpdatedByInput, UserUncheckedCreateWithoutHospitalUpdatedByInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutHospitalUpdatedByInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutHospitalUpdatedByInput, UserUncheckedUpdateWithoutHospitalUpdatedByInput>
+  }
+
+  export type UserUpdateWithoutHospitalUpdatedByInput = {
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    role?: RoleUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    settings?: SettingUpdateOneWithoutUserNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
+    AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
+    mappedHospitals?: HospitalUpdateManyWithoutMappedUsersNestedInput
+    HospitalCreatedBy?: HospitalUpdateManyWithoutCreatedByNestedInput
+    HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutHospitalUpdatedByInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    roleId?: IntFieldUpdateOperationsInput | number
+    organizationId?: IntFieldUpdateOperationsInput | number
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
+    AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
+    mappedHospitals?: HospitalUncheckedUpdateManyWithoutMappedUsersNestedInput
+    HospitalCreatedBy?: HospitalUncheckedUpdateManyWithoutCreatedByNestedInput
+    HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
+  }
+
+  export type UserUpsertWithoutHospitalDeletedByInput = {
+    update: XOR<UserUpdateWithoutHospitalDeletedByInput, UserUncheckedUpdateWithoutHospitalDeletedByInput>
+    create: XOR<UserCreateWithoutHospitalDeletedByInput, UserUncheckedCreateWithoutHospitalDeletedByInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutHospitalDeletedByInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutHospitalDeletedByInput, UserUncheckedUpdateWithoutHospitalDeletedByInput>
+  }
+
+  export type UserUpdateWithoutHospitalDeletedByInput = {
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    role?: RoleUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    settings?: SettingUpdateOneWithoutUserNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
+    AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
+    mappedHospitals?: HospitalUpdateManyWithoutMappedUsersNestedInput
+    HospitalCreatedBy?: HospitalUpdateManyWithoutCreatedByNestedInput
+    HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutHospitalDeletedByInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    roleId?: IntFieldUpdateOperationsInput | number
+    organizationId?: IntFieldUpdateOperationsInput | number
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
+    AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
+    mappedHospitals?: HospitalUncheckedUpdateManyWithoutMappedUsersNestedInput
+    HospitalCreatedBy?: HospitalUncheckedUpdateManyWithoutCreatedByNestedInput
+    HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
+  }
+
   export type UserCreateWithoutAdminAccessInput = {
     title: $Enums.Title
     imageUrl: string
@@ -18932,6 +20408,10 @@ export namespace Prisma {
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
+    mappedHospitals?: HospitalCreateNestedManyWithoutMappedUsersInput
+    HospitalCreatedBy?: HospitalCreateNestedManyWithoutCreatedByInput
+    HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
+    HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
   }
 
   export type UserUncheckedCreateWithoutAdminAccessInput = {
@@ -18953,6 +20433,10 @@ export namespace Prisma {
     settings?: SettingUncheckedCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
+    mappedHospitals?: HospitalUncheckedCreateNestedManyWithoutMappedUsersInput
+    HospitalCreatedBy?: HospitalUncheckedCreateNestedManyWithoutCreatedByInput
+    HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
+    HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
   }
 
   export type UserCreateOrConnectWithoutAdminAccessInput = {
@@ -18973,8 +20457,8 @@ export namespace Prisma {
     postalCode: string
     contactNumber: string
     email: string
-    website: string
-    logoUrl: string
+    website?: string | null
+    logoUrl?: string | null
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
@@ -18986,6 +20470,10 @@ export namespace Prisma {
     parentHospital?: HospitalCreateNestedOneWithoutChildHospitalInput
     childHospital?: HospitalCreateNestedManyWithoutParentHospitalInput
     Organization: OrganizationCreateNestedOneWithoutHospitalsInput
+    mappedUsers?: UserCreateNestedManyWithoutMappedHospitalsInput
+    CreatedBy?: UserCreateNestedOneWithoutHospitalCreatedByInput
+    UpdatedBy?: UserCreateNestedOneWithoutHospitalUpdatedByInput
+    DeletedBy?: UserCreateNestedOneWithoutHospitalDeletedByInput
   }
 
   export type HospitalUncheckedCreateWithoutUsersInput = {
@@ -19002,8 +20490,8 @@ export namespace Prisma {
     postalCode: string
     contactNumber: string
     email: string
-    website: string
-    logoUrl: string
+    website?: string | null
+    logoUrl?: string | null
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
@@ -19011,10 +20499,14 @@ export namespace Prisma {
     parentHospitalId?: number | null
     organizationId: number
     isActive?: boolean
+    createdById?: number | null
+    updatedById?: number | null
+    deletedById?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     childHospital?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
+    mappedUsers?: UserUncheckedCreateNestedManyWithoutMappedHospitalsInput
   }
 
   export type HospitalCreateOrConnectWithoutUsersInput = {
@@ -19073,6 +20565,10 @@ export namespace Prisma {
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
+    mappedHospitals?: HospitalUpdateManyWithoutMappedUsersNestedInput
+    HospitalCreatedBy?: HospitalUpdateManyWithoutCreatedByNestedInput
+    HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
+    HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAdminAccessInput = {
@@ -19094,6 +20590,10 @@ export namespace Prisma {
     settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
+    mappedHospitals?: HospitalUncheckedUpdateManyWithoutMappedUsersNestedInput
+    HospitalCreatedBy?: HospitalUncheckedUpdateManyWithoutCreatedByNestedInput
+    HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
+    HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
   }
 
   export type HospitalUpsertWithoutUsersInput = {
@@ -19120,8 +20620,8 @@ export namespace Prisma {
     postalCode?: StringFieldUpdateOperationsInput | string
     contactNumber?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    website?: StringFieldUpdateOperationsInput | string
-    logoUrl?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
@@ -19133,6 +20633,10 @@ export namespace Prisma {
     parentHospital?: HospitalUpdateOneWithoutChildHospitalNestedInput
     childHospital?: HospitalUpdateManyWithoutParentHospitalNestedInput
     Organization?: OrganizationUpdateOneRequiredWithoutHospitalsNestedInput
+    mappedUsers?: UserUpdateManyWithoutMappedHospitalsNestedInput
+    CreatedBy?: UserUpdateOneWithoutHospitalCreatedByNestedInput
+    UpdatedBy?: UserUpdateOneWithoutHospitalUpdatedByNestedInput
+    DeletedBy?: UserUpdateOneWithoutHospitalDeletedByNestedInput
   }
 
   export type HospitalUncheckedUpdateWithoutUsersInput = {
@@ -19149,8 +20653,8 @@ export namespace Prisma {
     postalCode?: StringFieldUpdateOperationsInput | string
     contactNumber?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    website?: StringFieldUpdateOperationsInput | string
-    logoUrl?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
@@ -19158,10 +20662,14 @@ export namespace Prisma {
     parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
     organizationId?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedById?: NullableIntFieldUpdateOperationsInput | number | null
+    deletedById?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     childHospital?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
+    mappedUsers?: UserUncheckedUpdateManyWithoutMappedHospitalsNestedInput
   }
 
   export type RoleUpsertWithoutUserHospitalAccessInput = {
@@ -19210,6 +20718,10 @@ export namespace Prisma {
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
     AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
+    mappedHospitals?: HospitalCreateNestedManyWithoutMappedUsersInput
+    HospitalCreatedBy?: HospitalCreateNestedManyWithoutCreatedByInput
+    HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
+    HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
   }
 
   export type UserUncheckedCreateWithoutSettingsInput = {
@@ -19231,6 +20743,10 @@ export namespace Prisma {
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
     AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
+    mappedHospitals?: HospitalUncheckedCreateNestedManyWithoutMappedUsersInput
+    HospitalCreatedBy?: HospitalUncheckedCreateNestedManyWithoutCreatedByInput
+    HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
+    HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
   }
 
   export type UserCreateOrConnectWithoutSettingsInput = {
@@ -19267,6 +20783,10 @@ export namespace Prisma {
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
     AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
+    mappedHospitals?: HospitalUpdateManyWithoutMappedUsersNestedInput
+    HospitalCreatedBy?: HospitalUpdateManyWithoutCreatedByNestedInput
+    HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
+    HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSettingsInput = {
@@ -19288,6 +20808,10 @@ export namespace Prisma {
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
     AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
+    mappedHospitals?: HospitalUncheckedUpdateManyWithoutMappedUsersNestedInput
+    HospitalCreatedBy?: HospitalUncheckedUpdateManyWithoutCreatedByNestedInput
+    HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
+    HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
   }
 
   export type UserCreateWithoutAuditLogsInput = {
@@ -19308,6 +20832,10 @@ export namespace Prisma {
     settings?: SettingCreateNestedOneWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
     AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
+    mappedHospitals?: HospitalCreateNestedManyWithoutMappedUsersInput
+    HospitalCreatedBy?: HospitalCreateNestedManyWithoutCreatedByInput
+    HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
+    HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
   }
 
   export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -19329,6 +20857,10 @@ export namespace Prisma {
     settings?: SettingUncheckedCreateNestedOneWithoutUserInput
     loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
     AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
+    mappedHospitals?: HospitalUncheckedCreateNestedManyWithoutMappedUsersInput
+    HospitalCreatedBy?: HospitalUncheckedCreateNestedManyWithoutCreatedByInput
+    HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
+    HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
   }
 
   export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -19365,6 +20897,10 @@ export namespace Prisma {
     settings?: SettingUpdateOneWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
     AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
+    mappedHospitals?: HospitalUpdateManyWithoutMappedUsersNestedInput
+    HospitalCreatedBy?: HospitalUpdateManyWithoutCreatedByNestedInput
+    HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
+    HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -19386,6 +20922,10 @@ export namespace Prisma {
     settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
     loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
     AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
+    mappedHospitals?: HospitalUncheckedUpdateManyWithoutMappedUsersNestedInput
+    HospitalCreatedBy?: HospitalUncheckedUpdateManyWithoutCreatedByNestedInput
+    HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
+    HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
   }
 
   export type UserCreateWithoutLoginSessionsInput = {
@@ -19406,6 +20946,10 @@ export namespace Prisma {
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
+    mappedHospitals?: HospitalCreateNestedManyWithoutMappedUsersInput
+    HospitalCreatedBy?: HospitalCreateNestedManyWithoutCreatedByInput
+    HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
+    HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
   }
 
   export type UserUncheckedCreateWithoutLoginSessionsInput = {
@@ -19427,6 +20971,10 @@ export namespace Prisma {
     settings?: SettingUncheckedCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
     AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
+    mappedHospitals?: HospitalUncheckedCreateNestedManyWithoutMappedUsersInput
+    HospitalCreatedBy?: HospitalUncheckedCreateNestedManyWithoutCreatedByInput
+    HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
+    HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
   }
 
   export type UserCreateOrConnectWithoutLoginSessionsInput = {
@@ -19463,6 +21011,10 @@ export namespace Prisma {
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
+    mappedHospitals?: HospitalUpdateManyWithoutMappedUsersNestedInput
+    HospitalCreatedBy?: HospitalUpdateManyWithoutCreatedByNestedInput
+    HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
+    HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutLoginSessionsInput = {
@@ -19484,6 +21036,10 @@ export namespace Prisma {
     settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
     AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
+    mappedHospitals?: HospitalUncheckedUpdateManyWithoutMappedUsersNestedInput
+    HospitalCreatedBy?: HospitalUncheckedUpdateManyWithoutCreatedByNestedInput
+    HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
+    HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
   }
 
   export type UserCreateWithoutRoleInput = {
@@ -19504,6 +21060,10 @@ export namespace Prisma {
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
     AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
+    mappedHospitals?: HospitalCreateNestedManyWithoutMappedUsersInput
+    HospitalCreatedBy?: HospitalCreateNestedManyWithoutCreatedByInput
+    HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
+    HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
   }
 
   export type UserUncheckedCreateWithoutRoleInput = {
@@ -19525,6 +21085,10 @@ export namespace Prisma {
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
     AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
+    mappedHospitals?: HospitalUncheckedCreateNestedManyWithoutMappedUsersInput
+    HospitalCreatedBy?: HospitalUncheckedCreateNestedManyWithoutCreatedByInput
+    HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
+    HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
   }
 
   export type UserCreateOrConnectWithoutRoleInput = {
@@ -19793,6 +21357,96 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type HospitalCreateManyCreatedByInput = {
+    id?: number
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website?: string | null
+    logoUrl?: string | null
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    parentHospitalId?: number | null
+    organizationId: number
+    isActive?: boolean
+    updatedById?: number | null
+    deletedById?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+  }
+
+  export type HospitalCreateManyUpdatedByInput = {
+    id?: number
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website?: string | null
+    logoUrl?: string | null
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    parentHospitalId?: number | null
+    organizationId: number
+    isActive?: boolean
+    createdById?: number | null
+    deletedById?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+  }
+
+  export type HospitalCreateManyDeletedByInput = {
+    id?: number
+    name: string
+    hospitalCode: string
+    ParentHospitalCode?: string | null
+    Organizationcode?: string | null
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website?: string | null
+    logoUrl?: string | null
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level: $Enums.HospitalLevel
+    parentHospitalId?: number | null
+    organizationId: number
+    isActive?: boolean
+    createdById?: number | null
+    updatedById?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+  }
+
   export type AuditLogUpdateWithoutUserInput = {
     action?: StringFieldUpdateOperationsInput | string
     entity?: StringFieldUpdateOperationsInput | string
@@ -19862,6 +21516,387 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type HospitalUpdateWithoutMappedUsersInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parentHospital?: HospitalUpdateOneWithoutChildHospitalNestedInput
+    childHospital?: HospitalUpdateManyWithoutParentHospitalNestedInput
+    Organization?: OrganizationUpdateOneRequiredWithoutHospitalsNestedInput
+    users?: UserHospitalAccessUpdateManyWithoutHospitalNestedInput
+    CreatedBy?: UserUpdateOneWithoutHospitalCreatedByNestedInput
+    UpdatedBy?: UserUpdateOneWithoutHospitalUpdatedByNestedInput
+    DeletedBy?: UserUpdateOneWithoutHospitalDeletedByNestedInput
+  }
+
+  export type HospitalUncheckedUpdateWithoutMappedUsersInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
+    organizationId?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedById?: NullableIntFieldUpdateOperationsInput | number | null
+    deletedById?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    childHospital?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
+    users?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
+  }
+
+  export type HospitalUncheckedUpdateManyWithoutMappedUsersInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
+    organizationId?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedById?: NullableIntFieldUpdateOperationsInput | number | null
+    deletedById?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type HospitalUpdateWithoutCreatedByInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parentHospital?: HospitalUpdateOneWithoutChildHospitalNestedInput
+    childHospital?: HospitalUpdateManyWithoutParentHospitalNestedInput
+    Organization?: OrganizationUpdateOneRequiredWithoutHospitalsNestedInput
+    users?: UserHospitalAccessUpdateManyWithoutHospitalNestedInput
+    mappedUsers?: UserUpdateManyWithoutMappedHospitalsNestedInput
+    UpdatedBy?: UserUpdateOneWithoutHospitalUpdatedByNestedInput
+    DeletedBy?: UserUpdateOneWithoutHospitalDeletedByNestedInput
+  }
+
+  export type HospitalUncheckedUpdateWithoutCreatedByInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
+    organizationId?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    updatedById?: NullableIntFieldUpdateOperationsInput | number | null
+    deletedById?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    childHospital?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
+    users?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
+    mappedUsers?: UserUncheckedUpdateManyWithoutMappedHospitalsNestedInput
+  }
+
+  export type HospitalUncheckedUpdateManyWithoutCreatedByInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
+    organizationId?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    updatedById?: NullableIntFieldUpdateOperationsInput | number | null
+    deletedById?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type HospitalUpdateWithoutUpdatedByInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parentHospital?: HospitalUpdateOneWithoutChildHospitalNestedInput
+    childHospital?: HospitalUpdateManyWithoutParentHospitalNestedInput
+    Organization?: OrganizationUpdateOneRequiredWithoutHospitalsNestedInput
+    users?: UserHospitalAccessUpdateManyWithoutHospitalNestedInput
+    mappedUsers?: UserUpdateManyWithoutMappedHospitalsNestedInput
+    CreatedBy?: UserUpdateOneWithoutHospitalCreatedByNestedInput
+    DeletedBy?: UserUpdateOneWithoutHospitalDeletedByNestedInput
+  }
+
+  export type HospitalUncheckedUpdateWithoutUpdatedByInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
+    organizationId?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableIntFieldUpdateOperationsInput | number | null
+    deletedById?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    childHospital?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
+    users?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
+    mappedUsers?: UserUncheckedUpdateManyWithoutMappedHospitalsNestedInput
+  }
+
+  export type HospitalUncheckedUpdateManyWithoutUpdatedByInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
+    organizationId?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableIntFieldUpdateOperationsInput | number | null
+    deletedById?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type HospitalUpdateWithoutDeletedByInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parentHospital?: HospitalUpdateOneWithoutChildHospitalNestedInput
+    childHospital?: HospitalUpdateManyWithoutParentHospitalNestedInput
+    Organization?: OrganizationUpdateOneRequiredWithoutHospitalsNestedInput
+    users?: UserHospitalAccessUpdateManyWithoutHospitalNestedInput
+    mappedUsers?: UserUpdateManyWithoutMappedHospitalsNestedInput
+    CreatedBy?: UserUpdateOneWithoutHospitalCreatedByNestedInput
+    UpdatedBy?: UserUpdateOneWithoutHospitalUpdatedByNestedInput
+  }
+
+  export type HospitalUncheckedUpdateWithoutDeletedByInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
+    organizationId?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedById?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    childHospital?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
+    users?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
+    mappedUsers?: UserUncheckedUpdateManyWithoutMappedHospitalsNestedInput
+  }
+
+  export type HospitalUncheckedUpdateManyWithoutDeletedByInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    hospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    Organizationcode?: NullableStringFieldUpdateOperationsInput | string | null
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
+    organizationId?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedById?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type HospitalCreateManyOrganizationInput = {
     id?: number
     name: string
@@ -19876,14 +21911,17 @@ export namespace Prisma {
     postalCode: string
     contactNumber: string
     email: string
-    website: string
-    logoUrl: string
+    website?: string | null
+    logoUrl?: string | null
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
     level: $Enums.HospitalLevel
     parentHospitalId?: number | null
     isActive?: boolean
+    createdById?: number | null
+    updatedById?: number | null
+    deletedById?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
@@ -19919,8 +21957,8 @@ export namespace Prisma {
     postalCode?: StringFieldUpdateOperationsInput | string
     contactNumber?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    website?: StringFieldUpdateOperationsInput | string
-    logoUrl?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
@@ -19932,6 +21970,10 @@ export namespace Prisma {
     parentHospital?: HospitalUpdateOneWithoutChildHospitalNestedInput
     childHospital?: HospitalUpdateManyWithoutParentHospitalNestedInput
     users?: UserHospitalAccessUpdateManyWithoutHospitalNestedInput
+    mappedUsers?: UserUpdateManyWithoutMappedHospitalsNestedInput
+    CreatedBy?: UserUpdateOneWithoutHospitalCreatedByNestedInput
+    UpdatedBy?: UserUpdateOneWithoutHospitalUpdatedByNestedInput
+    DeletedBy?: UserUpdateOneWithoutHospitalDeletedByNestedInput
   }
 
   export type HospitalUncheckedUpdateWithoutOrganizationInput = {
@@ -19948,19 +21990,23 @@ export namespace Prisma {
     postalCode?: StringFieldUpdateOperationsInput | string
     contactNumber?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    website?: StringFieldUpdateOperationsInput | string
-    logoUrl?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
     level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
     parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedById?: NullableIntFieldUpdateOperationsInput | number | null
+    deletedById?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     childHospital?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
     users?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
+    mappedUsers?: UserUncheckedUpdateManyWithoutMappedHospitalsNestedInput
   }
 
   export type HospitalUncheckedUpdateManyWithoutOrganizationInput = {
@@ -19977,14 +22023,17 @@ export namespace Prisma {
     postalCode?: StringFieldUpdateOperationsInput | string
     contactNumber?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    website?: StringFieldUpdateOperationsInput | string
-    logoUrl?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
     level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
     parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedById?: NullableIntFieldUpdateOperationsInput | number | null
+    deletedById?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -20008,6 +22057,10 @@ export namespace Prisma {
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
     AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
+    mappedHospitals?: HospitalUpdateManyWithoutMappedUsersNestedInput
+    HospitalCreatedBy?: HospitalUpdateManyWithoutCreatedByNestedInput
+    HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
+    HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOrganizationInput = {
@@ -20029,6 +22082,10 @@ export namespace Prisma {
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
     AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
+    mappedHospitals?: HospitalUncheckedUpdateManyWithoutMappedUsersNestedInput
+    HospitalCreatedBy?: HospitalUncheckedUpdateManyWithoutCreatedByNestedInput
+    HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
+    HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutOrganizationInput = {
@@ -20062,14 +22119,17 @@ export namespace Prisma {
     postalCode: string
     contactNumber: string
     email: string
-    website: string
-    logoUrl: string
+    website?: string | null
+    logoUrl?: string | null
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
     level: $Enums.HospitalLevel
     organizationId: number
     isActive?: boolean
+    createdById?: number | null
+    updatedById?: number | null
+    deletedById?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
@@ -20096,8 +22156,8 @@ export namespace Prisma {
     postalCode?: StringFieldUpdateOperationsInput | string
     contactNumber?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    website?: StringFieldUpdateOperationsInput | string
-    logoUrl?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
@@ -20109,6 +22169,10 @@ export namespace Prisma {
     childHospital?: HospitalUpdateManyWithoutParentHospitalNestedInput
     Organization?: OrganizationUpdateOneRequiredWithoutHospitalsNestedInput
     users?: UserHospitalAccessUpdateManyWithoutHospitalNestedInput
+    mappedUsers?: UserUpdateManyWithoutMappedHospitalsNestedInput
+    CreatedBy?: UserUpdateOneWithoutHospitalCreatedByNestedInput
+    UpdatedBy?: UserUpdateOneWithoutHospitalUpdatedByNestedInput
+    DeletedBy?: UserUpdateOneWithoutHospitalDeletedByNestedInput
   }
 
   export type HospitalUncheckedUpdateWithoutParentHospitalInput = {
@@ -20125,19 +22189,23 @@ export namespace Prisma {
     postalCode?: StringFieldUpdateOperationsInput | string
     contactNumber?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    website?: StringFieldUpdateOperationsInput | string
-    logoUrl?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
     level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
     organizationId?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedById?: NullableIntFieldUpdateOperationsInput | number | null
+    deletedById?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     childHospital?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
     users?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
+    mappedUsers?: UserUncheckedUpdateManyWithoutMappedHospitalsNestedInput
   }
 
   export type HospitalUncheckedUpdateManyWithoutParentHospitalInput = {
@@ -20154,14 +22222,17 @@ export namespace Prisma {
     postalCode?: StringFieldUpdateOperationsInput | string
     contactNumber?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    website?: StringFieldUpdateOperationsInput | string
-    logoUrl?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
     level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
     organizationId?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedById?: NullableIntFieldUpdateOperationsInput | number | null
+    deletedById?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -20188,6 +22259,73 @@ export namespace Prisma {
     roleId?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserUpdateWithoutMappedHospitalsInput = {
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    role?: RoleUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    settings?: SettingUpdateOneWithoutUserNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
+    AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
+    HospitalCreatedBy?: HospitalUpdateManyWithoutCreatedByNestedInput
+    HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
+    HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutMappedHospitalsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    roleId?: IntFieldUpdateOperationsInput | number
+    organizationId?: IntFieldUpdateOperationsInput | number
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
+    AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
+    HospitalCreatedBy?: HospitalUncheckedUpdateManyWithoutCreatedByNestedInput
+    HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
+    HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
+  }
+
+  export type UserUncheckedUpdateManyWithoutMappedHospitalsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    roleId?: IntFieldUpdateOperationsInput | number
+    organizationId?: IntFieldUpdateOperationsInput | number
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type UserCreateManyRoleInput = {
@@ -20238,6 +22376,10 @@ export namespace Prisma {
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
     AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
+    mappedHospitals?: HospitalUpdateManyWithoutMappedUsersNestedInput
+    HospitalCreatedBy?: HospitalUpdateManyWithoutCreatedByNestedInput
+    HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
+    HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRoleInput = {
@@ -20259,6 +22401,10 @@ export namespace Prisma {
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
     AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
+    mappedHospitals?: HospitalUncheckedUpdateManyWithoutMappedUsersNestedInput
+    HospitalCreatedBy?: HospitalUncheckedUpdateManyWithoutCreatedByNestedInput
+    HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
+    HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutRoleInput = {

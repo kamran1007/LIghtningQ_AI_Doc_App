@@ -185,6 +185,9 @@ exports.Prisma.HospitalScalarFieldEnum = {
   parentHospitalId: 'parentHospitalId',
   organizationId: 'organizationId',
   isActive: 'isActive',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  deletedById: 'deletedById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'

@@ -39,7 +39,8 @@ export class AuthController {
       req.user.Email,
       req.user.firstName,
       req.user.lastName,
-      req.user.Role, // Assuming Role is part of the user object
+      req.user.RoleId, // Assuming Role is part of the user object
+      req.user.organizationId
     );
     console.log('AuthController: resopnse =', resopnse);
     return resopnse;
@@ -47,7 +48,7 @@ export class AuthController {
   // @UseGuards(JwtAuthGuard)
   @Get('protected')
   getAll(@Request() req) {
-    const userData = req.user.name;
+    const userData = req.user;
     return {
       message: 'This is a protected route',
       user: {
@@ -58,11 +59,9 @@ export class AuthController {
         lastName: userData.lastName,
         email: userData.email,
         mobile: userData.mobile,
-        passwordHash: userData.passwordHash,
         dateOfBirth: userData.dateOfBirth,
         gender: userData.gender,
         isActive: userData.isActive,
-        hashedRefreshToken: userData.hashedRefreshToken,
         roleId: userData.roleId,
       },
     };
@@ -72,7 +71,8 @@ export class AuthController {
   @UseGuards(RefreshAuthGuard)
   @Post('refresh')
   refreshToken(@Request() req) {
-    return this.authService.refreshToken(req.user.id, req.user.name);
+    const { id, email, organizationId, roleId } = req.user;
+  return this.authService.refreshToken(id, email, organizationId, roleId);
   }
   //update profile
   @Patch('Updateprofile')

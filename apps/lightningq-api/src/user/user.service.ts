@@ -20,13 +20,7 @@ export class UserService {
   async findOne(userId: number) {
     return await this.prisma.user.findUnique({
       where: { id: userId },
-      include: {
-        role: true,
-        settings: true,
-        auditLogs: true,
-        loginSessions: true,
-        AdminAccess: true,
-      },
+
     });
   }
   async updateHashedRefreshToken(userId: number, hashedRT: string | null) {
@@ -35,11 +29,12 @@ export class UserService {
         id: userId,
       },
       data: {
-        hashedRefreshToken: hashedRT,
+        // hashedRefreshToken: hashedRT,  hashedRefreshToken String? // <== add the `?` to make it nullable -- > prisma
+        hashedRefreshToken: hashedRT === null ? undefined : hashedRT
       },
     });
   }
-
+  
   // Update user
   async updateUserProfile(userId: number, dto: UpdateProfileDto) {
     return await this.prisma.user.update({

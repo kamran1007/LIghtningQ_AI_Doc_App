@@ -6,6 +6,9 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { LocalAuthGuard } from './auth/guards/local-auth/local-auth.guard';
+import { AdminModule } from './admin/admin.module';
+import { ManageHospitalModule } from './manage_hospital/manage_hospital.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
@@ -17,6 +20,9 @@ import { LocalAuthGuard } from './auth/guards/local-auth/local-auth.guard';
     }),
     AuthModule,
     UserModule,
+    AdminModule,
+    ManageHospitalModule,
+    PrismaModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

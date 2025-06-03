@@ -37,6 +37,10 @@ model User {
   loginSessions      LoginSession[]
   AdminAccess        UserHospitalAccess[]
   deletedAt          DateTime?
+  mappedHospitals    Hospital[]           @relation("UserHospitals")
+  HospitalCreatedBy  Hospital[]           @relation("UserCreatedHospitals")
+  HospitalUpdatedBy  Hospital[]           @relation("UserUpdatedHospitals")
+  HospitalDeletedBy  Hospital[]           @relation("UserDeletedHospitals")
 }
 
 // Organization (Top-most head entity created by you or BA)
@@ -47,8 +51,8 @@ model Organization {
   logoUrl          String // Optional logo for branding
   email            String              @unique
   contactNumber    String
-  Orgnizationtype  OrganizationType? 
-  website          String 
+  Orgnizationtype  OrganizationType?
+  website          String
   addressLine1     String
   addressLine2     String
   city             String
@@ -71,9 +75,9 @@ model Organization {
 
 // Hospital entity (can be super/child/sub-child)
 model Hospital {
-  id                 Int                 @id @default(autoincrement())
+  id                 Int                @id @default(autoincrement())
   name               String
-  hospitalCode       String              @unique
+  hospitalCode       String             @unique
   ParentHospitalCode String?
   Organizationcode   String?
   SpecializationType SpecializationType
@@ -84,16 +88,17 @@ model Hospital {
   postalCode         String
   contactNumber      String
   email              String
-  website            String
-  logoUrl            String
-  latitude           Float
-  longitude          Float
-  status             Hospital_Org_status @default(ACTIVE)
-  level              HospitalLevel
+  website            String?
+  logoUrl            String?
+
+  latitude         Float
+  longitude        Float
+  status           Hospital_Org_status @default(ACTIVE)
+  level            HospitalLevel
   // Hierarchical relation
-  parentHospitalId   Int?
-  parentHospital     Hospital?           @relation("HospitalHierarchy", fields: [parentHospitalId], references: [id])
-  childHospital      Hospital[]          @relation("HospitalHierarchy")
+  parentHospitalId Int?
+  parentHospital   Hospital?           @relation("HospitalHierarchy", fields: [parentHospitalId], references: [id])
+  childHospital    Hospital[]          @relation("HospitalHierarchy")
 
   // Organization it belongs to
 
@@ -101,8 +106,17 @@ model Hospital {
   organizationId Int
   // User-to-Hospital mapping
   users          UserHospitalAccess[]
+  mappedUsers    User[]               @relation("UserHospitals")
 
-  isActive  Boolean   @default(true)
+  isActive    Boolean @default(true)
+  createdById Int?
+  CreatedBy   User?   @relation("UserCreatedHospitals", fields: [createdById], references: [id])
+  updatedById Int?
+  UpdatedBy   User?   @relation("UserUpdatedHospitals", fields: [updatedById], references: [id])
+
+  deletedById Int?
+  DeletedBy   User? @relation("UserDeletedHospitals", fields: [deletedById], references: [id])
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now())
   deletedAt DateTime?

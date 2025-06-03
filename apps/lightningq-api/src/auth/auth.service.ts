@@ -20,51 +20,87 @@ export class AuthService {
 
   async validateLocalUser(email: string, password: string) {
     const user = await this.userService.findByEmail(email);
-    // console.log('user',user);
-
     if (!user) throw new UnauthorizedException('User not found!');
+  
     const isPasswordMatched = await verify(user.passwordHash, password);
-    if (!isPasswordMatched)
-      throw new UnauthorizedException('Invalid Credentials!');
-
-    return { Id: user.id, firstName: user.firstName,lastName: user.lastName, Email: user.email ,Role: user.roleId};
+    if (!isPasswordMatched) {
+      throw new UnauthorizedException('Invalid credentials!');
+    }
+  
+    return {
+      Id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      Email: user.email,
+      RoleId: user.roleId,
+      organizationId: user.organizationId,
+    };
   }
+  
 
-  async login(userId: number,Email: string, firstName: string, lastName: string,RoleID: number) {
-    const { accessToken ,refreshToken} = await this.generateTokens(userId);
+  async login(
+    userId: number,
+    email: string,
+    firstName: string,
+    lastName: string,
+    roleId: number,
+    organizationId: number
+  ) {
+    const { accessToken, refreshToken } = await this.generateTokens(
+      userId,
+      email,
+      organizationId,
+      roleId
+    );
+  
     const hashedRT = await hash(refreshToken);
-    await this.userService.updateHashedRefreshToken(userId ,hashedRT);
+    await this.userService.updateHashedRefreshToken(userId, hashedRT);
+  
     return {
       id: userId,
-      Email: Email,
-      Name: firstName,
-      lastName: lastName,
-      RoleID: RoleID, 
+      email,
+      firstName,
+      lastName,
+      roleId,
+      organizationId,
       accessToken,
       refreshToken,
     };
   }
+  
 
-  async generateTokens(userId: number) {
-    const payload: AuthJwtPayload = { sub: userId };
-    const [accessToken,refreshToken] = await Promise.all([
+  async generateTokens(
+    userId: number,
+    email: string,
+    organizationId: number,
+    roleId: number
+  ) {
+    const payload: AuthJwtPayload = {
+      sub: userId,
+      email,
+      organizationId,
+      roleId,
+    };
+  
+    const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload),
       this.jwtService.signAsync(payload, this.refreshTokenConfig),
     ]);
-
-    return {
-      accessToken,
-      refreshToken,
-    };
+  
+    return { accessToken, refreshToken };
   }
+  
   async validateJwtUser(userId: number) {
     const user = await this.userService.findOne(userId);
     if (!user) throw new UnauthorizedException('User not found!');
-    const currentUser = { id: user.id, name: user, email: user.email , roleId: user.roleId};
-    return currentUser;
+  
+    return user
   }
+  
 
   async validateRefreshToken(userId: number, refreshToken: string) {
+    console.log('[validateRefreshToken] Called with userId:', userId);
+
     const user = await this.userService.findOne(userId);
     if (!user) throw new UnauthorizedException('User not found!');
 
@@ -81,17 +117,31 @@ export class AuthService {
     const currentUser = { id: user.id };
     return currentUser;
   }
-  async refreshToken(userId: number, name: string) {
-    const { accessToken, refreshToken } = await this.generateTokens(userId);
+  async refreshToken(
+    userId: number,
+    email: string,
+    organizationId: number,
+    roleId: number
+  ) {
+    const { accessToken, refreshToken } = await this.generateTokens(
+      userId,
+      email,
+      organizationId,
+      roleId
+    );
     const hashedRT = await hash(refreshToken);
-    await this.userService.updateHashedRefreshToken(userId,hashedRT);
+    await this.userService.updateHashedRefreshToken(userId, hashedRT);
+  
     return {
       id: userId,
-      name: name,
+      email,
+      roleId,
+      organizationId,
       accessToken,
       refreshToken,
     };
   }
+  
 
   async updateProfile(userId: number, dto: UpdateProfileDto) {
     console.log('userId:', userId);
