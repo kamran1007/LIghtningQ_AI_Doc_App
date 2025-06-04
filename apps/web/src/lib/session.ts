@@ -20,6 +20,7 @@ export type Session = {
 
 // eslint-disable-next-line turbo/no-undeclared-env-vars
 const secretKey = process.env.SESSION_SECRET_KEY!;
+console.log("session secrete key", secretKey)
 const encodedKey = new TextEncoder().encode(secretKey);
 
 export async function createSession(payload: Session) {

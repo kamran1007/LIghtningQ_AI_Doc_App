@@ -263,3 +263,46 @@ body {
 .submit-button:hover {
   opacity: 0.9;
 }
+
+.custom-gradient-hover:hover {
+  background: radial-gradient(circle,
+      rgba(0, 36, 34, 1) 0%,
+      rgba(25, 138, 224, 1) 0%,
+      rgba(25, 138, 224, 1) 0%,
+      rgba(34, 224, 212, 1) 97%) !important;
+}
+
+.scroll-gradient {
+  position: relative;
+  overflow-y: auto;
+}
+
+/* Gradient overlays */
+.scroll-gradient::before,
+.scroll-gradient::after {
+  content: '';
+  position: sticky;
+  left: 0;
+  right: 0;
+  height: 30px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.scroll-gradient::before {
+  top: 0;
+  background: radial-gradient(circle,
+      rgba(0, 36, 34, 1) 0%,
+      rgba(25, 138, 224, 1) 0%,
+      rgba(25, 138, 224, 1) 0%,
+      rgba(34, 224, 212, 1) 97%);
+}
+
+.scroll-gradient::after {
+  bottom: 0;
+  background: radial-gradient(circle,
+      rgba(0, 36, 34, 1) 0%,
+      rgba(25, 138, 224, 1) 0%,
+      rgba(25, 138, 224, 1) 0%,
+      rgba(34, 224, 212, 1) 97%);
+}

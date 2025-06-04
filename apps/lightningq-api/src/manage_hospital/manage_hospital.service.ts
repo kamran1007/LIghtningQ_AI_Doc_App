@@ -82,4 +82,19 @@ export class ManageHospitalService {
       data: updatedHospital,
     };
   }
+
+  async getOrganization(organizationId: number) {
+    const [hospitals] = await this.prisma.$transaction([
+      this.prisma.organization.findMany({
+        where: {
+          id: organizationId, // ✅ Restrict to user's org
+        },
+      }),
+    ]);
+  
+    return {
+      data: hospitals,
+      
+    };
+  }
 }

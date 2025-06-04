@@ -46,4 +46,11 @@ export class AdminController {
     const userId = req.user.id; // assumes you're using auth middleware
     return this.adminservice.updateHospital(+id, dto, userId);
   }
+
+    // get allhospital
+    @Get('GetOrganization')
+    async getorganization(@Request() req) {
+      const organizationId = req.user.organizationId;
+      return this.adminservice.getOrganization(organizationId);
+    }
 }

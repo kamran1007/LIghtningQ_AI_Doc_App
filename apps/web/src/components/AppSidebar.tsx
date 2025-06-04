@@ -5,8 +5,9 @@ import {
   CalendarClock,
   MonitorSmartphone,
   Shuffle,
-  Cloud,
   Sliders,
+  ShieldCheck,
+  UserCog,
 } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -17,7 +18,7 @@ const navItems = [
   { name: "Appointments", icon: CalendarClock, path: "/appointments" },
   { name: "Display Boards", icon: MonitorSmartphone, path: "/displays" },
   { name: "Flow Optimization", icon: Shuffle, path: "/flow" },
-  { name: "Cloud Access", icon: Cloud, path: "/cloud" },
+  { name: "Admin", icon: UserCog , path: "/admin" },
   { name: "Settings", icon: Sliders, path: "/settings" },
 ];
 

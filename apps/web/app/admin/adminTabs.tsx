@@ -1,0 +1,62 @@
+"use client";
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button"; // Assuming you're using shadcn/ui
+import { Plus } from "lucide-react";
+import HospitalList from "./hospitallist";
+import AddHospitalForm from "./addhospitalform";
+import { useState } from "react";
+
+const AdminTabs = () => {
+  const [isAddOpen, setIsAddOpen] = useState(false);
+
+  return (
+    <Tabs defaultValue="hospital" className="w-full ">
+      <TabsList className="mb-4 border-b w-full flex gap-2 ">
+        <TabsTrigger
+          value="hospital"
+          className="px-4 py-2 text-sm font-medium border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 cursor-pointer"
+        >
+          Manage Hospital
+        </TabsTrigger>
+        <TabsTrigger
+          value="user"
+          className="px-4 py-2 text-sm font-medium border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 cursor-pointer"
+        >
+          Manage User
+        </TabsTrigger>
+      </TabsList>
+
+      {/* Manage Hospital Tab */}
+      <TabsContent value="hospital">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold text-gray-700">Hospital List</h2>
+          <Button
+      onClick={() => setIsAddOpen(true)}
+      variant="default"
+      className="flex items-center gap-2 cursor-pointer text-white bg-black transition-all duration-300 custom-gradient-hover"
+    >
+      <Plus className="w-4 h-4" />
+      Add Hospital
+    </Button>
+        </div>
+
+        {/* Hospital list/table component placeholder */}
+        {/* <div className="border rounded p-4">[Hospital List Component]</div> */}
+        <HospitalList/>
+        <AddHospitalForm open={isAddOpen} onOpenChange={setIsAddOpen} />
+
+      </TabsContent>
+
+      {/* Manage User Tab */}
+      <TabsContent value="user">
+        <h2 className="text-lg font-semibold mb-4">User List</h2>
+
+        {/* User list/table component placeholder */}
+        <div className="border rounded p-4">[User List Component]</div>
+      </TabsContent>
+    </Tabs>
+  );
+};
+
+export default AdminTabs;

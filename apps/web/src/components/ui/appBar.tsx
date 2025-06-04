@@ -7,8 +7,14 @@ import Image from "next/image";
 
 const AppBar = async () => {
   const UserProfile = await getProfile();
-  const FullName = UserProfile?.user.firstName + " " + UserProfile?.user.lastName;
-  console.log("UserProfile in AppBar:", FullName);
+  const firstName = UserProfile?.user?.firstName ?? "";
+  const lastName = UserProfile?.user?.lastName ?? "";
+  const roleId = UserProfile?.user?.roleId ?? null;
+
+  const FullName = firstName + " " + lastName;
+  const roleLabel = roleId === 1 ? "Admin" : "Doctor";
+  
+
   return (
     <div className="navbar flex items-center justify-between px-4 py-4 h-14 relative bg-gray-800">
       
@@ -31,10 +37,13 @@ const AppBar = async () => {
 
       {/* Right-side user info and dropdown */}
       <div className="absolute right-4 top-0 h-14 flex items-center gap-2 z-50">
-        <p className="font-houschka text-1xl text-white whitespace-nowrap">
-          {FullName} (
-          {UserProfile?.user.roleId === 1 ? "Admin" : "Doctor"})
-        </p>
+        {UserProfile?.user ? (
+          <p className="font-houschka text-1xl text-white whitespace-nowrap">
+            {FullName} ({roleLabel})
+          </p>
+        ) : (
+          <p className="font-houschka text-1xl text-white">Loading...</p>
+        )}
         <NavbarDropdown />
       </div>
     </div>

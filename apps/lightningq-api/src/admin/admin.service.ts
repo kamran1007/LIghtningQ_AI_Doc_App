@@ -37,4 +37,14 @@ export class AdminService {
       return:  UpdatedHospital
     }
   }
+
+  //get organization
+  async getOrganization(organizationId: number) {
+    const GetOrganization =
+      await this.ManageHospitalService.getOrganization(organizationId);
+    return {
+      message: 'Successfully Fetch',
+      return: GetOrganization,
+    };
+  }
 }
