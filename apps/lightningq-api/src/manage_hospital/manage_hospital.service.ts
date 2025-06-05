@@ -7,25 +7,85 @@ import { UpdateHospitalDto } from './dto/update_hospital.dto';
 export class ManageHospitalService {
   constructor(private readonly prisma: PrismaService) {}
 
+  // async CreateHospital(dto: CreateHospitalDto, userId: number) {
+  //   // 1. Fetch organization
+  //   const organization = await this.prisma.organization.findUnique({
+  //     where: { id: dto.organizationId },
+  //   });
+
+  //   if (!organization) {
+  //     throw new Error('Organization not found');
+  //   }
+  //   const hospitalcode = await this.prisma.hospital.findUnique({
+  //     where: { hospitalCode: dto.hospitalCode },
+  //   });
+  //   if(hospitalcode){
+  //     throw new Error('Hospital code Must be unique')
+  //   }
+  //   const hospital = await this.prisma.hospital.create({
+  //     data: {
+  //       ...dto,
+  //       Organizationcode: organization.Organizationcode, // Set manually
+  //       createdById: userId,
+  //     },
+  //   });
+  //   return hospital;
+  // }
   async CreateHospital(dto: CreateHospitalDto, userId: number) {
     // 1. Fetch organization
     const organization = await this.prisma.organization.findUnique({
       where: { id: dto.organizationId },
     });
-
+  
     if (!organization) {
+      // Throw custom error for client-side logging
       throw new Error('Organization not found');
     }
+  
+    // Auto-generate hospitalCode if it's empty
+    if (!dto.hospitalCode || dto.hospitalCode.trim() === '') {
+      const namePart = (dto.name?.slice(0, 3) || 'XXX').toUpperCase();
+      const cityPart = (dto.city?.slice(0,3) || 'YYY').toUpperCase();
+      const contactPart = (dto.contactNumber?.slice(-2) || '00');
+    
+      let baseCode = `${namePart}${cityPart}${contactPart}`;
+      let uniqueCode = baseCode;
+      let counter = 1;
+    
+      // Keep trying until a unique hospitalCode is found
+      while (await this.prisma.hospital.findUnique({ where: { hospitalCode: uniqueCode } })) {
+        uniqueCode = `${baseCode}${counter}`;
+        counter++;
+      }
+    
+      dto.hospitalCode = uniqueCode;
+    }
+    
+    
+  
+    // 2. Check uniqueness
+    const hospitalWithSameCode = await this.prisma.hospital.findUnique({
+      where: { hospitalCode: dto.hospitalCode },
+    });
+  
+    if (hospitalWithSameCode) {
+      throw new Error('Hospital code must be unique');
+    }
+  
+    // 3. Create hospital
     const hospital = await this.prisma.hospital.create({
       data: {
         ...dto,
-        Organizationcode: organization.Organizationcode, // Set manually
-
+        Organizationcode: organization.Organizationcode,
         createdById: userId,
       },
     });
+  
     return hospital;
   }
+  
+
+
   async getAllhospital(page: number, organizationId: number) {
     const pageSize = 10;
     const skip = (page - 1) * pageSize;

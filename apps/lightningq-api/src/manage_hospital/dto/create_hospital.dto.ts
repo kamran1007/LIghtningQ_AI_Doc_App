@@ -8,8 +8,12 @@ import {
   IsLatitude,
   IsLongitude,
 } from 'class-validator';
-import {  } from '@prisma/client';
-import { Hospital_Org_status, HospitalLevel, SpecializationType } from 'generated/prisma';
+import {} from '@prisma/client';
+import {
+  Hospital_Org_status,
+  HospitalLevel,
+  SpecializationType,
+} from 'generated/prisma';
 
 export class CreateHospitalDto {
   @IsString()
@@ -58,10 +62,10 @@ export class CreateHospitalDto {
   @IsString()
   logoUrl?: string;
 
-  @IsLatitude()
+  @IsNumber()
   latitude!: number;
 
-  @IsLongitude()
+  @IsNumber()
   longitude!: number;
 
   @IsEnum(HospitalLevel)

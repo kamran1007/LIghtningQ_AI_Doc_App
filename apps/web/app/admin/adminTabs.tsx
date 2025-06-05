@@ -5,10 +5,36 @@ import { Button } from "@/components/ui/button"; // Assuming you're using shadcn
 import { Plus } from "lucide-react";
 import HospitalList from "./hospitallist";
 import AddHospitalForm from "./addhospitalform";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getOrganizationByUser } from "@/lib/admin";
 
 const AdminTabs = () => {
+  type OrganizationType = {
+    id: number;
+    OrganizationName: string;
+    Organizationcode: string;
+  };
+  
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [hospitalData, setHospitalData] = useState<OrganizationType | undefined>(undefined);
+  
+    useEffect(() => {
+      const fetchHospitals = async () => {
+        try {
+          const response = await getOrganizationByUser();
+          const data = response?.return?.data?.[0];
+    
+          console.log("API response:", response);
+          console.log("Setting hospital data:", data);
+    
+          setHospitalData(data);
+        } catch (error) {
+          console.error("Failed to fetch hospitals:", error);
+        }
+      };
+    
+      fetchHospitals();
+    }, []);
 
   return (
     <Tabs defaultValue="hospital" className="w-full ">
@@ -44,7 +70,7 @@ const AdminTabs = () => {
         {/* Hospital list/table component placeholder */}
         {/* <div className="border rounded p-4">[Hospital List Component]</div> */}
         <HospitalList/>
-        <AddHospitalForm open={isAddOpen} onOpenChange={setIsAddOpen} />
+        <AddHospitalForm open={isAddOpen} onOpenChange={setIsAddOpen} Organizationdata={hospitalData} />
 
       </TabsContent>
 

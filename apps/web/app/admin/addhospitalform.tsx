@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,16 +14,26 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import GoogleMapReact from "google-map-react";
 import { X } from "lucide-react";
-// import { GoogleMapApiKey } from  "@/lib/constants";
+import { GoogleMapApiKey } from "@/lib/constants";
+import { fetchHospitals } from '@/store/hospitalSlice';
+import {
+  GoogleMap,
+  Marker,
+  Autocomplete,
+  useJsApiLoader,
+} from "@react-google-maps/api";
+import { addhospitaldetail } from "@/lib/admin";
+import toast from "react-hot-toast";
+import { useDispatch } from 'react-redux';
+import type { AppDispatch } from '@/store'; // <-- your store file
+// const GoogleMapApiKey = process.env.NEXT_PUBLIC_GOOGLEMAPSECRETEKEY;;
+console.log("Google secrete", GoogleMapApiKey);
+const libraries: "places"[] = ["places"];
 
-
-// Zod schema for validation
 const hospitalSchema = z.object({
   name: z.string().min(1),
-  hospitalCode: z.string().min(1),
+  hospitalCode: z.string(),
   SpecializationType: z.string().min(1),
   address: z.string().min(1),
   city: z.string().min(1),
@@ -31,43 +42,69 @@ const hospitalSchema = z.object({
   postalCode: z.string().min(1),
   contactNumber: z.string().min(1),
   email: z.string().email(),
-  website: z.string().url(),
-  logoUrl: z.string().url(),
-  level: z.string().min(1),
-  status: z.string().min(1),
+  website: z.string().min(1),
+  logoUrl: z.string().min(1),
+  // level: z.string().min(1),
+  // status: z.string().min(1).optional(),
   latitude: z.number(),
   longitude: z.number(),
 });
 
-type MapMarkerProps = {
-  lat: number;
-  lng: number;
-};
-const MapMarker: React.FC<MapMarkerProps> = () => (
-  <div className="text-red-600">📍</div>
-);
-const GoogleMapApiKey = "";
-console.log("Google Map Api key ",GoogleMapApiKey)
 const AddHospitalForm = ({
   open,
   onOpenChange,
   hospital,
+  Organizationdata,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   hospital?: any;
+  Organizationdata?: {
+    id: number;
+    OrganizationName: string;
+    Organizationcode: string;
+  };
 }) => {
   const [lat, setLat] = useState(17.385044);
   const [lng, setLng] = useState(78.486671);
   const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [autocomplete, setAutocomplete] =
+    useState<google.maps.places.Autocomplete | null>(null);
+  console.log("data has been received", Organizationdata);
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: GoogleMapApiKey || "",
+    libraries,
+  });
 
-  const { register, handleSubmit, setValue, getValues, reset } = useForm({
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    getValues,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm({
     resolver: zodResolver(hospitalSchema),
     defaultValues: {
       latitude: lat,
       longitude: lng,
     },
   });
+  const [error, setError] = useState<{
+    name?: string;
+    SpecializationType?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postalCode?: string;
+    contactNumber?: string;
+    email?: string;
+    website?: string;
+    logoUrl?: string;
+  }>({});
   useEffect(() => {
     if (hospital) {
       setValue("name", hospital.name);
@@ -75,18 +112,33 @@ const AddHospitalForm = ({
       setValue("address", hospital.address);
       setValue("email", hospital.email);
       setValue("contactNumber", hospital.contactNumber);
+      setValue("SpecializationType",hospital.SpecializationType);
+      setValue("postalCode",hospital.postalCode);
+      setValue("city",hospital.city);
+      setValue("state",hospital.state);
       setValue("latitude", hospital.latitude || lat);
       setValue("longitude", hospital.longitude || lng);
       setAddress(hospital.address || "");
+      handlePincodeFetch()
     }
-  }, [hospital, lat, lng, setValue]);
-  const handleMapClick = ({ lat, lng }: { lat: number; lng: number }) => {
+    if (!open) {
+      reset(); // clears form when modal is closed
+      setCity(""); // optional: reset city/state input states
+      setState("");
+    }
+
+  }, [hospital, lat, lng]);
+
+  const handleMapClick = ({ latLng }: google.maps.MapMouseEvent) => {
+    if (!latLng) return;
+    const lat = latLng.lat();
+    const lng = latLng.lng();
+
     setLat(lat);
     setLng(lng);
     setValue("latitude", lat);
     setValue("longitude", lng);
 
-    // Optional: Reverse geocoding to auto-fill address
     fetch(
       `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GoogleMapApiKey}`
     )
@@ -100,12 +152,27 @@ const AddHospitalForm = ({
       });
   };
 
-  const onSubmit = (data: any) => {
-    console.log("Form Data:", data);
-    // Submit your data via POST or mutation here
+  const onLoadAutocomplete = (auto: google.maps.places.Autocomplete) => {
+    setAutocomplete(auto);
   };
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
+
+  const onPlaceChanged = () => {
+    if (!autocomplete) return;
+    const place = autocomplete.getPlace();
+    if (!place.geometry?.location) return;
+
+    const newLat = place.geometry.location.lat();
+    const newLng = place.geometry.location.lng();
+
+    setLat(newLat);
+    setLng(newLng);
+    setValue("latitude", newLat);
+    setValue("longitude", newLng);
+
+    const formattedAddress = place.formatted_address || "";
+    setAddress(formattedAddress);
+    setValue("address", formattedAddress);
+  };
 
   const handlePincodeFetch = async () => {
     const pincode = getValues("postalCode");
@@ -116,7 +183,6 @@ const AddHospitalForm = ({
         `https://api.postalpincode.in/pincode/${pincode}`
       );
       const data = await res.json();
-
       if (data[0].Status === "Success") {
         const postOffice = data[0].PostOffice[0];
         setCity(postOffice.District);
@@ -128,14 +194,71 @@ const AddHospitalForm = ({
       console.error("Failed to fetch pincode info", error);
     }
   };
-  let inputbox =
-    "w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm text-gray-800 shadow-md placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200";
+  const dispatch = useDispatch<AppDispatch>();
+
+  const onSubmit = async (formData: any) => {
+    console.log("Data has been log", Organizationdata);
+    try {
+      // 🔥 Include required extra fields if needed
+      const payload = {
+        ...formData,
+        organizationId: Organizationdata?.id ?? "",
+        ParentHospitalCode: Organizationdata?.Organizationcode ?? "",
+        level: "SUPER",
+        status: formData.status || "ACTIVE",
+        isActive: true,
+      };
+      // const parsed = hospitalSchema.safeParse(payload);
+      // if (!parsed.success) {
+      //   const formatted = parsed.error.format();
+      //   console.log("Validation Errors:", formatted);
+
+      //   setError({
+      //     name: formatted.name?._errors?.[0] ?? "",
+      //     SpecializationType: formatted.SpecializationType?._errors?.[0] ?? "",
+      //     address: formatted.address?._errors?.[0] ?? "",
+      //     city: formatted.city?._errors?.[0] ?? "",
+      //     state: formatted.state?._errors?.[0] ?? "",
+      //     country: formatted.country?._errors?.[0] ?? "",
+      //     postalCode: formatted.postalCode?._errors?.[0],
+      //     email: formatted.email?._errors?.[0] ?? "",
+      //     website: formatted.website?._errors?.[0] ?? "",
+      //     logoUrl: formatted.logoUrl?._errors?.[0] ?? "",
+      //   });
+
+      //   toast.error("Please correct the errors and try again.");
+      //   return;
+      // } else {
+      //   setError({}); // Clear errors on successful validation
+      // }
+
+      // const result = await addhospitaldetail(payload);
+
+      // console.log("Hospital added:", result);
+      // toast.success("Hospital data added scccessfully");
+      // reset(); // Reset the form
+      // onOpenChange(false); // Close the dialog
+    const result = await addhospitaldetail(payload);
+    toast.success("Hospital added successfully",result);
+    reset();
+    onOpenChange(false);
+    dispatch(fetchHospitals());
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
+      const message = error?.response?.data?.message || "An error has occurred";
+      toast.error(message);
+    }
+  };
 
   const handleCancel = () => {
-    reset(); // ✅ Reset form fields
-    setAddress(""); // ✅ Clear address state
-    onOpenChange(false); // ✅ Close the modal
+    reset();
+    setAddress("");
+    onOpenChange(false);
   };
+
+  const inputbox =
+    "w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-800 shadow-md placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200";
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild></DialogTrigger>
@@ -146,11 +269,10 @@ const AddHospitalForm = ({
         <div className="flex justify-between items-start mb-2 shadow-2xl rounded-lg p-1 bg-white">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-gray-700">
-              {hospital ? "Edit hospital" : "Add Hospital"}
-              {/* Add Hospital */}
+              {hospital ? "Edit Hospital" : "Add Hospital"}
             </DialogTitle>
             <DialogDescription>
-              {hospital ? "You can Edit hospital" : "You can Add Hospital"}
+              {hospital ? "Update hospital info" : "Enter hospital details"}
             </DialogDescription>
           </DialogHeader>
           <DialogClose asChild>
@@ -159,22 +281,45 @@ const AddHospitalForm = ({
             </button>
           </DialogClose>
         </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="scroll-gradient h-[300px] overflow-y-auto p-4h-[500px] rounded-md overflow-hidden">
-            <GoogleMapReact
-              bootstrapURLKeys={{ key: "AIzaSyDd8GXsu4fRn51F9SlYxJAMJbSfvxBUabc" }}
-              defaultCenter={{ lat, lng }}
-              defaultZoom={14}
-              onClick={handleMapClick}
-            >
-              <MapMarker lat={lat} lng={lng} />
-            </GoogleMapReact>
-          </div>
+          {/* 🗺️ Google Map & Address Search */}
+          {isLoaded && (
+            <div className="scroll-gradient overflow-hidden rounded-xl h-[400px]">
+              <Autocomplete
+                onLoad={onLoadAutocomplete}
+                onPlaceChanged={onPlaceChanged}
+              >
+                <Input
+                  placeholder="Search Address"
+                  className={`${inputbox} mb-3`}
+                />
+              </Autocomplete>
+              <GoogleMap
+                mapContainerStyle={{ height: "350px", width: "100%" }}
+                center={{ lat, lng }}
+                zoom={14}
+                onClick={handleMapClick}
+              >
+                <Marker position={{ lat, lng }} />
+              </GoogleMap>
+            </div>
+          )}
+
+          {/* 📝 Form Fields */}
           <form onSubmit={handleSubmit(onSubmit)}>
             <Input
               {...register("name")}
               placeholder="Hospital Name"
-              className={`${inputbox} mb-4 py-5.5`}
+              className={`${inputbox} mb-4 py-5`}
+            />
+
+            <Input
+              {...register("address")}
+              placeholder="Address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className={`${inputbox}  mb-4 py-4.5`}
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
@@ -189,19 +334,16 @@ const AddHospitalForm = ({
                 className={`${inputbox} bg-white border border-gray-300 rounded px-4 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400`}
               >
                 <option value="">Select Specialization</option>
-                <option value="Cardiology">Cardiology</option>
-                <option value="Neurology">Neurology</option>
-                <option value="Pediatrics">Pediatrics</option>
-                <option value="Oncology">Oncology</option>
-                <option value="Orthopedics">Orthopedics</option>
+                <option value="GENERAL">GENERAL</option>
+                <option value="OPHTHALMOLOGY">OPHTHALMOLOGY</option>
+                <option value="DENTAL">DENTAL</option>
+                <option value="ENT">ENT</option>
+                <option value="ORTHOPEDIC">ORTHOPEDIC</option>
+                <option value="MULTISPECIALITY">MULTISPECIALITY</option>
+                <option value="OTHER">OTHER</option>
+
+
               </select>
-              <Input
-                {...register("address")}
-                placeholder="Address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                className={`${inputbox}`}
-              />
 
               <Input
                 {...register("postalCode")}
@@ -246,7 +388,6 @@ const AddHospitalForm = ({
                 placeholder="Website"
                 className={inputbox}
               />
-              
 
               <Input
                 {...register("logoUrl")}
@@ -254,28 +395,29 @@ const AddHospitalForm = ({
                 className={inputbox}
               />
 
-              <Input
+              {/* <Input
                 {...register("level")}
                 placeholder="Level"
                 className={inputbox}
-              />
+              /> */}
               {/* <Input {...register("status")} placeholder="Status" /> */}
             </div>
 
             <DialogFooter className="flex justify-end gap-2 mt-4">
-              <Button
+              <button
                 type="button"
                 onClick={handleCancel}
                 className="bg-red-400 hover:bg-red-500 text-white px-5 py-2 rounded-4xl shadow-2xl transition disabled:opacity-50 cursor-pointer "
               >
                 Cancel
-              </Button>
-              <Button
+              </button>
+              <button
                 type="submit"
-                className="bg-green-400 hover:bg-green-500 text-white px-5 py-2 rounded-4xl shadow-2xl transition disabled:opacity-50 cursor-pointer"
+                disabled={isSubmitting}
+                className="bg-green-400 hover:bg-green-500 text-white px-5 py-2 rounded-4xl shadow-2xl transition cursor-pointer"
               >
-                Submit
-              </Button>
+                {isSubmitting ? "Submit..." : "Submit"}
+              </button>
             </DialogFooter>
           </form>
         </div>
@@ -285,6 +427,3 @@ const AddHospitalForm = ({
 };
 
 export default AddHospitalForm;
-
-
-

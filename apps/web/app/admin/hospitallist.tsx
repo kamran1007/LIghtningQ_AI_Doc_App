@@ -1,9 +1,10 @@
+'use client';
+
 import React, { useEffect, useState } from "react";
 import { MaterialReactTable } from "material-react-table";
 import Image from "next/image";
-import { getallhospitalByUser } from "@/lib/admin";
 import { MoreHorizontal, Eye, Edit, Plus } from "lucide-react";
-import AddHospitalForm from "./addhospitalform"; // adjust the path if different
+import AddHospitalForm from "./addhospitalform";
 
 import {
   DropdownMenu,
@@ -11,10 +12,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { HospitalTableSkeleton } from "@/components/ui/hospitalListSkeleton";
+
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from '@/store';
+import { fetchHospitals } from "@/store/hospitalSlice";
+
 const HospitalList = () => {
-  const [hospitalData, setHospitalData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [selectedHospital, setSelectedHospital] = useState<any | null>(null);
+  const dispatch = useDispatch<AppDispatch>();
+  const hospitalData = useSelector((state: RootState) => state.hospital.data);
+  const isLoading = useSelector((state: RootState) => state.hospital.loading);
+
+  const [selectedHospital, setSelectedHospital] = useState(null);
   const [openModal, setOpenModal] = useState(false);
 
   const handleView = () => {
@@ -25,31 +34,16 @@ const HospitalList = () => {
   const handleEdit = (hospital: any) => {
     setSelectedHospital(hospital);
     setOpenModal(true);
-  };;
+  };
 
-  const handleDelete = () => {
-    if (confirm(`Are you sure you want to delete`)) {
-      console.log("Deleting:");
-      // Call delete API here
-    }
+  const handleAddNew = () => {
+    setSelectedHospital(null); // Clear selection to create new
+    setOpenModal(true);
   };
 
   useEffect(() => {
-    // Fetch hospital data from the API
-    const fetchHospitals = async () => {
-      try {
-        const response = await getallhospitalByUser();
-        console.log(response);
-        setHospitalData(response.return.data); // ✅ Correct key access
-      } catch (error) {
-        console.error("Failed to fetch hospitals:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchHospitals();
-  }, []);
+    dispatch(fetchHospitals());
+  }, [dispatch]);
 
   const columns = [
     {
@@ -85,7 +79,6 @@ const HospitalList = () => {
       enableColumnActions: false,
       enableSorting: false,
       Cell: ({ row }: { row: { original: any } }) => (
-
         <DropdownMenu>
           <DropdownMenuTrigger className="focus:outline-none">
             <MoreHorizontal className="w-5 h-5 cursor-pointer" />
@@ -106,7 +99,7 @@ const HospitalList = () => {
               Edit
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => handleAddNew(row.original)}
+              onClick={() => handleAddNew()}
               className="flex items-center gap-2  hover:bg-blue-50 rounded-md cursor-pointer"
             >
               <Plus className="w-4 h-4 text-blue-500" />
@@ -114,35 +107,27 @@ const HospitalList = () => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        
       ),
-      
     },
-    // Add more columns as needed
   ];
 
   return (
-    
     <div className="w-full">
       {isLoading ? (
-        <p>Loading hospitals...</p>
+        <HospitalTableSkeleton />
       ) : hospitalData.length > 0 ? (
         <MaterialReactTable
           columns={columns}
           data={hospitalData}
           enableSorting
           enablePagination
-          // Add additional props as needed
           muiTopToolbarProps={{
             sx: {
-              
-              backgroundColor: '', // light gray or any custom color
-              color: '#33ffe3', // text color (gray-800)
+              backgroundColor: '',
+              color: '#33ffe3',
             },
           }}
-         
         />
-        
       ) : (
         <div className="flex flex-col items-center justify-center w-full h-[calc(90vh-150px)] px-2 text-center overflow-hidden">
           <Image
@@ -159,17 +144,12 @@ const HospitalList = () => {
         </div>
       )}
       <AddHospitalForm
-    open={openModal}
-    onOpenChange={setOpenModal}
-    hospital={selectedHospital}
-  />
+        open={openModal}
+        onOpenChange={setOpenModal}
+        hospital={selectedHospital}
+      />
     </div>
-    
   );
 };
 
 export default HospitalList;
-
-function handleAddNew(original: any): void {
-  throw new Error("Function not implemented.");
-}

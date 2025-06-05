@@ -94,7 +94,7 @@ model Hospital {
   latitude         Float
   longitude        Float
   status           Hospital_Org_status @default(ACTIVE)
-  level            HospitalLevel
+  level            HospitalLevel?
   // Hierarchical relation
   parentHospitalId Int?
   parentHospital   Hospital?           @relation("HospitalHierarchy", fields: [parentHospitalId], references: [id])

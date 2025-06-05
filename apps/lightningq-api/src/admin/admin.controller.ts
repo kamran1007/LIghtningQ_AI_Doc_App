@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  InternalServerErrorException,
   Param,
   Patch,
   Post,
@@ -20,12 +21,19 @@ export class AdminController {
   // Create hospital
   @Post('AddHospital')
   async addHospital(@Request() req, @Body() dto: CreateHospitalDto) {
-    const userId = req.user?.id;
+    try {
+      const userId = req.user?.id;
     if (!userId) {
       throw new Error('User ID is missing from request.');
     }
+    return this.adminservice.CreateHospital(dto, userId);
+    } catch (error) {
+      console.error('Server error:', error);
+    throw new InternalServerErrorException('Failed to add hospital');
+    }
+    
 
-    return this.adminservice.CreateHospital(dto, userId); // Pass separately
+     // Pass separately
   }
 
   // get allhospital

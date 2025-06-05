@@ -5168,7 +5168,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level: $Enums.HospitalLevel | null
     parentHospitalId: number | null
     organizationId: number
     isActive: boolean
@@ -5400,7 +5400,7 @@ export namespace Prisma {
       latitude: number
       longitude: number
       status: $Enums.Hospital_Org_status
-      level: $Enums.HospitalLevel
+      level: $Enums.HospitalLevel | null
       parentHospitalId: number | null
       organizationId: number
       isActive: boolean
@@ -14881,7 +14881,7 @@ export namespace Prisma {
     latitude?: FloatFilter<"Hospital"> | number
     longitude?: FloatFilter<"Hospital"> | number
     status?: EnumHospital_Org_statusFilter<"Hospital"> | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFilter<"Hospital"> | $Enums.HospitalLevel
+    level?: EnumHospitalLevelNullableFilter<"Hospital"> | $Enums.HospitalLevel | null
     parentHospitalId?: IntNullableFilter<"Hospital"> | number | null
     organizationId?: IntFilter<"Hospital"> | number
     isActive?: BoolFilter<"Hospital"> | boolean
@@ -14920,7 +14920,7 @@ export namespace Prisma {
     latitude?: SortOrder
     longitude?: SortOrder
     status?: SortOrder
-    level?: SortOrder
+    level?: SortOrderInput | SortOrder
     parentHospitalId?: SortOrderInput | SortOrder
     organizationId?: SortOrder
     isActive?: SortOrder
@@ -14962,7 +14962,7 @@ export namespace Prisma {
     latitude?: FloatFilter<"Hospital"> | number
     longitude?: FloatFilter<"Hospital"> | number
     status?: EnumHospital_Org_statusFilter<"Hospital"> | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFilter<"Hospital"> | $Enums.HospitalLevel
+    level?: EnumHospitalLevelNullableFilter<"Hospital"> | $Enums.HospitalLevel | null
     parentHospitalId?: IntNullableFilter<"Hospital"> | number | null
     organizationId?: IntFilter<"Hospital"> | number
     isActive?: BoolFilter<"Hospital"> | boolean
@@ -15001,7 +15001,7 @@ export namespace Prisma {
     latitude?: SortOrder
     longitude?: SortOrder
     status?: SortOrder
-    level?: SortOrder
+    level?: SortOrderInput | SortOrder
     parentHospitalId?: SortOrderInput | SortOrder
     organizationId?: SortOrder
     isActive?: SortOrder
@@ -15040,7 +15040,7 @@ export namespace Prisma {
     latitude?: FloatWithAggregatesFilter<"Hospital"> | number
     longitude?: FloatWithAggregatesFilter<"Hospital"> | number
     status?: EnumHospital_Org_statusWithAggregatesFilter<"Hospital"> | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelWithAggregatesFilter<"Hospital"> | $Enums.HospitalLevel
+    level?: EnumHospitalLevelNullableWithAggregatesFilter<"Hospital"> | $Enums.HospitalLevel | null
     parentHospitalId?: IntNullableWithAggregatesFilter<"Hospital"> | number | null
     organizationId?: IntWithAggregatesFilter<"Hospital"> | number
     isActive?: BoolWithAggregatesFilter<"Hospital"> | boolean
@@ -15807,7 +15807,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -15841,7 +15841,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     parentHospitalId?: number | null
     organizationId: number
     isActive?: boolean
@@ -15874,7 +15874,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15908,7 +15908,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
     organizationId?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -15942,7 +15942,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     parentHospitalId?: number | null
     organizationId: number
     isActive?: boolean
@@ -15972,7 +15972,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15998,7 +15998,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
     organizationId?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -16824,11 +16824,11 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
-  export type EnumHospitalLevelFilter<$PrismaModel = never> = {
-    equals?: $Enums.HospitalLevel | EnumHospitalLevelFieldRefInput<$PrismaModel>
-    in?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel>
-    notIn?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel>
-    not?: NestedEnumHospitalLevelFilter<$PrismaModel> | $Enums.HospitalLevel
+  export type EnumHospitalLevelNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.HospitalLevel | EnumHospitalLevelFieldRefInput<$PrismaModel> | null
+    in?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumHospitalLevelNullableFilter<$PrismaModel> | $Enums.HospitalLevel | null
   }
 
   export type IntNullableFilter<$PrismaModel = never> = {
@@ -16993,14 +16993,14 @@ export namespace Prisma {
     _max?: NestedFloatFilter<$PrismaModel>
   }
 
-  export type EnumHospitalLevelWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.HospitalLevel | EnumHospitalLevelFieldRefInput<$PrismaModel>
-    in?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel>
-    notIn?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel>
-    not?: NestedEnumHospitalLevelWithAggregatesFilter<$PrismaModel> | $Enums.HospitalLevel
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumHospitalLevelFilter<$PrismaModel>
-    _max?: NestedEnumHospitalLevelFilter<$PrismaModel>
+  export type EnumHospitalLevelNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.HospitalLevel | EnumHospitalLevelFieldRefInput<$PrismaModel> | null
+    in?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumHospitalLevelNullableWithAggregatesFilter<$PrismaModel> | $Enums.HospitalLevel | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumHospitalLevelNullableFilter<$PrismaModel>
+    _max?: NestedEnumHospitalLevelNullableFilter<$PrismaModel>
   }
 
   export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -17896,8 +17896,8 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type EnumHospitalLevelFieldUpdateOperationsInput = {
-    set?: $Enums.HospitalLevel
+  export type NullableEnumHospitalLevelFieldUpdateOperationsInput = {
+    set?: $Enums.HospitalLevel | null
   }
 
   export type HospitalUpdateOneWithoutChildHospitalNestedInput = {
@@ -18552,11 +18552,11 @@ export namespace Prisma {
     not?: NestedEnumSpecializationTypeFilter<$PrismaModel> | $Enums.SpecializationType
   }
 
-  export type NestedEnumHospitalLevelFilter<$PrismaModel = never> = {
-    equals?: $Enums.HospitalLevel | EnumHospitalLevelFieldRefInput<$PrismaModel>
-    in?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel>
-    notIn?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel>
-    not?: NestedEnumHospitalLevelFilter<$PrismaModel> | $Enums.HospitalLevel
+  export type NestedEnumHospitalLevelNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.HospitalLevel | EnumHospitalLevelFieldRefInput<$PrismaModel> | null
+    in?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumHospitalLevelNullableFilter<$PrismaModel> | $Enums.HospitalLevel | null
   }
 
   export type NestedEnumSpecializationTypeWithAggregatesFilter<$PrismaModel = never> = {
@@ -18585,14 +18585,14 @@ export namespace Prisma {
     _max?: NestedFloatFilter<$PrismaModel>
   }
 
-  export type NestedEnumHospitalLevelWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.HospitalLevel | EnumHospitalLevelFieldRefInput<$PrismaModel>
-    in?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel>
-    notIn?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel>
-    not?: NestedEnumHospitalLevelWithAggregatesFilter<$PrismaModel> | $Enums.HospitalLevel
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumHospitalLevelFilter<$PrismaModel>
-    _max?: NestedEnumHospitalLevelFilter<$PrismaModel>
+  export type NestedEnumHospitalLevelNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.HospitalLevel | EnumHospitalLevelFieldRefInput<$PrismaModel> | null
+    in?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.HospitalLevel[] | ListEnumHospitalLevelFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumHospitalLevelNullableWithAggregatesFilter<$PrismaModel> | $Enums.HospitalLevel | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumHospitalLevelNullableFilter<$PrismaModel>
+    _max?: NestedEnumHospitalLevelNullableFilter<$PrismaModel>
   }
 
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -18830,7 +18830,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -18863,7 +18863,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     parentHospitalId?: number | null
     organizationId: number
     isActive?: boolean
@@ -18900,7 +18900,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -18933,7 +18933,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     parentHospitalId?: number | null
     organizationId: number
     isActive?: boolean
@@ -18975,7 +18975,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -19008,7 +19008,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     parentHospitalId?: number | null
     organizationId: number
     isActive?: boolean
@@ -19050,7 +19050,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -19083,7 +19083,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     parentHospitalId?: number | null
     organizationId: number
     isActive?: boolean
@@ -19339,7 +19339,7 @@ export namespace Prisma {
     latitude?: FloatFilter<"Hospital"> | number
     longitude?: FloatFilter<"Hospital"> | number
     status?: EnumHospital_Org_statusFilter<"Hospital"> | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFilter<"Hospital"> | $Enums.HospitalLevel
+    level?: EnumHospitalLevelNullableFilter<"Hospital"> | $Enums.HospitalLevel | null
     parentHospitalId?: IntNullableFilter<"Hospital"> | number | null
     organizationId?: IntFilter<"Hospital"> | number
     isActive?: BoolFilter<"Hospital"> | boolean
@@ -19417,7 +19417,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -19450,7 +19450,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     parentHospitalId?: number | null
     isActive?: boolean
     createdById?: number | null
@@ -19604,7 +19604,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -19637,7 +19637,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     parentHospitalId?: number | null
     organizationId: number
     isActive?: boolean
@@ -19674,7 +19674,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -19707,7 +19707,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     organizationId: number
     isActive?: boolean
     createdById?: number | null
@@ -20055,7 +20055,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20088,7 +20088,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
     organizationId?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -20462,7 +20462,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -20495,7 +20495,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     parentHospitalId?: number | null
     organizationId: number
     isActive?: boolean
@@ -20625,7 +20625,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20658,7 +20658,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
     organizationId?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -21376,7 +21376,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     parentHospitalId?: number | null
     organizationId: number
     isActive?: boolean
@@ -21406,7 +21406,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     parentHospitalId?: number | null
     organizationId: number
     isActive?: boolean
@@ -21436,7 +21436,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     parentHospitalId?: number | null
     organizationId: number
     isActive?: boolean
@@ -21534,7 +21534,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21567,7 +21567,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
     organizationId?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -21600,7 +21600,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
     organizationId?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -21630,7 +21630,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21663,7 +21663,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
     organizationId?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -21696,7 +21696,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
     organizationId?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -21725,7 +21725,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21758,7 +21758,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
     organizationId?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -21791,7 +21791,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
     organizationId?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -21820,7 +21820,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21853,7 +21853,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
     organizationId?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -21886,7 +21886,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
     organizationId?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -21916,7 +21916,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     parentHospitalId?: number | null
     isActive?: boolean
     createdById?: number | null
@@ -21962,7 +21962,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21995,7 +21995,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -22028,7 +22028,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -22124,7 +22124,7 @@ export namespace Prisma {
     latitude: number
     longitude: number
     status?: $Enums.Hospital_Org_status
-    level: $Enums.HospitalLevel
+    level?: $Enums.HospitalLevel | null
     organizationId: number
     isActive?: boolean
     createdById?: number | null
@@ -22161,7 +22161,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22194,7 +22194,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     organizationId?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -22227,7 +22227,7 @@ export namespace Prisma {
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
-    level?: EnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
     organizationId?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
