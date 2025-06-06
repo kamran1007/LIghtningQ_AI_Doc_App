@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["localhost"],
+    domains: ["localhost",'dummyimage.com','cdn.sunrisehospital.com']
   },
   env: {
     // eslint-disable-next-line turbo/no-undeclared-env-vars, no-undef

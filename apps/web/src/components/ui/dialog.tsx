@@ -63,7 +63,7 @@ function DialogContent({
     sm: "w-full max-w-md", // ~448px
     md: "w-full max-w-2xl", // ~672px
     lg: "w-full max-w-5xl", // ~1024px
-    fullscreen: "w-[90vw] h-[90vh] max-w-none max-h-none", // fullscreen handled separately
+    fullscreen: "w-[95vw] h-[95vh] max-w-none max-h-none", // fullscreen handled separately
   };
 
   const heightClass =

@@ -306,3 +306,8 @@ body {
       rgba(25, 138, 224, 1) 0%,
       rgba(34, 224, 212, 1) 97%);
 }
+
+.futuristic-font {
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  letter-spacing: 0.05em;
+}

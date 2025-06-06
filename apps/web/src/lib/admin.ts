@@ -65,4 +65,24 @@ export const addhospitaldetail = async (data: any) => {
   }
 };
 
+export const updatehospitaldetail  = async (id: number, payload: any) => {
+  const session = await getSession();
+
+  try {
+    console.log("Sending hospital data:", payload);
+    const response = await axios.patch(`${BACKEND_URL}/admin/UpdateHospital/${id}`, payload, {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${session?.accessToken}`,
+      },
+    });
+
+    return response.data;
+  } catch (error:any) {
+    const message = error.response?.data?.message || error.message;
+    console.error('Error creating hospital:', message);
+    toast.error(message); 
+  }
+};
 

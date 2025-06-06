@@ -1,7 +1,7 @@
 import React from "react";
 
 export const HospitalTableSkeleton = () => {
-  const rows = [1, 2, 3]; // You can change the number of skeleton rows here
+  const rows = [1, 2, 3,4,5,6,7,8,9]; // You can change the number of skeleton rows here
 
   return (
     <div className="rounded-xl border overflow-hidden shadow-sm animate-pulse">

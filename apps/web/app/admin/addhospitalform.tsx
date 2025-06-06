@@ -16,17 +16,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
 import { GoogleMapApiKey } from "@/lib/constants";
-import { fetchHospitals } from '@/store/hospitalSlice';
+import { fetchHospitals } from "@/store/hospitalSlice";
 import {
   GoogleMap,
   Marker,
   Autocomplete,
   useJsApiLoader,
 } from "@react-google-maps/api";
-import { addhospitaldetail } from "@/lib/admin";
+import { addhospitaldetail, updatehospitaldetail } from "@/lib/admin";
 import toast from "react-hot-toast";
-import { useDispatch } from 'react-redux';
-import type { AppDispatch } from '@/store'; // <-- your store file
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "@/store"; // <-- your store file
 // const GoogleMapApiKey = process.env.NEXT_PUBLIC_GOOGLEMAPSECRETEKEY;;
 console.log("Google secrete", GoogleMapApiKey);
 const libraries: "places"[] = ["places"];
@@ -106,28 +106,38 @@ const AddHospitalForm = ({
     logoUrl?: string;
   }>({});
   useEffect(() => {
-    if (hospital) {
-      setValue("name", hospital.name);
-      setValue("hospitalCode", hospital.hospitalCode);
-      setValue("address", hospital.address);
-      setValue("email", hospital.email);
-      setValue("contactNumber", hospital.contactNumber);
-      setValue("SpecializationType",hospital.SpecializationType);
-      setValue("postalCode",hospital.postalCode);
-      setValue("city",hospital.city);
-      setValue("state",hospital.state);
-      setValue("latitude", hospital.latitude || lat);
-      setValue("longitude", hospital.longitude || lng);
-      setAddress(hospital.address || "");
-      handlePincodeFetch()
-    }
-    if (!open) {
-      reset(); // clears form when modal is closed
-      setCity(""); // optional: reset city/state input states
-      setState("");
-    }
-
-  }, [hospital, lat, lng]);
+    if (!hospital) return;
+  
+    // Reset form values
+    reset({
+      name: hospital.name,
+      hospitalCode: hospital.hospitalCode,
+      address: hospital.address,
+      email: hospital.email,
+      contactNumber: hospital.contactNumber,
+      SpecializationType: hospital.SpecializationType,
+      postalCode: hospital.postalCode,
+      city: hospital.city,
+      state: hospital.state,
+      latitude: hospital.latitude || lat,
+      longitude: hospital.longitude || lng,
+      logoUrl: hospital.logoUrl,
+      website: hospital.website,
+    });
+  
+    // Update local state for map pin and address
+    setLat(hospital.latitude || lat);
+    setLng(hospital.longitude || lng);
+    setAddress(hospital.address || "");
+ 
+    handlePincodeFetch()
+    // Optional: trigger a reverse geocode if you want to validate/refresh address
+    // OR ensure Google Maps pin updates
+  }, [hospital, reset]);
+  
+  
+  
+  
 
   const handleMapClick = ({ latLng }: google.maps.MapMouseEvent) => {
     if (!latLng) return;
@@ -172,6 +182,16 @@ const AddHospitalForm = ({
     const formattedAddress = place.formatted_address || "";
     setAddress(formattedAddress);
     setValue("address", formattedAddress);
+
+    // Extract pincode
+    const pincodeMatch = formattedAddress.match(/\b\d{6}\b/);
+    const postalCode = pincodeMatch ? pincodeMatch[0] : null;
+
+    if (postalCode) {
+      console.log("postalCode:", postalCode);
+      setValue("postalCode", postalCode); // Optional: if you have a field for it
+      handlePincodeFetch();
+    }
   };
 
   const handlePincodeFetch = async () => {
@@ -200,14 +220,16 @@ const AddHospitalForm = ({
     console.log("Data has been log", Organizationdata);
     try {
       // 🔥 Include required extra fields if needed
-      const payload = {
-        ...formData,
-        organizationId: Organizationdata?.id ?? "",
-        ParentHospitalCode: Organizationdata?.Organizationcode ?? "",
-        level: "SUPER",
-        status: formData.status || "ACTIVE",
-        isActive: true,
-      };
+      const isEdit = !!hospital?.id;
+
+    const payload = {
+      ...formData,
+      organizationId: isEdit ? hospital.organizationId ?? "" : Organizationdata?.id ?? "",
+      ParentHospitalCode: isEdit ? hospital.Organizationcode ?? "" : Organizationdata?.Organizationcode ?? "",
+      level: "SUPER",
+      status: formData.status || hospital?.status || "ACTIVE",
+      isActive: isEdit ? hospital.isActive ?? true : true,
+    };
       // const parsed = hospitalSchema.safeParse(payload);
       // if (!parsed.success) {
       //   const formatted = parsed.error.format();
@@ -238,11 +260,20 @@ const AddHospitalForm = ({
       // toast.success("Hospital data added scccessfully");
       // reset(); // Reset the form
       // onOpenChange(false); // Close the dialog
-    const result = await addhospitaldetail(payload);
-    toast.success("Hospital added successfully",result);
-    reset();
-    onOpenChange(false);
-    dispatch(fetchHospitals());
+      if(isEdit){
+        
+    
+        await updatehospitaldetail(hospital.id, payload);
+        toast.success("Hospital updated successfully");
+      }
+      else{
+        const result = await addhospitaldetail(payload);
+      toast.success("Hospital added successfully", result);
+      }
+      
+      reset();
+      onOpenChange(false);
+      dispatch(fetchHospitals());
     } catch (err) {
       const error = err as { response?: { data?: { message?: string } } };
       const message = error?.response?.data?.message || "An error has occurred";
@@ -276,7 +307,7 @@ const AddHospitalForm = ({
             </DialogDescription>
           </DialogHeader>
           <DialogClose asChild>
-            <button className="text-blue-600 hover:bg-blue-50 p-2 rounded-full transition">
+            <button className="text-blue-600 hover:bg-blue-50 p-2 rounded-full transition cursor-pointer">
               <X className="w-6 h-6" />
             </button>
           </DialogClose>
@@ -296,6 +327,7 @@ const AddHospitalForm = ({
                 />
               </Autocomplete>
               <GoogleMap
+
                 mapContainerStyle={{ height: "350px", width: "100%" }}
                 center={{ lat, lng }}
                 zoom={14}
@@ -341,8 +373,6 @@ const AddHospitalForm = ({
                 <option value="ORTHOPEDIC">ORTHOPEDIC</option>
                 <option value="MULTISPECIALITY">MULTISPECIALITY</option>
                 <option value="OTHER">OTHER</option>
-
-
               </select>
 
               <Input

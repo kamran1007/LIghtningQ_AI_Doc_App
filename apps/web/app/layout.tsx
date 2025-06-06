@@ -1,5 +1,3 @@
-// app/layout.tsx
-
 import type { Metadata } from "next";
 import "./globals.css";
 import AppBar from "@/components/ui/appBar";
@@ -8,7 +6,15 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { ReactQueryProvider } from "@/components/ReactQueryProvider";
 import { Toaster } from "react-hot-toast";
 import { headers } from "next/headers";
-import ClientLayoutWrapper from "@/hooks/ClientLayoutWrapper"; // ✅ use wrapper
+import ClientLayoutWrapper from "@/hooks/ClientLayoutWrapper";
+import { Orbitron } from "next/font/google";
+
+// ⬇️ Load Orbitron font
+const orbitron = Orbitron({
+  subsets: ["latin"],
+  weight: ["500"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Lightning Queue",
@@ -30,7 +36,7 @@ export default async function RootLayout({
   const isAuthPage = pathname.startsWith("/auth");
 
   return (
-    <html lang="en">
+    <html lang="en" className={orbitron.className}>
       <body className="h-screen flex flex-col">
         <ReactQueryProvider>
           <Toaster position="top-center" reverseOrder={false} />

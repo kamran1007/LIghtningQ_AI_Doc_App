@@ -17,18 +17,47 @@ import { HospitalTableSkeleton } from "@/components/ui/hospitalListSkeleton";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from '@/store';
 import { fetchHospitals } from "@/store/hospitalSlice";
-
+import ViewHospitalModal from "./ViewHospital";
+export type Hospital = {
+  name: string;
+  hospitalCode: string;
+  ParentHospitalCode: string;
+  SpecializationType: string;
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  postalCode: string;
+  contactNumber: string;
+  email: string;
+  website: string;
+  logoUrl: string;
+  latitude: number;
+  longitude: number;
+  level: string;
+  status: string;
+  isActive: boolean;
+  parentHospitalId: number | null;
+  organizationId: number;
+  createdById: number | null;
+  updatedById: number | null;
+  deletedById: number | null;
+};
 const HospitalList = () => {
+
+  
   const dispatch = useDispatch<AppDispatch>();
   const hospitalData = useSelector((state: RootState) => state.hospital.data);
   const isLoading = useSelector((state: RootState) => state.hospital.loading);
 
-  const [selectedHospital, setSelectedHospital] = useState(null);
+  const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null);
   const [openModal, setOpenModal] = useState(false);
+  const [openViewModal, setOpenViewModal] = useState(false);
+  
 
-  const handleView = () => {
-    console.log("View clicked:");
-    // Navigate to view page or open modal
+  const handleView = (hospitalData: Hospital) => {
+    setSelectedHospital(hospitalData);
+    setOpenViewModal(true);
   };
 
   const handleEdit = (hospital: any) => {
@@ -85,7 +114,8 @@ const HospitalList = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="!w-20 !min-w-[10rem] p-1">
             <DropdownMenuItem
-              onClick={() => handleView()}
+                onClick={() => handleView(row.original)}
+
               className="flex items-center gap-2  hover:bg-blue-50 rounded-md cursor-pointer"
             >
               <Eye className="w-4 h-4 text-blue-500" />
@@ -148,6 +178,13 @@ const HospitalList = () => {
         onOpenChange={setOpenModal}
         hospital={selectedHospital}
       />
+      {selectedHospital && (
+  <ViewHospitalModal
+    isOpen={openViewModal}
+    onOpenChange={setOpenViewModal}
+    hospital={selectedHospital}
+  />
+)}
     </div>
   );
 };
