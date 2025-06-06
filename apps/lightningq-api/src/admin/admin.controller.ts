@@ -23,17 +23,16 @@ export class AdminController {
   async addHospital(@Request() req, @Body() dto: CreateHospitalDto) {
     try {
       const userId = req.user?.id;
-    if (!userId) {
-      throw new Error('User ID is missing from request.');
-    }
-    return this.adminservice.CreateHospital(dto, userId);
+      if (!userId) {
+        throw new Error('User ID is missing from request.');
+      }
+      return this.adminservice.CreateHospital(dto, userId);
     } catch (error) {
       console.error('Server error:', error);
-    throw new InternalServerErrorException('Failed to add hospital');
+      throw new InternalServerErrorException('Failed to add hospital');
     }
-    
 
-     // Pass separately
+    // Pass separately
   }
 
   // get allhospital
@@ -41,7 +40,7 @@ export class AdminController {
   async getHospitals(@Request() req, @Query('page') page: string = '1') {
     const pageNumber = parseInt(page, 10) || 1;
     const organizationId = req.user.organizationId;
-    return this.adminservice.getHospitals(pageNumber,organizationId);
+    return this.adminservice.getHospitals(pageNumber, organizationId);
   }
 
   //Update hospital
@@ -55,10 +54,13 @@ export class AdminController {
     return this.adminservice.updateHospital(+id, dto, userId);
   }
 
-    // get allhospital
-    @Get('GetOrganization')
-    async getorganization(@Request() req) {
-      const organizationId = req.user.organizationId;
-      return this.adminservice.getOrganization(organizationId);
-    }
+  // get allhospital
+  @Get('GetOrganization')
+  async getorganization(@Request() req) {
+    const organizationId = req.user.organizationId;
+    return this.adminservice.getOrganization(organizationId);
+  }
+
+  //Add user
+  
 }

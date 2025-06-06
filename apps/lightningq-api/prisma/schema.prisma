@@ -29,15 +29,33 @@ model User {
   dateOfBirth        DateTime
   roleId             Int
   role               Role                 @relation(fields: [roleId], references: [id])
+  SpecializationId Int
+  Specialization     Specialization @relation(fields: [SpecializationId], references: [SpecializationId])
+  Experience  String
+  Employee_ID  String
   //  Add this for organization mapping
   organizationId     Int
-  organization       Organization         @relation(fields: [organizationId], references: [id])
+  UserOrganizationArray       Organization         @relation(fields: [organizationId], references: [id])
   settings           Setting?             @relation("UserSettings")
   auditLogs          AuditLog[]
   loginSessions      LoginSession[]
   AdminAccess        UserHospitalAccess[]
+  // Admin CRUD audit
+  createdById        Int?
+  createdBy          User?               @relation("UserCreatedUsers", fields: [createdById], references: [id])
+
+  updatedById        Int?
+  updatedBy          User?               @relation("UserUpdatedUsers", fields: [updatedById], references: [id])
+
+  deletedById        Int?
+  deletedBy          User?               @relation("UserDeletedUsers", fields: [deletedById], references: [id])
+
   deletedAt          DateTime?
-  mappedHospitals    Hospital[]           @relation("UserHospitals")
+
+  createdUsers       User[]              @relation("UserCreatedUsers")
+  updatedUsers       User[]              @relation("UserUpdatedUsers")
+  deletedUsers       User[]              @relation("UserDeletedUsers")
+  UserBranchesArray    Hospital[]           @relation("UserHospitals")
   HospitalCreatedBy  Hospital[]           @relation("UserCreatedHospitals")
   HospitalUpdatedBy  Hospital[]           @relation("UserUpdatedHospitals")
   HospitalDeletedBy  Hospital[]           @relation("UserDeletedHospitals")
@@ -205,6 +223,13 @@ model Permission {
   category    String // e.g., "Dashboard - Summary"
   description String?
   roles       RolePermission[] // <== Links to RolePermission
+}
+
+model Specialization {
+  SpecializationId   Int     @id @default(autoincrement())
+  SpecializationName String  @unique
+  description        String
+  users              User[]
 }
 
 //Enums
