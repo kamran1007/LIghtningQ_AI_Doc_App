@@ -4,15 +4,27 @@ import {
   Get,
   InternalServerErrorException,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
   Req,
   Request,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CreateHospitalDto } from 'src/manage_hospital/dto/create_hospital.dto';
 import { AdminService } from './admin.service';
 import { UpdateHospitalDto } from 'src/manage_hospital/dto/update_hospital.dto';
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname, join } from 'path';
+import {
+  CreateUserDto,
+  UserBranchDto,
+  UserOrganizationDto,
+} from 'src/manage_hospital/dto/create_user.dto';
+import { ParseJsonPipe } from 'src/pipe/parse-json.pipe';
 
 @Controller('admin')
 export class AdminController {
@@ -22,7 +34,7 @@ export class AdminController {
   @Post('AddHospital')
   async addHospital(@Request() req, @Body() dto: CreateHospitalDto) {
     try {
-      const userId = req.user?.id;
+      const userId = req.user?.UserId;
       if (!userId) {
         throw new Error('User ID is missing from request.');
       }
@@ -50,7 +62,7 @@ export class AdminController {
     @Body() dto: UpdateHospitalDto,
     @Request() req,
   ) {
-    const userId = req.user.id; // assumes you're using auth middleware
+    const userId = req.UserId; // assumes you're using auth middleware
     return this.adminservice.updateHospital(+id, dto, userId);
   }
 
@@ -62,5 +74,151 @@ export class AdminController {
   }
 
   //Add user
-  
+  // @Post('AddUser')
+  // @UseInterceptors(
+  //   AnyFilesInterceptor({
+  //     storage: diskStorage({
+  //       destination: './uploads/users',
+  //       filename: (req, file, cb) => {
+  //         const uniqueSuffix =
+  //           Date.now() + '-' + Math.round(Math.random() * 1e9);
+  //         cb(
+  //           null,
+  //           `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`,
+  //         );
+  //       },
+  //     }),
+  //   }),
+  // )
+  // async addUser(
+  //   @Request() req,
+  //   @UploadedFiles() files: Array<Express.Multer.File>,
+  //   @Body('UserBranchesArray', ParseJsonPipe) userBranches: UserBranchDto[],
+  //   @Body('UserOrganizationArray', ParseJsonPipe)
+  //   userOrgs: UserOrganizationDto[],
+  //   @Body() dto: CreateUserDto,
+  // ) {
+  //   const userId = req.user?.UserId;
+
+  //   // Fix here: replace `body` with `dto`
+  //   dto.UserBranchesArray = userBranches;
+  //   dto.UserOrganizationArray = userOrgs;
+
+  //   const profileImage = files?.find(
+  //     (file) => file.fieldname === 'profileImage',
+  //   );
+  //   const signature = files?.find((file) => file.fieldname === 'signature');
+
+  //   return this.adminservice.createUserWithHospitals(
+  //     dto,
+  //     {
+  //       profileImagePath: profileImage?.path ?? '',
+  //       signaturePath: signature?.path ?? '',
+  //     },
+  //     userId,
+  //   );
+  // }
+
+  @Post('AddUser')
+  @UseInterceptors(
+    AnyFilesInterceptor({
+      storage: diskStorage({
+        destination: (req, file, cb) => {
+          const dest = join(__dirname, '..', '..', 'uploads', 'users'); // resolves to /apps/api/uploads/users
+          cb(null, dest);
+        },
+        filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const userName =
+          req.body.firstName?.replace(/\s+/g, '_') || 'user'; // fallback to 'user' if firstName not provided
+
+        const cleanedFieldName = file.fieldname.replace(/\s+/g, '_');
+        const ext = extname(file.originalname);
+
+        const newFileName = `${cleanedFieldName}-${userName}-${uniqueSuffix}${ext}`;
+        cb(null, newFileName);
+      },
+      }),
+    }),
+  )
+  async addUser(
+    @Request() req,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+
+    @Body('UserBranchesArray', ParseJsonPipe) userBranches: UserBranchDto[],
+    @Body('UserOrganizationArray', ParseJsonPipe)
+    userOrgs: UserOrganizationDto[],
+
+    @Body('organizationId', ParseIntPipe) organizationId: number,
+    @Body('SpecializationId', ParseIntPipe) specializationId: number,
+    @Body('roleId', ParseIntPipe) roleId: number,
+
+    @Body('Prefix') Prefix: string,
+    @Body('firstName') firstName: string,
+    @Body('lastName') lastName: string,
+    @Body('dateOfBirth') dateOfBirth: string,
+    @Body('gender') gender: string,
+    @Body('mobile') mobile: string,
+    @Body('email') email: string,
+    @Body('Experience') Experience?: string,
+    @Body('Employee_ID') Employee_ID?: string,
+    @Body('password') password?: string,
+  ) {
+    const userId = req.user?.UserId;
+
+    const dto: CreateUserDto = {
+      Prefix,
+      firstName,
+      lastName,
+      dateOfBirth,
+      gender,
+      mobile,
+      email,
+      Experience,
+      Employee_ID,
+      password,
+      SpecializationId: specializationId,
+      organizationId,
+      roleId,
+      UserBranchesArray: userBranches,
+      UserOrganizationArray: userOrgs,
+      imageUrl: '', // This will be filled from files below
+      SignatureOfUser: '', // This too
+    };
+
+    const profileImage = files?.find((f) => f.fieldname === 'imageUrl');
+    const signature = files?.find((f) => f.fieldname === 'SignatureOfUser');
+
+    console.log('Uploaded files:', files);
+    if (profileImage) dto.imageUrl = profileImage.path;
+    if (signature) dto.SignatureOfUser = signature.path;
+
+    return this.adminservice.createUserWithHospitals(
+      dto,
+      {
+        profileImagePath: profileImage?.path ?? '',
+        signaturePath: signature?.path ?? '',
+      },
+      userId,
+    );
+  }
+
+
+  //UPDATE
+
+  //GET
+
+
+  //ACTIVATE/DEACTIVATE
+
+  @Patch('deactivate/:id')
+  async deactivateUser(@Param('id') id: number, @Req() req) {
+  const deletedById = req.user.UserId; // from JWT
+  return this.adminservice.deactivateUser(+id, deletedById);
+}
+
+@Patch('activate/:id')
+async activateUser(@Param('id') id: number) {
+  return this.adminservice.activateUser(+id);
+}
 }

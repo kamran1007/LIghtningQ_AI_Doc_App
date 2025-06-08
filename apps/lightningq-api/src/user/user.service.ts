@@ -17,16 +17,24 @@ export class UserService {
       },
     });
   }
-  async findOne(userId: number) {
-    return await this.prisma.user.findUnique({
-      where: { id: userId },
-
+  async findOne(UserId: number) {
+    const updatedUser = await this.prisma.user.findUnique({
+      where: { UserId },
+      include: {
+        AdminAccess: {
+          include: {
+            hospital: true,
+            role: true,
+          },
+        },
+      },
     });
+    return updatedUser;
   }
-  async updateHashedRefreshToken(userId: number, hashedRT: string | null) {
+  async updateHashedRefreshToken(UserId: number, hashedRT: string | null) {
     return await this.prisma.user.update({
       where: {
-        id: userId,
+        UserId: UserId,
       },
       data: {
         // hashedRefreshToken: hashedRT,  hashedRefreshToken String? // <== add the `?` to make it nullable -- > prisma
@@ -36,19 +44,19 @@ export class UserService {
   }
   
   // Update user
-  async updateUserProfile(userId: number, dto: UpdateProfileDto) {
+  async updateUserProfile(UserId: number, dto: UpdateProfileDto) {
     return await this.prisma.user.update({
-      where: { id: userId },
+      where: { UserId: UserId },
       data: {
         ...dto,
-        title: dto.title  as Title, // Cast string to enum
+        Prefix: dto.title  as Title, // Cast string to enum
 
         dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
       },
       select: {
-        id: true,
+        UserId: true,
         firstName: true,
-        title: true,
+        Prefix: true,
         lastName: true,
         gender: true,
         email: true,
@@ -61,9 +69,9 @@ export class UserService {
   }
 
   //change password
-  async updatePassword(userId: number, newHashedPassword: string) {
+  async updatePassword(UserId: number, newHashedPassword: string) {
     return await this.prisma.user.update({
-      where: { id: userId },
+      where: { UserId: UserId },
       data: {
         passwordHash: newHashedPassword,
       },

@@ -28,7 +28,7 @@ export class AuthService {
     }
   
     return {
-      Id: user.id,
+      UserId: user.UserId,
       firstName: user.firstName,
       lastName: user.lastName,
       Email: user.email,
@@ -39,7 +39,7 @@ export class AuthService {
   
 
   async login(
-    userId: number,
+    UserId: number,
     email: string,
     firstName: string,
     lastName: string,
@@ -47,17 +47,17 @@ export class AuthService {
     organizationId: number
   ) {
     const { accessToken, refreshToken } = await this.generateTokens(
-      userId,
+      UserId,
       email,
       organizationId,
       roleId
     );
   
     const hashedRT = await hash(refreshToken);
-    await this.userService.updateHashedRefreshToken(userId, hashedRT);
+    await this.userService.updateHashedRefreshToken(UserId, hashedRT);
   
     return {
-      id: userId,
+      UserId: UserId,
       email,
       firstName,
       lastName,
@@ -114,7 +114,7 @@ export class AuthService {
 
     if (!refreshTokenMatched)
       throw new UnauthorizedException('Invalid Refresh Token!');
-    const currentUser = { id: user.id };
+    const currentUser = { id: user.UserId };
     return currentUser;
   }
   async refreshToken(
@@ -133,7 +133,7 @@ export class AuthService {
     await this.userService.updateHashedRefreshToken(userId, hashedRT);
   
     return {
-      id: userId,
+      UserId: userId,
       email,
       roleId,
       organizationId,
@@ -143,9 +143,9 @@ export class AuthService {
   }
   
 
-  async updateProfile(userId: number, dto: UpdateProfileDto) {
-    console.log('userId:', userId);
-    const updatedUser = await this.userService.updateUserProfile(userId, dto);
+  async updateProfile(UserId: number, dto: UpdateProfileDto) {
+    console.log('userId:', UserId);
+    const updatedUser = await this.userService.updateUserProfile(UserId, dto);
     return {
       message: 'Profile updated successfully',
       user: updatedUser,

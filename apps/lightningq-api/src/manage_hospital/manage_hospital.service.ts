@@ -2,6 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateHospitalDto } from './dto/create_hospital.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateHospitalDto } from './dto/update_hospital.dto';
+import { CreateUserDto, UserBranchDto } from './dto/create_user.dto';
+import { Title } from 'generated/prisma';
+import { hash } from 'argon2';
 
 @Injectable()
 export class ManageHospitalService {
@@ -34,62 +37,83 @@ export class ManageHospitalService {
   async CreateHospital(dto: CreateHospitalDto, userId: number) {
     // 1. Fetch organization
     const organization = await this.prisma.organization.findUnique({
-      where: { id: dto.organizationId },
+      where: { OrganizationId: dto.organizationId },
     });
-  
+
     if (!organization) {
       // Throw custom error for client-side logging
       throw new Error('Organization not found');
     }
-  
+
     // Auto-generate hospitalCode if it's empty
-    if (!dto.hospitalCode || dto.hospitalCode.trim() === '') {
-      const namePart = (dto.name?.slice(0, 3) || 'XXX').toUpperCase();
-      const cityPart = (dto.city?.slice(0,3) || 'YYY').toUpperCase();
-      const contactPart = (dto.contactNumber?.slice(-2) || '00');
-    
+    if (!dto.HospitalCode || dto.HospitalCode.trim() === '') {
+      const namePart = (dto.HospitalName?.slice(0, 3) || 'XXX').toUpperCase();
+      const cityPart = (dto.city?.slice(0, 3) || 'YYY').toUpperCase();
+      const contactPart = dto.contactNumber?.slice(-2) || '00';
+
       let baseCode = `${namePart}${cityPart}${contactPart}`;
       let uniqueCode = baseCode;
       let counter = 1;
-    
+
       // Keep trying until a unique hospitalCode is found
-      while (await this.prisma.hospital.findUnique({ where: { hospitalCode: uniqueCode } })) {
+      while (
+        await this.prisma.hospital.findUnique({
+          where: { HospitalCode: uniqueCode },
+        })
+      ) {
         uniqueCode = `${baseCode}${counter}`;
         counter++;
       }
-    
-      dto.hospitalCode = uniqueCode;
+
+      dto.HospitalCode = uniqueCode;
     }
-    
-    
-  
+
     // 2. Check uniqueness
     const hospitalWithSameCode = await this.prisma.hospital.findUnique({
-      where: { hospitalCode: dto.hospitalCode },
+      where: { HospitalCode: dto.HospitalCode },
     });
-  
+
     if (hospitalWithSameCode) {
       throw new Error('Hospital code must be unique');
     }
-  
+
     // 3. Create hospital
     const hospital = await this.prisma.hospital.create({
       data: {
-        ...dto,
+        HospitalName: dto.HospitalName,
+        HospitalCode: dto.HospitalCode,
+        ParentHospitalCode: dto.ParentHospitalCode ?? '', // Ensure non-undefined
         Organizationcode: organization.Organizationcode,
+        SpecializationType: dto.SpecializationType,
+        address: dto.address,
+        city: dto.city,
+        state: dto.state,
+        country: dto.country,
+        postalCode: dto.postalCode,
+        contactNumber: dto.contactNumber,
+        email: dto.email,
+        website: dto.website ?? '',
+        logoUrl: dto.logoUrl ?? '',
+        latitude: dto.latitude,
+        longitude: dto.longitude,
+        level: dto.level,
+        status: dto.status ?? 'ACTIVE',
+        isActive: dto.isActive ?? true,
+        parentHospitalId: dto.parentHospitalId,
+        organizationId: dto.organizationId,
         createdById: userId,
+        updatedById: userId,
+        deletedById: dto.deletedById,
       },
     });
-  
+
     return hospital;
   }
-  
-
 
   async getAllhospital(page: number, organizationId: number) {
     const pageSize = 10;
     const skip = (page - 1) * pageSize;
-  
+
     const [hospitals, total] = await this.prisma.$transaction([
       this.prisma.hospital.findMany({
         where: {
@@ -107,7 +131,7 @@ export class ManageHospitalService {
         },
       }),
     ]);
-  
+
     return {
       data: hospitals,
       pagination: {
@@ -118,10 +142,10 @@ export class ManageHospitalService {
       },
     };
   }
-  
+
   async UpdateHospital(id: number, dto: UpdateHospitalDto, userId: any) {
     const hospital = await this.prisma.hospital.findUnique({
-      where: { id },
+      where: { HospitalId: id },
     });
 
     if (!hospital) {
@@ -129,7 +153,7 @@ export class ManageHospitalService {
     }
 
     const updatedHospital = await this.prisma.hospital.update({
-      where: { id },
+      where: { HospitalId: id },
       data: {
         ...dto,
         updatedById: userId,
@@ -147,14 +171,160 @@ export class ManageHospitalService {
     const [hospitals] = await this.prisma.$transaction([
       this.prisma.organization.findMany({
         where: {
-          id: organizationId, // ✅ Restrict to user's org
+          OrganizationId: organizationId, // ✅ Restrict to user's org
         },
       }),
     ]);
-  
+
     return {
       data: hospitals,
-      
     };
   }
+
+  //Add user to the organization and adding user
+  async createUserWithHospitals(
+    dto: CreateUserDto,
+    files: { profileImagePath?: string; signaturePath?: string },
+    createdById: number,
+  ) {
+    // 0. Check for mobile/email duplicates
+    const existingUser = await this.prisma.user.findFirst({
+      where: {
+        OR: [{ mobile: dto.mobile }, { email: dto.email }],
+      },
+    });
+
+    if (existingUser) {
+      throw new Error(`User with this mobile or email already exists.`);
+    }
+    // 1. ✅ Create the user
+    if (!dto.password) {
+      throw new Error('Password is required');
+    }
+    console.log('Uploaded files:', files);
+
+    const hashedPassword = await hash(dto.password); //password hash
+    const user = await this.prisma.user.create({
+      data: {
+        firstName: dto.firstName,
+        lastName: dto.lastName,
+        email: dto.email,
+        mobile: dto.mobile,
+        organizationId: dto.organizationId,
+        imageUrl: files.profileImagePath ?? '',
+        SignatureOfUser: files.signaturePath ?? '',
+        createdById,
+        passwordHash: hashedPassword, // Placeholder — make sure to hash properly
+        dateOfBirth: new Date(dto.dateOfBirth),
+        roleId: dto.roleId,
+        SpecializationId: dto.SpecializationId ?? 0,
+        gender: dto.gender,
+        Prefix: dto.Prefix as any as Title,
+        Experience: dto.Experience ?? '', // ✅ fallback to empty string
+        Employee_ID: dto.Employee_ID ?? '', // ✅ fallback to empty string
+        hashedRefreshToken: '',
+      },
+      include: {
+        AdminAccess: {
+          include: {
+            hospital: true,
+            role: true,
+          },
+        },
+      },
+    });
+
+    // 2. ✅ Validate and assign hospitals
+
+    if (dto.UserBranchesArray && dto.UserBranchesArray.length > 0) {
+      console.log('UserBranchesArray from DTO:', dto.UserBranchesArray);
+
+      const hospitalAccessData = dto.UserBranchesArray.map((branch) => ({
+        UserId: user.UserId,
+        hospitalId: branch.HospitalId,
+        roleId: branch.RoleId,
+        // ActiveInd: branch.ActiveInd,
+        // DeleteInd: branch.DeleteInd,
+        createdById,
+      }));
+      console.log('Mapped hospitalAccessData:', hospitalAccessData);
+
+      if (hospitalAccessData.length > 0) {
+        await this.prisma.userHospitalAccess.createMany({
+          data: hospitalAccessData,
+        });
+      }
+    }
+
+    // if (dto.HospitalIds && dto.HospitalIds.length > 0) {
+    //   // 🔍 Validate hospitals belong to the same organization
+    //   const hospitals = await this.prisma.hospital.findMany({
+    //     where: {
+    //       HospitalId: { in: dto.HospitalIds },
+    //       organizationId: dto.organizationId,
+    //     },
+    //   });
+
+    //   if (hospitals.length !== dto.HospitalIds.length) {
+    //     throw new Error(
+    //       'One or more hospitals do not belong to the specified organization.',
+    //     );
+    //   }
+
+    //   // 3. ✅ Assign hospital access with role
+    //   await this.prisma.userHospitalAccess.createMany({
+    //     data: dto.HospitalIds.map((hospitalId) => ({
+    //       UserId: user.UserId,
+    //       hospitalId: hospitalId,
+    //       roleId: dto.roleId,
+    //     })),
+    //   });
+    // }
+    // ✅ Fetch updated user with AdminAccess
+    const updatedUser = await this.prisma.user.findUnique({
+      where: { UserId: user.UserId },
+      include: {
+        AdminAccess: {
+          include: {
+            hospital: true,
+            role: true,
+          },
+        },
+      },
+    });
+
+    return updatedUser;
+  }
+
+
+  //UPDATE
+
+  //GET
+
+
+  //ACTIVATE/DEACTIVATE
+  async deactivateUser(userId: number, deletedById: number) {
+    return await this.prisma.user.update({
+      where: { UserId: userId },
+      data: {
+        isActive: false,
+        deletedAt: new Date(),
+        deletedById,
+      },
+    });
+  }
+
+
+  async activateUser(userId: number) {
+    return await this.prisma.user.update({
+      where: { UserId: userId },
+      data: {
+        isActive: true,
+        deletedAt: null,
+        deletedById: null,
+      },
+    });
+  }
+  
+  
 }

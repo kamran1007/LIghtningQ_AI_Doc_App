@@ -7,6 +7,7 @@ import {
   IsBoolean,
   IsLatitude,
   IsLongitude,
+  IsArray,
 } from 'class-validator';
 import {} from '@prisma/client';
 import {
@@ -17,14 +18,14 @@ import {
 
 export class CreateHospitalDto {
   @IsString()
-  name!: string;
+  HospitalName !: string;
 
   @IsString()
-  hospitalCode!: string;
+  HospitalCode!: string;
 
   @IsOptional()
   @IsString()
-  ParentHospitalCode?: string;
+  ParentHospitalCode!: string;
 
   @IsOptional()
   @IsString()
@@ -85,6 +86,7 @@ export class CreateHospitalDto {
 
   @IsNumber()
   organizationId!: number;
+
 
   @IsOptional()
   @IsNumber()

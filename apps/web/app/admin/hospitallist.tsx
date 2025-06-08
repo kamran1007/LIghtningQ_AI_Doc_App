@@ -19,8 +19,8 @@ import type { AppDispatch, RootState } from '@/store';
 import { fetchHospitals } from "@/store/hospitalSlice";
 import ViewHospitalModal from "./ViewHospital";
 export type Hospital = {
-  name: string;
-  hospitalCode: string;
+  HospitalName: string;
+  HospitalCode: string;
   ParentHospitalCode: string;
   SpecializationType: string;
   address: string;
@@ -76,21 +76,32 @@ const HospitalList = () => {
 
   const columns = [
     {
-      accessorKey: "name",
+      accessorKey: "HospitalName",
       header: "Hospital Name",
+      
     },
     {
-      accessorKey: "hospitalCode",
+      accessorKey: "HospitalCode",
       header: "Hospital Code",
-      size: 5,
+      size: 80, // Decreased
     },
     {
       accessorKey: "address",
       header: "Address",
+      size: 300, // Increased
+      Cell: ({ row }: { row: { original: any } }) => (
+        <div
+          title={row.original.address}
+          className="line-clamp-2 max-w-xs overflow-hidden text-ellipsis break-words"
+        >
+          {row.original.address}
+        </div>
+      ),
     },
     {
       accessorKey: "contactNumber",
       header: "Contact Number",
+      size: 100, // Decreased
     },
     {
       accessorKey: "email",
@@ -99,38 +110,37 @@ const HospitalList = () => {
     {
       accessorKey: "status",
       header: "Status",
-      size: 5,
+      size: 80,
     },
     {
       id: "actions",
       header: "Action",
-      size: 100,
+      size: 80, // Reduced size
       enableColumnActions: false,
       enableSorting: false,
       Cell: ({ row }: { row: { original: any } }) => (
         <DropdownMenu>
           <DropdownMenuTrigger className="focus:outline-none">
-            <MoreHorizontal className="w-5 h-5 cursor-pointer" />
+            <MoreHorizontal className="w-5 h-5 cursor-pointer text-blue-500" /> {/* Blue color */}
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="!w-20 !min-w-[10rem] p-1">
             <DropdownMenuItem
-                onClick={() => handleView(row.original)}
-
-              className="flex items-center gap-2  hover:bg-blue-50 rounded-md cursor-pointer"
+              onClick={() => handleView(row.original)}
+              className="flex items-center gap-2 hover:bg-blue-50 rounded-md cursor-pointer"
             >
               <Eye className="w-4 h-4 text-blue-500" />
               View
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => handleEdit(row.original)}
-              className="flex items-center gap-2  hover:bg-blue-50 rounded-md cursor-pointer"
+              className="flex items-center gap-2 hover:bg-blue-50 rounded-md cursor-pointer"
             >
               <Edit className="w-4 h-4 text-blue-500" />
               Edit
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => handleAddNew()}
-              className="flex items-center gap-2  hover:bg-blue-50 rounded-md cursor-pointer"
+              className="flex items-center gap-2 hover:bg-blue-50 rounded-md cursor-pointer"
             >
               <Plus className="w-4 h-4 text-blue-500" />
               Add New
@@ -140,6 +150,7 @@ const HospitalList = () => {
       ),
     },
   ];
+  
 
   return (
     <div className="w-full">

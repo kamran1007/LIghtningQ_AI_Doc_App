@@ -15,8 +15,8 @@ import Image from "next/image";
 import React from "react";
 
 type Hospital = {
-  name: string;
-  hospitalCode: string;
+  HospitalName: string;
+  HospitalCode: string;
   ParentHospitalCode: string;
   SpecializationType: string;
   address: string;
@@ -65,13 +65,13 @@ const ViewHospitalModal = ({ isOpen, onOpenChange, hospital }: Props) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
           <div className="flex flex-col gap-2">
             <span className="font-semibold">Name:</span>
-            <span>{hospital.name}</span>
+            <span>{hospital.HospitalName}</span>
 
             <span className="font-semibold">Specialization:</span>
             <span>{hospital.SpecializationType}</span>
 
             <span className="font-semibold">Hospital Code:</span>
-            <span>{hospital.hospitalCode || "N/A"}</span>
+            <span>{hospital.HospitalCode || "N/A"}</span>
 
             <span className="font-semibold">Parent Code:</span>
             <span>{hospital.ParentHospitalCode}</span>

@@ -121,8 +121,8 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 });
 
 exports.Prisma.UserScalarFieldEnum = {
-  id: 'id',
-  title: 'title',
+  UserId: 'UserId',
+  Prefix: 'Prefix',
   imageUrl: 'imageUrl',
   firstName: 'firstName',
   lastName: 'lastName',
@@ -134,12 +134,19 @@ exports.Prisma.UserScalarFieldEnum = {
   hashedRefreshToken: 'hashedRefreshToken',
   dateOfBirth: 'dateOfBirth',
   roleId: 'roleId',
+  SpecializationId: 'SpecializationId',
+  Experience: 'Experience',
+  Employee_ID: 'Employee_ID',
+  SignatureOfUser: 'SignatureOfUser',
   organizationId: 'organizationId',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  deletedById: 'deletedById',
   deletedAt: 'deletedAt'
 };
 
 exports.Prisma.OrganizationScalarFieldEnum = {
-  id: 'id',
+  OrganizationId: 'OrganizationId',
   OrganizationName: 'OrganizationName',
   Organizationcode: 'Organizationcode',
   logoUrl: 'logoUrl',
@@ -163,9 +170,9 @@ exports.Prisma.OrganizationScalarFieldEnum = {
 };
 
 exports.Prisma.HospitalScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  hospitalCode: 'hospitalCode',
+  HospitalId: 'HospitalId',
+  HospitalName: 'HospitalName',
+  HospitalCode: 'HospitalCode',
   ParentHospitalCode: 'ParentHospitalCode',
   Organizationcode: 'Organizationcode',
   SpecializationType: 'SpecializationType',
@@ -194,24 +201,25 @@ exports.Prisma.HospitalScalarFieldEnum = {
 };
 
 exports.Prisma.UserHospitalAccessScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
+  UserHospitalAccessId: 'UserHospitalAccessId',
+  UserId: 'UserId',
   hospitalId: 'hospitalId',
   roleId: 'roleId',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  createdById: 'createdById'
 };
 
 exports.Prisma.SettingScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
+  SettingId: 'SettingId',
+  UserId: 'UserId',
   theme: 'theme',
   language: 'language'
 };
 
 exports.Prisma.AuditLogScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
+  AuditLogId: 'AuditLogId',
+  UserId: 'UserId',
   action: 'action',
   entity: 'entity',
   entityId: 'entityId',
@@ -220,32 +228,38 @@ exports.Prisma.AuditLogScalarFieldEnum = {
 };
 
 exports.Prisma.LoginSessionScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
+  LoginSessionId: 'LoginSessionId',
+  UserId: 'UserId',
   ipAddress: 'ipAddress',
   userAgent: 'userAgent',
   loginAt: 'loginAt'
 };
 
 exports.Prisma.RoleScalarFieldEnum = {
-  id: 'id',
+  RoleId: 'RoleId',
   Rolename: 'Rolename',
-  description: 'description',
-  isActive: 'isActive'
+  Description: 'Description',
+  IsActive: 'IsActive'
 };
 
 exports.Prisma.RolePermissionScalarFieldEnum = {
-  id: 'id',
-  roleId: 'roleId',
+  RolePermissionId: 'RolePermissionId',
+  RoleId: 'RoleId',
   permissionId: 'permissionId'
 };
 
 exports.Prisma.PermissionScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  displayName: 'displayName',
-  category: 'category',
-  description: 'description'
+  PermissionId: 'PermissionId',
+  Name: 'Name',
+  DisplayName: 'DisplayName',
+  Category: 'Category',
+  Description: 'Description'
+};
+
+exports.Prisma.SpecializationScalarFieldEnum = {
+  SpecializationId: 'SpecializationId',
+  SpecializationName: 'SpecializationName',
+  Description: 'Description'
 };
 
 exports.Prisma.SortOrder = {
@@ -321,7 +335,8 @@ exports.Prisma.ModelName = {
   LoginSession: 'LoginSession',
   Role: 'Role',
   RolePermission: 'RolePermission',
-  Permission: 'Permission'
+  Permission: 'Permission',
+  Specialization: 'Specialization'
 };
 
 /**

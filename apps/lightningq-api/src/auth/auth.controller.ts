@@ -35,7 +35,7 @@ export class AuthController {
     // console.log('AuthController: req.user =', req.user);
     // return this.authService.login(req.user.Id, req.user.Email, req.user.Name);
     const resopnse = await this.authService.login(
-      req.user.Id,
+      req.user.UserId,
       req.user.Email,
       req.user.firstName,
       req.user.lastName,
@@ -52,7 +52,7 @@ export class AuthController {
     return {
       message: 'This is a protected route',
       user: {
-        id: userData.id,
+        id: userData.UserId,
         title: userData.title,
         imageUrl: userData.imageUrl,
         firstName: userData.firstName,
@@ -71,8 +71,8 @@ export class AuthController {
   @UseGuards(RefreshAuthGuard)
   @Post('refresh')
   refreshToken(@Request() req) {
-    const { id, email, organizationId, roleId } = req.user;
-  return this.authService.refreshToken(id, email, organizationId, roleId);
+    const { UserId, email, organizationId, roleId } = req.user;
+  return this.authService.refreshToken(UserId, email, organizationId, roleId);
   }
   //update profile
   @Patch('Updateprofile')
@@ -93,7 +93,7 @@ export class AuthController {
     if (file) {
       dto.imageUrl = `/uploads/${file.filename}`; // save local path
     }
-    return this.authService.updateProfile(user.id, dto);
+    return this.authService.updateProfile(user.UserId, dto);
   }
   //change password
   @Patch('changepassword')
@@ -102,7 +102,7 @@ export class AuthController {
     @Body() dto: ChangePasswordDto,
   ) {
     return this.authService.changePassword(
-      user.id,
+      user.UserId,
       dto.currentPassword,
       dto.newPassword,
     );
@@ -112,7 +112,7 @@ export class AuthController {
   @Post('logout')
   logout(@Request() req) {
     console.log('User in request:', req.user);
-    return this.authService.logout(req.user.id);
+    return this.authService.logout(req.user.UserId);
   }
 }
 

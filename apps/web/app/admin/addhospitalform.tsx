@@ -32,8 +32,8 @@ console.log("Google secrete", GoogleMapApiKey);
 const libraries: "places"[] = ["places"];
 
 const hospitalSchema = z.object({
-  name: z.string().min(1),
-  hospitalCode: z.string(),
+  HospitalName: z.string().min(1),
+  HospitalCode: z.string(),
   SpecializationType: z.string().min(1),
   address: z.string().min(1),
   city: z.string().min(1),
@@ -60,7 +60,7 @@ const AddHospitalForm = ({
   onOpenChange: (open: boolean) => void;
   hospital?: any;
   Organizationdata?: {
-    id: number;
+    OrganizationId: number;
     OrganizationName: string;
     Organizationcode: string;
   };
@@ -93,7 +93,7 @@ const AddHospitalForm = ({
     },
   });
   const [error, setError] = useState<{
-    name?: string;
+    HospitalName?: string;
     SpecializationType?: string;
     address?: string;
     city?: string;
@@ -110,8 +110,8 @@ const AddHospitalForm = ({
   
     // Reset form values
     reset({
-      name: hospital.name,
-      hospitalCode: hospital.hospitalCode,
+      HospitalName: hospital.HospitalName,
+      HospitalCode: hospital.HospitalCode,
       address: hospital.address,
       email: hospital.email,
       contactNumber: hospital.contactNumber,
@@ -220,11 +220,11 @@ const AddHospitalForm = ({
     console.log("Data has been log", Organizationdata);
     try {
       // 🔥 Include required extra fields if needed
-      const isEdit = !!hospital?.id;
+      const isEdit = !!hospital?.HospitalId;
 
     const payload = {
       ...formData,
-      organizationId: isEdit ? hospital.organizationId ?? "" : Organizationdata?.id ?? "",
+      organizationId: isEdit ? hospital.organizationId ?? "" : Organizationdata?.OrganizationId ?? "",
       ParentHospitalCode: isEdit ? hospital.Organizationcode ?? "" : Organizationdata?.Organizationcode ?? "",
       level: "SUPER",
       status: formData.status || hospital?.status || "ACTIVE",
@@ -263,7 +263,7 @@ const AddHospitalForm = ({
       if(isEdit){
         
     
-        await updatehospitaldetail(hospital.id, payload);
+        await updatehospitaldetail(hospital.HospitalId, payload);
         toast.success("Hospital updated successfully");
       }
       else{
@@ -341,7 +341,7 @@ const AddHospitalForm = ({
           {/* 📝 Form Fields */}
           <form onSubmit={handleSubmit(onSubmit)}>
             <Input
-              {...register("name")}
+              {...register("HospitalName")}
               placeholder="Hospital Name"
               className={`${inputbox} mb-4 py-5`}
             />
@@ -356,7 +356,7 @@ const AddHospitalForm = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
               <Input
-                {...register("hospitalCode")}
+                {...register("HospitalCode")}
                 placeholder="Hospital Code"
                 className={inputbox}
               />
@@ -406,6 +406,7 @@ const AddHospitalForm = ({
                 {...register("contactNumber")}
                 placeholder="Contact Number"
                 className={inputbox}
+                maxLength  = {10}
               />
               <Input
                 {...register("email")}

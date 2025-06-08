@@ -4,10 +4,17 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 const cookieParser = require('cookie-parser');
-
+import * as fs from 'fs';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // ✅ Ensure 'api/uploads/users' exists
+  const uploadsDir = join(__dirname, '..', '..', 'uploads', 'users');
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+    console.log(`✅ Created directory: ${uploadsDir}`);
+  }
 
   // Enable static assets
   app.useStaticAssets(join(__dirname, '..', 'uploads'), {
@@ -15,7 +22,7 @@ async function bootstrap() {
   });
 
   // ✅ Enable CORS
-  app.use(cookieParser()); 
+  app.use(cookieParser());
 
   app.enableCors({
     origin: 'http://localhost:3000', // Replace with your frontend URL
@@ -28,8 +35,7 @@ async function bootstrap() {
       transform: true,
       whitelist: true,
       forbidNonWhitelisted: true, // Optional but useful
-      enableDebugMessages: true, 
-      
+      enableDebugMessages: true,
     }),
   );
 
@@ -44,5 +50,8 @@ async function bootstrap() {
   });
 
   await app.listen(process.env.PORT ?? 8000);
+  console.log(
+    `🚀 Server ready on http://localhost:${process.env.PORT ?? 8000}`,
+  );
 }
 bootstrap();
