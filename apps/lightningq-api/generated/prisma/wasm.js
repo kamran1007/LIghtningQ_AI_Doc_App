@@ -139,6 +139,7 @@ exports.Prisma.UserScalarFieldEnum = {
   Employee_ID: 'Employee_ID',
   SignatureOfUser: 'SignatureOfUser',
   organizationId: 'organizationId',
+  createdAt: 'createdAt',
   createdById: 'createdById',
   updatedById: 'updatedById',
   deletedById: 'deletedById',

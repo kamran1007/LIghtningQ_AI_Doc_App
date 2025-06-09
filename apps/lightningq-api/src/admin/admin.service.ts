@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateHospitalDto } from 'src/manage_hospital/dto/create_hospital.dto';
 import { CreateUserDto } from 'src/manage_hospital/dto/create_user.dto';
 import { UpdateHospitalDto } from 'src/manage_hospital/dto/update_hospital.dto';
@@ -7,7 +7,7 @@ import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AdminService {
-  
+
   constructor(
     private readonly ManageHospitalService: ManageHospitalService,
     private readonly userService: UserService,
@@ -81,9 +81,29 @@ export class AdminService {
     };
   }
   //UPDATE
+  async updateUserWithHospitals(
+    userId: number,
+    dto: CreateUserDto,
 
+  ) {dto
+
+    const CreateUser = await this.ManageHospitalService.updateUserWithHospitals(
+      userId,
+      dto,
+    );
+    return {
+      message: 'Update successfully',
+      return: CreateUser,
+    };
+  }
   //GET
-
+  async getAllUsers(data: { page: number; limit: number; search: string | undefined; organizationId: number | undefined; }) {
+    const getalluser = await this.ManageHospitalService.getAllUsers(data);
+    return {
+      message : 'Fetch successfully',
+      return : getalluser,
+    }
+  }
 
   //ACTIVATE/DEACTIVATE
   async deactivateUser(ID: number, deletedById: any) {
@@ -102,7 +122,7 @@ export class AdminService {
       ID,
     );
     return {
-      message: 'USER DEACTIVATE SUCCESSFULLY',
+      message: 'USER ACTIVATED SUCCESSFULLY',
       return: GetAllHospital,
     };
   }

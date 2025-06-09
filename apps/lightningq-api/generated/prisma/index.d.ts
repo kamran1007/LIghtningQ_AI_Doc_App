@@ -2228,6 +2228,7 @@ export namespace Prisma {
     Employee_ID: string | null
     SignatureOfUser: string | null
     organizationId: number | null
+    createdAt: Date | null
     createdById: number | null
     updatedById: number | null
     deletedById: number | null
@@ -2253,6 +2254,7 @@ export namespace Prisma {
     Employee_ID: string | null
     SignatureOfUser: string | null
     organizationId: number | null
+    createdAt: Date | null
     createdById: number | null
     updatedById: number | null
     deletedById: number | null
@@ -2278,6 +2280,7 @@ export namespace Prisma {
     Employee_ID: number
     SignatureOfUser: number
     organizationId: number
+    createdAt: number
     createdById: number
     updatedById: number
     deletedById: number
@@ -2325,6 +2328,7 @@ export namespace Prisma {
     Employee_ID?: true
     SignatureOfUser?: true
     organizationId?: true
+    createdAt?: true
     createdById?: true
     updatedById?: true
     deletedById?: true
@@ -2350,6 +2354,7 @@ export namespace Prisma {
     Employee_ID?: true
     SignatureOfUser?: true
     organizationId?: true
+    createdAt?: true
     createdById?: true
     updatedById?: true
     deletedById?: true
@@ -2375,6 +2380,7 @@ export namespace Prisma {
     Employee_ID?: true
     SignatureOfUser?: true
     organizationId?: true
+    createdAt?: true
     createdById?: true
     updatedById?: true
     deletedById?: true
@@ -2487,6 +2493,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt: Date
     createdById: number | null
     updatedById: number | null
     deletedById: number | null
@@ -2531,6 +2538,7 @@ export namespace Prisma {
     Employee_ID?: boolean
     SignatureOfUser?: boolean
     organizationId?: boolean
+    createdAt?: boolean
     createdById?: boolean
     updatedById?: boolean
     deletedById?: boolean
@@ -2575,6 +2583,7 @@ export namespace Prisma {
     Employee_ID?: boolean
     SignatureOfUser?: boolean
     organizationId?: boolean
+    createdAt?: boolean
     createdById?: boolean
     updatedById?: boolean
     deletedById?: boolean
@@ -2606,6 +2615,7 @@ export namespace Prisma {
     Employee_ID?: boolean
     SignatureOfUser?: boolean
     organizationId?: boolean
+    createdAt?: boolean
     createdById?: boolean
     updatedById?: boolean
     deletedById?: boolean
@@ -2637,13 +2647,14 @@ export namespace Prisma {
     Employee_ID?: boolean
     SignatureOfUser?: boolean
     organizationId?: boolean
+    createdAt?: boolean
     createdById?: boolean
     updatedById?: boolean
     deletedById?: boolean
     deletedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"UserId" | "Prefix" | "imageUrl" | "firstName" | "lastName" | "gender" | "email" | "mobile" | "passwordHash" | "isActive" | "hashedRefreshToken" | "dateOfBirth" | "roleId" | "SpecializationId" | "Experience" | "Employee_ID" | "SignatureOfUser" | "organizationId" | "createdById" | "updatedById" | "deletedById" | "deletedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"UserId" | "Prefix" | "imageUrl" | "firstName" | "lastName" | "gender" | "email" | "mobile" | "passwordHash" | "isActive" | "hashedRefreshToken" | "dateOfBirth" | "roleId" | "SpecializationId" | "Experience" | "Employee_ID" | "SignatureOfUser" | "organizationId" | "createdAt" | "createdById" | "updatedById" | "deletedById" | "deletedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     role?: boolean | RoleDefaultArgs<ExtArgs>
     Specialization?: boolean | SpecializationDefaultArgs<ExtArgs>
@@ -2723,6 +2734,7 @@ export namespace Prisma {
       Employee_ID: string
       SignatureOfUser: string
       organizationId: number
+      createdAt: Date
       createdById: number | null
       updatedById: number | null
       deletedById: number | null
@@ -3186,6 +3198,7 @@ export namespace Prisma {
     readonly Employee_ID: FieldRef<"User", 'String'>
     readonly SignatureOfUser: FieldRef<"User", 'String'>
     readonly organizationId: FieldRef<"User", 'Int'>
+    readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly createdById: FieldRef<"User", 'Int'>
     readonly updatedById: FieldRef<"User", 'Int'>
     readonly deletedById: FieldRef<"User", 'Int'>
@@ -15838,6 +15851,7 @@ export namespace Prisma {
     Employee_ID: 'Employee_ID',
     SignatureOfUser: 'SignatureOfUser',
     organizationId: 'organizationId',
+    createdAt: 'createdAt',
     createdById: 'createdById',
     updatedById: 'updatedById',
     deletedById: 'deletedById',
@@ -16212,6 +16226,7 @@ export namespace Prisma {
     Employee_ID?: StringFilter<"User"> | string
     SignatureOfUser?: StringFilter<"User"> | string
     organizationId?: IntFilter<"User"> | number
+    createdAt?: DateTimeFilter<"User"> | Date | string
     createdById?: IntNullableFilter<"User"> | number | null
     updatedById?: IntNullableFilter<"User"> | number | null
     deletedById?: IntNullableFilter<"User"> | number | null
@@ -16255,6 +16270,7 @@ export namespace Prisma {
     Employee_ID?: SortOrder
     SignatureOfUser?: SortOrder
     organizationId?: SortOrder
+    createdAt?: SortOrder
     createdById?: SortOrderInput | SortOrder
     updatedById?: SortOrderInput | SortOrder
     deletedById?: SortOrderInput | SortOrder
@@ -16301,6 +16317,7 @@ export namespace Prisma {
     Employee_ID?: StringFilter<"User"> | string
     SignatureOfUser?: StringFilter<"User"> | string
     organizationId?: IntFilter<"User"> | number
+    createdAt?: DateTimeFilter<"User"> | Date | string
     createdById?: IntNullableFilter<"User"> | number | null
     updatedById?: IntNullableFilter<"User"> | number | null
     deletedById?: IntNullableFilter<"User"> | number | null
@@ -16344,6 +16361,7 @@ export namespace Prisma {
     Employee_ID?: SortOrder
     SignatureOfUser?: SortOrder
     organizationId?: SortOrder
+    createdAt?: SortOrder
     createdById?: SortOrderInput | SortOrder
     updatedById?: SortOrderInput | SortOrder
     deletedById?: SortOrderInput | SortOrder
@@ -16377,6 +16395,7 @@ export namespace Prisma {
     Employee_ID?: StringWithAggregatesFilter<"User"> | string
     SignatureOfUser?: StringWithAggregatesFilter<"User"> | string
     organizationId?: IntWithAggregatesFilter<"User"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     createdById?: IntNullableWithAggregatesFilter<"User"> | number | null
     updatedById?: IntNullableWithAggregatesFilter<"User"> | number | null
     deletedById?: IntNullableWithAggregatesFilter<"User"> | number | null
@@ -17197,6 +17216,7 @@ export namespace Prisma {
     Experience: string
     Employee_ID: string
     SignatureOfUser: string
+    createdAt?: Date | string
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
@@ -17237,6 +17257,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     createdById?: number | null
     updatedById?: number | null
     deletedById?: number | null
@@ -17270,6 +17291,7 @@ export namespace Prisma {
     Experience?: StringFieldUpdateOperationsInput | string
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
@@ -17310,6 +17332,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -17347,6 +17370,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     createdById?: number | null
     updatedById?: number | null
     deletedById?: number | null
@@ -17368,6 +17392,7 @@ export namespace Prisma {
     Experience?: StringFieldUpdateOperationsInput | string
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
@@ -17390,6 +17415,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -18382,6 +18408,7 @@ export namespace Prisma {
     Employee_ID?: SortOrder
     SignatureOfUser?: SortOrder
     organizationId?: SortOrder
+    createdAt?: SortOrder
     createdById?: SortOrder
     updatedById?: SortOrder
     deletedById?: SortOrder
@@ -18417,6 +18444,7 @@ export namespace Prisma {
     Employee_ID?: SortOrder
     SignatureOfUser?: SortOrder
     organizationId?: SortOrder
+    createdAt?: SortOrder
     createdById?: SortOrder
     updatedById?: SortOrder
     deletedById?: SortOrder
@@ -18442,6 +18470,7 @@ export namespace Prisma {
     Employee_ID?: SortOrder
     SignatureOfUser?: SortOrder
     organizationId?: SortOrder
+    createdAt?: SortOrder
     createdById?: SortOrder
     updatedById?: SortOrder
     deletedById?: SortOrder
@@ -21027,6 +21056,7 @@ export namespace Prisma {
     Experience: string
     Employee_ID: string
     SignatureOfUser: string
+    createdAt?: Date | string
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
@@ -21066,6 +21096,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     createdById?: number | null
     updatedById?: number | null
     deletedById?: number | null
@@ -21103,6 +21134,7 @@ export namespace Prisma {
     Experience: string
     Employee_ID: string
     SignatureOfUser: string
+    createdAt?: Date | string
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
@@ -21142,6 +21174,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     createdById?: number | null
     updatedById?: number | null
     deletedById?: number | null
@@ -21179,6 +21212,7 @@ export namespace Prisma {
     Experience: string
     Employee_ID: string
     SignatureOfUser: string
+    createdAt?: Date | string
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
@@ -21218,6 +21252,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     createdById?: number | null
     updatedById?: number | null
     deletedById?: number | null
@@ -21255,6 +21290,7 @@ export namespace Prisma {
     Experience: string
     Employee_ID: string
     SignatureOfUser: string
+    createdAt?: Date | string
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
@@ -21294,6 +21330,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     updatedById?: number | null
     deletedById?: number | null
     deletedAt?: Date | string | null
@@ -21336,6 +21373,7 @@ export namespace Prisma {
     Experience: string
     Employee_ID: string
     SignatureOfUser: string
+    createdAt?: Date | string
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
@@ -21375,6 +21413,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     createdById?: number | null
     deletedById?: number | null
     deletedAt?: Date | string | null
@@ -21417,6 +21456,7 @@ export namespace Prisma {
     Experience: string
     Employee_ID: string
     SignatureOfUser: string
+    createdAt?: Date | string
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
@@ -21456,6 +21496,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     createdById?: number | null
     updatedById?: number | null
     deletedAt?: Date | string | null
@@ -22048,6 +22089,7 @@ export namespace Prisma {
     Experience?: StringFieldUpdateOperationsInput | string
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
@@ -22087,6 +22129,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -22130,6 +22173,7 @@ export namespace Prisma {
     Experience?: StringFieldUpdateOperationsInput | string
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
@@ -22169,6 +22213,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -22212,6 +22257,7 @@ export namespace Prisma {
     Experience?: StringFieldUpdateOperationsInput | string
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
@@ -22251,6 +22297,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -22306,6 +22353,7 @@ export namespace Prisma {
     Employee_ID?: StringFilter<"User"> | string
     SignatureOfUser?: StringFilter<"User"> | string
     organizationId?: IntFilter<"User"> | number
+    createdAt?: DateTimeFilter<"User"> | Date | string
     createdById?: IntNullableFilter<"User"> | number | null
     updatedById?: IntNullableFilter<"User"> | number | null
     deletedById?: IntNullableFilter<"User"> | number | null
@@ -22548,6 +22596,7 @@ export namespace Prisma {
     Experience: string
     Employee_ID: string
     SignatureOfUser: string
+    createdAt?: Date | string
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
@@ -22586,6 +22635,7 @@ export namespace Prisma {
     Experience: string
     Employee_ID: string
     SignatureOfUser: string
+    createdAt?: Date | string
     createdById?: number | null
     updatedById?: number | null
     deletedById?: number | null
@@ -22887,6 +22937,7 @@ export namespace Prisma {
     Experience: string
     Employee_ID: string
     SignatureOfUser: string
+    createdAt?: Date | string
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
@@ -22926,6 +22977,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     createdById?: number | null
     updatedById?: number | null
     deletedById?: number | null
@@ -22963,6 +23015,7 @@ export namespace Prisma {
     Experience: string
     Employee_ID: string
     SignatureOfUser: string
+    createdAt?: Date | string
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
@@ -23002,6 +23055,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     createdById?: number | null
     updatedById?: number | null
     deletedById?: number | null
@@ -23039,6 +23093,7 @@ export namespace Prisma {
     Experience: string
     Employee_ID: string
     SignatureOfUser: string
+    createdAt?: Date | string
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
@@ -23078,6 +23133,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     createdById?: number | null
     updatedById?: number | null
     deletedById?: number | null
@@ -23115,6 +23171,7 @@ export namespace Prisma {
     Experience: string
     Employee_ID: string
     SignatureOfUser: string
+    createdAt?: Date | string
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
@@ -23154,6 +23211,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     createdById?: number | null
     updatedById?: number | null
     deletedById?: number | null
@@ -23386,6 +23444,7 @@ export namespace Prisma {
     Experience?: StringFieldUpdateOperationsInput | string
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
@@ -23425,6 +23484,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -23468,6 +23528,7 @@ export namespace Prisma {
     Experience?: StringFieldUpdateOperationsInput | string
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
@@ -23507,6 +23568,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -23550,6 +23612,7 @@ export namespace Prisma {
     Experience?: StringFieldUpdateOperationsInput | string
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
@@ -23589,6 +23652,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -23621,6 +23685,7 @@ export namespace Prisma {
     Experience: string
     Employee_ID: string
     SignatureOfUser: string
+    createdAt?: Date | string
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
@@ -23660,6 +23725,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     createdById?: number | null
     updatedById?: number | null
     deletedById?: number | null
@@ -23789,6 +23855,7 @@ export namespace Prisma {
     Experience: string
     Employee_ID: string
     SignatureOfUser: string
+    createdAt?: Date | string
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
@@ -23828,6 +23895,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     createdById?: number | null
     updatedById?: number | null
     deletedById?: number | null
@@ -23876,6 +23944,7 @@ export namespace Prisma {
     Experience?: StringFieldUpdateOperationsInput | string
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
@@ -23915,6 +23984,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -24062,6 +24132,7 @@ export namespace Prisma {
     Experience?: StringFieldUpdateOperationsInput | string
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
@@ -24101,6 +24172,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -24133,6 +24205,7 @@ export namespace Prisma {
     Experience: string
     Employee_ID: string
     SignatureOfUser: string
+    createdAt?: Date | string
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
@@ -24172,6 +24245,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     createdById?: number | null
     updatedById?: number | null
     deletedById?: number | null
@@ -24220,6 +24294,7 @@ export namespace Prisma {
     Experience?: StringFieldUpdateOperationsInput | string
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
@@ -24259,6 +24334,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -24291,6 +24367,7 @@ export namespace Prisma {
     Experience: string
     Employee_ID: string
     SignatureOfUser: string
+    createdAt?: Date | string
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
@@ -24330,6 +24407,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     createdById?: number | null
     updatedById?: number | null
     deletedById?: number | null
@@ -24378,6 +24456,7 @@ export namespace Prisma {
     Experience?: StringFieldUpdateOperationsInput | string
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
@@ -24417,6 +24496,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -24449,6 +24529,7 @@ export namespace Prisma {
     Experience: string
     Employee_ID: string
     SignatureOfUser: string
+    createdAt?: Date | string
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
@@ -24488,6 +24569,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     createdById?: number | null
     updatedById?: number | null
     deletedById?: number | null
@@ -24536,6 +24618,7 @@ export namespace Prisma {
     Experience?: StringFieldUpdateOperationsInput | string
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
@@ -24575,6 +24658,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -24607,6 +24691,7 @@ export namespace Prisma {
     Experience: string
     Employee_ID: string
     SignatureOfUser: string
+    createdAt?: Date | string
     deletedAt?: Date | string | null
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
     UserOrganizationArray: OrganizationCreateNestedOneWithoutUsersInput
@@ -24645,6 +24730,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     createdById?: number | null
     updatedById?: number | null
     deletedById?: number | null
@@ -24922,6 +25008,7 @@ export namespace Prisma {
     Experience: string
     Employee_ID: string
     SignatureOfUser: string
+    createdAt?: Date | string
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     UserOrganizationArray: OrganizationCreateNestedOneWithoutUsersInput
@@ -24960,6 +25047,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     createdById?: number | null
     updatedById?: number | null
     deletedById?: number | null
@@ -25048,6 +25136,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     updatedById?: number | null
     deletedById?: number | null
     deletedAt?: Date | string | null
@@ -25072,6 +25161,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     createdById?: number | null
     deletedById?: number | null
     deletedAt?: Date | string | null
@@ -25096,6 +25186,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     createdById?: number | null
     updatedById?: number | null
     deletedAt?: Date | string | null
@@ -25287,6 +25378,7 @@ export namespace Prisma {
     Experience?: StringFieldUpdateOperationsInput | string
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
@@ -25326,6 +25418,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -25362,6 +25455,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -25382,6 +25476,7 @@ export namespace Prisma {
     Experience?: StringFieldUpdateOperationsInput | string
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
@@ -25421,6 +25516,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -25457,6 +25553,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -25477,6 +25574,7 @@ export namespace Prisma {
     Experience?: StringFieldUpdateOperationsInput | string
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
@@ -25516,6 +25614,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -25552,6 +25651,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -26012,6 +26112,7 @@ export namespace Prisma {
     Experience: string
     Employee_ID: string
     SignatureOfUser: string
+    createdAt?: Date | string
     createdById?: number | null
     updatedById?: number | null
     deletedById?: number | null
@@ -26128,6 +26229,7 @@ export namespace Prisma {
     Experience?: StringFieldUpdateOperationsInput | string
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
@@ -26166,6 +26268,7 @@ export namespace Prisma {
     Experience?: StringFieldUpdateOperationsInput | string
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -26202,6 +26305,7 @@ export namespace Prisma {
     Experience?: StringFieldUpdateOperationsInput | string
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -26383,6 +26487,7 @@ export namespace Prisma {
     Experience?: StringFieldUpdateOperationsInput | string
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
@@ -26422,6 +26527,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -26458,6 +26564,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -26482,6 +26589,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     createdById?: number | null
     updatedById?: number | null
     deletedById?: number | null
@@ -26517,6 +26625,7 @@ export namespace Prisma {
     Experience?: StringFieldUpdateOperationsInput | string
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
     UserOrganizationArray?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
@@ -26555,6 +26664,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -26591,6 +26701,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -26674,6 +26785,7 @@ export namespace Prisma {
     Employee_ID: string
     SignatureOfUser: string
     organizationId: number
+    createdAt?: Date | string
     createdById?: number | null
     updatedById?: number | null
     deletedById?: number | null
@@ -26695,6 +26807,7 @@ export namespace Prisma {
     Experience?: StringFieldUpdateOperationsInput | string
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     UserOrganizationArray?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
@@ -26733,6 +26846,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
@@ -26769,6 +26883,7 @@ export namespace Prisma {
     Employee_ID?: StringFieldUpdateOperationsInput | string
     SignatureOfUser?: StringFieldUpdateOperationsInput | string
     organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: NullableIntFieldUpdateOperationsInput | number | null
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null

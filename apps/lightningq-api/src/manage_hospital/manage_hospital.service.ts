@@ -5,6 +5,7 @@ import { UpdateHospitalDto } from './dto/update_hospital.dto';
 import { CreateUserDto, UserBranchDto } from './dto/create_user.dto';
 import { Title } from 'generated/prisma';
 import { hash } from 'argon2';
+import { contains } from 'class-validator';
 
 @Injectable()
 export class ManageHospitalService {
@@ -296,11 +297,127 @@ export class ManageHospitalService {
     return updatedUser;
   }
 
-
   //UPDATE
+  async updateUserWithHospitals(userId: number, dto: CreateUserDto) {
+    // 1. Check for user existence
+    const user = await this.prisma.user.findUnique({
+      where: { UserId: userId },
+    });
+    if (!user) throw new Error('User not found');
+
+    // 2. Update user fields
+    await this.prisma.user.update({
+      where: { UserId: userId },
+      data: {
+        Prefix: dto.Prefix as Title, // ✅ Cast to Title enum
+        firstName: dto.firstName,
+        lastName: dto.lastName,
+        email: dto.email,
+        mobile: dto.mobile,
+        dateOfBirth: new Date(dto.dateOfBirth),
+        gender: dto.gender,
+        organizationId: dto.organizationId,
+        SpecializationId: dto.SpecializationId ?? undefined,
+        roleId: dto.roleId,
+        imageUrl: dto.imageUrl || undefined,
+        SignatureOfUser: dto.SignatureOfUser || undefined,
+        Experience: dto.Experience ?? '',
+        Employee_ID: dto.Employee_ID ?? '',
+        updatedById: dto.updatedById,
+      },
+    });
+
+    // 3. Update hospital access: Clear and recreate
+    await this.prisma.userHospitalAccess.deleteMany({
+      where: { UserId: userId },
+    });
+
+    const hospitalAccessData = dto.UserBranchesArray.map((branch) => ({
+      UserId: userId,
+      hospitalId: branch.HospitalId,
+      roleId: branch.RoleId,
+      createdById: dto.updatedById,
+    }));
+
+    if (hospitalAccessData.length > 0) {
+      await this.prisma.userHospitalAccess.createMany({
+        data: hospitalAccessData,
+      });
+    }
+
+    return {
+      message: 'User updated successfully',
+      user: await this.prisma.user.findUnique({
+        where: { UserId: userId },
+        include: {
+          AdminAccess: {
+            include: {
+              hospital: true,
+              role: true,
+            },
+          },
+        },
+      }),
+    };
+  }
 
   //GET
+  async getAllUsers({
+    page,
+    limit,
+    search,
+    HospitalId,
+  }: {
+    page: number;
+    limit: number;
+    search?: string;
+    HospitalId?: number;
+  }) {
+    const skip = (page - 1) * limit;
 
+    const where: any = {
+      ...(search && {
+        OR: [
+          { firstName: { contains: search, mode: 'insensitive' } },
+          { lastName: { contains: search, mode: 'insensitive' } },
+          { email: { contains: search, mode: 'insensitive' } },
+          { mobile: { contains: search, mode: 'insensitive' } },
+          { HospitalName: { contains: search, mode: 'insensitive' } },
+        ],
+      }),
+      ...(HospitalId && { HospitalId }),
+    };
+
+    const [users, total] = await this.prisma.$transaction([
+      this.prisma.user.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          role: true,
+          UserOrganizationArray: true, // ✅ Correct
+          AdminAccess: {
+            include: {
+              hospital: true,
+              role: true,
+            },
+          },
+        },
+      }),
+      this.prisma.user.count({ where }),
+    ]);
+
+    return {
+      message: 'Users fetched successfully',
+      return: {
+        total,
+        page,
+        limit,
+        data: users,
+      },
+    };
+  }
 
   //ACTIVATE/DEACTIVATE
   async deactivateUser(userId: number, deletedById: number) {
@@ -314,7 +431,6 @@ export class ManageHospitalService {
     });
   }
 
-
   async activateUser(userId: number) {
     return await this.prisma.user.update({
       where: { UserId: userId },
@@ -325,6 +441,4 @@ export class ManageHospitalService {
       },
     });
   }
-  
-  
 }

@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   InternalServerErrorException,
+  NotFoundException,
   Param,
   ParseIntPipe,
   Patch,
@@ -25,10 +26,11 @@ import {
   UserOrganizationDto,
 } from 'src/manage_hospital/dto/create_user.dto';
 import { ParseJsonPipe } from 'src/pipe/parse-json.pipe';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Controller('admin')
 export class AdminController {
-  constructor(private readonly adminservice: AdminService) {}
+  constructor(private readonly adminservice: AdminService, private readonly prisma: PrismaService) {}
 
   // Create hospital
   @Post('AddHospital')
@@ -128,16 +130,16 @@ export class AdminController {
           cb(null, dest);
         },
         filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const userName =
-          req.body.firstName?.replace(/\s+/g, '_') || 'user'; // fallback to 'user' if firstName not provided
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const userName = req.body.firstName?.replace(/\s+/g, '_') || 'user'; // fallback to 'user' if firstName not provided
 
-        const cleanedFieldName = file.fieldname.replace(/\s+/g, '_');
-        const ext = extname(file.originalname);
+          const cleanedFieldName = file.fieldname.replace(/\s+/g, '_');
+          const ext = extname(file.originalname);
 
-        const newFileName = `${cleanedFieldName}-${userName}-${uniqueSuffix}${ext}`;
-        cb(null, newFileName);
-      },
+          const newFileName = `${cleanedFieldName}-${userName}-${uniqueSuffix}${ext}`;
+          cb(null, newFileName);
+        },
       }),
     }),
   )
@@ -190,35 +192,155 @@ export class AdminController {
     const signature = files?.find((f) => f.fieldname === 'SignatureOfUser');
 
     console.log('Uploaded files:', files);
-    if (profileImage) dto.imageUrl = profileImage.path;
-    if (signature) dto.SignatureOfUser = signature.path;
+    if (profileImage) dto.imageUrl = `/uploads/users/${profileImage.filename}`;
+    if (signature) dto.SignatureOfUser = `/uploads/users/${signature.filename}`;
 
     return this.adminservice.createUserWithHospitals(
       dto,
       {
-        profileImagePath: profileImage?.path ?? '',
-        signaturePath: signature?.path ?? '',
+        profileImagePath: profileImage
+          ? `/uploads/users/${profileImage.filename}`
+          : '',
+        signaturePath: signature ? `/uploads/users/${signature.filename}` : '',
       },
       userId,
     );
   }
 
-
   //UPDATE
+  @Patch('UpdateUser/:id')
+  @UseInterceptors(
+    AnyFilesInterceptor({
+      storage: diskStorage({
+        destination: (req, file, cb) => {
+          const dest = join(__dirname, '..', '..', 'uploads', 'users');
+          cb(null, dest);
+        },
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const userName = req.body.firstName?.replace(/\s+/g, '_') || 'user';
+          const cleanedFieldName = file.fieldname.replace(/\s+/g, '_');
+          const ext = extname(file.originalname);
+          const newFileName = `${cleanedFieldName}-${userName}-${uniqueSuffix}${ext}`;
+          cb(null, newFileName);
+        },
+      }),
+      fileFilter: (req, file, cb) => {
+        if (!file.originalname || file.size === 0) {
+          cb(null, false); // ❌ Reject this file
+        } else {
+          cb(null, true); // ✅ Accept
+        }
+      },
+    }),
+    
+  )
+  async updateUser(
+    @Request() req,
+    @Param('id', ParseIntPipe) userId: number,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+
+    @Body('UserBranchesArray', ParseJsonPipe) userBranches: UserBranchDto[],
+    @Body('UserOrganizationArray', ParseJsonPipe)
+    userOrgs: UserOrganizationDto[],
+
+    @Body('organizationId', ParseIntPipe) organizationId: number,
+    @Body('SpecializationId', ParseIntPipe) specializationId: number,
+    @Body('roleId', ParseIntPipe) roleId: number,
+
+    @Body('Prefix') Prefix: string,
+    @Body('firstName') firstName: string,
+    @Body('lastName') lastName: string,
+    @Body('dateOfBirth') dateOfBirth: string,
+    @Body('gender') gender: string,
+    @Body('mobile') mobile: string,
+    @Body('email') email: string,
+    @Body('Experience') Experience?: string,
+    @Body('Employee_ID') Employee_ID?: string,
+  ) {
+    const updatedById = req.user?.UserId;
+  const existingUser = await this.prisma.user.findUnique({
+    where: { UserId: userId },
+  });
+  if (!existingUser) throw new NotFoundException('User not found');
+
+  // ✅ Extract image files
+  // const profileImage = files?.find((f) => f.fieldname === 'imageUrl');
+  // const signature = files?.find((f) => f.fieldname === 'SignatureOfUser');
+
+  const profileImage = files?.find(
+    (f) =>
+      f.fieldname === 'imageUrl' &&
+      f.originalname &&
+      f.originalname.trim() !== ''
+  );
+  const signature = files?.find(
+    (f) => f.fieldname === 'SignatureOfUser' && f.size > 0
+  );
+    
+
+    const dto: CreateUserDto = {
+      Prefix,
+      firstName,
+      lastName,
+      dateOfBirth,
+      gender,
+      mobile,
+      email,
+      Experience,
+      Employee_ID,
+      SpecializationId: specializationId,
+      organizationId,
+      roleId,
+      UserBranchesArray: userBranches,
+      UserOrganizationArray: userOrgs,
+      // imageUrl: '',
+      // SignatureOfUser: '',
+      imageUrl: profileImage
+      ? `/uploads/users/${profileImage.filename}`
+      : existingUser.imageUrl, // retain old
+    SignatureOfUser: signature
+      ? `/uploads/users/${signature.filename}`
+      : existingUser.SignatureOfUser, // retain old
+      updatedById,
+    };
+
+
+
+    // if (profileImage) dto.imageUrl = `/uploads/users/${profileImage.filename}`;
+    // if (signature) dto.SignatureOfUser = `/uploads/users/${signature.filename}`;
+
+    return this.adminservice.updateUserWithHospitals(userId, dto);
+  }
 
   //GET
 
+  @Get('AllUsers')
+  async getAllUsers(
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+    @Query('search') search?: string,
+    @Query('organizationId') organizationId?: number,
+  ) {
+    return this.adminservice.getAllUsers({
+      page: Number(page),
+      limit: Number(limit),
+      search,
+      organizationId: organizationId ? Number(organizationId) : undefined,
+    });
+  }
 
   //ACTIVATE/DEACTIVATE
 
   @Patch('deactivate/:id')
   async deactivateUser(@Param('id') id: number, @Req() req) {
-  const deletedById = req.user.UserId; // from JWT
-  return this.adminservice.deactivateUser(+id, deletedById);
-}
+    const deletedById = req.user.UserId; // from JWT
+    return this.adminservice.deactivateUser(+id, deletedById);
+  }
 
-@Patch('activate/:id')
-async activateUser(@Param('id') id: number) {
-  return this.adminservice.activateUser(+id);
-}
+  @Patch('activate/:id')
+  async activateUser(@Param('id') id: number) {
+    return this.adminservice.activateUser(+id);
+  }
 }

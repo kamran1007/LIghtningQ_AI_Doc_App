@@ -10,7 +10,7 @@ import { getOrganizationByUser } from "@/lib/admin";
 
 const AdminTabs = () => {
   type OrganizationType = {
-    id: number;
+    OrganizationId: number;
     OrganizationName: string;
     Organizationcode: string;
   };

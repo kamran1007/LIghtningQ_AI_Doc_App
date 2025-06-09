@@ -46,6 +46,8 @@ model User {
   AdminAccess UserHospitalAccess[] @relation("UserAdminAccess") // Link to hospitals with role
 
   // Admin CRUD metadata
+  createdAt DateTime @default(now())
+
   createdById Int?
   createdBy   User? @relation("UserCreatedUsers", fields: [createdById], references: [UserId])
 

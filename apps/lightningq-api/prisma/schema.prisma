@@ -35,7 +35,7 @@ model User {
   Employee_ID         String
   SignatureOfUser     String
   organizationId      Int
-  UserOrganizationArray Organization      @relation(fields: [organizationId], references: [OrganizationId])
+  organization  Organization      @relation(fields: [organizationId], references: [OrganizationId])
 
   // Settings and Sessions
   settings            Setting?             @relation("UserSettings")
@@ -46,6 +46,8 @@ model User {
   AdminAccess       UserHospitalAccess[]  @relation("UserAdminAccess") // Link to hospitals with role
 
   // Admin CRUD metadata
+  createdAt DateTime @default(now())
+
   createdById         Int?
   createdBy           User?                @relation("UserCreatedUsers", fields: [createdById], references: [UserId])
 
