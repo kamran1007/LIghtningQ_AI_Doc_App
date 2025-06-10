@@ -330,6 +330,8 @@ export class AdminController {
       organizationId: organizationId ? Number(organizationId) : undefined,
     });
   }
+  
+
 
   //ACTIVATE/DEACTIVATE
 
@@ -342,5 +344,11 @@ export class AdminController {
   @Patch('activate/:id')
   async activateUser(@Param('id') id: number) {
     return this.adminservice.activateUser(+id);
+  }
+
+  @Get('UserRole')
+  async UserRole(@Request() req) {
+    const organizationId = req.user.organizationId;
+    return this.adminservice.getUserRole(organizationId);
   }
 }

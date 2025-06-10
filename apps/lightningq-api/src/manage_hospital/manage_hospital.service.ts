@@ -382,7 +382,7 @@ export class ManageHospitalService {
           { lastName: { contains: search, mode: 'insensitive' } },
           { email: { contains: search, mode: 'insensitive' } },
           { mobile: { contains: search, mode: 'insensitive' } },
-          { HospitalName: { contains: search, mode: 'insensitive' } },
+          // { HospitalName: { contains: search, mode: 'insensitive' } },
         ],
       }),
       ...(HospitalId && { HospitalId }),
@@ -396,7 +396,7 @@ export class ManageHospitalService {
         orderBy: { createdAt: 'desc' },
         include: {
           role: true,
-          UserOrganizationArray: true, // ✅ Correct
+          // UserOrganizationArray: true,
           AdminAccess: {
             include: {
               hospital: true,
@@ -418,7 +418,16 @@ export class ManageHospitalService {
       },
     };
   }
+//Get Role
+async getUserRole(org: number) {
+  const [Role] = await this.prisma.$transaction([
+    this.prisma.organization.findMany(),
+  ]);
 
+  return {
+    data: Role,
+  };
+}
   //ACTIVATE/DEACTIVATE
   async deactivateUser(userId: number, deletedById: number) {
     return await this.prisma.user.update({

@@ -15,27 +15,27 @@ datasource db {
 }
 
 model User {
-  UserId                Int            @id @default(autoincrement())
-  Prefix                Title
-  imageUrl              String
-  firstName             String
-  lastName              String
-  gender                String
-  email                 String         @unique
-  mobile                String         @unique
-  passwordHash          String
-  isActive              Boolean        @default(true)
-  hashedRefreshToken    String
-  dateOfBirth           DateTime
-  roleId                Int
-  role                  Role           @relation(fields: [roleId], references: [RoleId])
-  SpecializationId      Int
-  Specialization        Specialization @relation(fields: [SpecializationId], references: [SpecializationId])
-  Experience            String
-  Employee_ID           String
-  SignatureOfUser       String
-  organizationId        Int
-  UserOrganizationArray Organization   @relation(fields: [organizationId], references: [OrganizationId])
+  UserId             Int            @id @default(autoincrement())
+  Prefix             Title
+  imageUrl           String
+  firstName          String
+  lastName           String
+  gender             String
+  email              String         @unique
+  mobile             String         @unique
+  passwordHash       String
+  isActive           Boolean        @default(true)
+  hashedRefreshToken String
+  dateOfBirth        DateTime
+  roleId             Int
+  role               Role           @relation(fields: [roleId], references: [RoleId])
+  SpecializationId   Int
+  Specialization     Specialization @relation(fields: [SpecializationId], references: [SpecializationId])
+  Experience         String
+  Employee_ID        String
+  SignatureOfUser    String
+  organizationId     Int
+  organization       Organization   @relation(fields: [organizationId], references: [OrganizationId])
 
   // Settings and Sessions
   settings      Setting?       @relation("UserSettings")

@@ -4,6 +4,7 @@ import { getallhospitalByUser } from '@/lib/admin';
 
 export const fetchHospitals = createAsyncThunk('hospital/fetchAll', async () => {
   const response = await getallhospitalByUser();
+  console.log(response)
   return response.return.data;
 });
 

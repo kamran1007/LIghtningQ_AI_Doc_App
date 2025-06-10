@@ -2545,7 +2545,7 @@ export namespace Prisma {
     deletedAt?: boolean
     role?: boolean | RoleDefaultArgs<ExtArgs>
     Specialization?: boolean | SpecializationDefaultArgs<ExtArgs>
-    UserOrganizationArray?: boolean | OrganizationDefaultArgs<ExtArgs>
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     settings?: boolean | User$settingsArgs<ExtArgs>
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
     loginSessions?: boolean | User$loginSessionsArgs<ExtArgs>
@@ -2590,7 +2590,7 @@ export namespace Prisma {
     deletedAt?: boolean
     role?: boolean | RoleDefaultArgs<ExtArgs>
     Specialization?: boolean | SpecializationDefaultArgs<ExtArgs>
-    UserOrganizationArray?: boolean | OrganizationDefaultArgs<ExtArgs>
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     createdBy?: boolean | User$createdByArgs<ExtArgs>
     updatedBy?: boolean | User$updatedByArgs<ExtArgs>
     deletedBy?: boolean | User$deletedByArgs<ExtArgs>
@@ -2622,7 +2622,7 @@ export namespace Prisma {
     deletedAt?: boolean
     role?: boolean | RoleDefaultArgs<ExtArgs>
     Specialization?: boolean | SpecializationDefaultArgs<ExtArgs>
-    UserOrganizationArray?: boolean | OrganizationDefaultArgs<ExtArgs>
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     createdBy?: boolean | User$createdByArgs<ExtArgs>
     updatedBy?: boolean | User$updatedByArgs<ExtArgs>
     deletedBy?: boolean | User$deletedByArgs<ExtArgs>
@@ -2658,7 +2658,7 @@ export namespace Prisma {
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     role?: boolean | RoleDefaultArgs<ExtArgs>
     Specialization?: boolean | SpecializationDefaultArgs<ExtArgs>
-    UserOrganizationArray?: boolean | OrganizationDefaultArgs<ExtArgs>
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     settings?: boolean | User$settingsArgs<ExtArgs>
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
     loginSessions?: boolean | User$loginSessionsArgs<ExtArgs>
@@ -2679,7 +2679,7 @@ export namespace Prisma {
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     role?: boolean | RoleDefaultArgs<ExtArgs>
     Specialization?: boolean | SpecializationDefaultArgs<ExtArgs>
-    UserOrganizationArray?: boolean | OrganizationDefaultArgs<ExtArgs>
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     createdBy?: boolean | User$createdByArgs<ExtArgs>
     updatedBy?: boolean | User$updatedByArgs<ExtArgs>
     deletedBy?: boolean | User$deletedByArgs<ExtArgs>
@@ -2687,7 +2687,7 @@ export namespace Prisma {
   export type UserIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     role?: boolean | RoleDefaultArgs<ExtArgs>
     Specialization?: boolean | SpecializationDefaultArgs<ExtArgs>
-    UserOrganizationArray?: boolean | OrganizationDefaultArgs<ExtArgs>
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     createdBy?: boolean | User$createdByArgs<ExtArgs>
     updatedBy?: boolean | User$updatedByArgs<ExtArgs>
     deletedBy?: boolean | User$deletedByArgs<ExtArgs>
@@ -2698,7 +2698,7 @@ export namespace Prisma {
     objects: {
       role: Prisma.$RolePayload<ExtArgs>
       Specialization: Prisma.$SpecializationPayload<ExtArgs>
-      UserOrganizationArray: Prisma.$OrganizationPayload<ExtArgs>
+      organization: Prisma.$OrganizationPayload<ExtArgs>
       settings: Prisma.$SettingPayload<ExtArgs> | null
       auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
       loginSessions: Prisma.$LoginSessionPayload<ExtArgs>[]
@@ -3135,7 +3135,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     role<T extends RoleDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RoleDefaultArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     Specialization<T extends SpecializationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SpecializationDefaultArgs<ExtArgs>>): Prisma__SpecializationClient<$Result.GetResult<Prisma.$SpecializationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    UserOrganizationArray<T extends OrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizationDefaultArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    organization<T extends OrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizationDefaultArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     settings<T extends User$settingsArgs<ExtArgs> = {}>(args?: Subset<T, User$settingsArgs<ExtArgs>>): Prisma__SettingClient<$Result.GetResult<Prisma.$SettingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     auditLogs<T extends User$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     loginSessions<T extends User$loginSessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$loginSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LoginSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -16233,7 +16233,7 @@ export namespace Prisma {
     deletedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     role?: XOR<RoleScalarRelationFilter, RoleWhereInput>
     Specialization?: XOR<SpecializationScalarRelationFilter, SpecializationWhereInput>
-    UserOrganizationArray?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
+    organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
     settings?: XOR<SettingNullableScalarRelationFilter, SettingWhereInput> | null
     auditLogs?: AuditLogListRelationFilter
     loginSessions?: LoginSessionListRelationFilter
@@ -16277,7 +16277,7 @@ export namespace Prisma {
     deletedAt?: SortOrderInput | SortOrder
     role?: RoleOrderByWithRelationInput
     Specialization?: SpecializationOrderByWithRelationInput
-    UserOrganizationArray?: OrganizationOrderByWithRelationInput
+    organization?: OrganizationOrderByWithRelationInput
     settings?: SettingOrderByWithRelationInput
     auditLogs?: AuditLogOrderByRelationAggregateInput
     loginSessions?: LoginSessionOrderByRelationAggregateInput
@@ -16324,7 +16324,7 @@ export namespace Prisma {
     deletedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     role?: XOR<RoleScalarRelationFilter, RoleWhereInput>
     Specialization?: XOR<SpecializationScalarRelationFilter, SpecializationWhereInput>
-    UserOrganizationArray?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
+    organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
     settings?: XOR<SettingNullableScalarRelationFilter, SettingWhereInput> | null
     auditLogs?: AuditLogListRelationFilter
     loginSessions?: LoginSessionListRelationFilter
@@ -17220,7 +17220,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
-    UserOrganizationArray: OrganizationCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
@@ -17295,7 +17295,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
-    UserOrganizationArray?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
@@ -17444,7 +17444,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     hospitals?: HospitalCreateNestedManyWithoutOrganizationInput
-    users?: UserCreateNestedManyWithoutUserOrganizationArrayInput
+    users?: UserCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateInput = {
@@ -17470,7 +17470,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     hospitals?: HospitalUncheckedCreateNestedManyWithoutOrganizationInput
-    users?: UserUncheckedCreateNestedManyWithoutUserOrganizationArrayInput
+    users?: UserUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUpdateInput = {
@@ -17495,7 +17495,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     hospitals?: HospitalUpdateManyWithoutOrganizationNestedInput
-    users?: UserUpdateManyWithoutUserOrganizationArrayNestedInput
+    users?: UserUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateInput = {
@@ -17521,7 +17521,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     hospitals?: HospitalUncheckedUpdateManyWithoutOrganizationNestedInput
-    users?: UserUncheckedUpdateManyWithoutUserOrganizationArrayNestedInput
+    users?: UserUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationCreateManyInput = {
@@ -19886,10 +19886,10 @@ export namespace Prisma {
     connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
   }
 
-  export type UserCreateNestedManyWithoutUserOrganizationArrayInput = {
-    create?: XOR<UserCreateWithoutUserOrganizationArrayInput, UserUncheckedCreateWithoutUserOrganizationArrayInput> | UserCreateWithoutUserOrganizationArrayInput[] | UserUncheckedCreateWithoutUserOrganizationArrayInput[]
-    connectOrCreate?: UserCreateOrConnectWithoutUserOrganizationArrayInput | UserCreateOrConnectWithoutUserOrganizationArrayInput[]
-    createMany?: UserCreateManyUserOrganizationArrayInputEnvelope
+  export type UserCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput> | UserCreateWithoutOrganizationInput[] | UserUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutOrganizationInput | UserCreateOrConnectWithoutOrganizationInput[]
+    createMany?: UserCreateManyOrganizationInputEnvelope
     connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
   }
 
@@ -19900,10 +19900,10 @@ export namespace Prisma {
     connect?: HospitalWhereUniqueInput | HospitalWhereUniqueInput[]
   }
 
-  export type UserUncheckedCreateNestedManyWithoutUserOrganizationArrayInput = {
-    create?: XOR<UserCreateWithoutUserOrganizationArrayInput, UserUncheckedCreateWithoutUserOrganizationArrayInput> | UserCreateWithoutUserOrganizationArrayInput[] | UserUncheckedCreateWithoutUserOrganizationArrayInput[]
-    connectOrCreate?: UserCreateOrConnectWithoutUserOrganizationArrayInput | UserCreateOrConnectWithoutUserOrganizationArrayInput[]
-    createMany?: UserCreateManyUserOrganizationArrayInputEnvelope
+  export type UserUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput> | UserCreateWithoutOrganizationInput[] | UserUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutOrganizationInput | UserCreateOrConnectWithoutOrganizationInput[]
+    createMany?: UserCreateManyOrganizationInputEnvelope
     connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
   }
 
@@ -19933,17 +19933,17 @@ export namespace Prisma {
     deleteMany?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
   }
 
-  export type UserUpdateManyWithoutUserOrganizationArrayNestedInput = {
-    create?: XOR<UserCreateWithoutUserOrganizationArrayInput, UserUncheckedCreateWithoutUserOrganizationArrayInput> | UserCreateWithoutUserOrganizationArrayInput[] | UserUncheckedCreateWithoutUserOrganizationArrayInput[]
-    connectOrCreate?: UserCreateOrConnectWithoutUserOrganizationArrayInput | UserCreateOrConnectWithoutUserOrganizationArrayInput[]
-    upsert?: UserUpsertWithWhereUniqueWithoutUserOrganizationArrayInput | UserUpsertWithWhereUniqueWithoutUserOrganizationArrayInput[]
-    createMany?: UserCreateManyUserOrganizationArrayInputEnvelope
+  export type UserUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput> | UserCreateWithoutOrganizationInput[] | UserUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutOrganizationInput | UserCreateOrConnectWithoutOrganizationInput[]
+    upsert?: UserUpsertWithWhereUniqueWithoutOrganizationInput | UserUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: UserCreateManyOrganizationInputEnvelope
     set?: UserWhereUniqueInput | UserWhereUniqueInput[]
     disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
     delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
     connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    update?: UserUpdateWithWhereUniqueWithoutUserOrganizationArrayInput | UserUpdateWithWhereUniqueWithoutUserOrganizationArrayInput[]
-    updateMany?: UserUpdateManyWithWhereWithoutUserOrganizationArrayInput | UserUpdateManyWithWhereWithoutUserOrganizationArrayInput[]
+    update?: UserUpdateWithWhereUniqueWithoutOrganizationInput | UserUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: UserUpdateManyWithWhereWithoutOrganizationInput | UserUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
@@ -19961,17 +19961,17 @@ export namespace Prisma {
     deleteMany?: HospitalScalarWhereInput | HospitalScalarWhereInput[]
   }
 
-  export type UserUncheckedUpdateManyWithoutUserOrganizationArrayNestedInput = {
-    create?: XOR<UserCreateWithoutUserOrganizationArrayInput, UserUncheckedCreateWithoutUserOrganizationArrayInput> | UserCreateWithoutUserOrganizationArrayInput[] | UserUncheckedCreateWithoutUserOrganizationArrayInput[]
-    connectOrCreate?: UserCreateOrConnectWithoutUserOrganizationArrayInput | UserCreateOrConnectWithoutUserOrganizationArrayInput[]
-    upsert?: UserUpsertWithWhereUniqueWithoutUserOrganizationArrayInput | UserUpsertWithWhereUniqueWithoutUserOrganizationArrayInput[]
-    createMany?: UserCreateManyUserOrganizationArrayInputEnvelope
+  export type UserUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput> | UserCreateWithoutOrganizationInput[] | UserUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutOrganizationInput | UserCreateOrConnectWithoutOrganizationInput[]
+    upsert?: UserUpsertWithWhereUniqueWithoutOrganizationInput | UserUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: UserCreateManyOrganizationInputEnvelope
     set?: UserWhereUniqueInput | UserWhereUniqueInput[]
     disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
     delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
     connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    update?: UserUpdateWithWhereUniqueWithoutUserOrganizationArrayInput | UserUpdateWithWhereUniqueWithoutUserOrganizationArrayInput[]
-    updateMany?: UserUpdateManyWithWhereWithoutUserOrganizationArrayInput | UserUpdateManyWithWhereWithoutUserOrganizationArrayInput[]
+    update?: UserUpdateWithWhereUniqueWithoutOrganizationInput | UserUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: UserUpdateManyWithWhereWithoutOrganizationInput | UserUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
@@ -21060,7 +21060,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
-    UserOrganizationArray: OrganizationCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
@@ -21138,7 +21138,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
-    UserOrganizationArray: OrganizationCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
@@ -21216,7 +21216,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
-    UserOrganizationArray: OrganizationCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
@@ -21294,7 +21294,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
-    UserOrganizationArray: OrganizationCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
@@ -21377,7 +21377,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
-    UserOrganizationArray: OrganizationCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
@@ -21460,7 +21460,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
-    UserOrganizationArray: OrganizationCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
@@ -22093,7 +22093,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
-    UserOrganizationArray?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
@@ -22177,7 +22177,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
-    UserOrganizationArray?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
@@ -22261,7 +22261,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
-    UserOrganizationArray?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
@@ -22581,7 +22581,7 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type UserCreateWithoutUserOrganizationArrayInput = {
+  export type UserCreateWithoutOrganizationInput = {
     Prefix: $Enums.Title
     imageUrl: string
     firstName: string
@@ -22617,7 +22617,7 @@ export namespace Prisma {
     UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutCreatedByInput
   }
 
-  export type UserUncheckedCreateWithoutUserOrganizationArrayInput = {
+  export type UserUncheckedCreateWithoutOrganizationInput = {
     UserId?: number
     Prefix: $Enums.Title
     imageUrl: string
@@ -22654,13 +22654,13 @@ export namespace Prisma {
     UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
-  export type UserCreateOrConnectWithoutUserOrganizationArrayInput = {
+  export type UserCreateOrConnectWithoutOrganizationInput = {
     where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutUserOrganizationArrayInput, UserUncheckedCreateWithoutUserOrganizationArrayInput>
+    create: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput>
   }
 
-  export type UserCreateManyUserOrganizationArrayInputEnvelope = {
-    data: UserCreateManyUserOrganizationArrayInput | UserCreateManyUserOrganizationArrayInput[]
+  export type UserCreateManyOrganizationInputEnvelope = {
+    data: UserCreateManyOrganizationInput | UserCreateManyOrganizationInput[]
     skipDuplicates?: boolean
   }
 
@@ -22680,20 +22680,20 @@ export namespace Prisma {
     data: XOR<HospitalUpdateManyMutationInput, HospitalUncheckedUpdateManyWithoutOrganizationInput>
   }
 
-  export type UserUpsertWithWhereUniqueWithoutUserOrganizationArrayInput = {
+  export type UserUpsertWithWhereUniqueWithoutOrganizationInput = {
     where: UserWhereUniqueInput
-    update: XOR<UserUpdateWithoutUserOrganizationArrayInput, UserUncheckedUpdateWithoutUserOrganizationArrayInput>
-    create: XOR<UserCreateWithoutUserOrganizationArrayInput, UserUncheckedCreateWithoutUserOrganizationArrayInput>
+    update: XOR<UserUpdateWithoutOrganizationInput, UserUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput>
   }
 
-  export type UserUpdateWithWhereUniqueWithoutUserOrganizationArrayInput = {
+  export type UserUpdateWithWhereUniqueWithoutOrganizationInput = {
     where: UserWhereUniqueInput
-    data: XOR<UserUpdateWithoutUserOrganizationArrayInput, UserUncheckedUpdateWithoutUserOrganizationArrayInput>
+    data: XOR<UserUpdateWithoutOrganizationInput, UserUncheckedUpdateWithoutOrganizationInput>
   }
 
-  export type UserUpdateManyWithWhereWithoutUserOrganizationArrayInput = {
+  export type UserUpdateManyWithWhereWithoutOrganizationInput = {
     where: UserScalarWhereInput
-    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyWithoutUserOrganizationArrayInput>
+    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyWithoutOrganizationInput>
   }
 
   export type HospitalCreateWithoutChildHospitalInput = {
@@ -22862,7 +22862,7 @@ export namespace Prisma {
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    users?: UserCreateNestedManyWithoutUserOrganizationArrayInput
+    users?: UserCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutHospitalsInput = {
@@ -22887,7 +22887,7 @@ export namespace Prisma {
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    users?: UserUncheckedCreateNestedManyWithoutUserOrganizationArrayInput
+    users?: UserUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutHospitalsInput = {
@@ -22941,7 +22941,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
-    UserOrganizationArray: OrganizationCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
@@ -23019,7 +23019,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
-    UserOrganizationArray: OrganizationCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
@@ -23097,7 +23097,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
-    UserOrganizationArray: OrganizationCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
@@ -23175,7 +23175,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
-    UserOrganizationArray: OrganizationCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
@@ -23358,7 +23358,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UserUpdateManyWithoutUserOrganizationArrayNestedInput
+    users?: UserUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutHospitalsInput = {
@@ -23383,7 +23383,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UserUncheckedUpdateManyWithoutUserOrganizationArrayNestedInput
+    users?: UserUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type UserHospitalAccessUpsertWithWhereUniqueWithoutHospitalInput = {
@@ -23448,7 +23448,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
-    UserOrganizationArray?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
@@ -23532,7 +23532,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
-    UserOrganizationArray?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
@@ -23616,7 +23616,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
-    UserOrganizationArray?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
@@ -23689,7 +23689,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
-    UserOrganizationArray: OrganizationCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
@@ -23859,7 +23859,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
-    UserOrganizationArray: OrganizationCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
@@ -23948,7 +23948,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
-    UserOrganizationArray?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
@@ -24136,7 +24136,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
-    UserOrganizationArray?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
@@ -24209,7 +24209,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
-    UserOrganizationArray: OrganizationCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
     AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
@@ -24298,7 +24298,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
-    UserOrganizationArray?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
     AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
@@ -24371,7 +24371,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
-    UserOrganizationArray: OrganizationCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
     settings?: SettingCreateNestedOneWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
     AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
@@ -24460,7 +24460,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
-    UserOrganizationArray?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
     settings?: SettingUpdateOneWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
     AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
@@ -24533,7 +24533,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
-    UserOrganizationArray: OrganizationCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
@@ -24622,7 +24622,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
-    UserOrganizationArray?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
@@ -24694,7 +24694,7 @@ export namespace Prisma {
     createdAt?: Date | string
     deletedAt?: Date | string | null
     Specialization: SpecializationCreateNestedOneWithoutUsersInput
-    UserOrganizationArray: OrganizationCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
@@ -25011,7 +25011,7 @@ export namespace Prisma {
     createdAt?: Date | string
     deletedAt?: Date | string | null
     role: RoleCreateNestedOneWithoutUsersInput
-    UserOrganizationArray: OrganizationCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
     settings?: SettingCreateNestedOneWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
@@ -25382,7 +25382,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
-    UserOrganizationArray?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
@@ -25480,7 +25480,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
-    UserOrganizationArray?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
@@ -25578,7 +25578,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
-    UserOrganizationArray?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
@@ -26094,7 +26094,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
   }
 
-  export type UserCreateManyUserOrganizationArrayInput = {
+  export type UserCreateManyOrganizationInput = {
     UserId?: number
     Prefix: $Enums.Title
     imageUrl: string
@@ -26214,7 +26214,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
-  export type UserUpdateWithoutUserOrganizationArrayInput = {
+  export type UserUpdateWithoutOrganizationInput = {
     Prefix?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
     imageUrl?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
@@ -26250,7 +26250,7 @@ export namespace Prisma {
     UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutCreatedByNestedInput
   }
 
-  export type UserUncheckedUpdateWithoutUserOrganizationArrayInput = {
+  export type UserUncheckedUpdateWithoutOrganizationInput = {
     UserId?: IntFieldUpdateOperationsInput | number
     Prefix?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
     imageUrl?: StringFieldUpdateOperationsInput | string
@@ -26287,7 +26287,7 @@ export namespace Prisma {
     UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
-  export type UserUncheckedUpdateManyWithoutUserOrganizationArrayInput = {
+  export type UserUncheckedUpdateManyWithoutOrganizationInput = {
     UserId?: IntFieldUpdateOperationsInput | number
     Prefix?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
     imageUrl?: StringFieldUpdateOperationsInput | string
@@ -26491,7 +26491,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
-    UserOrganizationArray?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
@@ -26628,7 +26628,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
-    UserOrganizationArray?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
@@ -26810,7 +26810,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: RoleUpdateOneRequiredWithoutUsersNestedInput
-    UserOrganizationArray?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
     settings?: SettingUpdateOneWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput

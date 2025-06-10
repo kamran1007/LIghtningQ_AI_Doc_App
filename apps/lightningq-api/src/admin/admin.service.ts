@@ -105,6 +105,15 @@ export class AdminService {
     }
   }
 
+  async getUserRole(organizationId: number) {
+    const GetOrganization =
+      await this.ManageHospitalService.getUserRole(organizationId);
+    return {
+      message: 'Successfully Fetch',
+      return: GetOrganization,
+    };
+  }
+
   //ACTIVATE/DEACTIVATE
   async deactivateUser(ID: number, deletedById: any) {
     const GetAllHospital = await this.ManageHospitalService.deactivateUser(

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useEffect, useState } from "react";
 import { MaterialReactTable } from "material-react-table";
@@ -12,10 +12,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { HospitalTableSkeleton } from "@/components/ui/hospitalListSkeleton";
+import { HospitalTableSkeleton } from "@/components/ui/skeletonloader/hospitalListSkeleton";
 
 import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from '@/store';
+import type { AppDispatch, RootState } from "@/store";
 import { fetchHospitals } from "@/store/hospitalSlice";
 import ViewHospitalModal from "./ViewHospital";
 export type Hospital = {
@@ -44,16 +44,15 @@ export type Hospital = {
   deletedById: number | null;
 };
 const HospitalList = () => {
-
-  
   const dispatch = useDispatch<AppDispatch>();
   const hospitalData = useSelector((state: RootState) => state.hospital.data);
   const isLoading = useSelector((state: RootState) => state.hospital.loading);
 
-  const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null);
+  const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(
+    null
+  );
   const [openModal, setOpenModal] = useState(false);
   const [openViewModal, setOpenViewModal] = useState(false);
-  
 
   const handleView = (hospitalData: Hospital) => {
     setSelectedHospital(hospitalData);
@@ -78,17 +77,30 @@ const HospitalList = () => {
     {
       accessorKey: "HospitalName",
       header: "Hospital Name",
-      
+      muiTableHeadCellProps: {
+        sx: { textAlign: "center" },
+      },
     },
     {
       accessorKey: "HospitalCode",
       header: "Hospital Code",
-      size: 80, // Decreased
+      size: 30, // further reduce the size
+      muiTableBodyCellProps: {
+        sx: {
+          maxWidth: "100px",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        },
+      },
     },
     {
       accessorKey: "address",
       header: "Address",
-      size: 300, // Increased
+      size: 250, // Increased
+      muiTableHeadCellProps: {
+        sx: { textAlign: "center" },
+      },
       Cell: ({ row }: { row: { original: any } }) => (
         <div
           title={row.original.address}
@@ -101,27 +113,34 @@ const HospitalList = () => {
     {
       accessorKey: "contactNumber",
       header: "Contact Number",
-      size: 100, // Decreased
+      size: 20, // Decreased
     },
     {
       accessorKey: "email",
       header: "Email",
+      muiTableHeadCellProps: {
+        sx: { textAlign: "center" },
+      },
     },
     {
       accessorKey: "status",
       header: "Status",
-      size: 80,
+      size: 20,
+      muiTableHeadCellProps: {
+        sx: { textAlign: "center" },
+      },
     },
     {
       id: "actions",
       header: "Action",
-      size: 80, // Reduced size
+      size: 20, // Reduced size
       enableColumnActions: false,
       enableSorting: false,
       Cell: ({ row }: { row: { original: any } }) => (
         <DropdownMenu>
           <DropdownMenuTrigger className="focus:outline-none">
-            <MoreHorizontal className="w-5 h-5 cursor-pointer text-blue-500" /> {/* Blue color */}
+            <MoreHorizontal className="w-5 h-5 cursor-pointer text-blue-500" />{" "}
+            {/* Blue color */}
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="!w-20 !min-w-[10rem] p-1">
             <DropdownMenuItem
@@ -150,7 +169,6 @@ const HospitalList = () => {
       ),
     },
   ];
-  
 
   return (
     <div className="w-full">
@@ -162,12 +180,42 @@ const HospitalList = () => {
           data={hospitalData}
           enableSorting
           enablePagination
-          muiTopToolbarProps={{
+          enableSorting={false} // ✅ disables sorting completely
+          enableColumnActions={false} // ✅ removes column action menu
+          enableColumnFilters={false} // ✅ removes filter icon & logic
+          enableGlobalFilter={false} // ✅ removes global search bar
+          
+          muiTableBodyCellProps={{
             sx: {
-              backgroundColor: '',
-              color: '#33ffe3',
+              whiteSpace: "nowrap",
+              // padding: '4px',
             },
           }}
+          muiTableBodyRowProps={{
+          sx: {
+            '&:hover': {
+              backgroundColor: '#e3f2fd !important',
+            },
+          },
+        }}
+        muiTableToolbarButtonProps={{
+          sx: {
+            color: 'lightblue',
+            '&:hover': {
+              color: '#2196f3', // slightly darker blue
+            },
+          },
+        }}
+        muiTopToolbarProps={{
+          sx: {
+            '& .MuiButtonBase-root': {
+              color: 'black', // default icon color
+              '&:hover': {
+                color: '#2196f3', // hover color
+              },
+            },
+          },
+        }}
         />
       ) : (
         <div className="flex flex-col items-center justify-center w-full h-[calc(90vh-150px)] px-2 text-center overflow-hidden">
@@ -190,12 +238,12 @@ const HospitalList = () => {
         hospital={selectedHospital}
       />
       {selectedHospital && (
-  <ViewHospitalModal
-    isOpen={openViewModal}
-    onOpenChange={setOpenViewModal}
-    hospital={selectedHospital}
-  />
-)}
+        <ViewHospitalModal
+          isOpen={openViewModal}
+          onOpenChange={setOpenViewModal}
+          hospital={selectedHospital}
+        />
+      )}
     </div>
   );
 };

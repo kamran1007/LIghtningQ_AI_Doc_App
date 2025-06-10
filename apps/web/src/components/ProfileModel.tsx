@@ -24,7 +24,7 @@ import { PasswordForm, passwordSchema } from "@/helper/profilepasswordschema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
-import { ProfileSkeleton } from "./ui/ProfileSkeleton";
+import { ProfileSkeleton } from "./ui/skeletonloader/ProfileSkeleton";
 
 interface ProfileModalProps {
   open: boolean;

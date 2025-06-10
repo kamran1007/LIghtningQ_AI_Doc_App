@@ -6,20 +6,21 @@ export const HospitalTableSkeleton = () => {
   return (
     <div className="rounded-xl border overflow-hidden shadow-sm animate-pulse">
       {/* Header */}
-      <div className="grid grid-cols-6 gap-4 bg-gray-100 px-6 py-3  text-sm font-medium text-gray-500">
+      <div className="grid grid-cols-7 gap-4 bg-gray-100 px-6 py-3  text-sm font-medium text-gray-500">
         <div>Hospital Name</div>
         <div>Hospital Code</div>
         <div>Address</div>
         <div>Contact Number</div>
         <div>Email</div>
         <div>Status</div>
+<div>Action</div>
       </div>
 
       {/* Rows */}
       {rows.map((_, idx) => (
         <div
           key={idx}
-          className={`grid grid-cols-6 gap-4 items-center px-6 py-4 ${
+          className={`grid grid-cols-7 gap-4 items-center px-6 py-4 ${
             idx % 2 === 0 ? "bg-white" : "bg-gray-50"
           }`}
         >
@@ -29,6 +30,8 @@ export const HospitalTableSkeleton = () => {
           <div className="h-4 w-24 bg-gray-200 rounded-md" />
           <div className="h-4 w-28 bg-gray-200 rounded-md" />
           <div className="h-4 w-16 bg-gray-200 rounded-md" />
+          <div className="h-4 w-16 bg-gray-200 rounded-md" />
+
         </div>
       ))}
     </div>
