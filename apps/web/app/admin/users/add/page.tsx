@@ -1,0 +1,1067 @@
+"use client";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useForm } from "react-hook-form";
+import { CircleChevronLeft } from "lucide-react";
+import Link from "next/link";
+import { ShieldCheck, Clock, DollarSign } from "lucide-react";
+import Image from "next/image";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchHospitals } from "@/store/hospitalSlice";
+import { RootState, AppDispatch } from "@/store";
+import SignaturePadCanvas, {
+  SignaturePadHandle,
+} from "@/components/ui/signaturePadCanvas";
+import { toast } from "react-hot-toast";
+import {
+  addhuserdetail,
+  getOrganizationByUser,
+  getUserRole,
+  getUserSpecialization,
+  Updateuserinfo,
+} from "@/lib/admin";
+import { useSearchParams } from "next/navigation";
+import { getallusers } from "@/lib/admin";
+import { User } from "app/admin/hospitaluserlist";
+import { useRouter } from "next/navigation"; // App Router
+import { zodResolver } from "@hookform/resolvers/zod";
+import { userFormSchema } from "@/helper/userFormSchema";
+export default function AddUserPage() {
+  const hospitals = useSelector((state: RootState) => state.hospital.data);
+  const selectedUser = useSelector(
+    (state: RootState) => state.user.selectedUser
+  );
+  const searchParams = useSearchParams();
+  const userId = searchParams.get("userId");
+  const [user, setUser] = useState<User | null>(null);
+
+  const hospitalLoading = useSelector(
+    (state: RootState) => state.hospital.loading
+  );
+  const navItems = [
+    {
+      label: "Access Rights",
+      icon: <ShieldCheck className="w-4 h-4 text-blue-600" />,
+    },
+    { label: "Time Slots", icon: <Clock className="w-4 h-4 text-blue-600" /> },
+    {
+      label: "Costing",
+      icon: <DollarSign className="w-4 h-4 text-blue-600" />,
+    },
+  ];
+  type UserFormFields = {
+    Prefix: string;
+    firstName: string;
+    lastName: string;
+    mobile: string;
+    email: string;
+    gender: string;
+    dateOfBirth: string;
+    passwordHash: string;
+    confirmPassword: string;
+    roleId: number;
+    SpecializationId: number;
+    Experience: string;
+    Employee_ID: string;
+    imageUrl?: File | string;
+    SignatureOfUser?: File | string;
+    // userBranchArray?: any[];
+  };
+  const [showPasswordFields, setShowPasswordFields] = useState(false);
+
+  const schema = useMemo(
+    () => userFormSchema(showPasswordFields),
+    [showPasswordFields]
+  );
+
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    setValue,
+    watch,
+    resetField,
+    formState: { errors, isSubmitting },
+  } = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      Prefix: "",
+      firstName: "",
+      lastName: "",
+      mobile: "",
+      email: "",
+      gender: "",
+      dateOfBirth: "",
+      passwordHash: "",
+      confirmPassword: "",
+      roleId: 0,
+      SpecializationId: 0,
+      Experience: "",
+      Employee_ID: "",
+      imageUrl: "",
+      SignatureOfUser: "",
+    },
+  });
+  const [imageUrl, setImageUrl] = useState("");
+  // const [signatureFileSelected, setSignatureFileSelected] = useState(false);
+  // const [hasDrawnSignature, setHasDrawnSignature] = useState(false);
+  const [signatureMethod, setSignatureMethod] = useState<"upload" | "draw">(
+    "upload"
+  );
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  // Extract firstName and lastName from form state
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const initials =
+    (firstName?.[0]?.toUpperCase() || "") +
+    (lastName?.[0]?.toUpperCase() || "");
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setImageUrl(reader.result as string);
+      setValue("imageUrl", file);
+      reader.readAsDataURL(file);
+    }
+  };
+  type SignaturePadExtended = SignaturePad & {
+    isEmpty: () => boolean;
+    toDataURL: (type: string) => string;
+    undo: () => void;
+  };
+  const router = useRouter();
+
+  const sigRef = useRef<SignaturePadExtended | null>(null);
+
+  // const handleSignatureFileChange = (
+  //   e: React.ChangeEvent<HTMLInputElement>
+  // ) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) {
+  //     setSignatureFileSelected(true);
+  //     setHasDrawnSignature(false); // reset drawing
+  //     toast.success("File selected. Drawing disabled.");
+  //   } else {
+  //     setSignatureFileSelected(false);
+  //   }
+  // };
+  const handleSignatureFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const signatureUrl = URL.createObjectURL(file);
+      setPreviewUrl(signatureUrl);
+
+      // Ensure it's set properly in form state
+      setValue("SignatureOfUser", file, { shouldValidate: true });
+
+      toast.success("Signature uploaded");
+    }
+  };
+
+  const handleClearSignature = () => {
+    sigRef.current?.clear();
+    setPreviewUrl(null);
+    toast("Signature cleared");
+  };
+
+  const handleDrawEnd = () => {
+    const pad = sigRef.current;
+    if (!pad || typeof pad.isEmpty !== "function") return;
+
+    if (pad.isEmpty()) return;
+
+    const dataUrl = pad.toDataURL("image/png");
+    fetch(dataUrl)
+      .then((res) => res.blob())
+      .then((blob) => {
+        const file = new File([blob], "signature.png", { type: "image/png" });
+        setValue("SignatureOfUser", file);
+        setPreviewUrl(dataUrl);
+        toast.success("Signature drawn");
+      });
+  };
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  // function handleClearSignature(
+  //   event: React.MouseEvent<HTMLButtonElement>
+  // ): void {
+  //   sigRef.current?.clear(); // ✅ This now works
+  //   setSignatureFileSelected(false); // Re-enable canvas AND file input
+
+  //   setHasDrawnSignature(false); // allow file input again
+  // }
+  const inputbox =
+    "w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-800 shadow-md placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200";
+  type Role = {
+    RoleId: number;
+    Rolename: string;
+  };
+  const dispatch = useDispatch<AppDispatch>();
+
+  type Organization = {
+    OrganizationId: number;
+    OrganizationName: string;
+    // add other fields if needed
+  };
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [orgLoading, setOrgLoading] = useState(false);
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [specializations, setSpecializations] = useState([]);
+  const [userBranchArray, setUserBranchArray] = useState<any[]>([]);
+
+  const handleHospitalCheck = (checked: boolean, hospital: any) => {
+    const roleId = Number(getValues("roleId")); // Ensure roleId is a number
+
+    if (!roleId || isNaN(roleId)) {
+      console.warn("Please select a valid role before assigning hospitals.");
+      return;
+    }
+
+    const roleName =
+      (roles.find((r) => r.RoleId === roleId) as any)?.Rolename || "Unknown";
+
+    setUserBranchArray((prev) => {
+      const alreadyExists = prev.some(
+        (item) =>
+          item.HospitalId === hospital.HospitalId && item.RoleId === roleId
+      );
+
+      if (checked && !alreadyExists) {
+        // Add hospital if not already present
+        return [
+          ...prev,
+          {
+            OrganizationId: hospital.organizationId,
+            RoleId: roleId,
+            RoleName: roleName,
+            HospitalId: hospital.HospitalId,
+            BranchName: hospital.HospitalName,
+            ActiveInd: "Y",
+            DeleteInd: "N",
+          },
+        ];
+      } else if (!checked && alreadyExists) {
+        // Remove hospital if it's being unchecked
+        return prev.filter(
+          (item) =>
+            !(item.HospitalId === hospital.HospitalId && item.RoleId === roleId)
+        );
+      }
+
+      return prev; // no changes if redundant toggle
+    });
+  };
+  const handleResetPasswordToggle = () => {
+    setShowPasswordFields((prev) => {
+      const newState = !prev;
+      if (!newState) {
+        resetField("passwordHash");
+        resetField("confirmPassword");
+      }
+      return newState;
+    });
+  };
+  //onsubmit
+  const onSubmit = async (formData: any) => {
+    console.log("form trigger");
+    // 🔒 Validate hospital selection
+    if (userBranchArray.length === 0) {
+      toast.error("Please assign at least one hospital.");
+      return;
+    }
+    const {
+      Prefix,
+      firstName,
+      lastName,
+      Employee_ID,
+      mobile,
+      gender,
+      dateOfBirth,
+      email,
+      passwordHash,
+      SpecializationId,
+      Experience,
+      roleId,
+    } = formData;
+
+    const UserOrganizationArray = organizations
+      .filter((org: any) => org?.OrganizationId)
+      .map((org: any) => ({
+        OrganizationId: Number(org.OrganizationId),
+        OrganizationName: String(org.OrganizationName || ""),
+        ActiveInd: "Y",
+        DeleteInd: "N",
+      }));
+
+    const formPayload = new FormData();
+
+    formPayload.append("Prefix", Prefix);
+    formPayload.append("firstName", firstName);
+    formPayload.append("lastName", lastName);
+    formPayload.append("Employee_ID", Employee_ID);
+    formPayload.append("mobile", mobile);
+    formPayload.append("gender", gender);
+    formPayload.append("dateOfBirth", dateOfBirth);
+    formPayload.append("email", email);
+    formPayload.append("passwordHash", passwordHash);
+    formPayload.append(
+      "organizationId",
+      String(UserOrganizationArray[0]?.OrganizationId ?? "")
+    );
+    formPayload.append("roleId", String(roleId));
+
+    if (SpecializationId)
+      formPayload.append("SpecializationId", String(SpecializationId));
+    if (Experience) formPayload.append("Experience", String(Experience));
+
+    formPayload.append(
+      "UserOrganizationArray",
+      JSON.stringify(UserOrganizationArray)
+    );
+    formPayload.append("UserBranchesArray", JSON.stringify(userBranchArray));
+
+    const imageFile = formData.imageUrl; // No .[0] needed
+    if (imageFile) {
+      formPayload.append("imageUrl", imageFile);
+    }
+    console.log("imageUrl in formData:", formData.imageUrl);
+
+    const signatureFile = formData.SignatureOfUser; // ✅ Correct
+    if (signatureFile) {
+      formPayload.append("SignatureOfUser", signatureFile);
+    }
+    console.log("SignatureOfUser in formData:", formData.SignatureOfUser);
+
+    let res;
+
+    if (user?.UserId) {
+      res = await Updateuserinfo(user?.UserId, formPayload); // PATCH or PUT request
+    } else {
+      res = await addhuserdetail(formPayload); // POST request
+    }
+
+    if (res?.return?.HttpCode === 200 || res?.data?.return?.HttpCode === 200) {
+      toast.success(
+        `User ${user?.UserId ? "updated" : "created"} successfully!`
+      );
+      setTimeout(() => {
+        router.push("/admin");
+      }, 1000);
+    } else {
+      toast.error("Something went wrong");
+      console.log(res);
+    }
+    // try {
+    //   const response = await fetch("/api/auth/users", {
+    //     method: "POST",
+    //     body: formPayload,
+    //   });
+  
+    //   const result = await response.json();
+  
+    //   if (response.ok) {
+    //     toast.success(
+    //       `User ${user?.UserId ? "updated" : "created"} successfully!`
+    //     );
+    //     console.log("✅ Server Response:", result);
+    //     setTimeout(() => {
+    //       router.push("/admin");
+    //     }, 1000);
+    //   } else {
+    //     toast.error("Something went wrong");
+    //     console.error("❌ Error:", result);
+    //   }
+    // } catch (error) {
+    //   console.error("❌ Exception during submit:", error);
+    //   toast.error("Network or server error occurred.");
+    // }
+  };
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        setOrgLoading(true);
+
+        const [orgRes, roleRes, specRes, allUsersRes] = await Promise.all([
+          getOrganizationByUser(),
+          getUserRole(),
+          getUserSpecialization(),
+          getallusers(),
+        ]);
+
+        const userList = allUsersRes?.return?.data ?? [];
+
+        setOrganizations(orgRes?.return?.data ?? []);
+        setRoles(roleRes?.return?.data ?? []);
+        setSpecializations(specRes?.return?.data ?? []);
+
+        // ✅ Set user if editing
+        if (userId) {
+          const foundUser = userList.find(
+            (u: { UserId: number }) => u.UserId === Number(userId)
+          );
+          setUser(foundUser ?? null);
+        }
+      } catch (error) {
+        console.error("Failed to fetch data", error);
+        toast.error("Failed to fetch initial data");
+      } finally {
+        setOrgLoading(false);
+      }
+    };
+
+    fetchInitialData();
+  }, [userId]);
+
+  // 🔁 2. Once user is loaded, prefill the form
+  useEffect(() => {
+    if (user) {
+      setValue("Prefix", user.Prefix);
+      setValue("firstName", user.firstName);
+      setValue("lastName", user.lastName);
+      setValue("Employee_ID", user.Employee_ID);
+      setValue("mobile", user.mobile);
+      setValue("gender", user.gender);
+      setValue("email", user.email);
+      const formattedDOB = new Date(user.dateOfBirth)
+        .toISOString()
+        .split("T")[0];
+      setValue("dateOfBirth", formattedDOB || "");
+      setValue("roleId", user.roleId);
+      setValue("SpecializationId", user.SpecializationId);
+      setImageUrl(user.imageUrl ? `http://localhost:8000${user.imageUrl}` : "");
+      // setImageUrl(user.imageUrl || "");
+      // setSignatureFileSelected(!!user?.SignatureOfUser);
+      //     const rawSignature = user?.SignatureOfUser;
+      // const fullSignatureUrl = rawSignature
+      //   ? `http://localhost:8000${rawSignature}`
+      //   : null;
+
+      // setPreviewUrl(fullSignatureUrl);
+
+      //     // Optionally determine upload vs draw
+      //     if (
+      //       user?.SignatureOfUser?.endsWith(".png") ||
+      //       user?.SignatureOfUser?.endsWith(".jpg") ||
+      //       user?.SignatureOfUser?.endsWith(".jpeg")
+      //     ) {
+      //       setSignatureMethod("upload");
+      //     } else {
+      //       setSignatureMethod("draw");
+      //     }
+      const rawSignature = user?.SignatureOfUser;
+      const fullSignatureUrl = rawSignature
+        ? `http://localhost:8000${rawSignature}`
+        : null;
+
+      setPreviewUrl(fullSignatureUrl);
+
+      // ✅ File extension match
+      const extMatch = rawSignature?.match(/\.(png|jpg|jpeg)$/i);
+      setSignatureMethod(extMatch ? "upload" : "draw");
+      setValue("Experience", user.Experience);
+      const hospitalsFromAccess =
+        user?.AdminAccess?.map((access: any) => ({
+          OrganizationId: access.hospital.organizationId,
+          RoleId: access.roleId,
+          HospitalId: access.hospital.HospitalId,
+          BranchName: access.hospital.HospitalName,
+          ActiveInd: "Y",
+          DeleteInd: "N",
+        })) || [];
+
+      setUserBranchArray(hospitalsFromAccess);
+    }
+  }, [user, setValue]); // ✅ dependency should be `user`, not `selectedUser`
+
+  return (
+    <div className="flex h-full">
+      {/* Sidebar */}
+
+      <aside className="w-52 bg-white p-4 rounded-4xl shadow-2xl space-y-6">
+        {/* Back Button */}
+        <div>
+          <div className="flex ">
+            <Button
+              asChild
+              className="justify-center rounded-2xl"
+              title="Back to Admin"
+            >
+              <Link href="/admin" className="flex items-center gap-1 text-sm">
+                <CircleChevronLeft className="h-3 w-3" />
+                {/* Back */}
+              </Link>
+            </Button>
+          </div>
+        </div>
+
+        {/* Section Title */}
+        <div className="px-2">
+          <h2 className="text-lg font-semibold text-gray-800 mb-1">
+            User Settings
+          </h2>
+          <div className="h-1 w-4 bg-blue-500 rounded-full items-center" />
+        </div>
+
+        {/* Navigation List */}
+        <ul className="space-y-2 text-sm">
+          {navItems.map((item, idx) => (
+            <li
+              key={idx}
+              className="flex items-center gap-2 px-3 py-2 rounded-md bg-white hover:bg-blue-50 transition-colors cursor-pointer group"
+            >
+              {item.icon}
+              <span className="font-medium text-gray-700 group-hover:text-blue-600">
+                {item.label}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </aside>
+
+      {/* Main Form */}
+      <main className="flex-1 p-6 overflow-auto">
+        <h1 className="text-2xl font-bold mb-6">Add User</h1>
+
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-6"
+          encType="multipart/form-data"
+        >
+          {/* Image Upload & Prefix */}
+          <div className="flex items-center gap-4">
+            <div className="relative h-20 w-20 rounded-full overflow-hidden group cursor-pointer">
+              {imageUrl ? (
+                <Image
+                  src={imageUrl}
+                  alt="User avatar"
+                  width={80}
+                  height={80}
+                  className="object-cover h-full w-full transition-transform duration-300 group-hover:scale-105"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full w-full bg-gray-100">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-10 w-10 text-gray-400"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M12 12c2.67 0 8 1.34 8 4v2H4v-2c0-2.66 5.33-4 8-4Zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
+                  </svg>
+                </div>
+              )}
+
+              <div
+                onClick={handleImageClick}
+                title="Edit profile image"
+                aria-label="Edit profile image"
+                className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15.232 5.232l3.536 3.536M9 11l6-6 3.536 3.536a2 2 0 010 2.828l-6 6H9v-2.828a2 2 0 01.586-1.414z"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+
+            <div className="grid grid-cols-4 gap-4">
+              <select
+                {...register("Prefix")}
+                className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
+              >
+                <option value="">Select Prefix</option>
+                <option value="Mr">Mr</option>
+                <option value="Mrs">Mrs</option>
+                <option value="Miss">Miss</option>
+                <option value="Ms">Ms</option>
+                <option value="Dr">Dr</option>
+                <option value="Prof">Prof</option>
+                <option value="OTHER">OTHER</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-4 gap-4">
+            {/* First Name */}
+            <div className="flex flex-col">
+              <Input
+                {...register("firstName")}
+                placeholder="First Name"
+                className={`${inputbox} mb-2 py-4`}
+              />
+              {errors.firstName && (
+                <p className="text-red-500 text-sm">
+                  {errors.firstName.message}
+                </p>
+              )}
+            </div>
+
+            {/* Last Name */}
+            <div className="flex flex-col">
+              <Input
+                {...register("lastName")}
+                placeholder="Last Name"
+                className={`${inputbox} mb-2 py-4`}
+              />
+              {errors.lastName && (
+                <p className="text-red-500 text-sm">
+                  {errors.lastName.message}
+                </p>
+              )}
+            </div>
+
+            {/* Employee ID */}
+            <div className="flex flex-col">
+              <Input
+                {...register("Employee_ID")}
+                placeholder="Employee ID"
+                className={`${inputbox} mb-2 py-4`}
+              />
+              {errors.Employee_ID && (
+                <p className="text-red-500 text-sm">
+                  {errors.Employee_ID.message}
+                </p>
+              )}
+            </div>
+
+            {/* Mobile */}
+            <div className="flex flex-col">
+              <Input
+                {...register("mobile")}
+                placeholder="Mobile"
+                maxLength={10}
+                className={`${inputbox} mb-2 py-4`}
+              />
+              {errors.mobile && (
+                <p className="text-red-500 text-sm">{errors.mobile.message}</p>
+              )}
+            </div>
+
+            {/* Gender */}
+            {/* <div className="flex flex-col">
+              <Input
+                {...register("gender")}
+                placeholder="Gender"
+                className={`${inputbox} mb-2 py-4`}
+              />
+              {errors.gender && (
+                <p className="text-red-500 text-sm">{errors.gender.message}</p>
+              )}
+            </div> */}
+            <div className="flex flex-col">
+              <select
+                {...register("gender")}
+                className={`${inputbox} py-1 px-5 text-sm leading-tight h-10`}
+              >
+                <option value="">Select Gender</option>
+                <option value="MALE">MALE</option>
+                <option value="FEMALE">FEMALE</option>
+                <option value="OTHER">OTHER</option>
+              </select>
+            </div>
+            {/* DOB */}
+            <div className="flex flex-col">
+              <Input
+                {...register("dateOfBirth")}
+                type="date"
+                placeholder="Date of Birth"
+                className={`${inputbox} mb-2 py-4`}
+              />
+              {errors.dateOfBirth && (
+                <p className="text-red-500 text-sm">
+                  {errors.dateOfBirth.message}
+                </p>
+              )}
+            </div>
+
+            {/* Role */}
+            <div className="flex flex-col">
+              <select
+                {...register("roleId")}
+                className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
+              >
+                <option value="">Select Role</option>
+                {roles.map((role: any) => (
+                  <option key={role.RoleId} value={role.RoleId}>
+                    {role.Rolename}
+                  </option>
+                ))}
+              </select>
+              {errors.roleId && (
+                <p className="text-red-500 text-sm">{errors.roleId.message}</p>
+              )}
+            </div>
+
+            {/* Specialization */}
+            <div className="flex flex-col">
+              <select
+                {...register("SpecializationId")}
+                className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
+              >
+                <option value="">Select Specialization</option>
+                {specializations.map((spec: any) => (
+                  <option
+                    key={spec.SpecializationId}
+                    value={spec.SpecializationId}
+                  >
+                    {spec.SpecializationName}
+                  </option>
+                ))}
+              </select>
+              {errors.SpecializationId && (
+                <p className="text-red-500 text-sm">
+                  {errors.SpecializationId.message}
+                </p>
+              )}
+            </div>
+
+            {/* Experience */}
+            <div className="flex flex-col">
+              <Input
+                {...register("Experience")}
+                placeholder="Year Of Experience"
+                className={`${inputbox} mb-2 py-4`}
+              />
+              {errors.Experience && (
+                <p className="text-red-500 text-sm">
+                  {errors.Experience.message}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Credentials */}
+          <div className="space-y-8">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Credential
+            </h2>
+            {/* === Credentials Section === */}
+            {/* <div className="grid grid-cols-3 gap-4">
+              <div className="flex flex-col">
+                <Input
+                  {...register("email")}
+                  placeholder="Email"
+                  className={`${inputbox} mb-2 py-4`}
+                />
+                {errors.email && (
+                  <p className="text-red-500 text-sm">{errors.email.message}</p>
+                )}
+              </div>
+
+              <div className="flex flex-col">
+                <Input
+                  {...register("passwordHash")}
+                  type="password"
+                  placeholder="Password"
+                  className={`${inputbox} mb-2 py-4`}
+                />
+                {errors.passwordHash && (
+                  <p className="text-red-500 text-sm">
+                    {errors.passwordHash.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex flex-col">
+                <Input
+                  {...register("confirmPassword")}
+                  type="password"
+                  placeholder="Confirm Password"
+                  className={`${inputbox} mb-2 py-4`}
+                />
+                {errors.confirmPassword && (
+                  <p className="text-red-500 text-sm">
+                    {errors.confirmPassword.message}
+                  </p>
+                )}
+              </div>
+            </div> */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="flex flex-col">
+                <Input
+                  {...register("email")}
+                  placeholder="Email"
+                  className={`${inputbox} mb-2 py-4`}
+                />
+                {errors.email && (
+                  <p className="text-red-500 text-sm">{errors.email.message}</p>
+                )}
+              </div>
+
+              {!showPasswordFields && user?.UserId? (
+                <div className="flex flex-col justify-end mt-2">
+                  <button
+                    type="button"
+                    onClick={handleResetPasswordToggle}
+                    className="text-sm text-blue-600 hover:text-blue-800 underline transition duration-200"
+                  >
+                    🔐 Reset Password?
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="flex flex-col">
+                    <Input
+                      {...register("passwordHash")}
+                      type="password"
+                      placeholder="New Password"
+                      className={`${inputbox} mb-2 py-4`}
+                    />
+                    {errors.passwordHash && (
+                      <p className="text-red-500 text-sm">
+                        {errors.passwordHash.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col">
+                    <Input
+                      {...register("confirmPassword")}
+                      type="password"
+                      placeholder="Confirm New Password"
+                      className={`${inputbox} mb-2 py-4`}
+                    />
+                    {errors.confirmPassword && (
+                      <p className="text-red-500 text-sm">
+                        {errors.confirmPassword.message}
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* === User Signature Section === */}
+            <div className="p-6">
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                User Signature
+              </h2>
+
+              {/* Signature Input Section */}
+              {/* Radio Selection */}
+              <div className="flex gap-4 mb-4">
+                <label className="flex items-center gap-2 text-sm text-gray-700">
+                  <input
+                    type="radio"
+                    name="signatureMethod"
+                    value="upload"
+                    checked={signatureMethod === "upload"}
+                    onChange={() => {
+                      setSignatureMethod("upload");
+                      setPreviewUrl(null);
+                      sigRef.current?.clear();
+                    }}
+                  />
+                  Upload
+                </label>
+                <label className="flex items-center gap-2 text-sm text-gray-700">
+                  <input
+                    type="radio"
+                    name="signatureMethod"
+                    value="draw"
+                    checked={signatureMethod === "draw"}
+                    onChange={() => {
+                      setSignatureMethod("draw");
+                      setPreviewUrl(null);
+                    }}
+                  />
+                  Draw
+                </label>
+              </div>
+
+              {/* Upload Section */}
+              {/* {signatureMethod === "upload" && (
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Upload Signature
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleSignatureFileChange}
+                    className="border px-2 py-1 w-72"
+                  />
+                </div>
+              )} */}
+
+              {/* Draw Section */}
+              <div className="flex flex-col md:flex-row gap-8">
+                {/* Left Side: Upload or Draw */}
+                <div className="flex flex-col gap-2">
+                  {signatureMethod === "upload" ? (
+                    <>
+                      <label className="text-sm font-medium text-gray-700">
+                        Upload Signature
+                      </label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleSignatureFileChange}
+                        className="border px-2 py-1 w-72"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <label className="text-sm font-medium text-gray-700">
+                        Draw Signature
+                      </label>
+                      <div className="border border-gray-400 w-72 h-32 bg-white">
+                        <SignaturePadCanvas
+                          ref={sigRef}
+                          penColor="black"
+                          onEnd={handleDrawEnd}
+                          canvasProps={{
+                            width: 288,
+                            height: 128,
+                            className: "bg-white",
+                          }}
+                        />
+                      </div>
+                      <div className="flex gap-4 mt-2">
+                        <button
+                          type="button"
+                          onClick={handleClearSignature}
+                          className="text-sm text-blue-600 hover:underline"
+                        >
+                          Clear
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => sigRef.current?.undo()}
+                          className="text-sm text-blue-600 hover:underline"
+                        >
+                          Undo
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Right Side: Preview */}
+                <div className="flex flex-col">
+                  <label className="text-sm font-medium text-gray-700 mb-1">
+                    Preview
+                  </label>
+                  <div className="w-72 h-32 border rounded bg-gray-100 flex items-center justify-center text-gray-400">
+                    {previewUrl ? (
+                      <Image
+                        src={previewUrl}
+                        alt="Signature Preview"
+                        width={150}
+                        height={80}
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      "No signature yet"
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Hospital Assignment */}
+          {/* Organization Assignment */}
+          {/* <div className="mt-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Assign Organization
+            </h2>
+
+            <div className="flex flex-wrap gap-4">
+              {orgLoading ? (
+                <p className="text-gray-500">Loading organizations...</p>
+              ) : organizations.length > 0 ? (
+                organizations.map((org: any) => (
+                  <label key={org.OrganizationId} className="flex items-center gap-2">
+                    <Checkbox
+                      value={org.OrganizationId}
+                      {...register("organizations")} // ✅ Add this line
+                    />
+                    {org.OrganizationName}
+                  </label>
+                ))
+              ) : (
+                <p className="text-gray-500">No organizations found.</p>
+              )}
+            </div>
+          </div> */}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Assign Hospital
+            </h2>
+            <div className="flex flex-wrap gap-4 ">
+              {hospitalLoading ? (
+                <p className="text-gray-500">Loading hospitals...</p>
+              ) : hospitals?.length > 0 ? (
+                hospitals.map((hospital: any) => {
+                  const roleId = Number(getValues("roleId"));
+                  const isChecked = userBranchArray.some(
+                    (item) =>
+                      item.HospitalId === hospital.HospitalId &&
+                      item.RoleId === roleId
+                  );
+
+                  return (
+                    <label
+                      key={hospital.HospitalId}
+                      className="flex items-center gap-2"
+                    >
+                      <Checkbox
+                        checked={isChecked}
+                        onCheckedChange={(checked) => {
+                          handleHospitalCheck(Boolean(checked), hospital);
+                        }}
+                      />
+                      {hospital.HospitalName}
+                    </label>
+                  );
+                })
+              ) : (
+                <p className="text-gray-500">No hospitals found.</p>
+              )}
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="bg-green-400 hover:bg-green-500 text-white px-5 py-2 rounded-4xl shadow-2xl transition cursor-pointer"
+          >
+            {isSubmitting ? "Submit..." : "Submit"}
+          </button>
+        </form>
+      </main>
+    </div>
+  );
+}

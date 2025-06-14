@@ -8,6 +8,8 @@ import AddHospitalForm from "./addhospitalform";
 import { useEffect, useState } from "react";
 import { getOrganizationByUser } from "@/lib/admin";
 import Hospitaluserlist from "./hospitaluserlist";
+import Link from "next/link";
+
 
 const AdminTabs = () => {
   type OrganizationType = {
@@ -42,8 +44,8 @@ const AdminTabs = () => {
   return (
     <Tabs defaultValue="hospital" className="w-full">
       {/* Sticky Tab Header */}
-      <TabsList className="mb-4 border-b w-full flex gap-2 sticky top-0 z-40 bg-white shadow-sm">
-        <TabsTrigger
+      <TabsList className="mb-4 w-full flex gap-2 sticky top-0 z-40 bg-white shadow-lg px-2 py-2 rounded-xl">
+      <TabsTrigger
           value="hospital"
           className="px-4 py-2 text-sm font-medium border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 cursor-pointer"
         >
@@ -83,14 +85,15 @@ const AdminTabs = () => {
       <TabsContent value="user">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold text-gray-700">User List</h2>
-          <Button
-            onClick={() => setIsAddOpen(true)}
-            variant="default"
-            className="flex items-center gap-2 cursor-pointer text-white bg-black transition-all duration-300 custom-gradient-hover"
-          >
-            <Plus className="w-4 h-4" />
-            Add User
-          </Button>
+          <Link href="/admin/users/add">
+    <Button
+      variant="default"
+      className="flex items-center gap-2 cursor-pointer text-white bg-black transition-all duration-300 custom-gradient-hover"
+    >
+      <Plus className="w-4 h-4" />
+      Add User
+    </Button>
+  </Link>
         </div>
         <Hospitaluserlist />
       </TabsContent>

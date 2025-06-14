@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpCode, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateHospitalDto } from './dto/create_hospital.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateHospitalDto } from './dto/update_hospital.dto';
@@ -164,6 +164,7 @@ export class ManageHospitalService {
 
     return {
       message: 'Hospital updated successfully',
+      HttpCode:200,
       data: updatedHospital,
     };
   }
@@ -199,12 +200,12 @@ export class ManageHospitalService {
       throw new Error(`User with this mobile or email already exists.`);
     }
     // 1. ✅ Create the user
-    if (!dto.password) {
+    if (!dto.passwordHash) {
       throw new Error('Password is required');
     }
     console.log('Uploaded files:', files);
 
-    const hashedPassword = await hash(dto.password); //password hash
+    const hashedPassword = await hash(dto.passwordHash); //password hash
     const user = await this.prisma.user.create({
       data: {
         firstName: dto.firstName,
@@ -294,22 +295,24 @@ export class ManageHospitalService {
       },
     });
 
-    return updatedUser;
+    return {
+      updatedUser,
+      message: 'User Created successfully',
+      HttpCode:200,
+    }
   }
 
   //UPDATE
   async updateUserWithHospitals(userId: number, dto: CreateUserDto) {
-    // 1. Check for user existence
     const user = await this.prisma.user.findUnique({
       where: { UserId: userId },
     });
     if (!user) throw new Error('User not found');
-
-    // 2. Update user fields
+  
     await this.prisma.user.update({
       where: { UserId: userId },
       data: {
-        Prefix: dto.Prefix as Title, // ✅ Cast to Title enum
+        Prefix: dto.Prefix as Title,
         firstName: dto.firstName,
         lastName: dto.lastName,
         email: dto.email,
@@ -326,27 +329,35 @@ export class ManageHospitalService {
         updatedById: dto.updatedById,
       },
     });
-
-    // 3. Update hospital access: Clear and recreate
+  
     await this.prisma.userHospitalAccess.deleteMany({
       where: { UserId: userId },
     });
-
-    const hospitalAccessData = dto.UserBranchesArray.map((branch) => ({
-      UserId: userId,
-      hospitalId: branch.HospitalId,
-      roleId: branch.RoleId,
-      createdById: dto.updatedById,
-    }));
-
+  
+    const hospitalAccessMap = new Map<string, any>();
+    dto.UserBranchesArray.forEach((branch) => {
+      const key = `${userId}-${branch.HospitalId}`;
+      if (!hospitalAccessMap.has(key)) {
+        hospitalAccessMap.set(key, {
+          UserId: userId,
+          hospitalId: branch.HospitalId,
+          roleId: branch.RoleId,
+          createdById: dto.updatedById,
+        });
+      }
+    });
+  
+    const hospitalAccessData = Array.from(hospitalAccessMap.values());
+  
     if (hospitalAccessData.length > 0) {
       await this.prisma.userHospitalAccess.createMany({
         data: hospitalAccessData,
       });
     }
-
+  
     return {
       message: 'User updated successfully',
+      HttpCode: 200,
       user: await this.prisma.user.findUnique({
         where: { UserId: userId },
         include: {
@@ -360,6 +371,7 @@ export class ManageHospitalService {
       }),
     };
   }
+  
 
   //GET
   async getAllUsers({
@@ -421,11 +433,21 @@ export class ManageHospitalService {
 //Get Role
 async getUserRole(org: number) {
   const [Role] = await this.prisma.$transaction([
-    this.prisma.organization.findMany(),
+    this.prisma.role.findMany(),
   ]);
 
   return {
     data: Role,
+  };
+}
+//get specialization 
+async UserSpecialization(org: number) {
+  const [Specialization] = await this.prisma.$transaction([
+    this.prisma.specialization.findMany(),
+  ]);
+
+  return {
+    data: Specialization,
   };
 }
   //ACTIVATE/DEACTIVATE

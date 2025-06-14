@@ -8,7 +8,7 @@ import {
   IsInt,
   IsOptional,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 
 export class UserBranchDto {
   @IsInt()
@@ -75,36 +75,53 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsString()
-  SignatureOfUser?: string; // Match Prisma field name
+  SignatureOfUser?: string;
 
   @IsOptional()
   @IsString()
-  Experience?: string; // Match Prisma
+  Experience?: string;
 
   @IsOptional()
   @IsString()
-  Employee_ID?: string; // Match Prisma
+  Employee_ID?: string;
 
   @IsOptional()
   @IsInt()
-  SpecializationId?: number; // Match Prisma
+  SpecializationId?: number;
 
   @IsInt()
   organizationId!: number;
 
+  @IsInt()
+  roleId!: number;
+
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => UserBranchDto)
+  @Transform(({ value }) => {
+    try {
+      return typeof value === 'string' ? JSON.parse(value) : value;
+    } catch {
+      return [];
+    }
+  })
   UserBranchesArray!: UserBranchDto[];
 
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => UserOrganizationDto)
+  @Transform(({ value }) => {
+    try {
+      return typeof value === 'string' ? JSON.parse(value) : value;
+    } catch {
+      return [];
+    }
+  })
   UserOrganizationArray!: UserOrganizationDto[];
 
   @IsOptional()
   @IsString()
-  password?: string;
+  passwordHash?: string;
 
   @IsOptional()
   @IsInt()
@@ -117,11 +134,4 @@ export class CreateUserDto {
   @IsOptional()
   @IsInt()
   deletedById?: number;
-
-  @IsInt()
-  roleId!: number; // ✅ ADD THIS
-
-  // @IsArray()
-  // @IsInt({ each: true })
-  // HospitalIds!: number[]; // ✅ ADD THIS
 }

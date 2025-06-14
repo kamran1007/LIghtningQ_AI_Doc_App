@@ -64,7 +64,7 @@ export class AdminService {
     dto: CreateUserDto,
     files: {
       profileImagePath: string;
-      signaturePath: string | undefined;
+      signaturePath: string;
     },
     createdById: number, // ✅ third argument
   ) {dto
@@ -106,11 +106,20 @@ export class AdminService {
   }
 
   async getUserRole(organizationId: number) {
-    const GetOrganization =
+    const GetUserRole =
       await this.ManageHospitalService.getUserRole(organizationId);
     return {
       message: 'Successfully Fetch',
-      return: GetOrganization,
+      return: GetUserRole,
+    };
+  }
+
+  async UserSpecialization(organizationId: number) {
+    const GetUserSpecialization =
+      await this.ManageHospitalService.UserSpecialization(organizationId);
+    return {
+      message: 'Successfully Fetch',
+      return: GetUserSpecialization,
     };
   }
 

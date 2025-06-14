@@ -146,7 +146,7 @@ export class AdminController {
   async addUser(
     @Request() req,
     @UploadedFiles() files: Array<Express.Multer.File>,
-
+    
     @Body('UserBranchesArray', ParseJsonPipe) userBranches: UserBranchDto[],
     @Body('UserOrganizationArray', ParseJsonPipe)
     userOrgs: UserOrganizationDto[],
@@ -164,7 +164,8 @@ export class AdminController {
     @Body('email') email: string,
     @Body('Experience') Experience?: string,
     @Body('Employee_ID') Employee_ID?: string,
-    @Body('password') password?: string,
+    @Body('passwordHash') passwordHash?: string,
+    
   ) {
     const userId = req.user?.UserId;
 
@@ -178,7 +179,7 @@ export class AdminController {
       email,
       Experience,
       Employee_ID,
-      password,
+      passwordHash,
       SpecializationId: specializationId,
       organizationId,
       roleId,
@@ -190,6 +191,8 @@ export class AdminController {
 
     const profileImage = files?.find((f) => f.fieldname === 'imageUrl');
     const signature = files?.find((f) => f.fieldname === 'SignatureOfUser');
+    console.log('Received files:', files.map(f => ({ name: f.originalname, field: f.fieldname })));
+    console.log('User created with signature:', dto.SignatureOfUser);
 
     console.log('Uploaded files:', files);
     if (profileImage) dto.imageUrl = `/uploads/users/${profileImage.filename}`;
@@ -346,9 +349,14 @@ export class AdminController {
     return this.adminservice.activateUser(+id);
   }
 
-  @Get('UserRole')
+  @Get('getUserRole')
   async UserRole(@Request() req) {
     const organizationId = req.user.organizationId;
     return this.adminservice.getUserRole(organizationId);
+  }
+  @Get('getUserSpecialization')
+  async UserSpecialization(@Request() req) {
+    const organizationId = req.user.organizationId;
+    return this.adminservice.UserSpecialization(organizationId);
   }
 }
