@@ -71,6 +71,8 @@ model User {
   HospitalDeletedBy Hospital[] @relation("UserDeletedHospitals")
 
   UserHospitalAccess UserHospitalAccess[] @relation("CreatedUserHospitalAccess")
+
+  DoctorTimeSlot DoctorTimeSlot[]
 }
 
 // Organization (Top-most head entity created by you or BA)
@@ -150,6 +152,8 @@ model Hospital {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now())
   deletedAt DateTime?
+
+  DoctorTimeSlot DoctorTimeSlot[]
 }
 
 // User ↔ Hospital mapping model
@@ -180,6 +184,44 @@ model Setting {
   theme     String @default("light")
   language  String @default("en")
   user      User   @relation("UserSettings", fields: [UserId], references: [UserId])
+}
+
+model DoctorTimeSlot {
+  DoctorTimeSlotId Int @id @default(autoincrement())
+
+  // 🔗 Link to User (Doctor)
+  userId Int
+  user   User @relation(fields: [userId], references: [UserId], onDelete: Cascade)
+
+  // 🔗 Link to Hospital
+  HospitalId Int
+  Hospital   Hospital @relation(fields: [HospitalId], references: [HospitalId], onDelete: Cascade)
+
+  DayOfWeek String // e.g., 'MON', 'TUE', etc.
+
+  Morning_From String? // Format: 'HH:mm'
+  Morning_To   String?
+
+  Evening_From String?
+  Evening_To   String?
+
+  consult_Time_InMin               Int     @default(15)
+  Accept_Appointment_Selected_Date Boolean @default(true)
+
+  is_DND                    Boolean  @default(false)
+  is_SlotCancelled          Boolean  @default(false)
+  DNDremarks                String?
+  Slot_cancellation_remarks String?
+  isSlotChanged             Boolean  @default(false)
+  isActive                  Boolean  @default(true)
+  isDeleted                 Boolean  @default(false)
+  isAvailable               Boolean  @default(true)
+  isBooked                  Boolean  @default(false)
+  isConfirmed               Boolean  @default(false)
+  isRejected                Boolean  @default(false)
+  createdBy                 Int?
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
 }
 
 model AuditLog {

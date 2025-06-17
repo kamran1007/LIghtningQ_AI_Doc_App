@@ -218,6 +218,33 @@ exports.Prisma.SettingScalarFieldEnum = {
   language: 'language'
 };
 
+exports.Prisma.DoctorTimeSlotScalarFieldEnum = {
+  DoctorTimeSlotId: 'DoctorTimeSlotId',
+  userId: 'userId',
+  HospitalId: 'HospitalId',
+  DayOfWeek: 'DayOfWeek',
+  Morning_From: 'Morning_From',
+  Morning_To: 'Morning_To',
+  Evening_From: 'Evening_From',
+  Evening_To: 'Evening_To',
+  consult_Time_InMin: 'consult_Time_InMin',
+  Accept_Appointment_Selected_Date: 'Accept_Appointment_Selected_Date',
+  is_DND: 'is_DND',
+  is_SlotCancelled: 'is_SlotCancelled',
+  DNDremarks: 'DNDremarks',
+  Slot_cancellation_remarks: 'Slot_cancellation_remarks',
+  isSlotChanged: 'isSlotChanged',
+  isActive: 'isActive',
+  isDeleted: 'isDeleted',
+  isAvailable: 'isAvailable',
+  isBooked: 'isBooked',
+  isConfirmed: 'isConfirmed',
+  isRejected: 'isRejected',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.AuditLogScalarFieldEnum = {
   AuditLogId: 'AuditLogId',
   UserId: 'UserId',
@@ -332,6 +359,7 @@ exports.Prisma.ModelName = {
   Hospital: 'Hospital',
   UserHospitalAccess: 'UserHospitalAccess',
   Setting: 'Setting',
+  DoctorTimeSlot: 'DoctorTimeSlot',
   AuditLog: 'AuditLog',
   LoginSession: 'LoginSession',
   Role: 'Role',

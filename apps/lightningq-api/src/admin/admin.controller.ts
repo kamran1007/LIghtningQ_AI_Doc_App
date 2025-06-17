@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -27,10 +28,17 @@ import {
 } from 'src/manage_hospital/dto/create_user.dto';
 import { ParseJsonPipe } from 'src/pipe/parse-json.pipe';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateDoctorSlotDto } from 'src/manage_hospital/dto/create-doctor-slot.dto';
+import { CancelSlotDto } from 'src/manage_hospital/dto/CancelSlotDto';
+import { UpdateDoctorSlotDto } from 'src/manage_hospital/dto/update-doctor-slot.dto';
+import { BulkUpdateDoctorSlotDto } from 'src/manage_hospital/dto/BulkUpdateDoctorSlotDto';
 
 @Controller('admin')
 export class AdminController {
-  constructor(private readonly adminservice: AdminService, private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly adminservice: AdminService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   // Create hospital
   @Post('AddHospital')
@@ -146,7 +154,7 @@ export class AdminController {
   async addUser(
     @Request() req,
     @UploadedFiles() files: Array<Express.Multer.File>,
-    
+
     @Body('UserBranchesArray', ParseJsonPipe) userBranches: UserBranchDto[],
     @Body('UserOrganizationArray', ParseJsonPipe)
     userOrgs: UserOrganizationDto[],
@@ -165,7 +173,6 @@ export class AdminController {
     @Body('Experience') Experience?: string,
     @Body('Employee_ID') Employee_ID?: string,
     @Body('passwordHash') passwordHash?: string,
-    
   ) {
     const userId = req.user?.UserId;
 
@@ -191,7 +198,10 @@ export class AdminController {
 
     const profileImage = files?.find((f) => f.fieldname === 'imageUrl');
     const signature = files?.find((f) => f.fieldname === 'SignatureOfUser');
-    console.log('Received files:', files.map(f => ({ name: f.originalname, field: f.fieldname })));
+    console.log(
+      'Received files:',
+      files.map((f) => ({ name: f.originalname, field: f.fieldname })),
+    );
     console.log('User created with signature:', dto.SignatureOfUser);
 
     console.log('Uploaded files:', files);
@@ -237,7 +247,6 @@ export class AdminController {
         }
       },
     }),
-    
   )
   async updateUser(
     @Request() req,
@@ -263,25 +272,24 @@ export class AdminController {
     @Body('Employee_ID') Employee_ID?: string,
   ) {
     const updatedById = req.user?.UserId;
-  const existingUser = await this.prisma.user.findUnique({
-    where: { UserId: userId },
-  });
-  if (!existingUser) throw new NotFoundException('User not found');
+    const existingUser = await this.prisma.user.findUnique({
+      where: { UserId: userId },
+    });
+    if (!existingUser) throw new NotFoundException('User not found');
 
-  // ✅ Extract image files
-  // const profileImage = files?.find((f) => f.fieldname === 'imageUrl');
-  // const signature = files?.find((f) => f.fieldname === 'SignatureOfUser');
+    // ✅ Extract image files
+    // const profileImage = files?.find((f) => f.fieldname === 'imageUrl');
+    // const signature = files?.find((f) => f.fieldname === 'SignatureOfUser');
 
-  const profileImage = files?.find(
-    (f) =>
-      f.fieldname === 'imageUrl' &&
-      f.originalname &&
-      f.originalname.trim() !== ''
-  );
-  const signature = files?.find(
-    (f) => f.fieldname === 'SignatureOfUser' && f.size > 0
-  );
-    
+    const profileImage = files?.find(
+      (f) =>
+        f.fieldname === 'imageUrl' &&
+        f.originalname &&
+        f.originalname.trim() !== '',
+    );
+    const signature = files?.find(
+      (f) => f.fieldname === 'SignatureOfUser' && f.size > 0,
+    );
 
     const dto: CreateUserDto = {
       Prefix,
@@ -301,15 +309,13 @@ export class AdminController {
       // imageUrl: '',
       // SignatureOfUser: '',
       imageUrl: profileImage
-      ? `/uploads/users/${profileImage.filename}`
-      : existingUser.imageUrl, // retain old
-    SignatureOfUser: signature
-      ? `/uploads/users/${signature.filename}`
-      : existingUser.SignatureOfUser, // retain old
+        ? `/uploads/users/${profileImage.filename}`
+        : existingUser.imageUrl, // retain old
+      SignatureOfUser: signature
+        ? `/uploads/users/${signature.filename}`
+        : existingUser.SignatureOfUser, // retain old
       updatedById,
     };
-
-
 
     // if (profileImage) dto.imageUrl = `/uploads/users/${profileImage.filename}`;
     // if (signature) dto.SignatureOfUser = `/uploads/users/${signature.filename}`;
@@ -333,8 +339,6 @@ export class AdminController {
       organizationId: organizationId ? Number(organizationId) : undefined,
     });
   }
-  
-
 
   //ACTIVATE/DEACTIVATE
 
@@ -358,5 +362,46 @@ export class AdminController {
   async UserSpecialization(@Request() req) {
     const organizationId = req.user.organizationId;
     return this.adminservice.UserSpecialization(organizationId);
+  }
+
+  //Create sots
+  @Post('createtimeslot')
+  async create(@Body() dto: CreateDoctorSlotDto, @Req() req: any) {
+    const createdById = req.user?.UserId || 1; // Replace with real auth
+    return this.adminservice.createDoctorSlots(dto, createdById);
+  }
+  //Update slots
+  @Patch('updatetimeslot')
+  async updateTimeSlot(@Body() dto: UpdateDoctorSlotDto, @Req() req: any) {
+    const updatedById = req.user?.UserId || 1;
+    return this.adminservice.updateDoctorSlot(dto, updatedById);
+  }
+
+  //bulk update slots
+  @Patch('update-timeslots')
+  async updateTimeSlots(@Body() dto: BulkUpdateDoctorSlotDto, @Req() req: any) {
+    const updatedById = req.user?.UserId || 1;
+    return this.adminservice.updateDoctorSlotsBulk(dto, updatedById);
+  }
+
+  //cancel slot
+  @Patch('cancel-timeslots')
+  async cancelTimeSlots(@Body() dto: CancelSlotDto, @Req() req: any) {
+    const cancelledBy = req.user?.UserId || 1;
+    return this.adminservice.cancelDoctorSlots(dto, cancelledBy);
+  }
+
+  //Get all slots
+  @Get('getslots')
+  async getDoctorSlots(
+    @Query('userId') userId: number,
+    @Query('hospitalId') hospitalId?: number,
+    @Query('day') days?: string,
+  ) {
+    if (!userId) {
+      throw new BadRequestException('userId is required.');
+    }
+
+    return this.adminservice.getDoctorSlotsByDay({ userId, hospitalId, days });
   }
 }

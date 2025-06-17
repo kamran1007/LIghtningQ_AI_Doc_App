@@ -15,67 +15,69 @@ datasource db {
 }
 
 model User {
-  UserId              Int                  @id @default(autoincrement())
-  Prefix              Title
-  imageUrl            String
-  firstName           String
-  lastName            String
-  gender              String
-  email               String               @unique
-  mobile              String               @unique
-  passwordHash        String
-  isActive            Boolean              @default(true)
-  hashedRefreshToken  String
-  dateOfBirth         DateTime
-  roleId              Int
-  role                Role                 @relation(fields: [roleId], references: [RoleId])
-  SpecializationId    Int
-  Specialization      Specialization       @relation(fields: [SpecializationId], references: [SpecializationId])
-  Experience          String
-  Employee_ID         String
-  SignatureOfUser     String
-  organizationId      Int
-  organization  Organization      @relation(fields: [organizationId], references: [OrganizationId])
+  UserId             Int            @id @default(autoincrement())
+  Prefix             Title
+  imageUrl           String
+  firstName          String
+  lastName           String
+  gender             String
+  email              String         @unique
+  mobile             String         @unique
+  passwordHash       String
+  isActive           Boolean        @default(true)
+  hashedRefreshToken String
+  dateOfBirth        DateTime
+  roleId             Int
+  role               Role           @relation(fields: [roleId], references: [RoleId])
+  SpecializationId   Int
+  Specialization     Specialization @relation(fields: [SpecializationId], references: [SpecializationId])
+  Experience         String
+  Employee_ID        String
+  SignatureOfUser    String
+  organizationId     Int
+  organization       Organization   @relation(fields: [organizationId], references: [OrganizationId])
 
   // Settings and Sessions
-  settings            Setting?             @relation("UserSettings")
-  auditLogs           AuditLog[]
-  loginSessions       LoginSession[]
+  settings      Setting?       @relation("UserSettings")
+  auditLogs     AuditLog[]
+  loginSessions LoginSession[]
 
   // Many-to-Many via UserHospitalAccess
-  AdminAccess       UserHospitalAccess[]  @relation("UserAdminAccess") // Link to hospitals with role
+  AdminAccess UserHospitalAccess[] @relation("UserAdminAccess") // Link to hospitals with role
 
   // Admin CRUD metadata
   createdAt DateTime @default(now())
 
-  createdById         Int?
-  createdBy           User?                @relation("UserCreatedUsers", fields: [createdById], references: [UserId])
+  createdById Int?
+  createdBy   User? @relation("UserCreatedUsers", fields: [createdById], references: [UserId])
 
-  updatedById         Int?
-  updatedBy           User?                @relation("UserUpdatedUsers", fields: [updatedById], references: [UserId])
+  updatedById Int?
+  updatedBy   User? @relation("UserUpdatedUsers", fields: [updatedById], references: [UserId])
 
-  deletedById         Int?
-  deletedBy           User?                @relation("UserDeletedUsers", fields: [deletedById], references: [UserId])
+  deletedById Int?
+  deletedBy   User? @relation("UserDeletedUsers", fields: [deletedById], references: [UserId])
 
-  deletedAt           DateTime?
+  deletedAt DateTime?
 
   // Reverse relations for audit trail
-  createdUsers        User[]               @relation("UserCreatedUsers")
-  updatedUsers        User[]               @relation("UserUpdatedUsers")
-  deletedUsers        User[]               @relation("UserDeletedUsers")
+  createdUsers User[] @relation("UserCreatedUsers")
+  updatedUsers User[] @relation("UserUpdatedUsers")
+  deletedUsers User[] @relation("UserDeletedUsers")
 
   // Relation for hospital info
-  UserBranchesArray   Hospital[]           @relation("UserHospitals")
-  HospitalCreatedBy   Hospital[]           @relation("UserCreatedHospitals")
-  HospitalUpdatedBy   Hospital[]           @relation("UserUpdatedHospitals")
-  HospitalDeletedBy   Hospital[]           @relation("UserDeletedHospitals")
+  UserBranchesArray Hospital[] @relation("UserHospitals")
+  HospitalCreatedBy Hospital[] @relation("UserCreatedHospitals")
+  HospitalUpdatedBy Hospital[] @relation("UserUpdatedHospitals")
+  HospitalDeletedBy Hospital[] @relation("UserDeletedHospitals")
 
   UserHospitalAccess UserHospitalAccess[] @relation("CreatedUserHospitalAccess")
+
+  DoctorTimeSlot DoctorTimeSlot[]
 }
 
 // Organization (Top-most head entity created by you or BA)
 model Organization {
-  OrganizationId               Int                 @id @default(autoincrement())
+  OrganizationId   Int                 @id @default(autoincrement())
   OrganizationName String // Official hospital group/organization name
   Organizationcode String              @unique // Short unique code e.g. "JKH01"
   logoUrl          String // Optional logo for branding
@@ -105,13 +107,13 @@ model Organization {
 
 // Hospital entity (can be super/child/sub-child)
 model Hospital {
-  HospitalId                 Int                @id @default(autoincrement())
-  HospitalName               String
+  HospitalId         Int                @id @default(autoincrement())
+  HospitalName       String
   HospitalCode       String             @unique
   ParentHospitalCode String
   Organizationcode   String
   SpecializationType SpecializationType
-  address            String
+  address            String   
   city               String
   state              String
   country            String
@@ -150,6 +152,8 @@ model Hospital {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now())
   deletedAt DateTime?
+
+  DoctorTimeSlot DoctorTimeSlot[]
 }
 
 // User ↔ Hospital mapping model
@@ -157,8 +161,7 @@ model UserHospitalAccess {
   UserHospitalAccessId Int @id @default(autoincrement())
 
   UserId Int
-  User              User     @relation("UserAdminAccess", fields: [UserId], references: [UserId])
-
+  User   User @relation("UserAdminAccess", fields: [UserId], references: [UserId])
 
   hospitalId Int
   hospital   Hospital @relation(fields: [hospitalId], references: [HospitalId])
@@ -170,38 +173,76 @@ model UserHospitalAccess {
   updatedAt DateTime @default(now())
 
   createdById Int?
-createdBy   User? @relation("CreatedUserHospitalAccess", fields: [createdById], references: [UserId])
-
+  createdBy   User? @relation("CreatedUserHospitalAccess", fields: [createdById], references: [UserId])
 
   @@unique([UserId, hospitalId]) // Prevent duplicate mappings
 }
 
 model Setting {
-  SettingId       Int    @id @default(autoincrement())
-  UserId   Int    @unique
-  theme    String @default("light")
-  language String @default("en")
-  user     User   @relation("UserSettings", fields: [UserId], references: [UserId])
+  SettingId Int    @id @default(autoincrement())
+  UserId    Int    @unique
+  theme     String @default("light")
+  language  String @default("en")
+  user      User   @relation("UserSettings", fields: [UserId], references: [UserId])
 }
 
+model DoctorTimeSlot {
+  DoctorTimeSlotId Int     @id @default(autoincrement())
+
+  // 🔗 Link to User (Doctor)
+  userId           Int
+  user             User    @relation(fields: [userId], references: [UserId], onDelete: Cascade)
+
+  // 🔗 Link to Hospital
+  HospitalId       Int
+  Hospital         Hospital @relation(fields: [HospitalId], references: [HospitalId], onDelete: Cascade)
+
+  DayOfWeek        String // e.g., 'MON', 'TUE', etc.
+
+  Morning_From     String? // Format: 'HH:mm'
+  Morning_To       String?
+
+  Evening_From     String?
+  Evening_To       String?
+
+  consult_Time_InMin               Int     @default(15)
+  Accept_Appointment_Selected_Date Boolean @default(true)
+
+  is_DND                    Boolean  @default(false)
+  is_SlotCancelled          Boolean  @default(false)
+  DNDremarks                String?
+  Slot_cancellation_remarks String?
+  isSlotChanged             Boolean  @default(false)
+  isActive                  Boolean  @default(true)
+  isDeleted                 Boolean  @default(false)
+  isAvailable               Boolean  @default(true)
+  isBooked                  Boolean  @default(false)
+  isConfirmed               Boolean  @default(false)
+  isRejected                Boolean  @default(false)
+  createdBy Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
 model AuditLog {
-  AuditLogId        Int      @id @default(autoincrement())
-  UserId    Int
-  action    String
-  entity    String
-  entityId  Int?
-  timestamp DateTime @default(now())
-  metadata  Json?
+  AuditLogId Int      @id @default(autoincrement())
+  UserId     Int
+  action     String
+  entity     String
+  entityId   Int?
+  timestamp  DateTime @default(now())
+  metadata   Json?
 
   user User? @relation(fields: [UserId], references: [UserId])
 }
 
 model LoginSession {
-  LoginSessionId        Int      @id @default(autoincrement())
-  UserId    Int
-  ipAddress String
-  userAgent String
-  loginAt   DateTime @default(now())
+  LoginSessionId Int      @id @default(autoincrement())
+  UserId         Int
+  ipAddress      String
+  userAgent      String
+  loginAt        DateTime @default(now())
 
   user User @relation(fields: [UserId], references: [UserId])
 }
@@ -211,7 +252,7 @@ model LoginSession {
 // Each [RolePermission] links a [Role] to a [Permission]
 
 model Role {
-  RoleId                 Int                  @id @default(autoincrement())
+  RoleId             Int                  @id @default(autoincrement())
   Rolename           String               @unique
   Description        String
   IsActive           Boolean              @default(true)
@@ -221,9 +262,9 @@ model Role {
 }
 
 model RolePermission {
-  RolePermissionId           Int @id @default(autoincrement())
-  RoleId       Int
-  permissionId Int
+  RolePermissionId Int @id @default(autoincrement())
+  RoleId           Int
+  permissionId     Int
 
   // Relationships
   // There will be 5 entries in RolePermission with the same roleId but different permissionIds.
@@ -234,12 +275,12 @@ model RolePermission {
 }
 
 model Permission {
-  PermissionId          Int              @id @default(autoincrement())
-  Name        String           @unique // e.g., "Dashboard_Summary_TotalRevenueReport"
-  DisplayName String // e.g., "Total Revenue Report"
-  Category    String // e.g., "Dashboard - Summary"
-  Description String?
-  Roles       RolePermission[] // <== Links to RolePermission
+  PermissionId Int              @id @default(autoincrement())
+  Name         String           @unique // e.g., "Dashboard_Summary_TotalRevenueReport"
+  DisplayName  String // e.g., "Total Revenue Report"
+  Category     String // e.g., "Dashboard - Summary"
+  Description  String?
+  Roles        RolePermission[] // <== Links to RolePermission
 }
 
 model Specialization {

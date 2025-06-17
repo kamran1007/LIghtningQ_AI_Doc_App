@@ -1,4 +1,4 @@
-import { HttpCode, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, HttpCode, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateHospitalDto } from './dto/create_hospital.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateHospitalDto } from './dto/update_hospital.dto';
@@ -6,6 +6,10 @@ import { CreateUserDto, UserBranchDto } from './dto/create_user.dto';
 import { Title } from 'generated/prisma';
 import { hash } from 'argon2';
 import { contains } from 'class-validator';
+import { CreateDoctorSlotDto } from './dto/create-doctor-slot.dto';
+import { CancelSlotDto } from './dto/CancelSlotDto';
+import { UpdateDoctorSlotDto } from './dto/update-doctor-slot.dto';
+import { BulkUpdateDoctorSlotDto } from './dto/BulkUpdateDoctorSlotDto';
 
 @Injectable()
 export class ManageHospitalService {
@@ -164,7 +168,7 @@ export class ManageHospitalService {
 
     return {
       message: 'Hospital updated successfully',
-      HttpCode:200,
+      HttpCode: 200,
       data: updatedHospital,
     };
   }
@@ -298,8 +302,8 @@ export class ManageHospitalService {
     return {
       updatedUser,
       message: 'User Created successfully',
-      HttpCode:200,
-    }
+      HttpCode: 200,
+    };
   }
 
   //UPDATE
@@ -308,7 +312,7 @@ export class ManageHospitalService {
       where: { UserId: userId },
     });
     if (!user) throw new Error('User not found');
-  
+
     await this.prisma.user.update({
       where: { UserId: userId },
       data: {
@@ -329,11 +333,11 @@ export class ManageHospitalService {
         updatedById: dto.updatedById,
       },
     });
-  
+
     await this.prisma.userHospitalAccess.deleteMany({
       where: { UserId: userId },
     });
-  
+
     const hospitalAccessMap = new Map<string, any>();
     dto.UserBranchesArray.forEach((branch) => {
       const key = `${userId}-${branch.HospitalId}`;
@@ -346,15 +350,15 @@ export class ManageHospitalService {
         });
       }
     });
-  
+
     const hospitalAccessData = Array.from(hospitalAccessMap.values());
-  
+
     if (hospitalAccessData.length > 0) {
       await this.prisma.userHospitalAccess.createMany({
         data: hospitalAccessData,
       });
     }
-  
+
     return {
       message: 'User updated successfully',
       HttpCode: 200,
@@ -371,7 +375,6 @@ export class ManageHospitalService {
       }),
     };
   }
-  
 
   //GET
   async getAllUsers({
@@ -430,26 +433,26 @@ export class ManageHospitalService {
       },
     };
   }
-//Get Role
-async getUserRole(org: number) {
-  const [Role] = await this.prisma.$transaction([
-    this.prisma.role.findMany(),
-  ]);
+  //Get Role
+  async getUserRole(org: number) {
+    const [Role] = await this.prisma.$transaction([
+      this.prisma.role.findMany(),
+    ]);
 
-  return {
-    data: Role,
-  };
-}
-//get specialization 
-async UserSpecialization(org: number) {
-  const [Specialization] = await this.prisma.$transaction([
-    this.prisma.specialization.findMany(),
-  ]);
+    return {
+      data: Role,
+    };
+  }
+  //get specialization
+  async UserSpecialization(org: number) {
+    const [Specialization] = await this.prisma.$transaction([
+      this.prisma.specialization.findMany(),
+    ]);
 
-  return {
-    data: Specialization,
-  };
-}
+    return {
+      data: Specialization,
+    };
+  }
   //ACTIVATE/DEACTIVATE
   async deactivateUser(userId: number, deletedById: number) {
     return await this.prisma.user.update({
@@ -472,4 +475,283 @@ async UserSpecialization(org: number) {
       },
     });
   }
+
+  // Create Doctor Slot
+  async createDoctorSlots(dto: CreateDoctorSlotDto, createdById: number) {
+    if (
+      !dto.userId ||
+      !dto.hospitalId ||
+      !Array.isArray(dto.timeSlots) ||
+      dto.timeSlots.length === 0
+    ) {
+      throw new Error(
+        'Invalid input: userId, hospitalId, and timeSlots are required.',
+      );
+    }
+
+    // 🔍 Check if user is mapped to hospital
+    const access = await this.prisma.userHospitalAccess.findFirst({
+      where: {
+        UserId: dto.userId,
+        hospitalId: dto.hospitalId,
+      },
+    });
+
+    if (!access) {
+      throw new Error('User is not mapped to this hospital.');
+    }
+
+    // 🧱 Create valid slot data
+    const now = new Date();
+
+    const slotData = dto.timeSlots.map((slot) => ({
+      userId: dto.userId as number, // ensure number, not undefined
+      HospitalId: dto.hospitalId as number, // ensure number, not undefined
+      DayOfWeek: slot.DayOfWeek || '',
+
+      Morning_From: slot.Morning_From ?? null,
+      Morning_To: slot.Morning_To ?? null,
+      Evening_From: slot.Evening_From ?? null,
+      Evening_To: slot.Evening_To ?? null,
+
+      consult_Time_InMin: slot.consult_Time_InMin || 15,
+      Accept_Appointment_Selected_Date: slot.Accept_Appointment_Selected_Date,
+
+      DNDremarks: slot.DNDremarks ?? null,
+      Slot_cancellation_remarks: slot.Slot_cancellation_remarks ?? null,
+      createdBy: createdById,
+
+      is_DND: false,
+      is_SlotCancelled: false,
+      isSlotChanged: false,
+      isActive: true,
+      isDeleted: false,
+      isAvailable: true,
+      isBooked: false,
+      isConfirmed: false,
+      isRejected: false,
+
+      createdAt: now,
+      updatedAt: now,
+    }));
+
+    const created = await this.prisma.doctorTimeSlot.createMany({
+      data: slotData,
+    });
+
+    return {
+      message: 'Time slots added successfully.',
+      count: created.count,
+      HttpCode: 201,
+    };
+  }
+  // Update Doctor Slot
+  async updateDoctorSlot(dto: UpdateDoctorSlotDto, updatedById: number) {
+    // 1️⃣ Fetch the slot with extra validation
+    const slot = await this.prisma.doctorTimeSlot.findFirst({
+      where: {
+        DoctorTimeSlotId: dto.DoctorTimeSlotId,
+        userId: dto.userId, // validate userId
+        HospitalId: dto.HospitalId, // validate hospitalId
+        isDeleted: false, // optional: skip deleted slots
+      },
+    });
+
+    if (!slot || slot=== undefined || slot === null) {
+      throw new Error(
+        'Time slot not found or does not belong to the specified user/hospital.',
+      );
+    }
+
+    // 2️⃣ Update slot
+    const updatedSlot = await this.prisma.doctorTimeSlot.update({
+      where: { DoctorTimeSlotId: dto.DoctorTimeSlotId },
+      data: {
+        DayOfWeek: dto.DayOfWeek,
+        Morning_From: dto.Morning_From,
+        Morning_To: dto.Morning_To,
+        Evening_From: dto.Evening_From,
+        Evening_To: dto.Evening_To,
+        consult_Time_InMin: dto.consult_Time_InMin,
+        Accept_Appointment_Selected_Date: dto.Accept_Appointment_Selected_Date,
+        DNDremarks: dto.DNDremarks,
+        Slot_cancellation_remarks: dto.Slot_cancellation_remarks,
+        updatedAt: new Date(),
+      },
+    });
+
+    return {
+      message: 'Time slot updated successfully.',
+      data: updatedSlot,
+      HttpCode: 200,
+    };
+  }
+  // Update Doctor Slots in Bulk
+  async updateDoctorSlotsBulk(
+    dto: BulkUpdateDoctorSlotDto,
+    updatedById: number,
+  ) {
+    const now = new Date();
+    const results: { DoctorTimeSlotId: number | undefined; status: string }[] =
+      [];
+
+    for (const slot of dto.slots || []) {
+      const existing = await this.prisma.doctorTimeSlot.findFirst({
+        where: {
+          DoctorTimeSlotId: slot.DoctorTimeSlotId,
+          userId: dto.userId,
+          HospitalId: dto.HospitalId,
+          isDeleted: false,
+        },
+      });
+
+      if (!existing) {
+        results.push({
+          DoctorTimeSlotId: slot.DoctorTimeSlotId,
+          status: 'Not Found',
+        });
+        continue;
+      }
+
+      const updated = await this.prisma.doctorTimeSlot.update({
+        where: { DoctorTimeSlotId: slot.DoctorTimeSlotId },
+        data: {
+          ...slot,
+          updatedAt: now,
+        },
+      });
+
+      results.push({
+        DoctorTimeSlotId: updated.DoctorTimeSlotId,
+        status: 'Updated',
+      });
+    }
+
+    return {
+      message: 'Bulk time slots updated.',
+      result: results,
+      HttpCode: 200,
+    };
+  }
+
+  //cancelDoctorSlots
+  async cancelDoctorSlots(dto: CancelSlotDto, cancelledBy: number) {
+    const now = new Date();
+
+    const updated = await this.prisma.doctorTimeSlot.updateMany({
+      where: {
+        DoctorTimeSlotId: { in: dto.DoctorTimeSlotId },
+        isDeleted: false,
+      },
+      data: {
+        is_SlotCancelled: true,
+        Slot_cancellation_remarks:
+          dto.cancellationRemarks || 'Cancelled by user',
+        updatedAt: now,
+      },
+    });
+
+    return {
+      message: `Successfully cancelled ${updated.count} time slot(s).`,
+      HttpCode: 200,
+    };
+  }
+
+  // Get Doctor Slots by Day
+  // async getDoctorSlotsByDay(
+  //   userId: number,
+  //   hospitalId: number,
+  //   days: string,
+  //   {}: {
+  //     userId: number;
+  //     hospitalId: number;
+  //     days: string;
+  //   },
+  // ) {
+  //   if (!userId || !hospitalId || !days) {
+  //     throw new Error('userId, hospitalId, and day are required.');
+  //   }
+
+  //   // Validate access
+  //   const access = await this.prisma.userHospitalAccess.findFirst({
+  //     where: {
+  //       UserId: userId,
+  //       hospitalId: hospitalId,
+  //     },
+  //   });
+
+  //   if (!access) {
+  //     throw new Error('User is not mapped to this hospital.');
+  //   }
+
+  //   // Fetch slots
+  //   const slots = await this.prisma.doctorTimeSlot.findMany({
+  //     where: {
+  //       userId,
+  //       HospitalId: hospitalId,
+  //       DayOfWeek: days,
+  //       isDeleted: false,
+  //     },
+  //     orderBy: {
+  //       createdAt: 'desc',
+  //     },
+  //   });
+
+  //   return {
+  //     message: `Slots for ${days}`,
+  //     count: slots.length,
+  //     slots,
+  //   };
+  // }
+
+  async getDoctorSlotsByDay({
+    userId,
+    hospitalId,
+    day,
+  }: {
+    userId: number;
+    hospitalId?: number;
+    day?: string;
+  }) {
+    const whereClause: any = {
+      userId,
+      isDeleted: false,
+    };
+  
+    if (hospitalId) {
+      whereClause.HospitalId = hospitalId;
+    }
+  
+    if (day) {
+      whereClause.DayOfWeek = day;
+    }
+  
+    // Optional access check
+    if (hospitalId) {
+      const access = await this.prisma.userHospitalAccess.findFirst({
+        where: {
+          UserId: userId,
+          hospitalId,
+        },
+      });
+  
+      if (!access) {
+        throw new ForbiddenException('User is not mapped to this hospital.');
+      }
+    }
+  
+    const slots = await this.prisma.doctorTimeSlot.findMany({
+      where: whereClause,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  
+    return {
+      message: `Slots fetched successfully.`,
+      count: slots.length,
+      slots,
+    };
+  }
+  
 }

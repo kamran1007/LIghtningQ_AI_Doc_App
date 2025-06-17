@@ -1,12 +1,15 @@
 "use client";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
-import { CircleChevronLeft } from "lucide-react";
-import Link from "next/link";
-import { ShieldCheck, Clock, DollarSign } from "lucide-react";
+import {
+  Signature,
+  Hospital,
+  LockKeyholeOpen,
+  UserCheck,
+  RotateCcwKey,
+} from "lucide-react";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchHospitals } from "@/store/hospitalSlice";
@@ -22,12 +25,14 @@ import {
   getUserSpecialization,
   Updateuserinfo,
 } from "@/lib/admin";
+
 import { useSearchParams } from "next/navigation";
 import { getallusers } from "@/lib/admin";
 import { User } from "app/admin/hospitaluserlist";
 import { useRouter } from "next/navigation"; // App Router
 import { zodResolver } from "@hookform/resolvers/zod";
 import { userFormSchema } from "@/helper/userFormSchema";
+import Aside from "./aside";
 export default function AddUserPage() {
   const hospitals = useSelector((state: RootState) => state.hospital.data);
   const selectedUser = useSelector(
@@ -40,17 +45,7 @@ export default function AddUserPage() {
   const hospitalLoading = useSelector(
     (state: RootState) => state.hospital.loading
   );
-  const navItems = [
-    {
-      label: "Access Rights",
-      icon: <ShieldCheck className="w-4 h-4 text-blue-600" />,
-    },
-    { label: "Time Slots", icon: <Clock className="w-4 h-4 text-blue-600" /> },
-    {
-      label: "Costing",
-      icon: <DollarSign className="w-4 h-4 text-blue-600" />,
-    },
-  ];
+  
   type UserFormFields = {
     Prefix: string;
     firstName: string;
@@ -81,6 +76,7 @@ export default function AddUserPage() {
     handleSubmit,
     getValues,
     setValue,
+    reset,
     watch,
     resetField,
     formState: { errors, isSubmitting },
@@ -192,7 +188,12 @@ export default function AddUserPage() {
   const handleImageClick = () => {
     fileInputRef.current?.click();
   };
-
+  const handleCancel = () => {
+    reset({
+      setRoles: getValues("roleId"), // retain current selected role
+      setSpecializations: getValues("SpecializationId"), // retain current selected specialization
+    });
+  };
   // function handleClearSignature(
   //   event: React.MouseEvent<HTMLButtonElement>
   // ): void {
@@ -225,6 +226,7 @@ export default function AddUserPage() {
 
     if (!roleId || isNaN(roleId)) {
       console.warn("Please select a valid role before assigning hospitals.");
+      toast.error("Please select a valid role before assigning hospitals.");
       return;
     }
 
@@ -367,9 +369,9 @@ export default function AddUserPage() {
     //     method: "POST",
     //     body: formPayload,
     //   });
-  
+
     //   const result = await response.json();
-  
+
     //   if (response.ok) {
     //     toast.success(
     //       `User ${user?.UserId ? "updated" : "created"} successfully!`
@@ -488,51 +490,16 @@ export default function AddUserPage() {
   return (
     <div className="flex h-full">
       {/* Sidebar */}
-
-      <aside className="w-52 bg-white p-4 rounded-4xl shadow-2xl space-y-6">
-        {/* Back Button */}
-        <div>
-          <div className="flex ">
-            <Button
-              asChild
-              className="justify-center rounded-2xl"
-              title="Back to Admin"
-            >
-              <Link href="/admin" className="flex items-center gap-1 text-sm">
-                <CircleChevronLeft className="h-3 w-3" />
-                {/* Back */}
-              </Link>
-            </Button>
-          </div>
-        </div>
-
-        {/* Section Title */}
-        <div className="px-2">
-          <h2 className="text-lg font-semibold text-gray-800 mb-1">
-            User Settings
-          </h2>
-          <div className="h-1 w-4 bg-blue-500 rounded-full items-center" />
-        </div>
-
-        {/* Navigation List */}
-        <ul className="space-y-2 text-sm">
-          {navItems.map((item, idx) => (
-            <li
-              key={idx}
-              className="flex items-center gap-2 px-3 py-2 rounded-md bg-white hover:bg-blue-50 transition-colors cursor-pointer group"
-            >
-              {item.icon}
-              <span className="font-medium text-gray-700 group-hover:text-blue-600">
-                {item.label}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </aside>
+        <Aside/>
 
       {/* Main Form */}
       <main className="flex-1 p-6 overflow-auto">
-        <h1 className="text-2xl font-bold mb-6">Add User</h1>
+        <div className="flex items-center gap-x-4 mb-4">
+          <UserCheck className="w-5 h-5 text-blue-500" />
+          <h2 className="text-lg font-semibold text-gray-800">
+            {user?.UserId ? "Edit User" : "Add User"}
+          </h2>
+        </div>
 
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -762,9 +729,12 @@ export default function AddUserPage() {
 
           {/* Credentials */}
           <div className="space-y-8">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">
-              Credential
-            </h2>
+            <div className="flex items-center gap-x-4 mb-4">
+              <LockKeyholeOpen className="w-5 h-5 text-blue-500" />
+              <h2 className="text-lg font-semibold text-gray-800">
+                Credentials
+              </h2>
+            </div>
             {/* === Credentials Section === */}
             {/* <div className="grid grid-cols-3 gap-4">
               <div className="flex flex-col">
@@ -818,14 +788,19 @@ export default function AddUserPage() {
                 )}
               </div>
 
-              {!showPasswordFields && user?.UserId? (
-                <div className="flex flex-col justify-end mt-2">
+              {!showPasswordFields && user?.UserId ? (
+                <div className="flex justify-end mt-4">
                   <button
                     type="button"
                     onClick={handleResetPasswordToggle}
-                    className="text-sm text-blue-600 hover:text-blue-800 underline transition duration-200"
+                    className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 underline transition duration-200 cursor-pointer"
                   >
-                    🔐 Reset Password?
+                    <div className="flex items-center gap-x-4 mb-2">
+                      <RotateCcwKey className="w-5 h-5 text-blue-500" />
+                      <h2 className="text-md font-semibold text-blue-500">
+                        Reset Password?
+                      </h2>
+                    </div>
                   </button>
                 </div>
               ) : (
@@ -862,10 +837,13 @@ export default function AddUserPage() {
             </div>
 
             {/* === User Signature Section === */}
-            <div className="p-6">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                User Signature
-              </h2>
+            <div className="p-0">
+              <div className="flex items-center gap-x-4 mb-4">
+                <Signature className="w-5 h-5 text-blue-500" />
+                <h2 className="text-lg font-semibold text-gray-800">
+                  User Signature
+                </h2>
+              </div>
 
               {/* Signature Input Section */}
               {/* Radio Selection */}
@@ -1016,9 +994,12 @@ export default function AddUserPage() {
             </div>
           </div> */}
           <div>
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">
-              Assign Hospital
-            </h2>
+            <div className="flex items-center gap-x-4 mb-4">
+              <Hospital className="w-5 h-5 text-blue-500" />
+              <h2 className="text-lg font-semibold text-gray-800">
+                Assign Hospital
+              </h2>
+            </div>
             <div className="flex flex-wrap gap-4 ">
               {hospitalLoading ? (
                 <p className="text-gray-500">Loading hospitals...</p>
@@ -1053,13 +1034,24 @@ export default function AddUserPage() {
           </div>
 
           {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="bg-green-400 hover:bg-green-500 text-white px-5 py-2 rounded-4xl shadow-2xl transition cursor-pointer"
-          >
-            {isSubmitting ? "Submit..." : "Submit"}
-          </button>
+          <div className="flex justify-end mt-4">
+            <div className="flex space-x-4">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="bg-red-400 hover:bg-red-500 text-white px-5 py-2 rounded-4xl shadow-2xl transition disabled:opacity-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full shadow-2xl transition duration-200 ease-in-out cursor-pointer"
+              >
+                {isSubmitting ? "Submitting..." : "Submit"}
+              </button>
+            </div>
+          </div>
         </form>
       </main>
     </div>

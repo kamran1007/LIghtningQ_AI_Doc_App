@@ -39,6 +39,11 @@ export type UserHospitalAccess = $Result.DefaultSelection<Prisma.$UserHospitalAc
  */
 export type Setting = $Result.DefaultSelection<Prisma.$SettingPayload>
 /**
+ * Model DoctorTimeSlot
+ * 
+ */
+export type DoctorTimeSlot = $Result.DefaultSelection<Prisma.$DoctorTimeSlotPayload>
+/**
  * Model AuditLog
  * 
  */
@@ -321,6 +326,16 @@ export class PrismaClient<
     * ```
     */
   get setting(): Prisma.SettingDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.doctorTimeSlot`: Exposes CRUD operations for the **DoctorTimeSlot** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DoctorTimeSlots
+    * const doctorTimeSlots = await prisma.doctorTimeSlot.findMany()
+    * ```
+    */
+  get doctorTimeSlot(): Prisma.DoctorTimeSlotDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.auditLog`: Exposes CRUD operations for the **AuditLog** model.
@@ -826,6 +841,7 @@ export namespace Prisma {
     Hospital: 'Hospital',
     UserHospitalAccess: 'UserHospitalAccess',
     Setting: 'Setting',
+    DoctorTimeSlot: 'DoctorTimeSlot',
     AuditLog: 'AuditLog',
     LoginSession: 'LoginSession',
     Role: 'Role',
@@ -850,7 +866,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "organization" | "hospital" | "userHospitalAccess" | "setting" | "auditLog" | "loginSession" | "role" | "rolePermission" | "permission" | "specialization"
+      modelProps: "user" | "organization" | "hospital" | "userHospitalAccess" | "setting" | "doctorTimeSlot" | "auditLog" | "loginSession" | "role" | "rolePermission" | "permission" | "specialization"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1221,6 +1237,80 @@ export namespace Prisma {
           count: {
             args: Prisma.SettingCountArgs<ExtArgs>
             result: $Utils.Optional<SettingCountAggregateOutputType> | number
+          }
+        }
+      }
+      DoctorTimeSlot: {
+        payload: Prisma.$DoctorTimeSlotPayload<ExtArgs>
+        fields: Prisma.DoctorTimeSlotFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DoctorTimeSlotFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DoctorTimeSlotPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DoctorTimeSlotFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DoctorTimeSlotPayload>
+          }
+          findFirst: {
+            args: Prisma.DoctorTimeSlotFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DoctorTimeSlotPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DoctorTimeSlotFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DoctorTimeSlotPayload>
+          }
+          findMany: {
+            args: Prisma.DoctorTimeSlotFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DoctorTimeSlotPayload>[]
+          }
+          create: {
+            args: Prisma.DoctorTimeSlotCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DoctorTimeSlotPayload>
+          }
+          createMany: {
+            args: Prisma.DoctorTimeSlotCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DoctorTimeSlotCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DoctorTimeSlotPayload>[]
+          }
+          delete: {
+            args: Prisma.DoctorTimeSlotDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DoctorTimeSlotPayload>
+          }
+          update: {
+            args: Prisma.DoctorTimeSlotUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DoctorTimeSlotPayload>
+          }
+          deleteMany: {
+            args: Prisma.DoctorTimeSlotDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DoctorTimeSlotUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DoctorTimeSlotUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DoctorTimeSlotPayload>[]
+          }
+          upsert: {
+            args: Prisma.DoctorTimeSlotUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DoctorTimeSlotPayload>
+          }
+          aggregate: {
+            args: Prisma.DoctorTimeSlotAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDoctorTimeSlot>
+          }
+          groupBy: {
+            args: Prisma.DoctorTimeSlotGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DoctorTimeSlotGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DoctorTimeSlotCountArgs<ExtArgs>
+            result: $Utils.Optional<DoctorTimeSlotCountAggregateOutputType> | number
           }
         }
       }
@@ -1757,6 +1847,7 @@ export namespace Prisma {
     hospital?: HospitalOmit
     userHospitalAccess?: UserHospitalAccessOmit
     setting?: SettingOmit
+    doctorTimeSlot?: DoctorTimeSlotOmit
     auditLog?: AuditLogOmit
     loginSession?: LoginSessionOmit
     role?: RoleOmit
@@ -1868,6 +1959,7 @@ export namespace Prisma {
     HospitalUpdatedBy: number
     HospitalDeletedBy: number
     UserHospitalAccess: number
+    DoctorTimeSlot: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1882,6 +1974,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: boolean | UserCountOutputTypeCountHospitalUpdatedByArgs
     HospitalDeletedBy?: boolean | UserCountOutputTypeCountHospitalDeletedByArgs
     UserHospitalAccess?: boolean | UserCountOutputTypeCountUserHospitalAccessArgs
+    DoctorTimeSlot?: boolean | UserCountOutputTypeCountDoctorTimeSlotArgs
   }
 
   // Custom InputTypes
@@ -1972,6 +2065,13 @@ export namespace Prisma {
     where?: UserHospitalAccessWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountDoctorTimeSlotArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DoctorTimeSlotWhereInput
+  }
+
 
   /**
    * Count Type OrganizationCountOutputType
@@ -2021,12 +2121,14 @@ export namespace Prisma {
     childHospital: number
     users: number
     mappedUsers: number
+    DoctorTimeSlot: number
   }
 
   export type HospitalCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     childHospital?: boolean | HospitalCountOutputTypeCountChildHospitalArgs
     users?: boolean | HospitalCountOutputTypeCountUsersArgs
     mappedUsers?: boolean | HospitalCountOutputTypeCountMappedUsersArgs
+    DoctorTimeSlot?: boolean | HospitalCountOutputTypeCountDoctorTimeSlotArgs
   }
 
   // Custom InputTypes
@@ -2059,6 +2161,13 @@ export namespace Prisma {
    */
   export type HospitalCountOutputTypeCountMappedUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UserWhereInput
+  }
+
+  /**
+   * HospitalCountOutputType without action
+   */
+  export type HospitalCountOutputTypeCountDoctorTimeSlotArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DoctorTimeSlotWhereInput
   }
 
 
@@ -2561,6 +2670,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: boolean | User$HospitalUpdatedByArgs<ExtArgs>
     HospitalDeletedBy?: boolean | User$HospitalDeletedByArgs<ExtArgs>
     UserHospitalAccess?: boolean | User$UserHospitalAccessArgs<ExtArgs>
+    DoctorTimeSlot?: boolean | User$DoctorTimeSlotArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -2674,6 +2784,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: boolean | User$HospitalUpdatedByArgs<ExtArgs>
     HospitalDeletedBy?: boolean | User$HospitalDeletedByArgs<ExtArgs>
     UserHospitalAccess?: boolean | User$UserHospitalAccessArgs<ExtArgs>
+    DoctorTimeSlot?: boolean | User$DoctorTimeSlotArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2714,6 +2825,7 @@ export namespace Prisma {
       HospitalUpdatedBy: Prisma.$HospitalPayload<ExtArgs>[]
       HospitalDeletedBy: Prisma.$HospitalPayload<ExtArgs>[]
       UserHospitalAccess: Prisma.$UserHospitalAccessPayload<ExtArgs>[]
+      DoctorTimeSlot: Prisma.$DoctorTimeSlotPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       UserId: number
@@ -3151,6 +3263,7 @@ export namespace Prisma {
     HospitalUpdatedBy<T extends User$HospitalUpdatedByArgs<ExtArgs> = {}>(args?: Subset<T, User$HospitalUpdatedByArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     HospitalDeletedBy<T extends User$HospitalDeletedByArgs<ExtArgs> = {}>(args?: Subset<T, User$HospitalDeletedByArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     UserHospitalAccess<T extends User$UserHospitalAccessArgs<ExtArgs> = {}>(args?: Subset<T, User$UserHospitalAccessArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserHospitalAccessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    DoctorTimeSlot<T extends User$DoctorTimeSlotArgs<ExtArgs> = {}>(args?: Subset<T, User$DoctorTimeSlotArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DoctorTimeSlotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3936,6 +4049,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: UserHospitalAccessScalarFieldEnum | UserHospitalAccessScalarFieldEnum[]
+  }
+
+  /**
+   * User.DoctorTimeSlot
+   */
+  export type User$DoctorTimeSlotArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorTimeSlot
+     */
+    select?: DoctorTimeSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorTimeSlot
+     */
+    omit?: DoctorTimeSlotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DoctorTimeSlotInclude<ExtArgs> | null
+    where?: DoctorTimeSlotWhereInput
+    orderBy?: DoctorTimeSlotOrderByWithRelationInput | DoctorTimeSlotOrderByWithRelationInput[]
+    cursor?: DoctorTimeSlotWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DoctorTimeSlotScalarFieldEnum | DoctorTimeSlotScalarFieldEnum[]
   }
 
   /**
@@ -5715,6 +5852,7 @@ export namespace Prisma {
     CreatedBy?: boolean | Hospital$CreatedByArgs<ExtArgs>
     UpdatedBy?: boolean | Hospital$UpdatedByArgs<ExtArgs>
     DeletedBy?: boolean | Hospital$DeletedByArgs<ExtArgs>
+    DoctorTimeSlot?: boolean | Hospital$DoctorTimeSlotArgs<ExtArgs>
     _count?: boolean | HospitalCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["hospital"]>
 
@@ -5831,6 +5969,7 @@ export namespace Prisma {
     CreatedBy?: boolean | Hospital$CreatedByArgs<ExtArgs>
     UpdatedBy?: boolean | Hospital$UpdatedByArgs<ExtArgs>
     DeletedBy?: boolean | Hospital$DeletedByArgs<ExtArgs>
+    DoctorTimeSlot?: boolean | Hospital$DoctorTimeSlotArgs<ExtArgs>
     _count?: boolean | HospitalCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type HospitalIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5859,6 +5998,7 @@ export namespace Prisma {
       CreatedBy: Prisma.$UserPayload<ExtArgs> | null
       UpdatedBy: Prisma.$UserPayload<ExtArgs> | null
       DeletedBy: Prisma.$UserPayload<ExtArgs> | null
+      DoctorTimeSlot: Prisma.$DoctorTimeSlotPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       HospitalId: number
@@ -6291,6 +6431,7 @@ export namespace Prisma {
     CreatedBy<T extends Hospital$CreatedByArgs<ExtArgs> = {}>(args?: Subset<T, Hospital$CreatedByArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     UpdatedBy<T extends Hospital$UpdatedByArgs<ExtArgs> = {}>(args?: Subset<T, Hospital$UpdatedByArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     DeletedBy<T extends Hospital$DeletedByArgs<ExtArgs> = {}>(args?: Subset<T, Hospital$DeletedByArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    DoctorTimeSlot<T extends Hospital$DoctorTimeSlotArgs<ExtArgs> = {}>(args?: Subset<T, Hospital$DoctorTimeSlotArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DoctorTimeSlotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6889,6 +7030,30 @@ export namespace Prisma {
      */
     include?: UserInclude<ExtArgs> | null
     where?: UserWhereInput
+  }
+
+  /**
+   * Hospital.DoctorTimeSlot
+   */
+  export type Hospital$DoctorTimeSlotArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorTimeSlot
+     */
+    select?: DoctorTimeSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorTimeSlot
+     */
+    omit?: DoctorTimeSlotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DoctorTimeSlotInclude<ExtArgs> | null
+    where?: DoctorTimeSlotWhereInput
+    orderBy?: DoctorTimeSlotOrderByWithRelationInput | DoctorTimeSlotOrderByWithRelationInput[]
+    cursor?: DoctorTimeSlotWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DoctorTimeSlotScalarFieldEnum | DoctorTimeSlotScalarFieldEnum[]
   }
 
   /**
@@ -9167,6 +9332,1369 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: SettingInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DoctorTimeSlot
+   */
+
+  export type AggregateDoctorTimeSlot = {
+    _count: DoctorTimeSlotCountAggregateOutputType | null
+    _avg: DoctorTimeSlotAvgAggregateOutputType | null
+    _sum: DoctorTimeSlotSumAggregateOutputType | null
+    _min: DoctorTimeSlotMinAggregateOutputType | null
+    _max: DoctorTimeSlotMaxAggregateOutputType | null
+  }
+
+  export type DoctorTimeSlotAvgAggregateOutputType = {
+    DoctorTimeSlotId: number | null
+    userId: number | null
+    HospitalId: number | null
+    consult_Time_InMin: number | null
+    createdBy: number | null
+  }
+
+  export type DoctorTimeSlotSumAggregateOutputType = {
+    DoctorTimeSlotId: number | null
+    userId: number | null
+    HospitalId: number | null
+    consult_Time_InMin: number | null
+    createdBy: number | null
+  }
+
+  export type DoctorTimeSlotMinAggregateOutputType = {
+    DoctorTimeSlotId: number | null
+    userId: number | null
+    HospitalId: number | null
+    DayOfWeek: string | null
+    Morning_From: string | null
+    Morning_To: string | null
+    Evening_From: string | null
+    Evening_To: string | null
+    consult_Time_InMin: number | null
+    Accept_Appointment_Selected_Date: boolean | null
+    is_DND: boolean | null
+    is_SlotCancelled: boolean | null
+    DNDremarks: string | null
+    Slot_cancellation_remarks: string | null
+    isSlotChanged: boolean | null
+    isActive: boolean | null
+    isDeleted: boolean | null
+    isAvailable: boolean | null
+    isBooked: boolean | null
+    isConfirmed: boolean | null
+    isRejected: boolean | null
+    createdBy: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DoctorTimeSlotMaxAggregateOutputType = {
+    DoctorTimeSlotId: number | null
+    userId: number | null
+    HospitalId: number | null
+    DayOfWeek: string | null
+    Morning_From: string | null
+    Morning_To: string | null
+    Evening_From: string | null
+    Evening_To: string | null
+    consult_Time_InMin: number | null
+    Accept_Appointment_Selected_Date: boolean | null
+    is_DND: boolean | null
+    is_SlotCancelled: boolean | null
+    DNDremarks: string | null
+    Slot_cancellation_remarks: string | null
+    isSlotChanged: boolean | null
+    isActive: boolean | null
+    isDeleted: boolean | null
+    isAvailable: boolean | null
+    isBooked: boolean | null
+    isConfirmed: boolean | null
+    isRejected: boolean | null
+    createdBy: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DoctorTimeSlotCountAggregateOutputType = {
+    DoctorTimeSlotId: number
+    userId: number
+    HospitalId: number
+    DayOfWeek: number
+    Morning_From: number
+    Morning_To: number
+    Evening_From: number
+    Evening_To: number
+    consult_Time_InMin: number
+    Accept_Appointment_Selected_Date: number
+    is_DND: number
+    is_SlotCancelled: number
+    DNDremarks: number
+    Slot_cancellation_remarks: number
+    isSlotChanged: number
+    isActive: number
+    isDeleted: number
+    isAvailable: number
+    isBooked: number
+    isConfirmed: number
+    isRejected: number
+    createdBy: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type DoctorTimeSlotAvgAggregateInputType = {
+    DoctorTimeSlotId?: true
+    userId?: true
+    HospitalId?: true
+    consult_Time_InMin?: true
+    createdBy?: true
+  }
+
+  export type DoctorTimeSlotSumAggregateInputType = {
+    DoctorTimeSlotId?: true
+    userId?: true
+    HospitalId?: true
+    consult_Time_InMin?: true
+    createdBy?: true
+  }
+
+  export type DoctorTimeSlotMinAggregateInputType = {
+    DoctorTimeSlotId?: true
+    userId?: true
+    HospitalId?: true
+    DayOfWeek?: true
+    Morning_From?: true
+    Morning_To?: true
+    Evening_From?: true
+    Evening_To?: true
+    consult_Time_InMin?: true
+    Accept_Appointment_Selected_Date?: true
+    is_DND?: true
+    is_SlotCancelled?: true
+    DNDremarks?: true
+    Slot_cancellation_remarks?: true
+    isSlotChanged?: true
+    isActive?: true
+    isDeleted?: true
+    isAvailable?: true
+    isBooked?: true
+    isConfirmed?: true
+    isRejected?: true
+    createdBy?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DoctorTimeSlotMaxAggregateInputType = {
+    DoctorTimeSlotId?: true
+    userId?: true
+    HospitalId?: true
+    DayOfWeek?: true
+    Morning_From?: true
+    Morning_To?: true
+    Evening_From?: true
+    Evening_To?: true
+    consult_Time_InMin?: true
+    Accept_Appointment_Selected_Date?: true
+    is_DND?: true
+    is_SlotCancelled?: true
+    DNDremarks?: true
+    Slot_cancellation_remarks?: true
+    isSlotChanged?: true
+    isActive?: true
+    isDeleted?: true
+    isAvailable?: true
+    isBooked?: true
+    isConfirmed?: true
+    isRejected?: true
+    createdBy?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DoctorTimeSlotCountAggregateInputType = {
+    DoctorTimeSlotId?: true
+    userId?: true
+    HospitalId?: true
+    DayOfWeek?: true
+    Morning_From?: true
+    Morning_To?: true
+    Evening_From?: true
+    Evening_To?: true
+    consult_Time_InMin?: true
+    Accept_Appointment_Selected_Date?: true
+    is_DND?: true
+    is_SlotCancelled?: true
+    DNDremarks?: true
+    Slot_cancellation_remarks?: true
+    isSlotChanged?: true
+    isActive?: true
+    isDeleted?: true
+    isAvailable?: true
+    isBooked?: true
+    isConfirmed?: true
+    isRejected?: true
+    createdBy?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type DoctorTimeSlotAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DoctorTimeSlot to aggregate.
+     */
+    where?: DoctorTimeSlotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DoctorTimeSlots to fetch.
+     */
+    orderBy?: DoctorTimeSlotOrderByWithRelationInput | DoctorTimeSlotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DoctorTimeSlotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DoctorTimeSlots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DoctorTimeSlots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DoctorTimeSlots
+    **/
+    _count?: true | DoctorTimeSlotCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DoctorTimeSlotAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DoctorTimeSlotSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DoctorTimeSlotMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DoctorTimeSlotMaxAggregateInputType
+  }
+
+  export type GetDoctorTimeSlotAggregateType<T extends DoctorTimeSlotAggregateArgs> = {
+        [P in keyof T & keyof AggregateDoctorTimeSlot]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDoctorTimeSlot[P]>
+      : GetScalarType<T[P], AggregateDoctorTimeSlot[P]>
+  }
+
+
+
+
+  export type DoctorTimeSlotGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DoctorTimeSlotWhereInput
+    orderBy?: DoctorTimeSlotOrderByWithAggregationInput | DoctorTimeSlotOrderByWithAggregationInput[]
+    by: DoctorTimeSlotScalarFieldEnum[] | DoctorTimeSlotScalarFieldEnum
+    having?: DoctorTimeSlotScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DoctorTimeSlotCountAggregateInputType | true
+    _avg?: DoctorTimeSlotAvgAggregateInputType
+    _sum?: DoctorTimeSlotSumAggregateInputType
+    _min?: DoctorTimeSlotMinAggregateInputType
+    _max?: DoctorTimeSlotMaxAggregateInputType
+  }
+
+  export type DoctorTimeSlotGroupByOutputType = {
+    DoctorTimeSlotId: number
+    userId: number
+    HospitalId: number
+    DayOfWeek: string
+    Morning_From: string | null
+    Morning_To: string | null
+    Evening_From: string | null
+    Evening_To: string | null
+    consult_Time_InMin: number
+    Accept_Appointment_Selected_Date: boolean
+    is_DND: boolean
+    is_SlotCancelled: boolean
+    DNDremarks: string | null
+    Slot_cancellation_remarks: string | null
+    isSlotChanged: boolean
+    isActive: boolean
+    isDeleted: boolean
+    isAvailable: boolean
+    isBooked: boolean
+    isConfirmed: boolean
+    isRejected: boolean
+    createdBy: number | null
+    createdAt: Date
+    updatedAt: Date
+    _count: DoctorTimeSlotCountAggregateOutputType | null
+    _avg: DoctorTimeSlotAvgAggregateOutputType | null
+    _sum: DoctorTimeSlotSumAggregateOutputType | null
+    _min: DoctorTimeSlotMinAggregateOutputType | null
+    _max: DoctorTimeSlotMaxAggregateOutputType | null
+  }
+
+  type GetDoctorTimeSlotGroupByPayload<T extends DoctorTimeSlotGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DoctorTimeSlotGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DoctorTimeSlotGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DoctorTimeSlotGroupByOutputType[P]>
+            : GetScalarType<T[P], DoctorTimeSlotGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DoctorTimeSlotSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    DoctorTimeSlotId?: boolean
+    userId?: boolean
+    HospitalId?: boolean
+    DayOfWeek?: boolean
+    Morning_From?: boolean
+    Morning_To?: boolean
+    Evening_From?: boolean
+    Evening_To?: boolean
+    consult_Time_InMin?: boolean
+    Accept_Appointment_Selected_Date?: boolean
+    is_DND?: boolean
+    is_SlotCancelled?: boolean
+    DNDremarks?: boolean
+    Slot_cancellation_remarks?: boolean
+    isSlotChanged?: boolean
+    isActive?: boolean
+    isDeleted?: boolean
+    isAvailable?: boolean
+    isBooked?: boolean
+    isConfirmed?: boolean
+    isRejected?: boolean
+    createdBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    Hospital?: boolean | HospitalDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["doctorTimeSlot"]>
+
+  export type DoctorTimeSlotSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    DoctorTimeSlotId?: boolean
+    userId?: boolean
+    HospitalId?: boolean
+    DayOfWeek?: boolean
+    Morning_From?: boolean
+    Morning_To?: boolean
+    Evening_From?: boolean
+    Evening_To?: boolean
+    consult_Time_InMin?: boolean
+    Accept_Appointment_Selected_Date?: boolean
+    is_DND?: boolean
+    is_SlotCancelled?: boolean
+    DNDremarks?: boolean
+    Slot_cancellation_remarks?: boolean
+    isSlotChanged?: boolean
+    isActive?: boolean
+    isDeleted?: boolean
+    isAvailable?: boolean
+    isBooked?: boolean
+    isConfirmed?: boolean
+    isRejected?: boolean
+    createdBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    Hospital?: boolean | HospitalDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["doctorTimeSlot"]>
+
+  export type DoctorTimeSlotSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    DoctorTimeSlotId?: boolean
+    userId?: boolean
+    HospitalId?: boolean
+    DayOfWeek?: boolean
+    Morning_From?: boolean
+    Morning_To?: boolean
+    Evening_From?: boolean
+    Evening_To?: boolean
+    consult_Time_InMin?: boolean
+    Accept_Appointment_Selected_Date?: boolean
+    is_DND?: boolean
+    is_SlotCancelled?: boolean
+    DNDremarks?: boolean
+    Slot_cancellation_remarks?: boolean
+    isSlotChanged?: boolean
+    isActive?: boolean
+    isDeleted?: boolean
+    isAvailable?: boolean
+    isBooked?: boolean
+    isConfirmed?: boolean
+    isRejected?: boolean
+    createdBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    Hospital?: boolean | HospitalDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["doctorTimeSlot"]>
+
+  export type DoctorTimeSlotSelectScalar = {
+    DoctorTimeSlotId?: boolean
+    userId?: boolean
+    HospitalId?: boolean
+    DayOfWeek?: boolean
+    Morning_From?: boolean
+    Morning_To?: boolean
+    Evening_From?: boolean
+    Evening_To?: boolean
+    consult_Time_InMin?: boolean
+    Accept_Appointment_Selected_Date?: boolean
+    is_DND?: boolean
+    is_SlotCancelled?: boolean
+    DNDremarks?: boolean
+    Slot_cancellation_remarks?: boolean
+    isSlotChanged?: boolean
+    isActive?: boolean
+    isDeleted?: boolean
+    isAvailable?: boolean
+    isBooked?: boolean
+    isConfirmed?: boolean
+    isRejected?: boolean
+    createdBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type DoctorTimeSlotOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"DoctorTimeSlotId" | "userId" | "HospitalId" | "DayOfWeek" | "Morning_From" | "Morning_To" | "Evening_From" | "Evening_To" | "consult_Time_InMin" | "Accept_Appointment_Selected_Date" | "is_DND" | "is_SlotCancelled" | "DNDremarks" | "Slot_cancellation_remarks" | "isSlotChanged" | "isActive" | "isDeleted" | "isAvailable" | "isBooked" | "isConfirmed" | "isRejected" | "createdBy" | "createdAt" | "updatedAt", ExtArgs["result"]["doctorTimeSlot"]>
+  export type DoctorTimeSlotInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    Hospital?: boolean | HospitalDefaultArgs<ExtArgs>
+  }
+  export type DoctorTimeSlotIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    Hospital?: boolean | HospitalDefaultArgs<ExtArgs>
+  }
+  export type DoctorTimeSlotIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    Hospital?: boolean | HospitalDefaultArgs<ExtArgs>
+  }
+
+  export type $DoctorTimeSlotPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DoctorTimeSlot"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      Hospital: Prisma.$HospitalPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      DoctorTimeSlotId: number
+      userId: number
+      HospitalId: number
+      DayOfWeek: string
+      Morning_From: string | null
+      Morning_To: string | null
+      Evening_From: string | null
+      Evening_To: string | null
+      consult_Time_InMin: number
+      Accept_Appointment_Selected_Date: boolean
+      is_DND: boolean
+      is_SlotCancelled: boolean
+      DNDremarks: string | null
+      Slot_cancellation_remarks: string | null
+      isSlotChanged: boolean
+      isActive: boolean
+      isDeleted: boolean
+      isAvailable: boolean
+      isBooked: boolean
+      isConfirmed: boolean
+      isRejected: boolean
+      createdBy: number | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["doctorTimeSlot"]>
+    composites: {}
+  }
+
+  type DoctorTimeSlotGetPayload<S extends boolean | null | undefined | DoctorTimeSlotDefaultArgs> = $Result.GetResult<Prisma.$DoctorTimeSlotPayload, S>
+
+  type DoctorTimeSlotCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DoctorTimeSlotFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DoctorTimeSlotCountAggregateInputType | true
+    }
+
+  export interface DoctorTimeSlotDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DoctorTimeSlot'], meta: { name: 'DoctorTimeSlot' } }
+    /**
+     * Find zero or one DoctorTimeSlot that matches the filter.
+     * @param {DoctorTimeSlotFindUniqueArgs} args - Arguments to find a DoctorTimeSlot
+     * @example
+     * // Get one DoctorTimeSlot
+     * const doctorTimeSlot = await prisma.doctorTimeSlot.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DoctorTimeSlotFindUniqueArgs>(args: SelectSubset<T, DoctorTimeSlotFindUniqueArgs<ExtArgs>>): Prisma__DoctorTimeSlotClient<$Result.GetResult<Prisma.$DoctorTimeSlotPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DoctorTimeSlot that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DoctorTimeSlotFindUniqueOrThrowArgs} args - Arguments to find a DoctorTimeSlot
+     * @example
+     * // Get one DoctorTimeSlot
+     * const doctorTimeSlot = await prisma.doctorTimeSlot.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DoctorTimeSlotFindUniqueOrThrowArgs>(args: SelectSubset<T, DoctorTimeSlotFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DoctorTimeSlotClient<$Result.GetResult<Prisma.$DoctorTimeSlotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DoctorTimeSlot that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DoctorTimeSlotFindFirstArgs} args - Arguments to find a DoctorTimeSlot
+     * @example
+     * // Get one DoctorTimeSlot
+     * const doctorTimeSlot = await prisma.doctorTimeSlot.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DoctorTimeSlotFindFirstArgs>(args?: SelectSubset<T, DoctorTimeSlotFindFirstArgs<ExtArgs>>): Prisma__DoctorTimeSlotClient<$Result.GetResult<Prisma.$DoctorTimeSlotPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DoctorTimeSlot that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DoctorTimeSlotFindFirstOrThrowArgs} args - Arguments to find a DoctorTimeSlot
+     * @example
+     * // Get one DoctorTimeSlot
+     * const doctorTimeSlot = await prisma.doctorTimeSlot.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DoctorTimeSlotFindFirstOrThrowArgs>(args?: SelectSubset<T, DoctorTimeSlotFindFirstOrThrowArgs<ExtArgs>>): Prisma__DoctorTimeSlotClient<$Result.GetResult<Prisma.$DoctorTimeSlotPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DoctorTimeSlots that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DoctorTimeSlotFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DoctorTimeSlots
+     * const doctorTimeSlots = await prisma.doctorTimeSlot.findMany()
+     * 
+     * // Get first 10 DoctorTimeSlots
+     * const doctorTimeSlots = await prisma.doctorTimeSlot.findMany({ take: 10 })
+     * 
+     * // Only select the `DoctorTimeSlotId`
+     * const doctorTimeSlotWithDoctorTimeSlotIdOnly = await prisma.doctorTimeSlot.findMany({ select: { DoctorTimeSlotId: true } })
+     * 
+     */
+    findMany<T extends DoctorTimeSlotFindManyArgs>(args?: SelectSubset<T, DoctorTimeSlotFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DoctorTimeSlotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DoctorTimeSlot.
+     * @param {DoctorTimeSlotCreateArgs} args - Arguments to create a DoctorTimeSlot.
+     * @example
+     * // Create one DoctorTimeSlot
+     * const DoctorTimeSlot = await prisma.doctorTimeSlot.create({
+     *   data: {
+     *     // ... data to create a DoctorTimeSlot
+     *   }
+     * })
+     * 
+     */
+    create<T extends DoctorTimeSlotCreateArgs>(args: SelectSubset<T, DoctorTimeSlotCreateArgs<ExtArgs>>): Prisma__DoctorTimeSlotClient<$Result.GetResult<Prisma.$DoctorTimeSlotPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DoctorTimeSlots.
+     * @param {DoctorTimeSlotCreateManyArgs} args - Arguments to create many DoctorTimeSlots.
+     * @example
+     * // Create many DoctorTimeSlots
+     * const doctorTimeSlot = await prisma.doctorTimeSlot.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DoctorTimeSlotCreateManyArgs>(args?: SelectSubset<T, DoctorTimeSlotCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DoctorTimeSlots and returns the data saved in the database.
+     * @param {DoctorTimeSlotCreateManyAndReturnArgs} args - Arguments to create many DoctorTimeSlots.
+     * @example
+     * // Create many DoctorTimeSlots
+     * const doctorTimeSlot = await prisma.doctorTimeSlot.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DoctorTimeSlots and only return the `DoctorTimeSlotId`
+     * const doctorTimeSlotWithDoctorTimeSlotIdOnly = await prisma.doctorTimeSlot.createManyAndReturn({
+     *   select: { DoctorTimeSlotId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DoctorTimeSlotCreateManyAndReturnArgs>(args?: SelectSubset<T, DoctorTimeSlotCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DoctorTimeSlotPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DoctorTimeSlot.
+     * @param {DoctorTimeSlotDeleteArgs} args - Arguments to delete one DoctorTimeSlot.
+     * @example
+     * // Delete one DoctorTimeSlot
+     * const DoctorTimeSlot = await prisma.doctorTimeSlot.delete({
+     *   where: {
+     *     // ... filter to delete one DoctorTimeSlot
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DoctorTimeSlotDeleteArgs>(args: SelectSubset<T, DoctorTimeSlotDeleteArgs<ExtArgs>>): Prisma__DoctorTimeSlotClient<$Result.GetResult<Prisma.$DoctorTimeSlotPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DoctorTimeSlot.
+     * @param {DoctorTimeSlotUpdateArgs} args - Arguments to update one DoctorTimeSlot.
+     * @example
+     * // Update one DoctorTimeSlot
+     * const doctorTimeSlot = await prisma.doctorTimeSlot.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DoctorTimeSlotUpdateArgs>(args: SelectSubset<T, DoctorTimeSlotUpdateArgs<ExtArgs>>): Prisma__DoctorTimeSlotClient<$Result.GetResult<Prisma.$DoctorTimeSlotPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DoctorTimeSlots.
+     * @param {DoctorTimeSlotDeleteManyArgs} args - Arguments to filter DoctorTimeSlots to delete.
+     * @example
+     * // Delete a few DoctorTimeSlots
+     * const { count } = await prisma.doctorTimeSlot.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DoctorTimeSlotDeleteManyArgs>(args?: SelectSubset<T, DoctorTimeSlotDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DoctorTimeSlots.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DoctorTimeSlotUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DoctorTimeSlots
+     * const doctorTimeSlot = await prisma.doctorTimeSlot.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DoctorTimeSlotUpdateManyArgs>(args: SelectSubset<T, DoctorTimeSlotUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DoctorTimeSlots and returns the data updated in the database.
+     * @param {DoctorTimeSlotUpdateManyAndReturnArgs} args - Arguments to update many DoctorTimeSlots.
+     * @example
+     * // Update many DoctorTimeSlots
+     * const doctorTimeSlot = await prisma.doctorTimeSlot.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more DoctorTimeSlots and only return the `DoctorTimeSlotId`
+     * const doctorTimeSlotWithDoctorTimeSlotIdOnly = await prisma.doctorTimeSlot.updateManyAndReturn({
+     *   select: { DoctorTimeSlotId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DoctorTimeSlotUpdateManyAndReturnArgs>(args: SelectSubset<T, DoctorTimeSlotUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DoctorTimeSlotPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DoctorTimeSlot.
+     * @param {DoctorTimeSlotUpsertArgs} args - Arguments to update or create a DoctorTimeSlot.
+     * @example
+     * // Update or create a DoctorTimeSlot
+     * const doctorTimeSlot = await prisma.doctorTimeSlot.upsert({
+     *   create: {
+     *     // ... data to create a DoctorTimeSlot
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DoctorTimeSlot we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DoctorTimeSlotUpsertArgs>(args: SelectSubset<T, DoctorTimeSlotUpsertArgs<ExtArgs>>): Prisma__DoctorTimeSlotClient<$Result.GetResult<Prisma.$DoctorTimeSlotPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DoctorTimeSlots.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DoctorTimeSlotCountArgs} args - Arguments to filter DoctorTimeSlots to count.
+     * @example
+     * // Count the number of DoctorTimeSlots
+     * const count = await prisma.doctorTimeSlot.count({
+     *   where: {
+     *     // ... the filter for the DoctorTimeSlots we want to count
+     *   }
+     * })
+    **/
+    count<T extends DoctorTimeSlotCountArgs>(
+      args?: Subset<T, DoctorTimeSlotCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DoctorTimeSlotCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DoctorTimeSlot.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DoctorTimeSlotAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DoctorTimeSlotAggregateArgs>(args: Subset<T, DoctorTimeSlotAggregateArgs>): Prisma.PrismaPromise<GetDoctorTimeSlotAggregateType<T>>
+
+    /**
+     * Group by DoctorTimeSlot.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DoctorTimeSlotGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DoctorTimeSlotGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DoctorTimeSlotGroupByArgs['orderBy'] }
+        : { orderBy?: DoctorTimeSlotGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DoctorTimeSlotGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDoctorTimeSlotGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DoctorTimeSlot model
+   */
+  readonly fields: DoctorTimeSlotFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DoctorTimeSlot.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DoctorTimeSlotClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    Hospital<T extends HospitalDefaultArgs<ExtArgs> = {}>(args?: Subset<T, HospitalDefaultArgs<ExtArgs>>): Prisma__HospitalClient<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DoctorTimeSlot model
+   */
+  interface DoctorTimeSlotFieldRefs {
+    readonly DoctorTimeSlotId: FieldRef<"DoctorTimeSlot", 'Int'>
+    readonly userId: FieldRef<"DoctorTimeSlot", 'Int'>
+    readonly HospitalId: FieldRef<"DoctorTimeSlot", 'Int'>
+    readonly DayOfWeek: FieldRef<"DoctorTimeSlot", 'String'>
+    readonly Morning_From: FieldRef<"DoctorTimeSlot", 'String'>
+    readonly Morning_To: FieldRef<"DoctorTimeSlot", 'String'>
+    readonly Evening_From: FieldRef<"DoctorTimeSlot", 'String'>
+    readonly Evening_To: FieldRef<"DoctorTimeSlot", 'String'>
+    readonly consult_Time_InMin: FieldRef<"DoctorTimeSlot", 'Int'>
+    readonly Accept_Appointment_Selected_Date: FieldRef<"DoctorTimeSlot", 'Boolean'>
+    readonly is_DND: FieldRef<"DoctorTimeSlot", 'Boolean'>
+    readonly is_SlotCancelled: FieldRef<"DoctorTimeSlot", 'Boolean'>
+    readonly DNDremarks: FieldRef<"DoctorTimeSlot", 'String'>
+    readonly Slot_cancellation_remarks: FieldRef<"DoctorTimeSlot", 'String'>
+    readonly isSlotChanged: FieldRef<"DoctorTimeSlot", 'Boolean'>
+    readonly isActive: FieldRef<"DoctorTimeSlot", 'Boolean'>
+    readonly isDeleted: FieldRef<"DoctorTimeSlot", 'Boolean'>
+    readonly isAvailable: FieldRef<"DoctorTimeSlot", 'Boolean'>
+    readonly isBooked: FieldRef<"DoctorTimeSlot", 'Boolean'>
+    readonly isConfirmed: FieldRef<"DoctorTimeSlot", 'Boolean'>
+    readonly isRejected: FieldRef<"DoctorTimeSlot", 'Boolean'>
+    readonly createdBy: FieldRef<"DoctorTimeSlot", 'Int'>
+    readonly createdAt: FieldRef<"DoctorTimeSlot", 'DateTime'>
+    readonly updatedAt: FieldRef<"DoctorTimeSlot", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DoctorTimeSlot findUnique
+   */
+  export type DoctorTimeSlotFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorTimeSlot
+     */
+    select?: DoctorTimeSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorTimeSlot
+     */
+    omit?: DoctorTimeSlotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DoctorTimeSlotInclude<ExtArgs> | null
+    /**
+     * Filter, which DoctorTimeSlot to fetch.
+     */
+    where: DoctorTimeSlotWhereUniqueInput
+  }
+
+  /**
+   * DoctorTimeSlot findUniqueOrThrow
+   */
+  export type DoctorTimeSlotFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorTimeSlot
+     */
+    select?: DoctorTimeSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorTimeSlot
+     */
+    omit?: DoctorTimeSlotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DoctorTimeSlotInclude<ExtArgs> | null
+    /**
+     * Filter, which DoctorTimeSlot to fetch.
+     */
+    where: DoctorTimeSlotWhereUniqueInput
+  }
+
+  /**
+   * DoctorTimeSlot findFirst
+   */
+  export type DoctorTimeSlotFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorTimeSlot
+     */
+    select?: DoctorTimeSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorTimeSlot
+     */
+    omit?: DoctorTimeSlotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DoctorTimeSlotInclude<ExtArgs> | null
+    /**
+     * Filter, which DoctorTimeSlot to fetch.
+     */
+    where?: DoctorTimeSlotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DoctorTimeSlots to fetch.
+     */
+    orderBy?: DoctorTimeSlotOrderByWithRelationInput | DoctorTimeSlotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DoctorTimeSlots.
+     */
+    cursor?: DoctorTimeSlotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DoctorTimeSlots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DoctorTimeSlots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DoctorTimeSlots.
+     */
+    distinct?: DoctorTimeSlotScalarFieldEnum | DoctorTimeSlotScalarFieldEnum[]
+  }
+
+  /**
+   * DoctorTimeSlot findFirstOrThrow
+   */
+  export type DoctorTimeSlotFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorTimeSlot
+     */
+    select?: DoctorTimeSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorTimeSlot
+     */
+    omit?: DoctorTimeSlotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DoctorTimeSlotInclude<ExtArgs> | null
+    /**
+     * Filter, which DoctorTimeSlot to fetch.
+     */
+    where?: DoctorTimeSlotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DoctorTimeSlots to fetch.
+     */
+    orderBy?: DoctorTimeSlotOrderByWithRelationInput | DoctorTimeSlotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DoctorTimeSlots.
+     */
+    cursor?: DoctorTimeSlotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DoctorTimeSlots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DoctorTimeSlots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DoctorTimeSlots.
+     */
+    distinct?: DoctorTimeSlotScalarFieldEnum | DoctorTimeSlotScalarFieldEnum[]
+  }
+
+  /**
+   * DoctorTimeSlot findMany
+   */
+  export type DoctorTimeSlotFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorTimeSlot
+     */
+    select?: DoctorTimeSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorTimeSlot
+     */
+    omit?: DoctorTimeSlotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DoctorTimeSlotInclude<ExtArgs> | null
+    /**
+     * Filter, which DoctorTimeSlots to fetch.
+     */
+    where?: DoctorTimeSlotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DoctorTimeSlots to fetch.
+     */
+    orderBy?: DoctorTimeSlotOrderByWithRelationInput | DoctorTimeSlotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DoctorTimeSlots.
+     */
+    cursor?: DoctorTimeSlotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DoctorTimeSlots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DoctorTimeSlots.
+     */
+    skip?: number
+    distinct?: DoctorTimeSlotScalarFieldEnum | DoctorTimeSlotScalarFieldEnum[]
+  }
+
+  /**
+   * DoctorTimeSlot create
+   */
+  export type DoctorTimeSlotCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorTimeSlot
+     */
+    select?: DoctorTimeSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorTimeSlot
+     */
+    omit?: DoctorTimeSlotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DoctorTimeSlotInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DoctorTimeSlot.
+     */
+    data: XOR<DoctorTimeSlotCreateInput, DoctorTimeSlotUncheckedCreateInput>
+  }
+
+  /**
+   * DoctorTimeSlot createMany
+   */
+  export type DoctorTimeSlotCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DoctorTimeSlots.
+     */
+    data: DoctorTimeSlotCreateManyInput | DoctorTimeSlotCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DoctorTimeSlot createManyAndReturn
+   */
+  export type DoctorTimeSlotCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorTimeSlot
+     */
+    select?: DoctorTimeSlotSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorTimeSlot
+     */
+    omit?: DoctorTimeSlotOmit<ExtArgs> | null
+    /**
+     * The data used to create many DoctorTimeSlots.
+     */
+    data: DoctorTimeSlotCreateManyInput | DoctorTimeSlotCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DoctorTimeSlotIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DoctorTimeSlot update
+   */
+  export type DoctorTimeSlotUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorTimeSlot
+     */
+    select?: DoctorTimeSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorTimeSlot
+     */
+    omit?: DoctorTimeSlotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DoctorTimeSlotInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DoctorTimeSlot.
+     */
+    data: XOR<DoctorTimeSlotUpdateInput, DoctorTimeSlotUncheckedUpdateInput>
+    /**
+     * Choose, which DoctorTimeSlot to update.
+     */
+    where: DoctorTimeSlotWhereUniqueInput
+  }
+
+  /**
+   * DoctorTimeSlot updateMany
+   */
+  export type DoctorTimeSlotUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DoctorTimeSlots.
+     */
+    data: XOR<DoctorTimeSlotUpdateManyMutationInput, DoctorTimeSlotUncheckedUpdateManyInput>
+    /**
+     * Filter which DoctorTimeSlots to update
+     */
+    where?: DoctorTimeSlotWhereInput
+    /**
+     * Limit how many DoctorTimeSlots to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DoctorTimeSlot updateManyAndReturn
+   */
+  export type DoctorTimeSlotUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorTimeSlot
+     */
+    select?: DoctorTimeSlotSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorTimeSlot
+     */
+    omit?: DoctorTimeSlotOmit<ExtArgs> | null
+    /**
+     * The data used to update DoctorTimeSlots.
+     */
+    data: XOR<DoctorTimeSlotUpdateManyMutationInput, DoctorTimeSlotUncheckedUpdateManyInput>
+    /**
+     * Filter which DoctorTimeSlots to update
+     */
+    where?: DoctorTimeSlotWhereInput
+    /**
+     * Limit how many DoctorTimeSlots to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DoctorTimeSlotIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DoctorTimeSlot upsert
+   */
+  export type DoctorTimeSlotUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorTimeSlot
+     */
+    select?: DoctorTimeSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorTimeSlot
+     */
+    omit?: DoctorTimeSlotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DoctorTimeSlotInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DoctorTimeSlot to update in case it exists.
+     */
+    where: DoctorTimeSlotWhereUniqueInput
+    /**
+     * In case the DoctorTimeSlot found by the `where` argument doesn't exist, create a new DoctorTimeSlot with this data.
+     */
+    create: XOR<DoctorTimeSlotCreateInput, DoctorTimeSlotUncheckedCreateInput>
+    /**
+     * In case the DoctorTimeSlot was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DoctorTimeSlotUpdateInput, DoctorTimeSlotUncheckedUpdateInput>
+  }
+
+  /**
+   * DoctorTimeSlot delete
+   */
+  export type DoctorTimeSlotDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorTimeSlot
+     */
+    select?: DoctorTimeSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorTimeSlot
+     */
+    omit?: DoctorTimeSlotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DoctorTimeSlotInclude<ExtArgs> | null
+    /**
+     * Filter which DoctorTimeSlot to delete.
+     */
+    where: DoctorTimeSlotWhereUniqueInput
+  }
+
+  /**
+   * DoctorTimeSlot deleteMany
+   */
+  export type DoctorTimeSlotDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DoctorTimeSlots to delete
+     */
+    where?: DoctorTimeSlotWhereInput
+    /**
+     * Limit how many DoctorTimeSlots to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DoctorTimeSlot without action
+   */
+  export type DoctorTimeSlotDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorTimeSlot
+     */
+    select?: DoctorTimeSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorTimeSlot
+     */
+    omit?: DoctorTimeSlotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DoctorTimeSlotInclude<ExtArgs> | null
   }
 
 
@@ -15945,6 +17473,36 @@ export namespace Prisma {
   export type SettingScalarFieldEnum = (typeof SettingScalarFieldEnum)[keyof typeof SettingScalarFieldEnum]
 
 
+  export const DoctorTimeSlotScalarFieldEnum: {
+    DoctorTimeSlotId: 'DoctorTimeSlotId',
+    userId: 'userId',
+    HospitalId: 'HospitalId',
+    DayOfWeek: 'DayOfWeek',
+    Morning_From: 'Morning_From',
+    Morning_To: 'Morning_To',
+    Evening_From: 'Evening_From',
+    Evening_To: 'Evening_To',
+    consult_Time_InMin: 'consult_Time_InMin',
+    Accept_Appointment_Selected_Date: 'Accept_Appointment_Selected_Date',
+    is_DND: 'is_DND',
+    is_SlotCancelled: 'is_SlotCancelled',
+    DNDremarks: 'DNDremarks',
+    Slot_cancellation_remarks: 'Slot_cancellation_remarks',
+    isSlotChanged: 'isSlotChanged',
+    isActive: 'isActive',
+    isDeleted: 'isDeleted',
+    isAvailable: 'isAvailable',
+    isBooked: 'isBooked',
+    isConfirmed: 'isConfirmed',
+    isRejected: 'isRejected',
+    createdBy: 'createdBy',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type DoctorTimeSlotScalarFieldEnum = (typeof DoctorTimeSlotScalarFieldEnum)[keyof typeof DoctorTimeSlotScalarFieldEnum]
+
+
   export const AuditLogScalarFieldEnum: {
     AuditLogId: 'AuditLogId',
     UserId: 'UserId',
@@ -16249,6 +17807,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalListRelationFilter
     HospitalDeletedBy?: HospitalListRelationFilter
     UserHospitalAccess?: UserHospitalAccessListRelationFilter
+    DoctorTimeSlot?: DoctorTimeSlotListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -16293,6 +17852,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalOrderByRelationAggregateInput
     HospitalDeletedBy?: HospitalOrderByRelationAggregateInput
     UserHospitalAccess?: UserHospitalAccessOrderByRelationAggregateInput
+    DoctorTimeSlot?: DoctorTimeSlotOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -16340,6 +17900,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalListRelationFilter
     HospitalDeletedBy?: HospitalListRelationFilter
     UserHospitalAccess?: UserHospitalAccessListRelationFilter
+    DoctorTimeSlot?: DoctorTimeSlotListRelationFilter
   }, "UserId" | "email" | "mobile">
 
   export type UserOrderByWithAggregationInput = {
@@ -16582,6 +18143,7 @@ export namespace Prisma {
     CreatedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     UpdatedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     DeletedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    DoctorTimeSlot?: DoctorTimeSlotListRelationFilter
   }
 
   export type HospitalOrderByWithRelationInput = {
@@ -16621,6 +18183,7 @@ export namespace Prisma {
     CreatedBy?: UserOrderByWithRelationInput
     UpdatedBy?: UserOrderByWithRelationInput
     DeletedBy?: UserOrderByWithRelationInput
+    DoctorTimeSlot?: DoctorTimeSlotOrderByRelationAggregateInput
   }
 
   export type HospitalWhereUniqueInput = Prisma.AtLeast<{
@@ -16663,6 +18226,7 @@ export namespace Prisma {
     CreatedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     UpdatedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     DeletedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    DoctorTimeSlot?: DoctorTimeSlotListRelationFilter
   }, "HospitalId" | "HospitalCode">
 
   export type HospitalOrderByWithAggregationInput = {
@@ -16862,6 +18426,161 @@ export namespace Prisma {
     UserId?: IntWithAggregatesFilter<"Setting"> | number
     theme?: StringWithAggregatesFilter<"Setting"> | string
     language?: StringWithAggregatesFilter<"Setting"> | string
+  }
+
+  export type DoctorTimeSlotWhereInput = {
+    AND?: DoctorTimeSlotWhereInput | DoctorTimeSlotWhereInput[]
+    OR?: DoctorTimeSlotWhereInput[]
+    NOT?: DoctorTimeSlotWhereInput | DoctorTimeSlotWhereInput[]
+    DoctorTimeSlotId?: IntFilter<"DoctorTimeSlot"> | number
+    userId?: IntFilter<"DoctorTimeSlot"> | number
+    HospitalId?: IntFilter<"DoctorTimeSlot"> | number
+    DayOfWeek?: StringFilter<"DoctorTimeSlot"> | string
+    Morning_From?: StringNullableFilter<"DoctorTimeSlot"> | string | null
+    Morning_To?: StringNullableFilter<"DoctorTimeSlot"> | string | null
+    Evening_From?: StringNullableFilter<"DoctorTimeSlot"> | string | null
+    Evening_To?: StringNullableFilter<"DoctorTimeSlot"> | string | null
+    consult_Time_InMin?: IntFilter<"DoctorTimeSlot"> | number
+    Accept_Appointment_Selected_Date?: BoolFilter<"DoctorTimeSlot"> | boolean
+    is_DND?: BoolFilter<"DoctorTimeSlot"> | boolean
+    is_SlotCancelled?: BoolFilter<"DoctorTimeSlot"> | boolean
+    DNDremarks?: StringNullableFilter<"DoctorTimeSlot"> | string | null
+    Slot_cancellation_remarks?: StringNullableFilter<"DoctorTimeSlot"> | string | null
+    isSlotChanged?: BoolFilter<"DoctorTimeSlot"> | boolean
+    isActive?: BoolFilter<"DoctorTimeSlot"> | boolean
+    isDeleted?: BoolFilter<"DoctorTimeSlot"> | boolean
+    isAvailable?: BoolFilter<"DoctorTimeSlot"> | boolean
+    isBooked?: BoolFilter<"DoctorTimeSlot"> | boolean
+    isConfirmed?: BoolFilter<"DoctorTimeSlot"> | boolean
+    isRejected?: BoolFilter<"DoctorTimeSlot"> | boolean
+    createdBy?: IntNullableFilter<"DoctorTimeSlot"> | number | null
+    createdAt?: DateTimeFilter<"DoctorTimeSlot"> | Date | string
+    updatedAt?: DateTimeFilter<"DoctorTimeSlot"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    Hospital?: XOR<HospitalScalarRelationFilter, HospitalWhereInput>
+  }
+
+  export type DoctorTimeSlotOrderByWithRelationInput = {
+    DoctorTimeSlotId?: SortOrder
+    userId?: SortOrder
+    HospitalId?: SortOrder
+    DayOfWeek?: SortOrder
+    Morning_From?: SortOrderInput | SortOrder
+    Morning_To?: SortOrderInput | SortOrder
+    Evening_From?: SortOrderInput | SortOrder
+    Evening_To?: SortOrderInput | SortOrder
+    consult_Time_InMin?: SortOrder
+    Accept_Appointment_Selected_Date?: SortOrder
+    is_DND?: SortOrder
+    is_SlotCancelled?: SortOrder
+    DNDremarks?: SortOrderInput | SortOrder
+    Slot_cancellation_remarks?: SortOrderInput | SortOrder
+    isSlotChanged?: SortOrder
+    isActive?: SortOrder
+    isDeleted?: SortOrder
+    isAvailable?: SortOrder
+    isBooked?: SortOrder
+    isConfirmed?: SortOrder
+    isRejected?: SortOrder
+    createdBy?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    Hospital?: HospitalOrderByWithRelationInput
+  }
+
+  export type DoctorTimeSlotWhereUniqueInput = Prisma.AtLeast<{
+    DoctorTimeSlotId?: number
+    AND?: DoctorTimeSlotWhereInput | DoctorTimeSlotWhereInput[]
+    OR?: DoctorTimeSlotWhereInput[]
+    NOT?: DoctorTimeSlotWhereInput | DoctorTimeSlotWhereInput[]
+    userId?: IntFilter<"DoctorTimeSlot"> | number
+    HospitalId?: IntFilter<"DoctorTimeSlot"> | number
+    DayOfWeek?: StringFilter<"DoctorTimeSlot"> | string
+    Morning_From?: StringNullableFilter<"DoctorTimeSlot"> | string | null
+    Morning_To?: StringNullableFilter<"DoctorTimeSlot"> | string | null
+    Evening_From?: StringNullableFilter<"DoctorTimeSlot"> | string | null
+    Evening_To?: StringNullableFilter<"DoctorTimeSlot"> | string | null
+    consult_Time_InMin?: IntFilter<"DoctorTimeSlot"> | number
+    Accept_Appointment_Selected_Date?: BoolFilter<"DoctorTimeSlot"> | boolean
+    is_DND?: BoolFilter<"DoctorTimeSlot"> | boolean
+    is_SlotCancelled?: BoolFilter<"DoctorTimeSlot"> | boolean
+    DNDremarks?: StringNullableFilter<"DoctorTimeSlot"> | string | null
+    Slot_cancellation_remarks?: StringNullableFilter<"DoctorTimeSlot"> | string | null
+    isSlotChanged?: BoolFilter<"DoctorTimeSlot"> | boolean
+    isActive?: BoolFilter<"DoctorTimeSlot"> | boolean
+    isDeleted?: BoolFilter<"DoctorTimeSlot"> | boolean
+    isAvailable?: BoolFilter<"DoctorTimeSlot"> | boolean
+    isBooked?: BoolFilter<"DoctorTimeSlot"> | boolean
+    isConfirmed?: BoolFilter<"DoctorTimeSlot"> | boolean
+    isRejected?: BoolFilter<"DoctorTimeSlot"> | boolean
+    createdBy?: IntNullableFilter<"DoctorTimeSlot"> | number | null
+    createdAt?: DateTimeFilter<"DoctorTimeSlot"> | Date | string
+    updatedAt?: DateTimeFilter<"DoctorTimeSlot"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    Hospital?: XOR<HospitalScalarRelationFilter, HospitalWhereInput>
+  }, "DoctorTimeSlotId">
+
+  export type DoctorTimeSlotOrderByWithAggregationInput = {
+    DoctorTimeSlotId?: SortOrder
+    userId?: SortOrder
+    HospitalId?: SortOrder
+    DayOfWeek?: SortOrder
+    Morning_From?: SortOrderInput | SortOrder
+    Morning_To?: SortOrderInput | SortOrder
+    Evening_From?: SortOrderInput | SortOrder
+    Evening_To?: SortOrderInput | SortOrder
+    consult_Time_InMin?: SortOrder
+    Accept_Appointment_Selected_Date?: SortOrder
+    is_DND?: SortOrder
+    is_SlotCancelled?: SortOrder
+    DNDremarks?: SortOrderInput | SortOrder
+    Slot_cancellation_remarks?: SortOrderInput | SortOrder
+    isSlotChanged?: SortOrder
+    isActive?: SortOrder
+    isDeleted?: SortOrder
+    isAvailable?: SortOrder
+    isBooked?: SortOrder
+    isConfirmed?: SortOrder
+    isRejected?: SortOrder
+    createdBy?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: DoctorTimeSlotCountOrderByAggregateInput
+    _avg?: DoctorTimeSlotAvgOrderByAggregateInput
+    _max?: DoctorTimeSlotMaxOrderByAggregateInput
+    _min?: DoctorTimeSlotMinOrderByAggregateInput
+    _sum?: DoctorTimeSlotSumOrderByAggregateInput
+  }
+
+  export type DoctorTimeSlotScalarWhereWithAggregatesInput = {
+    AND?: DoctorTimeSlotScalarWhereWithAggregatesInput | DoctorTimeSlotScalarWhereWithAggregatesInput[]
+    OR?: DoctorTimeSlotScalarWhereWithAggregatesInput[]
+    NOT?: DoctorTimeSlotScalarWhereWithAggregatesInput | DoctorTimeSlotScalarWhereWithAggregatesInput[]
+    DoctorTimeSlotId?: IntWithAggregatesFilter<"DoctorTimeSlot"> | number
+    userId?: IntWithAggregatesFilter<"DoctorTimeSlot"> | number
+    HospitalId?: IntWithAggregatesFilter<"DoctorTimeSlot"> | number
+    DayOfWeek?: StringWithAggregatesFilter<"DoctorTimeSlot"> | string
+    Morning_From?: StringNullableWithAggregatesFilter<"DoctorTimeSlot"> | string | null
+    Morning_To?: StringNullableWithAggregatesFilter<"DoctorTimeSlot"> | string | null
+    Evening_From?: StringNullableWithAggregatesFilter<"DoctorTimeSlot"> | string | null
+    Evening_To?: StringNullableWithAggregatesFilter<"DoctorTimeSlot"> | string | null
+    consult_Time_InMin?: IntWithAggregatesFilter<"DoctorTimeSlot"> | number
+    Accept_Appointment_Selected_Date?: BoolWithAggregatesFilter<"DoctorTimeSlot"> | boolean
+    is_DND?: BoolWithAggregatesFilter<"DoctorTimeSlot"> | boolean
+    is_SlotCancelled?: BoolWithAggregatesFilter<"DoctorTimeSlot"> | boolean
+    DNDremarks?: StringNullableWithAggregatesFilter<"DoctorTimeSlot"> | string | null
+    Slot_cancellation_remarks?: StringNullableWithAggregatesFilter<"DoctorTimeSlot"> | string | null
+    isSlotChanged?: BoolWithAggregatesFilter<"DoctorTimeSlot"> | boolean
+    isActive?: BoolWithAggregatesFilter<"DoctorTimeSlot"> | boolean
+    isDeleted?: BoolWithAggregatesFilter<"DoctorTimeSlot"> | boolean
+    isAvailable?: BoolWithAggregatesFilter<"DoctorTimeSlot"> | boolean
+    isBooked?: BoolWithAggregatesFilter<"DoctorTimeSlot"> | boolean
+    isConfirmed?: BoolWithAggregatesFilter<"DoctorTimeSlot"> | boolean
+    isRejected?: BoolWithAggregatesFilter<"DoctorTimeSlot"> | boolean
+    createdBy?: IntNullableWithAggregatesFilter<"DoctorTimeSlot"> | number | null
+    createdAt?: DateTimeWithAggregatesFilter<"DoctorTimeSlot"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"DoctorTimeSlot"> | Date | string
   }
 
   export type AuditLogWhereInput = {
@@ -17236,6 +18955,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -17274,6 +18994,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -17311,6 +19032,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -17349,6 +19071,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -17626,6 +19349,7 @@ export namespace Prisma {
     CreatedBy?: UserCreateNestedOneWithoutHospitalCreatedByInput
     UpdatedBy?: UserCreateNestedOneWithoutHospitalUpdatedByInput
     DeletedBy?: UserCreateNestedOneWithoutHospitalDeletedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutHospitalInput
   }
 
   export type HospitalUncheckedCreateInput = {
@@ -17660,6 +19384,7 @@ export namespace Prisma {
     childHospital?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
     users?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
     mappedUsers?: UserUncheckedCreateNestedManyWithoutUserBranchesArrayInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutHospitalInput
   }
 
   export type HospitalUpdateInput = {
@@ -17693,6 +19418,7 @@ export namespace Prisma {
     CreatedBy?: UserUpdateOneWithoutHospitalCreatedByNestedInput
     UpdatedBy?: UserUpdateOneWithoutHospitalUpdatedByNestedInput
     DeletedBy?: UserUpdateOneWithoutHospitalDeletedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutHospitalNestedInput
   }
 
   export type HospitalUncheckedUpdateInput = {
@@ -17727,6 +19453,7 @@ export namespace Prisma {
     childHospital?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
     users?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
     mappedUsers?: UserUncheckedUpdateManyWithoutUserBranchesArrayNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutHospitalNestedInput
   }
 
   export type HospitalCreateManyInput = {
@@ -17922,6 +19649,190 @@ export namespace Prisma {
     UserId?: IntFieldUpdateOperationsInput | number
     theme?: StringFieldUpdateOperationsInput | string
     language?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type DoctorTimeSlotCreateInput = {
+    DayOfWeek: string
+    Morning_From?: string | null
+    Morning_To?: string | null
+    Evening_From?: string | null
+    Evening_To?: string | null
+    consult_Time_InMin?: number
+    Accept_Appointment_Selected_Date?: boolean
+    is_DND?: boolean
+    is_SlotCancelled?: boolean
+    DNDremarks?: string | null
+    Slot_cancellation_remarks?: string | null
+    isSlotChanged?: boolean
+    isActive?: boolean
+    isDeleted?: boolean
+    isAvailable?: boolean
+    isBooked?: boolean
+    isConfirmed?: boolean
+    isRejected?: boolean
+    createdBy?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutDoctorTimeSlotInput
+    Hospital: HospitalCreateNestedOneWithoutDoctorTimeSlotInput
+  }
+
+  export type DoctorTimeSlotUncheckedCreateInput = {
+    DoctorTimeSlotId?: number
+    userId: number
+    HospitalId: number
+    DayOfWeek: string
+    Morning_From?: string | null
+    Morning_To?: string | null
+    Evening_From?: string | null
+    Evening_To?: string | null
+    consult_Time_InMin?: number
+    Accept_Appointment_Selected_Date?: boolean
+    is_DND?: boolean
+    is_SlotCancelled?: boolean
+    DNDremarks?: string | null
+    Slot_cancellation_remarks?: string | null
+    isSlotChanged?: boolean
+    isActive?: boolean
+    isDeleted?: boolean
+    isAvailable?: boolean
+    isBooked?: boolean
+    isConfirmed?: boolean
+    isRejected?: boolean
+    createdBy?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DoctorTimeSlotUpdateInput = {
+    DayOfWeek?: StringFieldUpdateOperationsInput | string
+    Morning_From?: NullableStringFieldUpdateOperationsInput | string | null
+    Morning_To?: NullableStringFieldUpdateOperationsInput | string | null
+    Evening_From?: NullableStringFieldUpdateOperationsInput | string | null
+    Evening_To?: NullableStringFieldUpdateOperationsInput | string | null
+    consult_Time_InMin?: IntFieldUpdateOperationsInput | number
+    Accept_Appointment_Selected_Date?: BoolFieldUpdateOperationsInput | boolean
+    is_DND?: BoolFieldUpdateOperationsInput | boolean
+    is_SlotCancelled?: BoolFieldUpdateOperationsInput | boolean
+    DNDremarks?: NullableStringFieldUpdateOperationsInput | string | null
+    Slot_cancellation_remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    isSlotChanged?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    isAvailable?: BoolFieldUpdateOperationsInput | boolean
+    isBooked?: BoolFieldUpdateOperationsInput | boolean
+    isConfirmed?: BoolFieldUpdateOperationsInput | boolean
+    isRejected?: BoolFieldUpdateOperationsInput | boolean
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutDoctorTimeSlotNestedInput
+    Hospital?: HospitalUpdateOneRequiredWithoutDoctorTimeSlotNestedInput
+  }
+
+  export type DoctorTimeSlotUncheckedUpdateInput = {
+    DoctorTimeSlotId?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    HospitalId?: IntFieldUpdateOperationsInput | number
+    DayOfWeek?: StringFieldUpdateOperationsInput | string
+    Morning_From?: NullableStringFieldUpdateOperationsInput | string | null
+    Morning_To?: NullableStringFieldUpdateOperationsInput | string | null
+    Evening_From?: NullableStringFieldUpdateOperationsInput | string | null
+    Evening_To?: NullableStringFieldUpdateOperationsInput | string | null
+    consult_Time_InMin?: IntFieldUpdateOperationsInput | number
+    Accept_Appointment_Selected_Date?: BoolFieldUpdateOperationsInput | boolean
+    is_DND?: BoolFieldUpdateOperationsInput | boolean
+    is_SlotCancelled?: BoolFieldUpdateOperationsInput | boolean
+    DNDremarks?: NullableStringFieldUpdateOperationsInput | string | null
+    Slot_cancellation_remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    isSlotChanged?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    isAvailable?: BoolFieldUpdateOperationsInput | boolean
+    isBooked?: BoolFieldUpdateOperationsInput | boolean
+    isConfirmed?: BoolFieldUpdateOperationsInput | boolean
+    isRejected?: BoolFieldUpdateOperationsInput | boolean
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DoctorTimeSlotCreateManyInput = {
+    DoctorTimeSlotId?: number
+    userId: number
+    HospitalId: number
+    DayOfWeek: string
+    Morning_From?: string | null
+    Morning_To?: string | null
+    Evening_From?: string | null
+    Evening_To?: string | null
+    consult_Time_InMin?: number
+    Accept_Appointment_Selected_Date?: boolean
+    is_DND?: boolean
+    is_SlotCancelled?: boolean
+    DNDremarks?: string | null
+    Slot_cancellation_remarks?: string | null
+    isSlotChanged?: boolean
+    isActive?: boolean
+    isDeleted?: boolean
+    isAvailable?: boolean
+    isBooked?: boolean
+    isConfirmed?: boolean
+    isRejected?: boolean
+    createdBy?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DoctorTimeSlotUpdateManyMutationInput = {
+    DayOfWeek?: StringFieldUpdateOperationsInput | string
+    Morning_From?: NullableStringFieldUpdateOperationsInput | string | null
+    Morning_To?: NullableStringFieldUpdateOperationsInput | string | null
+    Evening_From?: NullableStringFieldUpdateOperationsInput | string | null
+    Evening_To?: NullableStringFieldUpdateOperationsInput | string | null
+    consult_Time_InMin?: IntFieldUpdateOperationsInput | number
+    Accept_Appointment_Selected_Date?: BoolFieldUpdateOperationsInput | boolean
+    is_DND?: BoolFieldUpdateOperationsInput | boolean
+    is_SlotCancelled?: BoolFieldUpdateOperationsInput | boolean
+    DNDremarks?: NullableStringFieldUpdateOperationsInput | string | null
+    Slot_cancellation_remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    isSlotChanged?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    isAvailable?: BoolFieldUpdateOperationsInput | boolean
+    isBooked?: BoolFieldUpdateOperationsInput | boolean
+    isConfirmed?: BoolFieldUpdateOperationsInput | boolean
+    isRejected?: BoolFieldUpdateOperationsInput | boolean
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DoctorTimeSlotUncheckedUpdateManyInput = {
+    DoctorTimeSlotId?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    HospitalId?: IntFieldUpdateOperationsInput | number
+    DayOfWeek?: StringFieldUpdateOperationsInput | string
+    Morning_From?: NullableStringFieldUpdateOperationsInput | string | null
+    Morning_To?: NullableStringFieldUpdateOperationsInput | string | null
+    Evening_From?: NullableStringFieldUpdateOperationsInput | string | null
+    Evening_To?: NullableStringFieldUpdateOperationsInput | string | null
+    consult_Time_InMin?: IntFieldUpdateOperationsInput | number
+    Accept_Appointment_Selected_Date?: BoolFieldUpdateOperationsInput | boolean
+    is_DND?: BoolFieldUpdateOperationsInput | boolean
+    is_SlotCancelled?: BoolFieldUpdateOperationsInput | boolean
+    DNDremarks?: NullableStringFieldUpdateOperationsInput | string | null
+    Slot_cancellation_remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    isSlotChanged?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    isAvailable?: BoolFieldUpdateOperationsInput | boolean
+    isBooked?: BoolFieldUpdateOperationsInput | boolean
+    isConfirmed?: BoolFieldUpdateOperationsInput | boolean
+    isRejected?: BoolFieldUpdateOperationsInput | boolean
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AuditLogCreateInput = {
@@ -18364,6 +20275,12 @@ export namespace Prisma {
     none?: HospitalWhereInput
   }
 
+  export type DoctorTimeSlotListRelationFilter = {
+    every?: DoctorTimeSlotWhereInput
+    some?: DoctorTimeSlotWhereInput
+    none?: DoctorTimeSlotWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -18386,6 +20303,10 @@ export namespace Prisma {
   }
 
   export type HospitalOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DoctorTimeSlotOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -19002,6 +20923,103 @@ export namespace Prisma {
     SettingId?: SortOrder
     UserId?: SortOrder
   }
+
+  export type DoctorTimeSlotCountOrderByAggregateInput = {
+    DoctorTimeSlotId?: SortOrder
+    userId?: SortOrder
+    HospitalId?: SortOrder
+    DayOfWeek?: SortOrder
+    Morning_From?: SortOrder
+    Morning_To?: SortOrder
+    Evening_From?: SortOrder
+    Evening_To?: SortOrder
+    consult_Time_InMin?: SortOrder
+    Accept_Appointment_Selected_Date?: SortOrder
+    is_DND?: SortOrder
+    is_SlotCancelled?: SortOrder
+    DNDremarks?: SortOrder
+    Slot_cancellation_remarks?: SortOrder
+    isSlotChanged?: SortOrder
+    isActive?: SortOrder
+    isDeleted?: SortOrder
+    isAvailable?: SortOrder
+    isBooked?: SortOrder
+    isConfirmed?: SortOrder
+    isRejected?: SortOrder
+    createdBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DoctorTimeSlotAvgOrderByAggregateInput = {
+    DoctorTimeSlotId?: SortOrder
+    userId?: SortOrder
+    HospitalId?: SortOrder
+    consult_Time_InMin?: SortOrder
+    createdBy?: SortOrder
+  }
+
+  export type DoctorTimeSlotMaxOrderByAggregateInput = {
+    DoctorTimeSlotId?: SortOrder
+    userId?: SortOrder
+    HospitalId?: SortOrder
+    DayOfWeek?: SortOrder
+    Morning_From?: SortOrder
+    Morning_To?: SortOrder
+    Evening_From?: SortOrder
+    Evening_To?: SortOrder
+    consult_Time_InMin?: SortOrder
+    Accept_Appointment_Selected_Date?: SortOrder
+    is_DND?: SortOrder
+    is_SlotCancelled?: SortOrder
+    DNDremarks?: SortOrder
+    Slot_cancellation_remarks?: SortOrder
+    isSlotChanged?: SortOrder
+    isActive?: SortOrder
+    isDeleted?: SortOrder
+    isAvailable?: SortOrder
+    isBooked?: SortOrder
+    isConfirmed?: SortOrder
+    isRejected?: SortOrder
+    createdBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DoctorTimeSlotMinOrderByAggregateInput = {
+    DoctorTimeSlotId?: SortOrder
+    userId?: SortOrder
+    HospitalId?: SortOrder
+    DayOfWeek?: SortOrder
+    Morning_From?: SortOrder
+    Morning_To?: SortOrder
+    Evening_From?: SortOrder
+    Evening_To?: SortOrder
+    consult_Time_InMin?: SortOrder
+    Accept_Appointment_Selected_Date?: SortOrder
+    is_DND?: SortOrder
+    is_SlotCancelled?: SortOrder
+    DNDremarks?: SortOrder
+    Slot_cancellation_remarks?: SortOrder
+    isSlotChanged?: SortOrder
+    isActive?: SortOrder
+    isDeleted?: SortOrder
+    isAvailable?: SortOrder
+    isBooked?: SortOrder
+    isConfirmed?: SortOrder
+    isRejected?: SortOrder
+    createdBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DoctorTimeSlotSumOrderByAggregateInput = {
+    DoctorTimeSlotId?: SortOrder
+    userId?: SortOrder
+    HospitalId?: SortOrder
+    consult_Time_InMin?: SortOrder
+    createdBy?: SortOrder
+  }
   export type JsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
@@ -19381,6 +21399,13 @@ export namespace Prisma {
     connect?: UserHospitalAccessWhereUniqueInput | UserHospitalAccessWhereUniqueInput[]
   }
 
+  export type DoctorTimeSlotCreateNestedManyWithoutUserInput = {
+    create?: XOR<DoctorTimeSlotCreateWithoutUserInput, DoctorTimeSlotUncheckedCreateWithoutUserInput> | DoctorTimeSlotCreateWithoutUserInput[] | DoctorTimeSlotUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: DoctorTimeSlotCreateOrConnectWithoutUserInput | DoctorTimeSlotCreateOrConnectWithoutUserInput[]
+    createMany?: DoctorTimeSlotCreateManyUserInputEnvelope
+    connect?: DoctorTimeSlotWhereUniqueInput | DoctorTimeSlotWhereUniqueInput[]
+  }
+
   export type SettingUncheckedCreateNestedOneWithoutUserInput = {
     create?: XOR<SettingCreateWithoutUserInput, SettingUncheckedCreateWithoutUserInput>
     connectOrCreate?: SettingCreateOrConnectWithoutUserInput
@@ -19461,6 +21486,13 @@ export namespace Prisma {
     connectOrCreate?: UserHospitalAccessCreateOrConnectWithoutCreatedByInput | UserHospitalAccessCreateOrConnectWithoutCreatedByInput[]
     createMany?: UserHospitalAccessCreateManyCreatedByInputEnvelope
     connect?: UserHospitalAccessWhereUniqueInput | UserHospitalAccessWhereUniqueInput[]
+  }
+
+  export type DoctorTimeSlotUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<DoctorTimeSlotCreateWithoutUserInput, DoctorTimeSlotUncheckedCreateWithoutUserInput> | DoctorTimeSlotCreateWithoutUserInput[] | DoctorTimeSlotUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: DoctorTimeSlotCreateOrConnectWithoutUserInput | DoctorTimeSlotCreateOrConnectWithoutUserInput[]
+    createMany?: DoctorTimeSlotCreateManyUserInputEnvelope
+    connect?: DoctorTimeSlotWhereUniqueInput | DoctorTimeSlotWhereUniqueInput[]
   }
 
   export type EnumTitleFieldUpdateOperationsInput = {
@@ -19700,6 +21732,20 @@ export namespace Prisma {
     deleteMany?: UserHospitalAccessScalarWhereInput | UserHospitalAccessScalarWhereInput[]
   }
 
+  export type DoctorTimeSlotUpdateManyWithoutUserNestedInput = {
+    create?: XOR<DoctorTimeSlotCreateWithoutUserInput, DoctorTimeSlotUncheckedCreateWithoutUserInput> | DoctorTimeSlotCreateWithoutUserInput[] | DoctorTimeSlotUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: DoctorTimeSlotCreateOrConnectWithoutUserInput | DoctorTimeSlotCreateOrConnectWithoutUserInput[]
+    upsert?: DoctorTimeSlotUpsertWithWhereUniqueWithoutUserInput | DoctorTimeSlotUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: DoctorTimeSlotCreateManyUserInputEnvelope
+    set?: DoctorTimeSlotWhereUniqueInput | DoctorTimeSlotWhereUniqueInput[]
+    disconnect?: DoctorTimeSlotWhereUniqueInput | DoctorTimeSlotWhereUniqueInput[]
+    delete?: DoctorTimeSlotWhereUniqueInput | DoctorTimeSlotWhereUniqueInput[]
+    connect?: DoctorTimeSlotWhereUniqueInput | DoctorTimeSlotWhereUniqueInput[]
+    update?: DoctorTimeSlotUpdateWithWhereUniqueWithoutUserInput | DoctorTimeSlotUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: DoctorTimeSlotUpdateManyWithWhereWithoutUserInput | DoctorTimeSlotUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: DoctorTimeSlotScalarWhereInput | DoctorTimeSlotScalarWhereInput[]
+  }
+
   export type IntFieldUpdateOperationsInput = {
     set?: number
     increment?: number
@@ -19879,6 +21925,20 @@ export namespace Prisma {
     deleteMany?: UserHospitalAccessScalarWhereInput | UserHospitalAccessScalarWhereInput[]
   }
 
+  export type DoctorTimeSlotUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<DoctorTimeSlotCreateWithoutUserInput, DoctorTimeSlotUncheckedCreateWithoutUserInput> | DoctorTimeSlotCreateWithoutUserInput[] | DoctorTimeSlotUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: DoctorTimeSlotCreateOrConnectWithoutUserInput | DoctorTimeSlotCreateOrConnectWithoutUserInput[]
+    upsert?: DoctorTimeSlotUpsertWithWhereUniqueWithoutUserInput | DoctorTimeSlotUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: DoctorTimeSlotCreateManyUserInputEnvelope
+    set?: DoctorTimeSlotWhereUniqueInput | DoctorTimeSlotWhereUniqueInput[]
+    disconnect?: DoctorTimeSlotWhereUniqueInput | DoctorTimeSlotWhereUniqueInput[]
+    delete?: DoctorTimeSlotWhereUniqueInput | DoctorTimeSlotWhereUniqueInput[]
+    connect?: DoctorTimeSlotWhereUniqueInput | DoctorTimeSlotWhereUniqueInput[]
+    update?: DoctorTimeSlotUpdateWithWhereUniqueWithoutUserInput | DoctorTimeSlotUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: DoctorTimeSlotUpdateManyWithWhereWithoutUserInput | DoctorTimeSlotUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: DoctorTimeSlotScalarWhereInput | DoctorTimeSlotScalarWhereInput[]
+  }
+
   export type HospitalCreateNestedManyWithoutOrganizationInput = {
     create?: XOR<HospitalCreateWithoutOrganizationInput, HospitalUncheckedCreateWithoutOrganizationInput> | HospitalCreateWithoutOrganizationInput[] | HospitalUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: HospitalCreateOrConnectWithoutOrganizationInput | HospitalCreateOrConnectWithoutOrganizationInput[]
@@ -20025,6 +22085,13 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type DoctorTimeSlotCreateNestedManyWithoutHospitalInput = {
+    create?: XOR<DoctorTimeSlotCreateWithoutHospitalInput, DoctorTimeSlotUncheckedCreateWithoutHospitalInput> | DoctorTimeSlotCreateWithoutHospitalInput[] | DoctorTimeSlotUncheckedCreateWithoutHospitalInput[]
+    connectOrCreate?: DoctorTimeSlotCreateOrConnectWithoutHospitalInput | DoctorTimeSlotCreateOrConnectWithoutHospitalInput[]
+    createMany?: DoctorTimeSlotCreateManyHospitalInputEnvelope
+    connect?: DoctorTimeSlotWhereUniqueInput | DoctorTimeSlotWhereUniqueInput[]
+  }
+
   export type HospitalUncheckedCreateNestedManyWithoutParentHospitalInput = {
     create?: XOR<HospitalCreateWithoutParentHospitalInput, HospitalUncheckedCreateWithoutParentHospitalInput> | HospitalCreateWithoutParentHospitalInput[] | HospitalUncheckedCreateWithoutParentHospitalInput[]
     connectOrCreate?: HospitalCreateOrConnectWithoutParentHospitalInput | HospitalCreateOrConnectWithoutParentHospitalInput[]
@@ -20043,6 +22110,13 @@ export namespace Prisma {
     create?: XOR<UserCreateWithoutUserBranchesArrayInput, UserUncheckedCreateWithoutUserBranchesArrayInput> | UserCreateWithoutUserBranchesArrayInput[] | UserUncheckedCreateWithoutUserBranchesArrayInput[]
     connectOrCreate?: UserCreateOrConnectWithoutUserBranchesArrayInput | UserCreateOrConnectWithoutUserBranchesArrayInput[]
     connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+  }
+
+  export type DoctorTimeSlotUncheckedCreateNestedManyWithoutHospitalInput = {
+    create?: XOR<DoctorTimeSlotCreateWithoutHospitalInput, DoctorTimeSlotUncheckedCreateWithoutHospitalInput> | DoctorTimeSlotCreateWithoutHospitalInput[] | DoctorTimeSlotUncheckedCreateWithoutHospitalInput[]
+    connectOrCreate?: DoctorTimeSlotCreateOrConnectWithoutHospitalInput | DoctorTimeSlotCreateOrConnectWithoutHospitalInput[]
+    createMany?: DoctorTimeSlotCreateManyHospitalInputEnvelope
+    connect?: DoctorTimeSlotWhereUniqueInput | DoctorTimeSlotWhereUniqueInput[]
   }
 
   export type EnumSpecializationTypeFieldUpdateOperationsInput = {
@@ -20150,6 +22224,20 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutHospitalDeletedByInput, UserUpdateWithoutHospitalDeletedByInput>, UserUncheckedUpdateWithoutHospitalDeletedByInput>
   }
 
+  export type DoctorTimeSlotUpdateManyWithoutHospitalNestedInput = {
+    create?: XOR<DoctorTimeSlotCreateWithoutHospitalInput, DoctorTimeSlotUncheckedCreateWithoutHospitalInput> | DoctorTimeSlotCreateWithoutHospitalInput[] | DoctorTimeSlotUncheckedCreateWithoutHospitalInput[]
+    connectOrCreate?: DoctorTimeSlotCreateOrConnectWithoutHospitalInput | DoctorTimeSlotCreateOrConnectWithoutHospitalInput[]
+    upsert?: DoctorTimeSlotUpsertWithWhereUniqueWithoutHospitalInput | DoctorTimeSlotUpsertWithWhereUniqueWithoutHospitalInput[]
+    createMany?: DoctorTimeSlotCreateManyHospitalInputEnvelope
+    set?: DoctorTimeSlotWhereUniqueInput | DoctorTimeSlotWhereUniqueInput[]
+    disconnect?: DoctorTimeSlotWhereUniqueInput | DoctorTimeSlotWhereUniqueInput[]
+    delete?: DoctorTimeSlotWhereUniqueInput | DoctorTimeSlotWhereUniqueInput[]
+    connect?: DoctorTimeSlotWhereUniqueInput | DoctorTimeSlotWhereUniqueInput[]
+    update?: DoctorTimeSlotUpdateWithWhereUniqueWithoutHospitalInput | DoctorTimeSlotUpdateWithWhereUniqueWithoutHospitalInput[]
+    updateMany?: DoctorTimeSlotUpdateManyWithWhereWithoutHospitalInput | DoctorTimeSlotUpdateManyWithWhereWithoutHospitalInput[]
+    deleteMany?: DoctorTimeSlotScalarWhereInput | DoctorTimeSlotScalarWhereInput[]
+  }
+
   export type HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput = {
     create?: XOR<HospitalCreateWithoutParentHospitalInput, HospitalUncheckedCreateWithoutParentHospitalInput> | HospitalCreateWithoutParentHospitalInput[] | HospitalUncheckedCreateWithoutParentHospitalInput[]
     connectOrCreate?: HospitalCreateOrConnectWithoutParentHospitalInput | HospitalCreateOrConnectWithoutParentHospitalInput[]
@@ -20189,6 +22277,20 @@ export namespace Prisma {
     update?: UserUpdateWithWhereUniqueWithoutUserBranchesArrayInput | UserUpdateWithWhereUniqueWithoutUserBranchesArrayInput[]
     updateMany?: UserUpdateManyWithWhereWithoutUserBranchesArrayInput | UserUpdateManyWithWhereWithoutUserBranchesArrayInput[]
     deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
+  }
+
+  export type DoctorTimeSlotUncheckedUpdateManyWithoutHospitalNestedInput = {
+    create?: XOR<DoctorTimeSlotCreateWithoutHospitalInput, DoctorTimeSlotUncheckedCreateWithoutHospitalInput> | DoctorTimeSlotCreateWithoutHospitalInput[] | DoctorTimeSlotUncheckedCreateWithoutHospitalInput[]
+    connectOrCreate?: DoctorTimeSlotCreateOrConnectWithoutHospitalInput | DoctorTimeSlotCreateOrConnectWithoutHospitalInput[]
+    upsert?: DoctorTimeSlotUpsertWithWhereUniqueWithoutHospitalInput | DoctorTimeSlotUpsertWithWhereUniqueWithoutHospitalInput[]
+    createMany?: DoctorTimeSlotCreateManyHospitalInputEnvelope
+    set?: DoctorTimeSlotWhereUniqueInput | DoctorTimeSlotWhereUniqueInput[]
+    disconnect?: DoctorTimeSlotWhereUniqueInput | DoctorTimeSlotWhereUniqueInput[]
+    delete?: DoctorTimeSlotWhereUniqueInput | DoctorTimeSlotWhereUniqueInput[]
+    connect?: DoctorTimeSlotWhereUniqueInput | DoctorTimeSlotWhereUniqueInput[]
+    update?: DoctorTimeSlotUpdateWithWhereUniqueWithoutHospitalInput | DoctorTimeSlotUpdateWithWhereUniqueWithoutHospitalInput[]
+    updateMany?: DoctorTimeSlotUpdateManyWithWhereWithoutHospitalInput | DoctorTimeSlotUpdateManyWithWhereWithoutHospitalInput[]
+    deleteMany?: DoctorTimeSlotScalarWhereInput | DoctorTimeSlotScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutAdminAccessInput = {
@@ -20261,6 +22363,34 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutSettingsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSettingsInput, UserUpdateWithoutSettingsInput>, UserUncheckedUpdateWithoutSettingsInput>
+  }
+
+  export type UserCreateNestedOneWithoutDoctorTimeSlotInput = {
+    create?: XOR<UserCreateWithoutDoctorTimeSlotInput, UserUncheckedCreateWithoutDoctorTimeSlotInput>
+    connectOrCreate?: UserCreateOrConnectWithoutDoctorTimeSlotInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type HospitalCreateNestedOneWithoutDoctorTimeSlotInput = {
+    create?: XOR<HospitalCreateWithoutDoctorTimeSlotInput, HospitalUncheckedCreateWithoutDoctorTimeSlotInput>
+    connectOrCreate?: HospitalCreateOrConnectWithoutDoctorTimeSlotInput
+    connect?: HospitalWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutDoctorTimeSlotNestedInput = {
+    create?: XOR<UserCreateWithoutDoctorTimeSlotInput, UserUncheckedCreateWithoutDoctorTimeSlotInput>
+    connectOrCreate?: UserCreateOrConnectWithoutDoctorTimeSlotInput
+    upsert?: UserUpsertWithoutDoctorTimeSlotInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutDoctorTimeSlotInput, UserUpdateWithoutDoctorTimeSlotInput>, UserUncheckedUpdateWithoutDoctorTimeSlotInput>
+  }
+
+  export type HospitalUpdateOneRequiredWithoutDoctorTimeSlotNestedInput = {
+    create?: XOR<HospitalCreateWithoutDoctorTimeSlotInput, HospitalUncheckedCreateWithoutDoctorTimeSlotInput>
+    connectOrCreate?: HospitalCreateOrConnectWithoutDoctorTimeSlotInput
+    upsert?: HospitalUpsertWithoutDoctorTimeSlotInput
+    connect?: HospitalWhereUniqueInput
+    update?: XOR<XOR<HospitalUpdateToOneWithWhereWithoutDoctorTimeSlotInput, HospitalUpdateWithoutDoctorTimeSlotInput>, HospitalUncheckedUpdateWithoutDoctorTimeSlotInput>
   }
 
   export type UserCreateNestedOneWithoutAuditLogsInput = {
@@ -21075,6 +23205,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCreatedUsersInput = {
@@ -21112,6 +23243,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCreatedUsersInput = {
@@ -21153,6 +23285,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUpdatedUsersInput = {
@@ -21190,6 +23323,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUpdatedUsersInput = {
@@ -21231,6 +23365,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutDeletedUsersInput = {
@@ -21268,6 +23403,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutDeletedUsersInput = {
@@ -21309,6 +23445,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCreatedByInput = {
@@ -21346,6 +23483,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCreatedByInput = {
@@ -21392,6 +23530,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUpdatedByInput = {
@@ -21429,6 +23568,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUpdatedByInput = {
@@ -21475,6 +23615,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutDeletedByInput = {
@@ -21512,6 +23653,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutDeletedByInput = {
@@ -21554,6 +23696,7 @@ export namespace Prisma {
     CreatedBy?: UserCreateNestedOneWithoutHospitalCreatedByInput
     UpdatedBy?: UserCreateNestedOneWithoutHospitalUpdatedByInput
     DeletedBy?: UserCreateNestedOneWithoutHospitalDeletedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutHospitalInput
   }
 
   export type HospitalUncheckedCreateWithoutMappedUsersInput = {
@@ -21587,6 +23730,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     childHospital?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
     users?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutHospitalInput
   }
 
   export type HospitalCreateOrConnectWithoutMappedUsersInput = {
@@ -21624,6 +23768,7 @@ export namespace Prisma {
     mappedUsers?: UserCreateNestedManyWithoutUserBranchesArrayInput
     UpdatedBy?: UserCreateNestedOneWithoutHospitalUpdatedByInput
     DeletedBy?: UserCreateNestedOneWithoutHospitalDeletedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutHospitalInput
   }
 
   export type HospitalUncheckedCreateWithoutCreatedByInput = {
@@ -21657,6 +23802,7 @@ export namespace Prisma {
     childHospital?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
     users?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
     mappedUsers?: UserUncheckedCreateNestedManyWithoutUserBranchesArrayInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutHospitalInput
   }
 
   export type HospitalCreateOrConnectWithoutCreatedByInput = {
@@ -21699,6 +23845,7 @@ export namespace Prisma {
     mappedUsers?: UserCreateNestedManyWithoutUserBranchesArrayInput
     CreatedBy?: UserCreateNestedOneWithoutHospitalCreatedByInput
     DeletedBy?: UserCreateNestedOneWithoutHospitalDeletedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutHospitalInput
   }
 
   export type HospitalUncheckedCreateWithoutUpdatedByInput = {
@@ -21732,6 +23879,7 @@ export namespace Prisma {
     childHospital?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
     users?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
     mappedUsers?: UserUncheckedCreateNestedManyWithoutUserBranchesArrayInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutHospitalInput
   }
 
   export type HospitalCreateOrConnectWithoutUpdatedByInput = {
@@ -21774,6 +23922,7 @@ export namespace Prisma {
     mappedUsers?: UserCreateNestedManyWithoutUserBranchesArrayInput
     CreatedBy?: UserCreateNestedOneWithoutHospitalCreatedByInput
     UpdatedBy?: UserCreateNestedOneWithoutHospitalUpdatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutHospitalInput
   }
 
   export type HospitalUncheckedCreateWithoutDeletedByInput = {
@@ -21807,6 +23956,7 @@ export namespace Prisma {
     childHospital?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
     users?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
     mappedUsers?: UserUncheckedCreateNestedManyWithoutUserBranchesArrayInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutHospitalInput
   }
 
   export type HospitalCreateOrConnectWithoutDeletedByInput = {
@@ -21843,6 +23993,67 @@ export namespace Prisma {
 
   export type UserHospitalAccessCreateManyCreatedByInputEnvelope = {
     data: UserHospitalAccessCreateManyCreatedByInput | UserHospitalAccessCreateManyCreatedByInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type DoctorTimeSlotCreateWithoutUserInput = {
+    DayOfWeek: string
+    Morning_From?: string | null
+    Morning_To?: string | null
+    Evening_From?: string | null
+    Evening_To?: string | null
+    consult_Time_InMin?: number
+    Accept_Appointment_Selected_Date?: boolean
+    is_DND?: boolean
+    is_SlotCancelled?: boolean
+    DNDremarks?: string | null
+    Slot_cancellation_remarks?: string | null
+    isSlotChanged?: boolean
+    isActive?: boolean
+    isDeleted?: boolean
+    isAvailable?: boolean
+    isBooked?: boolean
+    isConfirmed?: boolean
+    isRejected?: boolean
+    createdBy?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    Hospital: HospitalCreateNestedOneWithoutDoctorTimeSlotInput
+  }
+
+  export type DoctorTimeSlotUncheckedCreateWithoutUserInput = {
+    DoctorTimeSlotId?: number
+    HospitalId: number
+    DayOfWeek: string
+    Morning_From?: string | null
+    Morning_To?: string | null
+    Evening_From?: string | null
+    Evening_To?: string | null
+    consult_Time_InMin?: number
+    Accept_Appointment_Selected_Date?: boolean
+    is_DND?: boolean
+    is_SlotCancelled?: boolean
+    DNDremarks?: string | null
+    Slot_cancellation_remarks?: string | null
+    isSlotChanged?: boolean
+    isActive?: boolean
+    isDeleted?: boolean
+    isAvailable?: boolean
+    isBooked?: boolean
+    isConfirmed?: boolean
+    isRejected?: boolean
+    createdBy?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DoctorTimeSlotCreateOrConnectWithoutUserInput = {
+    where: DoctorTimeSlotWhereUniqueInput
+    create: XOR<DoctorTimeSlotCreateWithoutUserInput, DoctorTimeSlotUncheckedCreateWithoutUserInput>
+  }
+
+  export type DoctorTimeSlotCreateManyUserInputEnvelope = {
+    data: DoctorTimeSlotCreateManyUserInput | DoctorTimeSlotCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -22108,6 +24319,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreatedUsersInput = {
@@ -22145,6 +24357,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutUpdatedUsersInput = {
@@ -22192,6 +24405,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUpdatedUsersInput = {
@@ -22229,6 +24443,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutDeletedUsersInput = {
@@ -22276,6 +24491,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDeletedUsersInput = {
@@ -22313,6 +24529,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithWhereUniqueWithoutCreatedByInput = {
@@ -22506,6 +24723,52 @@ export namespace Prisma {
     data: XOR<UserHospitalAccessUpdateManyMutationInput, UserHospitalAccessUncheckedUpdateManyWithoutCreatedByInput>
   }
 
+  export type DoctorTimeSlotUpsertWithWhereUniqueWithoutUserInput = {
+    where: DoctorTimeSlotWhereUniqueInput
+    update: XOR<DoctorTimeSlotUpdateWithoutUserInput, DoctorTimeSlotUncheckedUpdateWithoutUserInput>
+    create: XOR<DoctorTimeSlotCreateWithoutUserInput, DoctorTimeSlotUncheckedCreateWithoutUserInput>
+  }
+
+  export type DoctorTimeSlotUpdateWithWhereUniqueWithoutUserInput = {
+    where: DoctorTimeSlotWhereUniqueInput
+    data: XOR<DoctorTimeSlotUpdateWithoutUserInput, DoctorTimeSlotUncheckedUpdateWithoutUserInput>
+  }
+
+  export type DoctorTimeSlotUpdateManyWithWhereWithoutUserInput = {
+    where: DoctorTimeSlotScalarWhereInput
+    data: XOR<DoctorTimeSlotUpdateManyMutationInput, DoctorTimeSlotUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type DoctorTimeSlotScalarWhereInput = {
+    AND?: DoctorTimeSlotScalarWhereInput | DoctorTimeSlotScalarWhereInput[]
+    OR?: DoctorTimeSlotScalarWhereInput[]
+    NOT?: DoctorTimeSlotScalarWhereInput | DoctorTimeSlotScalarWhereInput[]
+    DoctorTimeSlotId?: IntFilter<"DoctorTimeSlot"> | number
+    userId?: IntFilter<"DoctorTimeSlot"> | number
+    HospitalId?: IntFilter<"DoctorTimeSlot"> | number
+    DayOfWeek?: StringFilter<"DoctorTimeSlot"> | string
+    Morning_From?: StringNullableFilter<"DoctorTimeSlot"> | string | null
+    Morning_To?: StringNullableFilter<"DoctorTimeSlot"> | string | null
+    Evening_From?: StringNullableFilter<"DoctorTimeSlot"> | string | null
+    Evening_To?: StringNullableFilter<"DoctorTimeSlot"> | string | null
+    consult_Time_InMin?: IntFilter<"DoctorTimeSlot"> | number
+    Accept_Appointment_Selected_Date?: BoolFilter<"DoctorTimeSlot"> | boolean
+    is_DND?: BoolFilter<"DoctorTimeSlot"> | boolean
+    is_SlotCancelled?: BoolFilter<"DoctorTimeSlot"> | boolean
+    DNDremarks?: StringNullableFilter<"DoctorTimeSlot"> | string | null
+    Slot_cancellation_remarks?: StringNullableFilter<"DoctorTimeSlot"> | string | null
+    isSlotChanged?: BoolFilter<"DoctorTimeSlot"> | boolean
+    isActive?: BoolFilter<"DoctorTimeSlot"> | boolean
+    isDeleted?: BoolFilter<"DoctorTimeSlot"> | boolean
+    isAvailable?: BoolFilter<"DoctorTimeSlot"> | boolean
+    isBooked?: BoolFilter<"DoctorTimeSlot"> | boolean
+    isConfirmed?: BoolFilter<"DoctorTimeSlot"> | boolean
+    isRejected?: BoolFilter<"DoctorTimeSlot"> | boolean
+    createdBy?: IntNullableFilter<"DoctorTimeSlot"> | number | null
+    createdAt?: DateTimeFilter<"DoctorTimeSlot"> | Date | string
+    updatedAt?: DateTimeFilter<"DoctorTimeSlot"> | Date | string
+  }
+
   export type HospitalCreateWithoutOrganizationInput = {
     HospitalName: string
     HospitalCode: string
@@ -22536,6 +24799,7 @@ export namespace Prisma {
     CreatedBy?: UserCreateNestedOneWithoutHospitalCreatedByInput
     UpdatedBy?: UserCreateNestedOneWithoutHospitalUpdatedByInput
     DeletedBy?: UserCreateNestedOneWithoutHospitalDeletedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutHospitalInput
   }
 
   export type HospitalUncheckedCreateWithoutOrganizationInput = {
@@ -22569,6 +24833,7 @@ export namespace Prisma {
     childHospital?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
     users?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
     mappedUsers?: UserUncheckedCreateNestedManyWithoutUserBranchesArrayInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutHospitalInput
   }
 
   export type HospitalCreateOrConnectWithoutOrganizationInput = {
@@ -22615,6 +24880,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOrganizationInput = {
@@ -22652,6 +24918,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOrganizationInput = {
@@ -22726,6 +24993,7 @@ export namespace Prisma {
     CreatedBy?: UserCreateNestedOneWithoutHospitalCreatedByInput
     UpdatedBy?: UserCreateNestedOneWithoutHospitalUpdatedByInput
     DeletedBy?: UserCreateNestedOneWithoutHospitalDeletedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutHospitalInput
   }
 
   export type HospitalUncheckedCreateWithoutChildHospitalInput = {
@@ -22759,6 +25027,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     users?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
     mappedUsers?: UserUncheckedCreateNestedManyWithoutUserBranchesArrayInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutHospitalInput
   }
 
   export type HospitalCreateOrConnectWithoutChildHospitalInput = {
@@ -22796,6 +25065,7 @@ export namespace Prisma {
     CreatedBy?: UserCreateNestedOneWithoutHospitalCreatedByInput
     UpdatedBy?: UserCreateNestedOneWithoutHospitalUpdatedByInput
     DeletedBy?: UserCreateNestedOneWithoutHospitalDeletedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutHospitalInput
   }
 
   export type HospitalUncheckedCreateWithoutParentHospitalInput = {
@@ -22829,6 +25099,7 @@ export namespace Prisma {
     childHospital?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
     users?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
     mappedUsers?: UserUncheckedCreateNestedManyWithoutUserBranchesArrayInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutHospitalInput
   }
 
   export type HospitalCreateOrConnectWithoutParentHospitalInput = {
@@ -22956,6 +25227,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUserBranchesArrayInput = {
@@ -22993,6 +25265,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUserBranchesArrayInput = {
@@ -23034,6 +25307,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutHospitalCreatedByInput = {
@@ -23071,6 +25345,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutHospitalCreatedByInput = {
@@ -23112,6 +25387,7 @@ export namespace Prisma {
     HospitalCreatedBy?: HospitalCreateNestedManyWithoutCreatedByInput
     HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutHospitalUpdatedByInput = {
@@ -23149,6 +25425,7 @@ export namespace Prisma {
     HospitalCreatedBy?: HospitalUncheckedCreateNestedManyWithoutCreatedByInput
     HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutHospitalUpdatedByInput = {
@@ -23190,6 +25467,7 @@ export namespace Prisma {
     HospitalCreatedBy?: HospitalCreateNestedManyWithoutCreatedByInput
     HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
     UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutHospitalDeletedByInput = {
@@ -23227,11 +25505,73 @@ export namespace Prisma {
     HospitalCreatedBy?: HospitalUncheckedCreateNestedManyWithoutCreatedByInput
     HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
     UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutHospitalDeletedByInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutHospitalDeletedByInput, UserUncheckedCreateWithoutHospitalDeletedByInput>
+  }
+
+  export type DoctorTimeSlotCreateWithoutHospitalInput = {
+    DayOfWeek: string
+    Morning_From?: string | null
+    Morning_To?: string | null
+    Evening_From?: string | null
+    Evening_To?: string | null
+    consult_Time_InMin?: number
+    Accept_Appointment_Selected_Date?: boolean
+    is_DND?: boolean
+    is_SlotCancelled?: boolean
+    DNDremarks?: string | null
+    Slot_cancellation_remarks?: string | null
+    isSlotChanged?: boolean
+    isActive?: boolean
+    isDeleted?: boolean
+    isAvailable?: boolean
+    isBooked?: boolean
+    isConfirmed?: boolean
+    isRejected?: boolean
+    createdBy?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutDoctorTimeSlotInput
+  }
+
+  export type DoctorTimeSlotUncheckedCreateWithoutHospitalInput = {
+    DoctorTimeSlotId?: number
+    userId: number
+    DayOfWeek: string
+    Morning_From?: string | null
+    Morning_To?: string | null
+    Evening_From?: string | null
+    Evening_To?: string | null
+    consult_Time_InMin?: number
+    Accept_Appointment_Selected_Date?: boolean
+    is_DND?: boolean
+    is_SlotCancelled?: boolean
+    DNDremarks?: string | null
+    Slot_cancellation_remarks?: string | null
+    isSlotChanged?: boolean
+    isActive?: boolean
+    isDeleted?: boolean
+    isAvailable?: boolean
+    isBooked?: boolean
+    isConfirmed?: boolean
+    isRejected?: boolean
+    createdBy?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DoctorTimeSlotCreateOrConnectWithoutHospitalInput = {
+    where: DoctorTimeSlotWhereUniqueInput
+    create: XOR<DoctorTimeSlotCreateWithoutHospitalInput, DoctorTimeSlotUncheckedCreateWithoutHospitalInput>
+  }
+
+  export type DoctorTimeSlotCreateManyHospitalInputEnvelope = {
+    data: DoctorTimeSlotCreateManyHospitalInput | DoctorTimeSlotCreateManyHospitalInput[]
+    skipDuplicates?: boolean
   }
 
   export type HospitalUpsertWithoutChildHospitalInput = {
@@ -23275,6 +25615,7 @@ export namespace Prisma {
     CreatedBy?: UserUpdateOneWithoutHospitalCreatedByNestedInput
     UpdatedBy?: UserUpdateOneWithoutHospitalUpdatedByNestedInput
     DeletedBy?: UserUpdateOneWithoutHospitalDeletedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutHospitalNestedInput
   }
 
   export type HospitalUncheckedUpdateWithoutChildHospitalInput = {
@@ -23308,6 +25649,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     users?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
     mappedUsers?: UserUncheckedUpdateManyWithoutUserBranchesArrayNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutHospitalNestedInput
   }
 
   export type HospitalUpsertWithWhereUniqueWithoutParentHospitalInput = {
@@ -23463,6 +25805,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutHospitalCreatedByInput = {
@@ -23500,6 +25843,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutHospitalUpdatedByInput = {
@@ -23547,6 +25891,7 @@ export namespace Prisma {
     HospitalCreatedBy?: HospitalUpdateManyWithoutCreatedByNestedInput
     HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutHospitalUpdatedByInput = {
@@ -23584,6 +25929,7 @@ export namespace Prisma {
     HospitalCreatedBy?: HospitalUncheckedUpdateManyWithoutCreatedByNestedInput
     HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutHospitalDeletedByInput = {
@@ -23631,6 +25977,7 @@ export namespace Prisma {
     HospitalCreatedBy?: HospitalUpdateManyWithoutCreatedByNestedInput
     HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutHospitalDeletedByInput = {
@@ -23668,6 +26015,23 @@ export namespace Prisma {
     HospitalCreatedBy?: HospitalUncheckedUpdateManyWithoutCreatedByNestedInput
     HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type DoctorTimeSlotUpsertWithWhereUniqueWithoutHospitalInput = {
+    where: DoctorTimeSlotWhereUniqueInput
+    update: XOR<DoctorTimeSlotUpdateWithoutHospitalInput, DoctorTimeSlotUncheckedUpdateWithoutHospitalInput>
+    create: XOR<DoctorTimeSlotCreateWithoutHospitalInput, DoctorTimeSlotUncheckedCreateWithoutHospitalInput>
+  }
+
+  export type DoctorTimeSlotUpdateWithWhereUniqueWithoutHospitalInput = {
+    where: DoctorTimeSlotWhereUniqueInput
+    data: XOR<DoctorTimeSlotUpdateWithoutHospitalInput, DoctorTimeSlotUncheckedUpdateWithoutHospitalInput>
+  }
+
+  export type DoctorTimeSlotUpdateManyWithWhereWithoutHospitalInput = {
+    where: DoctorTimeSlotScalarWhereInput
+    data: XOR<DoctorTimeSlotUpdateManyMutationInput, DoctorTimeSlotUncheckedUpdateManyWithoutHospitalInput>
   }
 
   export type UserCreateWithoutAdminAccessInput = {
@@ -23704,6 +26068,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAdminAccessInput = {
@@ -23741,6 +26106,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAdminAccessInput = {
@@ -23778,6 +26144,7 @@ export namespace Prisma {
     CreatedBy?: UserCreateNestedOneWithoutHospitalCreatedByInput
     UpdatedBy?: UserCreateNestedOneWithoutHospitalUpdatedByInput
     DeletedBy?: UserCreateNestedOneWithoutHospitalDeletedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutHospitalInput
   }
 
   export type HospitalUncheckedCreateWithoutUsersInput = {
@@ -23811,6 +26178,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     childHospital?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
     mappedUsers?: UserUncheckedCreateNestedManyWithoutUserBranchesArrayInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutHospitalInput
   }
 
   export type HospitalCreateOrConnectWithoutUsersInput = {
@@ -23874,6 +26242,7 @@ export namespace Prisma {
     HospitalCreatedBy?: HospitalCreateNestedManyWithoutCreatedByInput
     HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUserHospitalAccessInput = {
@@ -23911,6 +26280,7 @@ export namespace Prisma {
     HospitalCreatedBy?: HospitalUncheckedCreateNestedManyWithoutCreatedByInput
     HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUserHospitalAccessInput = {
@@ -23963,6 +26333,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAdminAccessInput = {
@@ -24000,6 +26371,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type HospitalUpsertWithoutUsersInput = {
@@ -24043,6 +26415,7 @@ export namespace Prisma {
     CreatedBy?: UserUpdateOneWithoutHospitalCreatedByNestedInput
     UpdatedBy?: UserUpdateOneWithoutHospitalUpdatedByNestedInput
     DeletedBy?: UserUpdateOneWithoutHospitalDeletedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutHospitalNestedInput
   }
 
   export type HospitalUncheckedUpdateWithoutUsersInput = {
@@ -24076,6 +26449,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     childHospital?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
     mappedUsers?: UserUncheckedUpdateManyWithoutUserBranchesArrayNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutHospitalNestedInput
   }
 
   export type RoleUpsertWithoutUserHospitalAccessInput = {
@@ -24151,6 +26525,7 @@ export namespace Prisma {
     HospitalCreatedBy?: HospitalUpdateManyWithoutCreatedByNestedInput
     HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUserHospitalAccessInput = {
@@ -24188,6 +26563,7 @@ export namespace Prisma {
     HospitalCreatedBy?: HospitalUncheckedUpdateManyWithoutCreatedByNestedInput
     HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSettingsInput = {
@@ -24224,6 +26600,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSettingsInput = {
@@ -24261,6 +26638,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSettingsInput = {
@@ -24313,6 +26691,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSettingsInput = {
@@ -24350,6 +26729,323 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutDoctorTimeSlotInput = {
+    Prefix: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    Experience: string
+    Employee_ID: string
+    SignatureOfUser: string
+    createdAt?: Date | string
+    deletedAt?: Date | string | null
+    role: RoleCreateNestedOneWithoutUsersInput
+    Specialization: SpecializationCreateNestedOneWithoutUsersInput
+    organization: OrganizationCreateNestedOneWithoutUsersInput
+    settings?: SettingCreateNestedOneWithoutUserInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    loginSessions?: LoginSessionCreateNestedManyWithoutUserInput
+    AdminAccess?: UserHospitalAccessCreateNestedManyWithoutUserInput
+    createdBy?: UserCreateNestedOneWithoutCreatedUsersInput
+    updatedBy?: UserCreateNestedOneWithoutUpdatedUsersInput
+    deletedBy?: UserCreateNestedOneWithoutDeletedUsersInput
+    createdUsers?: UserCreateNestedManyWithoutCreatedByInput
+    updatedUsers?: UserCreateNestedManyWithoutUpdatedByInput
+    deletedUsers?: UserCreateNestedManyWithoutDeletedByInput
+    UserBranchesArray?: HospitalCreateNestedManyWithoutMappedUsersInput
+    HospitalCreatedBy?: HospitalCreateNestedManyWithoutCreatedByInput
+    HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
+    HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
+    UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutCreatedByInput
+  }
+
+  export type UserUncheckedCreateWithoutDoctorTimeSlotInput = {
+    UserId?: number
+    Prefix: $Enums.Title
+    imageUrl: string
+    firstName: string
+    lastName: string
+    gender: string
+    email: string
+    mobile: string
+    passwordHash: string
+    isActive?: boolean
+    hashedRefreshToken: string
+    dateOfBirth: Date | string
+    roleId: number
+    SpecializationId: number
+    Experience: string
+    Employee_ID: string
+    SignatureOfUser: string
+    organizationId: number
+    createdAt?: Date | string
+    createdById?: number | null
+    updatedById?: number | null
+    deletedById?: number | null
+    deletedAt?: Date | string | null
+    settings?: SettingUncheckedCreateNestedOneWithoutUserInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    loginSessions?: LoginSessionUncheckedCreateNestedManyWithoutUserInput
+    AdminAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutUserInput
+    createdUsers?: UserUncheckedCreateNestedManyWithoutCreatedByInput
+    updatedUsers?: UserUncheckedCreateNestedManyWithoutUpdatedByInput
+    deletedUsers?: UserUncheckedCreateNestedManyWithoutDeletedByInput
+    UserBranchesArray?: HospitalUncheckedCreateNestedManyWithoutMappedUsersInput
+    HospitalCreatedBy?: HospitalUncheckedCreateNestedManyWithoutCreatedByInput
+    HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
+    HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
+    UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutCreatedByInput
+  }
+
+  export type UserCreateOrConnectWithoutDoctorTimeSlotInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutDoctorTimeSlotInput, UserUncheckedCreateWithoutDoctorTimeSlotInput>
+  }
+
+  export type HospitalCreateWithoutDoctorTimeSlotInput = {
+    HospitalName: string
+    HospitalCode: string
+    ParentHospitalCode: string
+    Organizationcode: string
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website: string
+    logoUrl: string
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level?: $Enums.HospitalLevel | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    parentHospital?: HospitalCreateNestedOneWithoutChildHospitalInput
+    childHospital?: HospitalCreateNestedManyWithoutParentHospitalInput
+    Organization: OrganizationCreateNestedOneWithoutHospitalsInput
+    users?: UserHospitalAccessCreateNestedManyWithoutHospitalInput
+    mappedUsers?: UserCreateNestedManyWithoutUserBranchesArrayInput
+    CreatedBy?: UserCreateNestedOneWithoutHospitalCreatedByInput
+    UpdatedBy?: UserCreateNestedOneWithoutHospitalUpdatedByInput
+    DeletedBy?: UserCreateNestedOneWithoutHospitalDeletedByInput
+  }
+
+  export type HospitalUncheckedCreateWithoutDoctorTimeSlotInput = {
+    HospitalId?: number
+    HospitalName: string
+    HospitalCode: string
+    ParentHospitalCode: string
+    Organizationcode: string
+    SpecializationType: $Enums.SpecializationType
+    address: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    contactNumber: string
+    email: string
+    website: string
+    logoUrl: string
+    latitude: number
+    longitude: number
+    status?: $Enums.Hospital_Org_status
+    level?: $Enums.HospitalLevel | null
+    parentHospitalId?: number | null
+    organizationId: number
+    isActive?: boolean
+    createdById?: number | null
+    updatedById?: number | null
+    deletedById?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    childHospital?: HospitalUncheckedCreateNestedManyWithoutParentHospitalInput
+    users?: UserHospitalAccessUncheckedCreateNestedManyWithoutHospitalInput
+    mappedUsers?: UserUncheckedCreateNestedManyWithoutUserBranchesArrayInput
+  }
+
+  export type HospitalCreateOrConnectWithoutDoctorTimeSlotInput = {
+    where: HospitalWhereUniqueInput
+    create: XOR<HospitalCreateWithoutDoctorTimeSlotInput, HospitalUncheckedCreateWithoutDoctorTimeSlotInput>
+  }
+
+  export type UserUpsertWithoutDoctorTimeSlotInput = {
+    update: XOR<UserUpdateWithoutDoctorTimeSlotInput, UserUncheckedUpdateWithoutDoctorTimeSlotInput>
+    create: XOR<UserCreateWithoutDoctorTimeSlotInput, UserUncheckedCreateWithoutDoctorTimeSlotInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutDoctorTimeSlotInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutDoctorTimeSlotInput, UserUncheckedUpdateWithoutDoctorTimeSlotInput>
+  }
+
+  export type UserUpdateWithoutDoctorTimeSlotInput = {
+    Prefix?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    Experience?: StringFieldUpdateOperationsInput | string
+    Employee_ID?: StringFieldUpdateOperationsInput | string
+    SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    role?: RoleUpdateOneRequiredWithoutUsersNestedInput
+    Specialization?: SpecializationUpdateOneRequiredWithoutUsersNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    settings?: SettingUpdateOneWithoutUserNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    loginSessions?: LoginSessionUpdateManyWithoutUserNestedInput
+    AdminAccess?: UserHospitalAccessUpdateManyWithoutUserNestedInput
+    createdBy?: UserUpdateOneWithoutCreatedUsersNestedInput
+    updatedBy?: UserUpdateOneWithoutUpdatedUsersNestedInput
+    deletedBy?: UserUpdateOneWithoutDeletedUsersNestedInput
+    createdUsers?: UserUpdateManyWithoutCreatedByNestedInput
+    updatedUsers?: UserUpdateManyWithoutUpdatedByNestedInput
+    deletedUsers?: UserUpdateManyWithoutDeletedByNestedInput
+    UserBranchesArray?: HospitalUpdateManyWithoutMappedUsersNestedInput
+    HospitalCreatedBy?: HospitalUpdateManyWithoutCreatedByNestedInput
+    HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
+    HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
+    UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutCreatedByNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutDoctorTimeSlotInput = {
+    UserId?: IntFieldUpdateOperationsInput | number
+    Prefix?: EnumTitleFieldUpdateOperationsInput | $Enums.Title
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    hashedRefreshToken?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    roleId?: IntFieldUpdateOperationsInput | number
+    SpecializationId?: IntFieldUpdateOperationsInput | number
+    Experience?: StringFieldUpdateOperationsInput | string
+    Employee_ID?: StringFieldUpdateOperationsInput | string
+    SignatureOfUser?: StringFieldUpdateOperationsInput | string
+    organizationId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdById?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedById?: NullableIntFieldUpdateOperationsInput | number | null
+    deletedById?: NullableIntFieldUpdateOperationsInput | number | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settings?: SettingUncheckedUpdateOneWithoutUserNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    loginSessions?: LoginSessionUncheckedUpdateManyWithoutUserNestedInput
+    AdminAccess?: UserHospitalAccessUncheckedUpdateManyWithoutUserNestedInput
+    createdUsers?: UserUncheckedUpdateManyWithoutCreatedByNestedInput
+    updatedUsers?: UserUncheckedUpdateManyWithoutUpdatedByNestedInput
+    deletedUsers?: UserUncheckedUpdateManyWithoutDeletedByNestedInput
+    UserBranchesArray?: HospitalUncheckedUpdateManyWithoutMappedUsersNestedInput
+    HospitalCreatedBy?: HospitalUncheckedUpdateManyWithoutCreatedByNestedInput
+    HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
+    HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
+    UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+  }
+
+  export type HospitalUpsertWithoutDoctorTimeSlotInput = {
+    update: XOR<HospitalUpdateWithoutDoctorTimeSlotInput, HospitalUncheckedUpdateWithoutDoctorTimeSlotInput>
+    create: XOR<HospitalCreateWithoutDoctorTimeSlotInput, HospitalUncheckedCreateWithoutDoctorTimeSlotInput>
+    where?: HospitalWhereInput
+  }
+
+  export type HospitalUpdateToOneWithWhereWithoutDoctorTimeSlotInput = {
+    where?: HospitalWhereInput
+    data: XOR<HospitalUpdateWithoutDoctorTimeSlotInput, HospitalUncheckedUpdateWithoutDoctorTimeSlotInput>
+  }
+
+  export type HospitalUpdateWithoutDoctorTimeSlotInput = {
+    HospitalName?: StringFieldUpdateOperationsInput | string
+    HospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: StringFieldUpdateOperationsInput | string
+    Organizationcode?: StringFieldUpdateOperationsInput | string
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parentHospital?: HospitalUpdateOneWithoutChildHospitalNestedInput
+    childHospital?: HospitalUpdateManyWithoutParentHospitalNestedInput
+    Organization?: OrganizationUpdateOneRequiredWithoutHospitalsNestedInput
+    users?: UserHospitalAccessUpdateManyWithoutHospitalNestedInput
+    mappedUsers?: UserUpdateManyWithoutUserBranchesArrayNestedInput
+    CreatedBy?: UserUpdateOneWithoutHospitalCreatedByNestedInput
+    UpdatedBy?: UserUpdateOneWithoutHospitalUpdatedByNestedInput
+    DeletedBy?: UserUpdateOneWithoutHospitalDeletedByNestedInput
+  }
+
+  export type HospitalUncheckedUpdateWithoutDoctorTimeSlotInput = {
+    HospitalId?: IntFieldUpdateOperationsInput | number
+    HospitalName?: StringFieldUpdateOperationsInput | string
+    HospitalCode?: StringFieldUpdateOperationsInput | string
+    ParentHospitalCode?: StringFieldUpdateOperationsInput | string
+    Organizationcode?: StringFieldUpdateOperationsInput | string
+    SpecializationType?: EnumSpecializationTypeFieldUpdateOperationsInput | $Enums.SpecializationType
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    contactNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    website?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    status?: EnumHospital_Org_statusFieldUpdateOperationsInput | $Enums.Hospital_Org_status
+    level?: NullableEnumHospitalLevelFieldUpdateOperationsInput | $Enums.HospitalLevel | null
+    parentHospitalId?: NullableIntFieldUpdateOperationsInput | number | null
+    organizationId?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedById?: NullableIntFieldUpdateOperationsInput | number | null
+    deletedById?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    childHospital?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
+    users?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
+    mappedUsers?: UserUncheckedUpdateManyWithoutUserBranchesArrayNestedInput
   }
 
   export type UserCreateWithoutAuditLogsInput = {
@@ -24386,6 +27082,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -24423,6 +27120,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -24475,6 +27173,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -24512,6 +27211,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutLoginSessionsInput = {
@@ -24548,6 +27248,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutLoginSessionsInput = {
@@ -24585,6 +27286,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutLoginSessionsInput = {
@@ -24637,6 +27339,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutLoginSessionsInput = {
@@ -24674,6 +27377,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutRoleInput = {
@@ -24710,6 +27414,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRoleInput = {
@@ -24747,6 +27452,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRoleInput = {
@@ -25027,6 +27733,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSpecializationInput = {
@@ -25064,6 +27771,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedCreateNestedManyWithoutUpdatedByInput
     HospitalDeletedBy?: HospitalUncheckedCreateNestedManyWithoutDeletedByInput
     UserHospitalAccess?: UserHospitalAccessUncheckedCreateNestedManyWithoutCreatedByInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSpecializationInput = {
@@ -25291,6 +27999,32 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type DoctorTimeSlotCreateManyUserInput = {
+    DoctorTimeSlotId?: number
+    HospitalId: number
+    DayOfWeek: string
+    Morning_From?: string | null
+    Morning_To?: string | null
+    Evening_From?: string | null
+    Evening_To?: string | null
+    consult_Time_InMin?: number
+    Accept_Appointment_Selected_Date?: boolean
+    is_DND?: boolean
+    is_SlotCancelled?: boolean
+    DNDremarks?: string | null
+    Slot_cancellation_remarks?: string | null
+    isSlotChanged?: boolean
+    isActive?: boolean
+    isDeleted?: boolean
+    isAvailable?: boolean
+    isBooked?: boolean
+    isConfirmed?: boolean
+    isRejected?: boolean
+    createdBy?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type AuditLogUpdateWithoutUserInput = {
     action?: StringFieldUpdateOperationsInput | string
     entity?: StringFieldUpdateOperationsInput | string
@@ -25397,6 +28131,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreatedByInput = {
@@ -25434,6 +28169,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutCreatedByInput = {
@@ -25495,6 +28231,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUpdatedByInput = {
@@ -25532,6 +28269,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutUpdatedByInput = {
@@ -25593,6 +28331,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDeletedByInput = {
@@ -25630,6 +28369,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutDeletedByInput = {
@@ -25687,6 +28427,7 @@ export namespace Prisma {
     CreatedBy?: UserUpdateOneWithoutHospitalCreatedByNestedInput
     UpdatedBy?: UserUpdateOneWithoutHospitalUpdatedByNestedInput
     DeletedBy?: UserUpdateOneWithoutHospitalDeletedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutHospitalNestedInput
   }
 
   export type HospitalUncheckedUpdateWithoutMappedUsersInput = {
@@ -25720,6 +28461,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     childHospital?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
     users?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutHospitalNestedInput
   }
 
   export type HospitalUncheckedUpdateManyWithoutMappedUsersInput = {
@@ -25783,6 +28525,7 @@ export namespace Prisma {
     mappedUsers?: UserUpdateManyWithoutUserBranchesArrayNestedInput
     UpdatedBy?: UserUpdateOneWithoutHospitalUpdatedByNestedInput
     DeletedBy?: UserUpdateOneWithoutHospitalDeletedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutHospitalNestedInput
   }
 
   export type HospitalUncheckedUpdateWithoutCreatedByInput = {
@@ -25816,6 +28559,7 @@ export namespace Prisma {
     childHospital?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
     users?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
     mappedUsers?: UserUncheckedUpdateManyWithoutUserBranchesArrayNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutHospitalNestedInput
   }
 
   export type HospitalUncheckedUpdateManyWithoutCreatedByInput = {
@@ -25878,6 +28622,7 @@ export namespace Prisma {
     mappedUsers?: UserUpdateManyWithoutUserBranchesArrayNestedInput
     CreatedBy?: UserUpdateOneWithoutHospitalCreatedByNestedInput
     DeletedBy?: UserUpdateOneWithoutHospitalDeletedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutHospitalNestedInput
   }
 
   export type HospitalUncheckedUpdateWithoutUpdatedByInput = {
@@ -25911,6 +28656,7 @@ export namespace Prisma {
     childHospital?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
     users?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
     mappedUsers?: UserUncheckedUpdateManyWithoutUserBranchesArrayNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutHospitalNestedInput
   }
 
   export type HospitalUncheckedUpdateManyWithoutUpdatedByInput = {
@@ -25973,6 +28719,7 @@ export namespace Prisma {
     mappedUsers?: UserUpdateManyWithoutUserBranchesArrayNestedInput
     CreatedBy?: UserUpdateOneWithoutHospitalCreatedByNestedInput
     UpdatedBy?: UserUpdateOneWithoutHospitalUpdatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutHospitalNestedInput
   }
 
   export type HospitalUncheckedUpdateWithoutDeletedByInput = {
@@ -26006,6 +28753,7 @@ export namespace Prisma {
     childHospital?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
     users?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
     mappedUsers?: UserUncheckedUpdateManyWithoutUserBranchesArrayNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutHospitalNestedInput
   }
 
   export type HospitalUncheckedUpdateManyWithoutDeletedByInput = {
@@ -26060,6 +28808,83 @@ export namespace Prisma {
     UserId?: IntFieldUpdateOperationsInput | number
     hospitalId?: IntFieldUpdateOperationsInput | number
     roleId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DoctorTimeSlotUpdateWithoutUserInput = {
+    DayOfWeek?: StringFieldUpdateOperationsInput | string
+    Morning_From?: NullableStringFieldUpdateOperationsInput | string | null
+    Morning_To?: NullableStringFieldUpdateOperationsInput | string | null
+    Evening_From?: NullableStringFieldUpdateOperationsInput | string | null
+    Evening_To?: NullableStringFieldUpdateOperationsInput | string | null
+    consult_Time_InMin?: IntFieldUpdateOperationsInput | number
+    Accept_Appointment_Selected_Date?: BoolFieldUpdateOperationsInput | boolean
+    is_DND?: BoolFieldUpdateOperationsInput | boolean
+    is_SlotCancelled?: BoolFieldUpdateOperationsInput | boolean
+    DNDremarks?: NullableStringFieldUpdateOperationsInput | string | null
+    Slot_cancellation_remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    isSlotChanged?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    isAvailable?: BoolFieldUpdateOperationsInput | boolean
+    isBooked?: BoolFieldUpdateOperationsInput | boolean
+    isConfirmed?: BoolFieldUpdateOperationsInput | boolean
+    isRejected?: BoolFieldUpdateOperationsInput | boolean
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    Hospital?: HospitalUpdateOneRequiredWithoutDoctorTimeSlotNestedInput
+  }
+
+  export type DoctorTimeSlotUncheckedUpdateWithoutUserInput = {
+    DoctorTimeSlotId?: IntFieldUpdateOperationsInput | number
+    HospitalId?: IntFieldUpdateOperationsInput | number
+    DayOfWeek?: StringFieldUpdateOperationsInput | string
+    Morning_From?: NullableStringFieldUpdateOperationsInput | string | null
+    Morning_To?: NullableStringFieldUpdateOperationsInput | string | null
+    Evening_From?: NullableStringFieldUpdateOperationsInput | string | null
+    Evening_To?: NullableStringFieldUpdateOperationsInput | string | null
+    consult_Time_InMin?: IntFieldUpdateOperationsInput | number
+    Accept_Appointment_Selected_Date?: BoolFieldUpdateOperationsInput | boolean
+    is_DND?: BoolFieldUpdateOperationsInput | boolean
+    is_SlotCancelled?: BoolFieldUpdateOperationsInput | boolean
+    DNDremarks?: NullableStringFieldUpdateOperationsInput | string | null
+    Slot_cancellation_remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    isSlotChanged?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    isAvailable?: BoolFieldUpdateOperationsInput | boolean
+    isBooked?: BoolFieldUpdateOperationsInput | boolean
+    isConfirmed?: BoolFieldUpdateOperationsInput | boolean
+    isRejected?: BoolFieldUpdateOperationsInput | boolean
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DoctorTimeSlotUncheckedUpdateManyWithoutUserInput = {
+    DoctorTimeSlotId?: IntFieldUpdateOperationsInput | number
+    HospitalId?: IntFieldUpdateOperationsInput | number
+    DayOfWeek?: StringFieldUpdateOperationsInput | string
+    Morning_From?: NullableStringFieldUpdateOperationsInput | string | null
+    Morning_To?: NullableStringFieldUpdateOperationsInput | string | null
+    Evening_From?: NullableStringFieldUpdateOperationsInput | string | null
+    Evening_To?: NullableStringFieldUpdateOperationsInput | string | null
+    consult_Time_InMin?: IntFieldUpdateOperationsInput | number
+    Accept_Appointment_Selected_Date?: BoolFieldUpdateOperationsInput | boolean
+    is_DND?: BoolFieldUpdateOperationsInput | boolean
+    is_SlotCancelled?: BoolFieldUpdateOperationsInput | boolean
+    DNDremarks?: NullableStringFieldUpdateOperationsInput | string | null
+    Slot_cancellation_remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    isSlotChanged?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    isAvailable?: BoolFieldUpdateOperationsInput | boolean
+    isBooked?: BoolFieldUpdateOperationsInput | boolean
+    isConfirmed?: BoolFieldUpdateOperationsInput | boolean
+    isRejected?: BoolFieldUpdateOperationsInput | boolean
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -26149,6 +28974,7 @@ export namespace Prisma {
     CreatedBy?: UserUpdateOneWithoutHospitalCreatedByNestedInput
     UpdatedBy?: UserUpdateOneWithoutHospitalUpdatedByNestedInput
     DeletedBy?: UserUpdateOneWithoutHospitalDeletedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutHospitalNestedInput
   }
 
   export type HospitalUncheckedUpdateWithoutOrganizationInput = {
@@ -26182,6 +29008,7 @@ export namespace Prisma {
     childHospital?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
     users?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
     mappedUsers?: UserUncheckedUpdateManyWithoutUserBranchesArrayNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutHospitalNestedInput
   }
 
   export type HospitalUncheckedUpdateManyWithoutOrganizationInput = {
@@ -26248,6 +29075,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOrganizationInput = {
@@ -26285,6 +29113,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutOrganizationInput = {
@@ -26351,6 +29180,32 @@ export namespace Prisma {
     createdById?: number | null
   }
 
+  export type DoctorTimeSlotCreateManyHospitalInput = {
+    DoctorTimeSlotId?: number
+    userId: number
+    DayOfWeek: string
+    Morning_From?: string | null
+    Morning_To?: string | null
+    Evening_From?: string | null
+    Evening_To?: string | null
+    consult_Time_InMin?: number
+    Accept_Appointment_Selected_Date?: boolean
+    is_DND?: boolean
+    is_SlotCancelled?: boolean
+    DNDremarks?: string | null
+    Slot_cancellation_remarks?: string | null
+    isSlotChanged?: boolean
+    isActive?: boolean
+    isDeleted?: boolean
+    isAvailable?: boolean
+    isBooked?: boolean
+    isConfirmed?: boolean
+    isRejected?: boolean
+    createdBy?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type HospitalUpdateWithoutParentHospitalInput = {
     HospitalName?: StringFieldUpdateOperationsInput | string
     HospitalCode?: StringFieldUpdateOperationsInput | string
@@ -26381,6 +29236,7 @@ export namespace Prisma {
     CreatedBy?: UserUpdateOneWithoutHospitalCreatedByNestedInput
     UpdatedBy?: UserUpdateOneWithoutHospitalUpdatedByNestedInput
     DeletedBy?: UserUpdateOneWithoutHospitalDeletedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutHospitalNestedInput
   }
 
   export type HospitalUncheckedUpdateWithoutParentHospitalInput = {
@@ -26414,6 +29270,7 @@ export namespace Prisma {
     childHospital?: HospitalUncheckedUpdateManyWithoutParentHospitalNestedInput
     users?: UserHospitalAccessUncheckedUpdateManyWithoutHospitalNestedInput
     mappedUsers?: UserUncheckedUpdateManyWithoutUserBranchesArrayNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutHospitalNestedInput
   }
 
   export type HospitalUncheckedUpdateManyWithoutParentHospitalInput = {
@@ -26506,6 +29363,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUserBranchesArrayInput = {
@@ -26543,6 +29401,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutUserBranchesArrayInput = {
@@ -26569,6 +29428,83 @@ export namespace Prisma {
     updatedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedById?: NullableIntFieldUpdateOperationsInput | number | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type DoctorTimeSlotUpdateWithoutHospitalInput = {
+    DayOfWeek?: StringFieldUpdateOperationsInput | string
+    Morning_From?: NullableStringFieldUpdateOperationsInput | string | null
+    Morning_To?: NullableStringFieldUpdateOperationsInput | string | null
+    Evening_From?: NullableStringFieldUpdateOperationsInput | string | null
+    Evening_To?: NullableStringFieldUpdateOperationsInput | string | null
+    consult_Time_InMin?: IntFieldUpdateOperationsInput | number
+    Accept_Appointment_Selected_Date?: BoolFieldUpdateOperationsInput | boolean
+    is_DND?: BoolFieldUpdateOperationsInput | boolean
+    is_SlotCancelled?: BoolFieldUpdateOperationsInput | boolean
+    DNDremarks?: NullableStringFieldUpdateOperationsInput | string | null
+    Slot_cancellation_remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    isSlotChanged?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    isAvailable?: BoolFieldUpdateOperationsInput | boolean
+    isBooked?: BoolFieldUpdateOperationsInput | boolean
+    isConfirmed?: BoolFieldUpdateOperationsInput | boolean
+    isRejected?: BoolFieldUpdateOperationsInput | boolean
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutDoctorTimeSlotNestedInput
+  }
+
+  export type DoctorTimeSlotUncheckedUpdateWithoutHospitalInput = {
+    DoctorTimeSlotId?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    DayOfWeek?: StringFieldUpdateOperationsInput | string
+    Morning_From?: NullableStringFieldUpdateOperationsInput | string | null
+    Morning_To?: NullableStringFieldUpdateOperationsInput | string | null
+    Evening_From?: NullableStringFieldUpdateOperationsInput | string | null
+    Evening_To?: NullableStringFieldUpdateOperationsInput | string | null
+    consult_Time_InMin?: IntFieldUpdateOperationsInput | number
+    Accept_Appointment_Selected_Date?: BoolFieldUpdateOperationsInput | boolean
+    is_DND?: BoolFieldUpdateOperationsInput | boolean
+    is_SlotCancelled?: BoolFieldUpdateOperationsInput | boolean
+    DNDremarks?: NullableStringFieldUpdateOperationsInput | string | null
+    Slot_cancellation_remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    isSlotChanged?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    isAvailable?: BoolFieldUpdateOperationsInput | boolean
+    isBooked?: BoolFieldUpdateOperationsInput | boolean
+    isConfirmed?: BoolFieldUpdateOperationsInput | boolean
+    isRejected?: BoolFieldUpdateOperationsInput | boolean
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DoctorTimeSlotUncheckedUpdateManyWithoutHospitalInput = {
+    DoctorTimeSlotId?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    DayOfWeek?: StringFieldUpdateOperationsInput | string
+    Morning_From?: NullableStringFieldUpdateOperationsInput | string | null
+    Morning_To?: NullableStringFieldUpdateOperationsInput | string | null
+    Evening_From?: NullableStringFieldUpdateOperationsInput | string | null
+    Evening_To?: NullableStringFieldUpdateOperationsInput | string | null
+    consult_Time_InMin?: IntFieldUpdateOperationsInput | number
+    Accept_Appointment_Selected_Date?: BoolFieldUpdateOperationsInput | boolean
+    is_DND?: BoolFieldUpdateOperationsInput | boolean
+    is_SlotCancelled?: BoolFieldUpdateOperationsInput | boolean
+    DNDremarks?: NullableStringFieldUpdateOperationsInput | string | null
+    Slot_cancellation_remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    isSlotChanged?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    isAvailable?: BoolFieldUpdateOperationsInput | boolean
+    isBooked?: BoolFieldUpdateOperationsInput | boolean
+    isConfirmed?: BoolFieldUpdateOperationsInput | boolean
+    isRejected?: BoolFieldUpdateOperationsInput | boolean
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserCreateManyRoleInput = {
@@ -26644,6 +29580,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRoleInput = {
@@ -26681,6 +29618,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutRoleInput = {
@@ -26826,6 +29764,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSpecializationInput = {
@@ -26863,6 +29802,7 @@ export namespace Prisma {
     HospitalUpdatedBy?: HospitalUncheckedUpdateManyWithoutUpdatedByNestedInput
     HospitalDeletedBy?: HospitalUncheckedUpdateManyWithoutDeletedByNestedInput
     UserHospitalAccess?: UserHospitalAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+    DoctorTimeSlot?: DoctorTimeSlotUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutSpecializationInput = {
