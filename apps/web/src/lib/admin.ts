@@ -6,7 +6,7 @@ import axios from "axios";
 import { BACKEND_URL } from "./constants";
 
 import { getSession } from "./session";
-import toast from "react-hot-toast";
+// import toast from "react-hot-toast";
 // import { User } from "app/admin/hospitaluserlist";
 
 export const getallhospitalByUser = async () => {
@@ -60,7 +60,6 @@ export const addhospitaldetail = async (data: any) => {
   } catch (error: any) {
     const message = error.response?.data?.message || error.message;
     console.error("Error creating hospital:", message);
-    toast.error(message);
   }
 };
 
@@ -85,7 +84,7 @@ export const updatehospitaldetail = async (id: number, payload: any) => {
   } catch (error: any) {
     const message = error.response?.data?.message || error.message;
     console.error("Error creating hospital:", message);
-    toast.error(message);
+    // toast.error(message);
   }
 };
 
@@ -276,5 +275,77 @@ export const Updateuserinfo = async (id: number, payload: any) => {
   } catch (error: any) {
     const message = error.response?.data?.message || error.message;
     console.error("Error updating  user:", message);
+  }
+};
+
+export const CreateTimeSlot = async (data: any) => {
+  const session = await getSession();
+
+  try {
+    console.log("Sending hospital data:", data);
+    const response = await axios.post(
+      `${BACKEND_URL}/admin/createtimeslot`,
+      data,
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${session?.accessToken}`,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error: any) {
+    const message = error.response?.data?.message || error.message;
+    console.error("Error creating timeslot:", message);
+    // toast.error(message);
+  }
+};
+
+//fetch all timeslots for a user
+export const fetchDoctorSlots = async (
+  userId: number,
+  hospitalId?: number,
+  day?: string
+) => {
+  const session = await getSession();
+  if (!session?.accessToken) {
+    throw new Error("Unauthorized: Access token not found.");
+  }
+  const params: any = { userId };
+  if (hospitalId) params.hospitalId = hospitalId;
+  if (day) params.day = day;
+
+  const res = await axios.get(`${BACKEND_URL}/admin/getslots`, {
+    params,
+    headers: {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${session?.accessToken}`,
+    },
+  });
+  return res.data;
+};
+
+// Update timeslot
+export const UpdateTimeslot = async (payload: any) => {
+  const session = await getSession();
+
+  try {
+    console.log("Sending timeslot data:", payload);
+    const res = await axios.patch(
+      `${BACKEND_URL}/admin/update-timeslots`,
+      payload, // this is the actual body
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.accessToken}`,
+        },
+      }
+    );
+    return res.data;
+  } catch (error: any) {
+    const message = error.response?.data?.message || error.message;
+    console.error("Error updating timeslot:", message);
   }
 };

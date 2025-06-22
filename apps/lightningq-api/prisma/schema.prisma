@@ -213,6 +213,7 @@ model DoctorTimeSlot {
   DNDremarks                String?
   Slot_cancellation_remarks String?
   isSlotChanged             Boolean  @default(false)
+  isPermanentCancelled      Boolean  @default(false)
   isActive                  Boolean  @default(true)
   isDeleted                 Boolean  @default(false)
   isAvailable               Boolean  @default(true)

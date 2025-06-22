@@ -8,8 +8,13 @@ import {
 import Link from "next/link";
 import React, { useState } from "react";
 import Timeslot from "./timeslot";
+import { User } from "app/admin/hospitaluserlist";
 
-function Aside() {
+interface AsideProps {
+  user: User | null;
+}
+
+const Aside: React.FC<AsideProps> = ({ user }) => {
   const [openModal, setOpenModal] = useState(false);
   const navItems = [
     {
@@ -19,14 +24,20 @@ function Aside() {
     {
       label: "Time Slots",
       icon: <Clock className="w-4 h-4 text-blue-600" />,
-      onClick: () => setIsDialogOpen(), // Open dialog
+      onClick: () => setIsTimeSlotDialogOpen(), // Open dialog
     },
     {
       label: "Costing",
       icon: <DollarSign className="w-4 h-4 text-blue-600" />,
+      onClick: () => setIsCostingDialogOpen(),
     },
   ];
-  const setIsDialogOpen = () => {
+  const setIsTimeSlotDialogOpen = () => {
+    console.log("Opening Timeslot dialog");
+    setOpenModal(true);
+  };
+
+  const setIsCostingDialogOpen = () => {
     console.log("Opening Timeslot dialog");
     setOpenModal(true);
   };
@@ -73,7 +84,7 @@ function Aside() {
           ))}
         </ul>
       </aside>
-      <Timeslot open={openModal} onOpenChange={setOpenModal} />
+      <Timeslot open={openModal} onOpenChange={setOpenModal} user={user} />
     </>
   );
 }

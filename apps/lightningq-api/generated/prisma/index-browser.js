@@ -234,6 +234,7 @@ exports.Prisma.DoctorTimeSlotScalarFieldEnum = {
   DNDremarks: 'DNDremarks',
   Slot_cancellation_remarks: 'Slot_cancellation_remarks',
   isSlotChanged: 'isSlotChanged',
+  isPermanentCancelled: 'isPermanentCancelled',
   isActive: 'isActive',
   isDeleted: 'isDeleted',
   isAvailable: 'isAvailable',

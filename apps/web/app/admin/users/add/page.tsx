@@ -45,7 +45,7 @@ export default function AddUserPage() {
   const hospitalLoading = useSelector(
     (state: RootState) => state.hospital.loading
   );
-  
+
   type UserFormFields = {
     Prefix: string;
     firstName: string;
@@ -275,13 +275,12 @@ export default function AddUserPage() {
     });
   };
   //onsubmit
-  const onSubmit = async (formData: any) => {
-    console.log("form trigger");
-    // 🔒 Validate hospital selection
+  const saveUser = async (formData: any) => {
     if (userBranchArray.length === 0) {
       toast.error("Please assign at least one hospital.");
       return;
     }
+
     const {
       Prefix,
       firstName,
@@ -307,7 +306,6 @@ export default function AddUserPage() {
       }));
 
     const formPayload = new FormData();
-
     formPayload.append("Prefix", Prefix);
     formPayload.append("firstName", firstName);
     formPayload.append("lastName", lastName);
@@ -333,61 +331,50 @@ export default function AddUserPage() {
     );
     formPayload.append("UserBranchesArray", JSON.stringify(userBranchArray));
 
-    const imageFile = formData.imageUrl; // No .[0] needed
-    if (imageFile) {
-      formPayload.append("imageUrl", imageFile);
-    }
-    console.log("imageUrl in formData:", formData.imageUrl);
+    const imageFile = formData.imageUrl;
+    if (imageFile) formPayload.append("imageUrl", imageFile);
 
-    const signatureFile = formData.SignatureOfUser; // ✅ Correct
-    if (signatureFile) {
-      formPayload.append("SignatureOfUser", signatureFile);
-    }
-    console.log("SignatureOfUser in formData:", formData.SignatureOfUser);
+    const signatureFile = formData.SignatureOfUser;
+    if (signatureFile) formPayload.append("SignatureOfUser", signatureFile);
 
     let res;
 
     if (user?.UserId) {
-      res = await Updateuserinfo(user?.UserId, formPayload); // PATCH or PUT request
+      res = await Updateuserinfo(user?.UserId, formPayload);
     } else {
-      res = await addhuserdetail(formPayload); // POST request
+      res = await addhuserdetail(formPayload);
     }
+
+    return res;
+  };
+
+  const onSubmit = async (formData: any) => {
+    const res = await saveUser(formData);
 
     if (res?.return?.HttpCode === 200 || res?.data?.return?.HttpCode === 200) {
       toast.success(
         `User ${user?.UserId ? "updated" : "created"} successfully!`
       );
       setTimeout(() => {
-        router.push("/admin");
+        router.push("/admin"); // redirect only for Submit
       }, 1000);
     } else {
       toast.error("Something went wrong");
       console.log(res);
     }
-    // try {
-    //   const response = await fetch("/api/auth/users", {
-    //     method: "POST",
-    //     body: formPayload,
-    //   });
+  };
 
-    //   const result = await response.json();
-
-    //   if (response.ok) {
-    //     toast.success(
-    //       `User ${user?.UserId ? "updated" : "created"} successfully!`
-    //     );
-    //     console.log("✅ Server Response:", result);
-    //     setTimeout(() => {
-    //       router.push("/admin");
-    //     }, 1000);
-    //   } else {
-    //     toast.error("Something went wrong");
-    //     console.error("❌ Error:", result);
-    //   }
-    // } catch (error) {
-    //   console.error("❌ Exception during submit:", error);
-    //   toast.error("Network or server error occurred.");
-    // }
+  const handleSaveAndContinue = async () => {
+    const formData = getValues(); // from react-hook-form
+    const res = await saveUser(formData);
+    const Userdata = res?.data?.return?.updatedUser || res?.return?.user
+    setUser(Userdata);
+    if (res?.return?.HttpCode === 200 || res?.data?.return?.HttpCode === 200) {
+      toast.success("Changes saved. You can continue.");
+    } else {
+      toast.error("Something went wrong while saving.");
+      console.log(res);
+    }
   };
 
   useEffect(() => {
@@ -490,7 +477,7 @@ export default function AddUserPage() {
   return (
     <div className="flex h-full">
       {/* Sidebar */}
-        <Aside/>
+      <Aside user={user} />
 
       {/* Main Form */}
       <main className="flex-1 p-6 overflow-auto">
@@ -1049,6 +1036,14 @@ export default function AddUserPage() {
                 className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full shadow-2xl transition duration-200 ease-in-out cursor-pointer"
               >
                 {isSubmitting ? "Submitting..." : "Submit"}
+              </button>
+              <button
+                type="button"
+                disabled={isSubmitting}
+                onClick={handleSaveAndContinue}
+                className="bg-sky-500 hover:bg-sky-700 text-white px-6 py-2 rounded-full shadow-2xl transition duration-200 ease-in-out cursor-pointer"
+              >
+                {isSubmitting ? "Saving..." : "Save and Continue"}
               </button>
             </div>
           </div>

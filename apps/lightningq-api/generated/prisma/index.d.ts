@@ -9379,6 +9379,7 @@ export namespace Prisma {
     DNDremarks: string | null
     Slot_cancellation_remarks: string | null
     isSlotChanged: boolean | null
+    isPermanentCancelled: boolean | null
     isActive: boolean | null
     isDeleted: boolean | null
     isAvailable: boolean | null
@@ -9406,6 +9407,7 @@ export namespace Prisma {
     DNDremarks: string | null
     Slot_cancellation_remarks: string | null
     isSlotChanged: boolean | null
+    isPermanentCancelled: boolean | null
     isActive: boolean | null
     isDeleted: boolean | null
     isAvailable: boolean | null
@@ -9433,6 +9435,7 @@ export namespace Prisma {
     DNDremarks: number
     Slot_cancellation_remarks: number
     isSlotChanged: number
+    isPermanentCancelled: number
     isActive: number
     isDeleted: number
     isAvailable: number
@@ -9478,6 +9481,7 @@ export namespace Prisma {
     DNDremarks?: true
     Slot_cancellation_remarks?: true
     isSlotChanged?: true
+    isPermanentCancelled?: true
     isActive?: true
     isDeleted?: true
     isAvailable?: true
@@ -9505,6 +9509,7 @@ export namespace Prisma {
     DNDremarks?: true
     Slot_cancellation_remarks?: true
     isSlotChanged?: true
+    isPermanentCancelled?: true
     isActive?: true
     isDeleted?: true
     isAvailable?: true
@@ -9532,6 +9537,7 @@ export namespace Prisma {
     DNDremarks?: true
     Slot_cancellation_remarks?: true
     isSlotChanged?: true
+    isPermanentCancelled?: true
     isActive?: true
     isDeleted?: true
     isAvailable?: true
@@ -9646,6 +9652,7 @@ export namespace Prisma {
     DNDremarks: string | null
     Slot_cancellation_remarks: string | null
     isSlotChanged: boolean
+    isPermanentCancelled: boolean
     isActive: boolean
     isDeleted: boolean
     isAvailable: boolean
@@ -9692,6 +9699,7 @@ export namespace Prisma {
     DNDremarks?: boolean
     Slot_cancellation_remarks?: boolean
     isSlotChanged?: boolean
+    isPermanentCancelled?: boolean
     isActive?: boolean
     isDeleted?: boolean
     isAvailable?: boolean
@@ -9721,6 +9729,7 @@ export namespace Prisma {
     DNDremarks?: boolean
     Slot_cancellation_remarks?: boolean
     isSlotChanged?: boolean
+    isPermanentCancelled?: boolean
     isActive?: boolean
     isDeleted?: boolean
     isAvailable?: boolean
@@ -9750,6 +9759,7 @@ export namespace Prisma {
     DNDremarks?: boolean
     Slot_cancellation_remarks?: boolean
     isSlotChanged?: boolean
+    isPermanentCancelled?: boolean
     isActive?: boolean
     isDeleted?: boolean
     isAvailable?: boolean
@@ -9779,6 +9789,7 @@ export namespace Prisma {
     DNDremarks?: boolean
     Slot_cancellation_remarks?: boolean
     isSlotChanged?: boolean
+    isPermanentCancelled?: boolean
     isActive?: boolean
     isDeleted?: boolean
     isAvailable?: boolean
@@ -9790,7 +9801,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type DoctorTimeSlotOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"DoctorTimeSlotId" | "userId" | "HospitalId" | "DayOfWeek" | "Morning_From" | "Morning_To" | "Evening_From" | "Evening_To" | "consult_Time_InMin" | "Accept_Appointment_Selected_Date" | "is_DND" | "is_SlotCancelled" | "DNDremarks" | "Slot_cancellation_remarks" | "isSlotChanged" | "isActive" | "isDeleted" | "isAvailable" | "isBooked" | "isConfirmed" | "isRejected" | "createdBy" | "createdAt" | "updatedAt", ExtArgs["result"]["doctorTimeSlot"]>
+  export type DoctorTimeSlotOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"DoctorTimeSlotId" | "userId" | "HospitalId" | "DayOfWeek" | "Morning_From" | "Morning_To" | "Evening_From" | "Evening_To" | "consult_Time_InMin" | "Accept_Appointment_Selected_Date" | "is_DND" | "is_SlotCancelled" | "DNDremarks" | "Slot_cancellation_remarks" | "isSlotChanged" | "isPermanentCancelled" | "isActive" | "isDeleted" | "isAvailable" | "isBooked" | "isConfirmed" | "isRejected" | "createdBy" | "createdAt" | "updatedAt", ExtArgs["result"]["doctorTimeSlot"]>
   export type DoctorTimeSlotInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     Hospital?: boolean | HospitalDefaultArgs<ExtArgs>
@@ -9826,6 +9837,7 @@ export namespace Prisma {
       DNDremarks: string | null
       Slot_cancellation_remarks: string | null
       isSlotChanged: boolean
+      isPermanentCancelled: boolean
       isActive: boolean
       isDeleted: boolean
       isAvailable: boolean
@@ -10275,6 +10287,7 @@ export namespace Prisma {
     readonly DNDremarks: FieldRef<"DoctorTimeSlot", 'String'>
     readonly Slot_cancellation_remarks: FieldRef<"DoctorTimeSlot", 'String'>
     readonly isSlotChanged: FieldRef<"DoctorTimeSlot", 'Boolean'>
+    readonly isPermanentCancelled: FieldRef<"DoctorTimeSlot", 'Boolean'>
     readonly isActive: FieldRef<"DoctorTimeSlot", 'Boolean'>
     readonly isDeleted: FieldRef<"DoctorTimeSlot", 'Boolean'>
     readonly isAvailable: FieldRef<"DoctorTimeSlot", 'Boolean'>
@@ -17489,6 +17502,7 @@ export namespace Prisma {
     DNDremarks: 'DNDremarks',
     Slot_cancellation_remarks: 'Slot_cancellation_remarks',
     isSlotChanged: 'isSlotChanged',
+    isPermanentCancelled: 'isPermanentCancelled',
     isActive: 'isActive',
     isDeleted: 'isDeleted',
     isAvailable: 'isAvailable',
@@ -18447,6 +18461,7 @@ export namespace Prisma {
     DNDremarks?: StringNullableFilter<"DoctorTimeSlot"> | string | null
     Slot_cancellation_remarks?: StringNullableFilter<"DoctorTimeSlot"> | string | null
     isSlotChanged?: BoolFilter<"DoctorTimeSlot"> | boolean
+    isPermanentCancelled?: BoolFilter<"DoctorTimeSlot"> | boolean
     isActive?: BoolFilter<"DoctorTimeSlot"> | boolean
     isDeleted?: BoolFilter<"DoctorTimeSlot"> | boolean
     isAvailable?: BoolFilter<"DoctorTimeSlot"> | boolean
@@ -18476,6 +18491,7 @@ export namespace Prisma {
     DNDremarks?: SortOrderInput | SortOrder
     Slot_cancellation_remarks?: SortOrderInput | SortOrder
     isSlotChanged?: SortOrder
+    isPermanentCancelled?: SortOrder
     isActive?: SortOrder
     isDeleted?: SortOrder
     isAvailable?: SortOrder
@@ -18508,6 +18524,7 @@ export namespace Prisma {
     DNDremarks?: StringNullableFilter<"DoctorTimeSlot"> | string | null
     Slot_cancellation_remarks?: StringNullableFilter<"DoctorTimeSlot"> | string | null
     isSlotChanged?: BoolFilter<"DoctorTimeSlot"> | boolean
+    isPermanentCancelled?: BoolFilter<"DoctorTimeSlot"> | boolean
     isActive?: BoolFilter<"DoctorTimeSlot"> | boolean
     isDeleted?: BoolFilter<"DoctorTimeSlot"> | boolean
     isAvailable?: BoolFilter<"DoctorTimeSlot"> | boolean
@@ -18537,6 +18554,7 @@ export namespace Prisma {
     DNDremarks?: SortOrderInput | SortOrder
     Slot_cancellation_remarks?: SortOrderInput | SortOrder
     isSlotChanged?: SortOrder
+    isPermanentCancelled?: SortOrder
     isActive?: SortOrder
     isDeleted?: SortOrder
     isAvailable?: SortOrder
@@ -18572,6 +18590,7 @@ export namespace Prisma {
     DNDremarks?: StringNullableWithAggregatesFilter<"DoctorTimeSlot"> | string | null
     Slot_cancellation_remarks?: StringNullableWithAggregatesFilter<"DoctorTimeSlot"> | string | null
     isSlotChanged?: BoolWithAggregatesFilter<"DoctorTimeSlot"> | boolean
+    isPermanentCancelled?: BoolWithAggregatesFilter<"DoctorTimeSlot"> | boolean
     isActive?: BoolWithAggregatesFilter<"DoctorTimeSlot"> | boolean
     isDeleted?: BoolWithAggregatesFilter<"DoctorTimeSlot"> | boolean
     isAvailable?: BoolWithAggregatesFilter<"DoctorTimeSlot"> | boolean
@@ -19664,6 +19683,7 @@ export namespace Prisma {
     DNDremarks?: string | null
     Slot_cancellation_remarks?: string | null
     isSlotChanged?: boolean
+    isPermanentCancelled?: boolean
     isActive?: boolean
     isDeleted?: boolean
     isAvailable?: boolean
@@ -19693,6 +19713,7 @@ export namespace Prisma {
     DNDremarks?: string | null
     Slot_cancellation_remarks?: string | null
     isSlotChanged?: boolean
+    isPermanentCancelled?: boolean
     isActive?: boolean
     isDeleted?: boolean
     isAvailable?: boolean
@@ -19717,6 +19738,7 @@ export namespace Prisma {
     DNDremarks?: NullableStringFieldUpdateOperationsInput | string | null
     Slot_cancellation_remarks?: NullableStringFieldUpdateOperationsInput | string | null
     isSlotChanged?: BoolFieldUpdateOperationsInput | boolean
+    isPermanentCancelled?: BoolFieldUpdateOperationsInput | boolean
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
@@ -19746,6 +19768,7 @@ export namespace Prisma {
     DNDremarks?: NullableStringFieldUpdateOperationsInput | string | null
     Slot_cancellation_remarks?: NullableStringFieldUpdateOperationsInput | string | null
     isSlotChanged?: BoolFieldUpdateOperationsInput | boolean
+    isPermanentCancelled?: BoolFieldUpdateOperationsInput | boolean
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
@@ -19773,6 +19796,7 @@ export namespace Prisma {
     DNDremarks?: string | null
     Slot_cancellation_remarks?: string | null
     isSlotChanged?: boolean
+    isPermanentCancelled?: boolean
     isActive?: boolean
     isDeleted?: boolean
     isAvailable?: boolean
@@ -19797,6 +19821,7 @@ export namespace Prisma {
     DNDremarks?: NullableStringFieldUpdateOperationsInput | string | null
     Slot_cancellation_remarks?: NullableStringFieldUpdateOperationsInput | string | null
     isSlotChanged?: BoolFieldUpdateOperationsInput | boolean
+    isPermanentCancelled?: BoolFieldUpdateOperationsInput | boolean
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
@@ -19824,6 +19849,7 @@ export namespace Prisma {
     DNDremarks?: NullableStringFieldUpdateOperationsInput | string | null
     Slot_cancellation_remarks?: NullableStringFieldUpdateOperationsInput | string | null
     isSlotChanged?: BoolFieldUpdateOperationsInput | boolean
+    isPermanentCancelled?: BoolFieldUpdateOperationsInput | boolean
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
@@ -20940,6 +20966,7 @@ export namespace Prisma {
     DNDremarks?: SortOrder
     Slot_cancellation_remarks?: SortOrder
     isSlotChanged?: SortOrder
+    isPermanentCancelled?: SortOrder
     isActive?: SortOrder
     isDeleted?: SortOrder
     isAvailable?: SortOrder
@@ -20975,6 +21002,7 @@ export namespace Prisma {
     DNDremarks?: SortOrder
     Slot_cancellation_remarks?: SortOrder
     isSlotChanged?: SortOrder
+    isPermanentCancelled?: SortOrder
     isActive?: SortOrder
     isDeleted?: SortOrder
     isAvailable?: SortOrder
@@ -21002,6 +21030,7 @@ export namespace Prisma {
     DNDremarks?: SortOrder
     Slot_cancellation_remarks?: SortOrder
     isSlotChanged?: SortOrder
+    isPermanentCancelled?: SortOrder
     isActive?: SortOrder
     isDeleted?: SortOrder
     isAvailable?: SortOrder
@@ -24009,6 +24038,7 @@ export namespace Prisma {
     DNDremarks?: string | null
     Slot_cancellation_remarks?: string | null
     isSlotChanged?: boolean
+    isPermanentCancelled?: boolean
     isActive?: boolean
     isDeleted?: boolean
     isAvailable?: boolean
@@ -24036,6 +24066,7 @@ export namespace Prisma {
     DNDremarks?: string | null
     Slot_cancellation_remarks?: string | null
     isSlotChanged?: boolean
+    isPermanentCancelled?: boolean
     isActive?: boolean
     isDeleted?: boolean
     isAvailable?: boolean
@@ -24758,6 +24789,7 @@ export namespace Prisma {
     DNDremarks?: StringNullableFilter<"DoctorTimeSlot"> | string | null
     Slot_cancellation_remarks?: StringNullableFilter<"DoctorTimeSlot"> | string | null
     isSlotChanged?: BoolFilter<"DoctorTimeSlot"> | boolean
+    isPermanentCancelled?: BoolFilter<"DoctorTimeSlot"> | boolean
     isActive?: BoolFilter<"DoctorTimeSlot"> | boolean
     isDeleted?: BoolFilter<"DoctorTimeSlot"> | boolean
     isAvailable?: BoolFilter<"DoctorTimeSlot"> | boolean
@@ -25526,6 +25558,7 @@ export namespace Prisma {
     DNDremarks?: string | null
     Slot_cancellation_remarks?: string | null
     isSlotChanged?: boolean
+    isPermanentCancelled?: boolean
     isActive?: boolean
     isDeleted?: boolean
     isAvailable?: boolean
@@ -25553,6 +25586,7 @@ export namespace Prisma {
     DNDremarks?: string | null
     Slot_cancellation_remarks?: string | null
     isSlotChanged?: boolean
+    isPermanentCancelled?: boolean
     isActive?: boolean
     isDeleted?: boolean
     isAvailable?: boolean
@@ -28014,6 +28048,7 @@ export namespace Prisma {
     DNDremarks?: string | null
     Slot_cancellation_remarks?: string | null
     isSlotChanged?: boolean
+    isPermanentCancelled?: boolean
     isActive?: boolean
     isDeleted?: boolean
     isAvailable?: boolean
@@ -28825,6 +28860,7 @@ export namespace Prisma {
     DNDremarks?: NullableStringFieldUpdateOperationsInput | string | null
     Slot_cancellation_remarks?: NullableStringFieldUpdateOperationsInput | string | null
     isSlotChanged?: BoolFieldUpdateOperationsInput | boolean
+    isPermanentCancelled?: BoolFieldUpdateOperationsInput | boolean
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
@@ -28852,6 +28888,7 @@ export namespace Prisma {
     DNDremarks?: NullableStringFieldUpdateOperationsInput | string | null
     Slot_cancellation_remarks?: NullableStringFieldUpdateOperationsInput | string | null
     isSlotChanged?: BoolFieldUpdateOperationsInput | boolean
+    isPermanentCancelled?: BoolFieldUpdateOperationsInput | boolean
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
@@ -28878,6 +28915,7 @@ export namespace Prisma {
     DNDremarks?: NullableStringFieldUpdateOperationsInput | string | null
     Slot_cancellation_remarks?: NullableStringFieldUpdateOperationsInput | string | null
     isSlotChanged?: BoolFieldUpdateOperationsInput | boolean
+    isPermanentCancelled?: BoolFieldUpdateOperationsInput | boolean
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
@@ -29195,6 +29233,7 @@ export namespace Prisma {
     DNDremarks?: string | null
     Slot_cancellation_remarks?: string | null
     isSlotChanged?: boolean
+    isPermanentCancelled?: boolean
     isActive?: boolean
     isDeleted?: boolean
     isAvailable?: boolean
@@ -29443,6 +29482,7 @@ export namespace Prisma {
     DNDremarks?: NullableStringFieldUpdateOperationsInput | string | null
     Slot_cancellation_remarks?: NullableStringFieldUpdateOperationsInput | string | null
     isSlotChanged?: BoolFieldUpdateOperationsInput | boolean
+    isPermanentCancelled?: BoolFieldUpdateOperationsInput | boolean
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
@@ -29470,6 +29510,7 @@ export namespace Prisma {
     DNDremarks?: NullableStringFieldUpdateOperationsInput | string | null
     Slot_cancellation_remarks?: NullableStringFieldUpdateOperationsInput | string | null
     isSlotChanged?: BoolFieldUpdateOperationsInput | boolean
+    isPermanentCancelled?: BoolFieldUpdateOperationsInput | boolean
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
@@ -29496,6 +29537,7 @@ export namespace Prisma {
     DNDremarks?: NullableStringFieldUpdateOperationsInput | string | null
     Slot_cancellation_remarks?: NullableStringFieldUpdateOperationsInput | string | null
     isSlotChanged?: BoolFieldUpdateOperationsInput | boolean
+    isPermanentCancelled?: BoolFieldUpdateOperationsInput | boolean
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
     isAvailable?: BoolFieldUpdateOperationsInput | boolean

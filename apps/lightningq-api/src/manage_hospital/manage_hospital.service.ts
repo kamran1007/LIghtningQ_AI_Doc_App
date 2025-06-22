@@ -480,7 +480,7 @@ export class ManageHospitalService {
   async createDoctorSlots(dto: CreateDoctorSlotDto, createdById: number) {
     if (
       !dto.userId ||
-      !dto.hospitalId ||
+      // !dto.hospitalId ||
       !Array.isArray(dto.timeSlots) ||
       dto.timeSlots.length === 0
     ) {
@@ -493,7 +493,7 @@ export class ManageHospitalService {
     const access = await this.prisma.userHospitalAccess.findFirst({
       where: {
         UserId: dto.userId,
-        hospitalId: dto.hospitalId,
+        // hospitalId: dto.hospitalId,
       },
     });
 
@@ -506,9 +506,9 @@ export class ManageHospitalService {
 
     const slotData = dto.timeSlots.map((slot) => ({
       userId: dto.userId as number, // ensure number, not undefined
-      HospitalId: dto.hospitalId as number, // ensure number, not undefined
+      // HospitalId: dto.hospitalId as number, // ensure number, not undefined
       DayOfWeek: slot.DayOfWeek || '',
-
+      HospitalId: slot.hospitalId as number, // ensure number, not undefined
       Morning_From: slot.Morning_From ?? null,
       Morning_To: slot.Morning_To ?? null,
       Evening_From: slot.Evening_From ?? null,
@@ -600,7 +600,7 @@ export class ManageHospitalService {
         where: {
           DoctorTimeSlotId: slot.DoctorTimeSlotId,
           userId: dto.userId,
-          HospitalId: dto.HospitalId,
+          // HospitalId: dto.hospitalId,
           isDeleted: false,
         },
       });
@@ -612,14 +612,20 @@ export class ManageHospitalService {
         });
         continue;
       }
+      const { DoctorTimeSlotId, hospitalId, ...rest } = slot;
 
-      const updated = await this.prisma.doctorTimeSlot.update({
-        where: { DoctorTimeSlotId: slot.DoctorTimeSlotId },
-        data: {
-          ...slot,
-          updatedAt: now,
-        },
-      });
+const updated = await this.prisma.doctorTimeSlot.update({
+  where: { DoctorTimeSlotId },
+  data: {
+    ...rest,
+    Hospital: {
+      connect: {
+        HospitalId: hospitalId, // 🔁 use actual PK field name from your schema
+      },
+    },
+    updatedAt: now,
+  },
+});
 
       results.push({
         DoctorTimeSlotId: updated.DoctorTimeSlotId,
@@ -704,6 +710,56 @@ export class ManageHospitalService {
   //   };
   // }
 
+//  async getDoctorSlotsByDay({
+//     userId,
+//     hospitalId,
+//     day,
+//   }: {
+//     userId: number;
+//     hospitalId?: number;
+//     day?: string;
+//   }) {
+//     const whereClause: any = {
+//       userId,
+//       isDeleted: false,
+//     };
+  
+//     if (hospitalId) {
+//       whereClause.HospitalId = hospitalId;
+//     }
+  
+//     if (day) {
+//       whereClause.DayOfWeek = day;
+//     }
+  
+//     // Optional access check
+//     if (hospitalId) {
+//       const access = await this.prisma.userHospitalAccess.findFirst({
+//         where: {
+//           UserId: userId,
+//           hospitalId,
+//         },
+//       });
+  
+//       if (!access) {
+//         throw new ForbiddenException('User is not mapped to this hospital.');
+//       }
+//     }
+  
+//     const slots = await this.prisma.doctorTimeSlot.findMany({
+//       where: whereClause,
+//       orderBy: {
+//         createdAt: 'desc',
+//       },
+//     });
+  
+//     return {
+//       message: `Slots fetched successfully.`,
+//       count: slots.length,
+//       slots,
+//     };
+//   } 
+  
   async getDoctorSlotsByDay({
     userId,
     hospitalId,
@@ -747,11 +803,53 @@ export class ManageHospitalService {
       },
     });
   
+    // To reset temporary cancellations after midnight of that day
+    const now = new Date();
+    const todayIndex = now.getDay(); // 0 = Sunday, ..., 6 = Saturday
+  
+    const dayIndexMap: Record<string, number> = {
+      SUNDAY: 0,
+      MONDAY: 1,
+      TUESDAY: 2,
+      WEDNESDAY: 3,
+      THURSDAY: 4,
+      FRIDAY: 5,
+      SATURDAY: 6,
+    };
+  
+    const adjustedSlots = slots.map((slot) => {
+      const slotDay = slot.DayOfWeek?.toUpperCase();
+      const slotDayIndex = dayIndexMap[slotDay ?? ''];
+  
+      // Proceed if all values are valid
+      if (
+        slot.is_SlotCancelled &&
+        slot.isPermanentCancelled === false &&
+        typeof slotDayIndex === 'number'
+      ) {
+        // Check if today is the NEXT DAY of the slot's day
+        const isNextDay =
+          (todayIndex - slotDayIndex + 7) % 7 === 1; // today is one day after the slot day
+  
+        if (isNextDay) {
+          return {
+            ...slot,
+            is_SlotCancelled: false,
+            Slot_cancellation_remarks: '',
+          };
+        }
+      }
+  
+      return slot;
+    });
+  
     return {
       message: `Slots fetched successfully.`,
-      count: slots.length,
-      slots,
+      count: adjustedSlots.length,
+      slots: adjustedSlots,
     };
   }
   
+
+
 }

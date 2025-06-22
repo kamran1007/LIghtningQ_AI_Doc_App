@@ -1,9 +1,19 @@
-import { IsArray, IsBoolean, IsInt, IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsInt,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class TimeSlotDto {
   @IsString()
   DayOfWeek?: string;
+
+  @IsInt()
+  hospitalId?: number;
 
   @IsOptional()
   @IsString()
@@ -34,14 +44,30 @@ export class TimeSlotDto {
   @IsOptional()
   @IsString()
   Slot_cancellation_remarks?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  is_DND?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  is_SlotCancelled?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  isPermanentCancelled?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  isDeleted?: boolean;
 }
 
 export class CreateDoctorSlotDto {
   @IsInt()
   userId?: number;
 
-  @IsInt()
-  hospitalId?: number;
+  // @IsInt()
+  // hospitalId?: number;
 
   @IsArray()
   @ValidateNested({ each: true })
