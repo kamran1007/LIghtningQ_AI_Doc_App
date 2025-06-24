@@ -73,6 +73,10 @@ model User {
   UserHospitalAccess UserHospitalAccess[] @relation("CreatedUserHospitalAccess")
 
   DoctorTimeSlot DoctorTimeSlot[]
+
+  DoctorCosting DoctorCosting[]
+
+  DoctorCostingCreatedBy DoctorCosting[] @relation("UserCreatedDoctorCosting")
 }
 
 // Organization (Top-most head entity created by you or BA)
@@ -113,7 +117,7 @@ model Hospital {
   ParentHospitalCode String
   Organizationcode   String
   SpecializationType SpecializationType
-  address            String   
+  address            String
   city               String
   state              String
   country            String
@@ -154,6 +158,8 @@ model Hospital {
   deletedAt DateTime?
 
   DoctorTimeSlot DoctorTimeSlot[]
+
+  DoctorCosting DoctorCosting[]
 }
 
 // User ↔ Hospital mapping model
@@ -187,23 +193,23 @@ model Setting {
 }
 
 model DoctorTimeSlot {
-  DoctorTimeSlotId Int     @id @default(autoincrement())
+  DoctorTimeSlotId Int @id @default(autoincrement())
 
   // 🔗 Link to User (Doctor)
-  userId           Int
-  user             User    @relation(fields: [userId], references: [UserId], onDelete: Cascade)
+  userId Int
+  user   User @relation(fields: [userId], references: [UserId], onDelete: Cascade)
 
   // 🔗 Link to Hospital
-  HospitalId       Int
-  Hospital         Hospital @relation(fields: [HospitalId], references: [HospitalId], onDelete: Cascade)
+  HospitalId Int
+  Hospital   Hospital @relation(fields: [HospitalId], references: [HospitalId], onDelete: Cascade)
 
-  DayOfWeek        String // e.g., 'MON', 'TUE', etc.
+  DayOfWeek String // e.g., 'MON', 'TUE', etc.
 
-  Morning_From     String? // Format: 'HH:mm'
-  Morning_To       String?
+  Morning_From String? // Format: 'HH:mm'
+  Morning_To   String?
 
-  Evening_From     String?
-  Evening_To       String?
+  Evening_From String?
+  Evening_To   String?
 
   consult_Time_InMin               Int     @default(15)
   Accept_Appointment_Selected_Date Boolean @default(true)
@@ -220,11 +226,40 @@ model DoctorTimeSlot {
   isBooked                  Boolean  @default(false)
   isConfirmed               Boolean  @default(false)
   isRejected                Boolean  @default(false)
-  createdBy Int?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdBy                 Int?
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
 }
 
+model DoctorCosting {
+  DoctorCostingId      Int      @id @default(autoincrement())
+  doctorId             Int
+  doctor               User     @relation(fields: [doctorId], references: [UserId])
+  hospitalId           Int
+  hospital             Hospital @relation(fields: [hospitalId], references: [HospitalId])
+  walkInFee            Float
+  teleConsultFee       Float?
+  fastTrackFee         Float?
+  homeVisitFee         Float?
+  emergencyFee         Float?
+  procedureFee         Float?
+  freeFollowupCount    Int?
+  followupValidityDays Int?
+  tax                  Float?
+  discount             Float?
+  commission           Float?
+   discountedFee       Float?   
+  totalFee             Float?   
+  doctorPayout         Float?   
+  insuranceApplicable  Boolean
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  createdById          Int?
+  createdBy            User? @relation("UserCreatedDoctorCosting", fields: [createdById], references: [UserId])
+
+  @@unique([doctorId, hospitalId])
+
+}
 
 model AuditLog {
   AuditLogId Int      @id @default(autoincrement())

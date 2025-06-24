@@ -173,12 +173,16 @@ const UserList = () => {
           <DropdownMenuTrigger className="focus:outline-none">
             <MoreHorizontal className="w-5 h-5 text-blue-500 cursor-pointer" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+
+          <DropdownMenuContent
+            align="end"
+            className="!w-[100px] !min-w-[100px] p-1 rounded-md shadow-md border border-gray-200 bg-white"
+          >
             <DropdownMenuItem
               onClick={() => handleEdit(row.original)}
-              className="!w-20 !min-w-[5rem] p-1"
+              className="flex items-center gap-1 px-2 py-1 text-sm text-gray-700 hover:bg-blue-50"
             >
-              <Edit className="w-2 h-4 text-blue-500" />
+              <Edit className="w-4 h-4 text-blue-500" />
               Edit
             </DropdownMenuItem>
           </DropdownMenuContent>

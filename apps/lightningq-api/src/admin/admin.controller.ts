@@ -32,6 +32,7 @@ import { CreateDoctorSlotDto } from 'src/manage_hospital/dto/create-doctor-slot.
 import { CancelSlotDto } from 'src/manage_hospital/dto/CancelSlotDto';
 import { UpdateDoctorSlotDto } from 'src/manage_hospital/dto/update-doctor-slot.dto';
 import { BulkUpdateDoctorSlotDto } from 'src/manage_hospital/dto/BulkUpdateDoctorSlotDto';
+import { CreateDoctorCostingDto } from 'src/manage_hospital/dto/create-doctor-costing.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -403,5 +404,22 @@ export class AdminController {
     }
 
     return this.adminservice.getDoctorSlotsByDay({ userId, hospitalId, days });
+  }
+
+  //costing for Doctor
+
+  @Post('AddOrUpdateDoctorCosting')
+  async createDoctorCosting(
+    @Body() dto: CreateDoctorCostingDto,
+    @Req() req: any,
+  ) {
+    const createdById = req.user?.UserId || 1; // Replace with real auth
+
+    return this.adminservice.createCostingForDoctor(dto, createdById);
+  }
+
+  @Get('GetDoctorCosting/:doctorId')
+  async getCosting(@Param('doctorId', ParseIntPipe) doctorId: number) {
+    return this.adminservice.getByDoctorId(doctorId);
   }
 }

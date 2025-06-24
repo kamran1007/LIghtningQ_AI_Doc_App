@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import {
   Signature,
   Hospital,
@@ -26,6 +26,15 @@ import {
   Updateuserinfo,
 } from "@/lib/admin";
 
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+
 import { useSearchParams } from "next/navigation";
 import { getallusers } from "@/lib/admin";
 import { User } from "app/admin/hospitaluserlist";
@@ -33,6 +42,8 @@ import { useRouter } from "next/navigation"; // App Router
 import { zodResolver } from "@hookform/resolvers/zod";
 import { userFormSchema } from "@/helper/userFormSchema";
 import Aside from "./aside";
+import { set } from "zod";
+import AddUserSkeleton from "@/components/ui/skeletonloader/AddUserSkeleton";
 export default function AddUserPage() {
   const hospitals = useSelector((state: RootState) => state.hospital.data);
   const selectedUser = useSelector(
@@ -79,6 +90,7 @@ export default function AddUserPage() {
     reset,
     watch,
     resetField,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -220,6 +232,8 @@ export default function AddUserPage() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [specializations, setSpecializations] = useState([]);
   const [userBranchArray, setUserBranchArray] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+  
 
   const handleHospitalCheck = (checked: boolean, hospital: any) => {
     const roleId = Number(getValues("roleId")); // Ensure roleId is a number
@@ -367,7 +381,7 @@ export default function AddUserPage() {
   const handleSaveAndContinue = async () => {
     const formData = getValues(); // from react-hook-form
     const res = await saveUser(formData);
-    const Userdata = res?.data?.return?.updatedUser || res?.return?.user
+    const Userdata = res?.data?.return?.updatedUser || res?.return?.user;
     setUser(Userdata);
     if (res?.return?.HttpCode === 200 || res?.data?.return?.HttpCode === 200) {
       toast.success("Changes saved. You can continue.");
@@ -381,6 +395,7 @@ export default function AddUserPage() {
     const fetchInitialData = async () => {
       try {
         setOrgLoading(true);
+        setIsLoading(true);
 
         const [orgRes, roleRes, specRes, allUsersRes] = await Promise.all([
           getOrganizationByUser(),
@@ -407,6 +422,7 @@ export default function AddUserPage() {
         toast.error("Failed to fetch initial data");
       } finally {
         setOrgLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -476,6 +492,11 @@ export default function AddUserPage() {
 
   return (
     <div className="flex h-full">
+
+      {isLoading ?(
+        <AddUserSkeleton />
+      ):(
+      <>
       {/* Sidebar */}
       <Aside user={user} />
 
@@ -548,26 +569,37 @@ export default function AddUserPage() {
               className="hidden"
             />
 
-            <div className="grid grid-cols-4 gap-4">
-              <select
-                {...register("Prefix")}
-                className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
-              >
-                <option value="">Select Prefix</option>
-                <option value="Mr">Mr</option>
-                <option value="Mrs">Mrs</option>
-                <option value="Miss">Miss</option>
-                <option value="Ms">Ms</option>
-                <option value="Dr">Dr</option>
-                <option value="Prof">Prof</option>
-                <option value="OTHER">OTHER</option>
-              </select>
+            <div className="mb-1">
+              <Controller
+                name="Prefix"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger
+                      className={`${inputbox} py-1 px-4 text-sm leading-tight h-10`}
+                    >
+                      <SelectValue placeholder="Select Prefix" />
+                    </SelectTrigger>
+                    <SelectContent  className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
+                      <SelectItem value="Mr">MR</SelectItem>
+                      <SelectItem value="Mrs">MRS</SelectItem>
+                      <SelectItem value="Miss">MISS</SelectItem>
+                      <SelectItem value="Ms">MS</SelectItem>
+                      <SelectItem value="Dr">DR</SelectItem>
+                      <SelectItem value="Prof">PROF</SelectItem>
+                      <SelectItem value="Other">OTHER</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
           </div>
 
           <div className="grid grid-cols-4 gap-4">
             {/* First Name */}
             <div className="flex flex-col">
+              <Label className="mb-2 block text-sm">First Name</Label>
+
               <Input
                 {...register("firstName")}
                 placeholder="First Name"
@@ -582,6 +614,8 @@ export default function AddUserPage() {
 
             {/* Last Name */}
             <div className="flex flex-col">
+              <Label className="mb-2 block text-sm">Last Name</Label>
+
               <Input
                 {...register("lastName")}
                 placeholder="Last Name"
@@ -596,6 +630,8 @@ export default function AddUserPage() {
 
             {/* Employee ID */}
             <div className="flex flex-col">
+              <Label className="mb-2 block text-sm">Employee ID</Label>
+
               <Input
                 {...register("Employee_ID")}
                 placeholder="Employee ID"
@@ -610,6 +646,8 @@ export default function AddUserPage() {
 
             {/* Mobile */}
             <div className="flex flex-col">
+              <Label className="mb-2 block text-sm">Mobile</Label>
+
               <Input
                 {...register("mobile")}
                 placeholder="Mobile"
@@ -620,31 +658,10 @@ export default function AddUserPage() {
                 <p className="text-red-500 text-sm">{errors.mobile.message}</p>
               )}
             </div>
-
-            {/* Gender */}
-            {/* <div className="flex flex-col">
-              <Input
-                {...register("gender")}
-                placeholder="Gender"
-                className={`${inputbox} mb-2 py-4`}
-              />
-              {errors.gender && (
-                <p className="text-red-500 text-sm">{errors.gender.message}</p>
-              )}
-            </div> */}
-            <div className="flex flex-col">
-              <select
-                {...register("gender")}
-                className={`${inputbox} py-1 px-5 text-sm leading-tight h-10`}
-              >
-                <option value="">Select Gender</option>
-                <option value="MALE">MALE</option>
-                <option value="FEMALE">FEMALE</option>
-                <option value="OTHER">OTHER</option>
-              </select>
-            </div>
             {/* DOB */}
             <div className="flex flex-col">
+              <Label className="mb-2 block text-sm">Date Of Birth</Label>
+
               <Input
                 {...register("dateOfBirth")}
                 type="date"
@@ -657,41 +674,110 @@ export default function AddUserPage() {
                 </p>
               )}
             </div>
+            {/* Gender */}
+            {/* <div className="flex flex-col">
+              <Input
+                {...register("gender")}
+                placeholder="Gender"
+                className={`${inputbox} mb-2 py-4`}
+              />
+              {errors.gender && (
+                <p className="text-red-500 text-sm">{errors.gender.message}</p>
+              )}
+            </div> */}
+            <div className="mb-1">
+              <Label className="mb-1 block text-sm">Gender</Label>
+              <Controller
+                name="gender"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger
+                      className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
+                    >
+                      <SelectValue placeholder="Select a Gender" />
+                    </SelectTrigger>
+                    <SelectContent     className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white"
+
+                    >
+                      <SelectItem value="MALE">MALE</SelectItem>
+                      <SelectItem value="FEMALE">FEMALE</SelectItem>
+                      <SelectItem value="OTHER">OTHER</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
 
             {/* Role */}
-            <div className="flex flex-col">
-              <select
-                {...register("roleId")}
-                className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
-              >
-                <option value="">Select Role</option>
-                {roles.map((role: any) => (
-                  <option key={role.RoleId} value={role.RoleId}>
-                    {role.Rolename}
-                  </option>
-                ))}
-              </select>
+            <div className="mb-1">
+              <Label className="mb-1 block text-sm">Role</Label>
+
+              <Controller
+                name="roleId"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    {...register("roleId")}
+                    value={field.value?.toString() ?? ""}
+                    onValueChange={(value) => field.onChange(value)}
+                  >
+                    <SelectTrigger
+                      className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
+                    >
+                      <SelectValue placeholder="Select Role" />
+                    </SelectTrigger>
+                    <SelectContent  className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white" >
+                      {roles.map((role: any) => (
+                        <SelectItem
+                          key={role.RoleId}
+                          value={role.RoleId.toString()}
+                        >
+                          {role.Rolename}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+
               {errors.roleId && (
                 <p className="text-red-500 text-sm">{errors.roleId.message}</p>
               )}
             </div>
 
             {/* Specialization */}
-            <div className="flex flex-col">
-              <select
-                {...register("SpecializationId")}
-                className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
-              >
-                <option value="">Select Specialization</option>
-                {specializations.map((spec: any) => (
-                  <option
-                    key={spec.SpecializationId}
-                    value={spec.SpecializationId}
+            <div className="mb-1">
+              <Label className="mb-1 block text-sm">Specialization</Label>
+
+              <Controller
+                name="SpecializationId"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    {...register("SpecializationId")}
+                    value={field.value?.toString() ?? ""}
+                    onValueChange={(value) => field.onChange(value)}
                   >
-                    {spec.SpecializationName}
-                  </option>
-                ))}
-              </select>
+                    <SelectTrigger
+                      className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
+                    >
+                      <SelectValue placeholder="Select Specialization" />
+                    </SelectTrigger>
+                    <SelectContent  className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
+                      {specializations.map((spec: any) => (
+                        <SelectItem
+                          key={spec.SpecializationId}
+                          value={spec.SpecializationId.toString()}
+                        >
+                          {spec.SpecializationName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+
               {errors.SpecializationId && (
                 <p className="text-red-500 text-sm">
                   {errors.SpecializationId.message}
@@ -701,6 +787,8 @@ export default function AddUserPage() {
 
             {/* Experience */}
             <div className="flex flex-col">
+              <Label className="mb-1 block text-sm">Year Of Experiance</Label>
+
               <Input
                 {...register("Experience")}
                 placeholder="Year Of Experience"
@@ -1049,6 +1137,8 @@ export default function AddUserPage() {
           </div>
         </form>
       </main>
+      </>
+      )}
     </div>
   );
 }

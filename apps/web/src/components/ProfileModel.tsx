@@ -25,6 +25,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
 import { ProfileSkeleton } from "./ui/skeletonloader/ProfileSkeleton";
+import { Label } from "@/components/ui/label";
 
 interface ProfileModalProps {
   open: boolean;
@@ -70,7 +71,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
         setEmail(result.user.email || "");
       }
       setLoading(false);
-
     };
 
     if (open) {
@@ -183,7 +183,10 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
     try {
       setApiError("");
       setApiSuccess("");
-      const passwordUpdate = await updatePassword(data.currentPassword, data.newPassword);
+      const passwordUpdate = await updatePassword(
+        data.currentPassword,
+        data.newPassword
+      );
       setApiSuccess("Password changed successfully!");
       toast.success("Password changed successfully");
     } catch (error: any) {
@@ -238,141 +241,141 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
           {/* Profile Info Tab */}
 
           <TabsContent value="profile">
-            {loading? <ProfileSkeleton/>: 
-            <div>
-            <form className="space-y-4" onSubmit={handleProfileSubmit}>
-              {/* Profile Image */}
-              <div className="flex flex-col items-center justify-center relative w-fit group mx-auto my-4">
-                <div className="relative h-20 w-20 rounded-full overflow-hidden group">
-                  {imageUrl ? (
-                    <Image
-                      src={imageUrl}
-                      alt="User avatar"
-                      width={80}
-                      height={80}
-                      className="object-cover h-full w-full"
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center h-full w-full bg-blue-500 text-white text-xl font-bold">
-                      {initials}
+            {loading ? (
+              <ProfileSkeleton />
+            ) : (
+              <div>
+                <form className="space-y-4" onSubmit={handleProfileSubmit}>
+                  {/* Profile Image */}
+                  <div className="flex flex-col items-center justify-center relative w-fit group mx-auto my-4">
+                    <div className="relative h-20 w-20 rounded-full overflow-hidden group">
+                      {imageUrl ? (
+                        <Image
+                          src={imageUrl}
+                          alt="User avatar"
+                          width={80}
+                          height={80}
+                          className="object-cover h-full w-full"
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full w-full bg-blue-500 text-white text-xl font-bold">
+                          {initials}
+                        </div>
+                      )}
+
+                      {/* Edit icon on hover */}
+                      <div
+                        onClick={handleImageClick}
+                        className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center cursor-pointer"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-6 w-6 text-white"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15.232 5.232l3.536 3.536M9 11l6-6 3.536 3.536a2 2 0 010 2.828l-6 6H9v-2.828a2 2 0 01.586-1.414z"
+                          />
+                        </svg>
+                      </div>
                     </div>
-                  )}
 
-                  {/* Edit icon on hover */}
-                  <div
-                    onClick={handleImageClick}
-                    className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center cursor-pointer"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6 text-white"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15.232 5.232l3.536 3.536M9 11l6-6 3.536 3.536a2 2 0 010 2.828l-6 6H9v-2.828a2 2 0 01.586-1.414z"
-                      />
-                    </svg>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
                   </div>
-                </div>
 
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
-              </div>
+                  {/* First Row: First Name and Last Name */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* First Name */}
+                    <div>
+                      <Label className="mb-2">First Name</Label>
+                      <input
+                        type="text"
+                        placeholder="John"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm text-gray-800 shadow-md placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200"
+                      />
+                    </div>
 
-              {/* First Row: First Name and Last Name */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* First Name */}
-                <div>
-                  <label className="ModelFont text-sm block  font-semibold text-gray-700 mb-2">
-                    First Name
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="John"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm text-gray-800 shadow-md placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200"
-                  />
-                </div>
+                    {/* Last Name */}
+                    <div>
+                    <Label className="mb-2">Last Name</Label>
 
-                {/* Last Name */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Last Name
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Doe"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm text-gray-800 shadow-md placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200"
-                  />
-                </div>
-              </div>
+                      <input
+                        type="text"
+                        placeholder="Doe"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm text-gray-800 shadow-md placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200"
+                      />
+                    </div>
+                  </div>
 
-              {/* Second Row: Phone Number and DOB */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                {/* Phone Number */}
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 mb-2 block">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    placeholder="+1 234 567 890"
-                    value={mobile}
-                    maxLength={10}
-                    onChange={(e) => setMobile(e.target.value)}
-                    className={`w-full rounded-xl px-4 py-2 text-sm shadow-md transition duration-200 
+                  {/* Second Row: Phone Number and DOB */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                    {/* Phone Number */}
+                    <div>
+                    <Label className="mb-2">Phone Number</Label>
+
+                      <input
+                        type="tel"
+                        placeholder="+1 234 567 890"
+                        value={mobile}
+                        maxLength={10}
+                        onChange={(e) => setMobile(e.target.value)}
+                        className={`w-full rounded-xl px-4 py-2 text-sm shadow-md transition duration-200 
       ${error.mobile ? "border-red-500 ring-2 ring-red-300" : "border-gray-300 focus:border-blue-500 focus:ring-blue-300"} 
       bg-white text-gray-800 placeholder:text-gray-400 focus:outline-none`}
-                  />
-                  {error.mobile && (
-                    <p className="text-red-500 text-xs mt-1">{error.mobile}</p>
-                  )}
-                </div>
+                      />
+                      {error.mobile && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {error.mobile}
+                        </p>
+                      )}
+                    </div>
 
-                {/* Date of Birth */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Date of Birth
-                  </label>
-                  <input
-                    type="date"
-                    value={dateOfBirth}
-                    onChange={(e) => setDateOfBirth(e.target.value)}
-                    maxLength={10}
-                    className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm text-gray-800 shadow-md focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200"
-                  />
-                </div>
+                    {/* Date of Birth */}
+                    <div>
+                    <Label className="mb-2">Date Of Birth</Label>
+
+                      <input
+                        type="date"
+                        value={dateOfBirth}
+                        onChange={(e) => setDateOfBirth(e.target.value)}
+                        maxLength={10}
+                        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm text-gray-800 shadow-md focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200"
+                      />
+                    </div>
+                  </div>
+
+                  <DialogFooter className="pt-4">
+                    {/* {mutation.isLoading && <p>Loading...</p>} */}
+
+                    <button
+                      type="submit"
+                      disabled={mutation.status === "pending"}
+                      className="bg-green-400 hover:bg-green-500 text-white px-5 py-2 rounded-4xl shadow-2xl transition disabled:opacity-50 cursor-pointer"
+                      // onClick={() => mutation.mutate(data)}
+                    >
+                      {mutation.status === "pending"
+                        ? "Saving..."
+                        : "Save Changes"}
+                    </button>
+                  </DialogFooter>
+                </form>
               </div>
-
-              <DialogFooter className="pt-4">
-                {/* {mutation.isLoading && <p>Loading...</p>} */}
-
-                <button
-                  type="submit"
-                  disabled={mutation.status === "pending"}
-                  className="bg-green-400 hover:bg-green-500 text-white px-5 py-2 rounded-4xl shadow-2xl transition disabled:opacity-50 cursor-pointer"
-                  // onClick={() => mutation.mutate(data)}
-                >
-                  {mutation.status === "pending" ? "Saving..." : "Save Changes"}
-                </button>
-              </DialogFooter>
-            </form>
-            </div>}
-           
-            
+            )}
           </TabsContent>
 
           {/* Credentials Tab */}
@@ -485,7 +488,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
                   disabled={isSubmitting}
                   className="bg-green-400 hover:bg-green-500 text-white px-5 py-2 rounded-4xl shadow-2xl transition cursor-pointer"
                 >
-                  {isSubmitting? 'updating Password...' : 'Update Password' }
+                  {isSubmitting ? "updating Password..." : "Update Password"}
                 </button>
               </DialogFooter>
 

@@ -349,3 +349,43 @@ export const UpdateTimeslot = async (payload: any) => {
     console.error("Error updating timeslot:", message);
   }
 };
+
+//ADD UPDATE DOCTOR COSTING
+export const AddUpdateDoctorCosting = async (payload: any) => {
+  const session = await getSession();
+
+  try {
+    console.log("Sending doctor costing data:", payload);
+    const res = await axios.post(
+      `${BACKEND_URL}/admin/AddOrUpdateDoctorCosting`,
+      payload, // this is the actual body
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.accessToken}`,
+        },
+      }
+    );
+    return res.data;
+  } catch (error: any) {
+    const message = error.response?.data?.message || error.message;
+    console.error("Error updating doctor costing:", message);
+  }
+};
+
+// Fetch doctor costing
+export const fetchDoctorCosting = async (doctorId: number) => {
+  const session = await getSession();
+  if (!session?.accessToken) {
+    throw new Error("Unauthorized: Access token not found.");
+  }
+
+  const res = await axios.get(`${BACKEND_URL}/admin/GetDoctorCosting/${doctorId}`, {
+    params: { doctorId },
+    headers: {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${session?.accessToken}`,
+    },
+  });
+  return res.data;
+}

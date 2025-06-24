@@ -13,6 +13,15 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
+
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select"; // adjust path if needed
+import { Controller } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
 import { GoogleMapApiKey } from "@/lib/constants";
@@ -84,6 +93,7 @@ const AddHospitalForm = ({
     setValue,
     getValues,
     reset,
+    control,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(hospitalSchema),
@@ -107,7 +117,7 @@ const AddHospitalForm = ({
   }>({});
   useEffect(() => {
     if (!hospital) return;
-  
+
     // Reset form values
     reset({
       HospitalName: hospital.HospitalName,
@@ -124,20 +134,16 @@ const AddHospitalForm = ({
       logoUrl: hospital.logoUrl,
       website: hospital.website,
     });
-  
+
     // Update local state for map pin and address
     setLat(hospital.latitude || lat);
     setLng(hospital.longitude || lng);
     setAddress(hospital.address || "");
- 
-    handlePincodeFetch()
+
+    handlePincodeFetch();
     // Optional: trigger a reverse geocode if you want to validate/refresh address
     // OR ensure Google Maps pin updates
   }, [hospital, reset]);
-  
-  
-  
-  
 
   const handleMapClick = ({ latLng }: google.maps.MapMouseEvent) => {
     if (!latLng) return;
@@ -222,14 +228,18 @@ const AddHospitalForm = ({
       // 🔥 Include required extra fields if needed
       const isEdit = !!hospital?.HospitalId;
 
-    const payload = {
-      ...formData,
-      organizationId: isEdit ? hospital.organizationId ?? "" : Organizationdata?.OrganizationId ?? "",
-      ParentHospitalCode: isEdit ? hospital.Organizationcode ?? "" : Organizationdata?.Organizationcode ?? "",
-      level: "SUPER",
-      status: formData.status || hospital?.status || "ACTIVE",
-      isActive: isEdit ? hospital.isActive ?? true : true,
-    };
+      const payload = {
+        ...formData,
+        organizationId: isEdit
+          ? (hospital.organizationId ?? "")
+          : (Organizationdata?.OrganizationId ?? ""),
+        ParentHospitalCode: isEdit
+          ? (hospital.Organizationcode ?? "")
+          : (Organizationdata?.Organizationcode ?? ""),
+        level: "SUPER",
+        status: formData.status || hospital?.status || "ACTIVE",
+        isActive: isEdit ? (hospital.isActive ?? true) : true,
+      };
       // const parsed = hospitalSchema.safeParse(payload);
       // if (!parsed.success) {
       //   const formatted = parsed.error.format();
@@ -260,17 +270,14 @@ const AddHospitalForm = ({
       // toast.success("Hospital data added scccessfully");
       // reset(); // Reset the form
       // onOpenChange(false); // Close the dialog
-      if(isEdit){
-        
-    
+      if (isEdit) {
         await updatehospitaldetail(hospital.HospitalId, payload);
         toast.success("Hospital updated successfully");
-      }
-      else{
+      } else {
         const result = await addhospitaldetail(payload);
-      toast.success("Hospital added successfully", result);
+        toast.success("Hospital added successfully", result);
       }
-      
+
       reset();
       onOpenChange(false);
       dispatch(fetchHospitals());
@@ -322,12 +329,11 @@ const AddHospitalForm = ({
                 onPlaceChanged={onPlaceChanged}
               >
                 <Input
-                  placeholder="Search Address"
+                  placeholder="Search Hospital"
                   className={`${inputbox} mb-3`}
                 />
               </Autocomplete>
               <GoogleMap
-
                 mapContainerStyle={{ height: "350px", width: "100%" }}
                 center={{ lat, lng }}
                 zoom={14}
@@ -361,19 +367,36 @@ const AddHospitalForm = ({
                 className={inputbox}
               />
 
-              <select
-                {...register("SpecializationType")}
-                className={`${inputbox} bg-white border border-gray-300 rounded px-4 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400`}
-              >
-                <option value="">Select Specialization</option>
-                <option value="GENERAL">GENERAL</option>
-                <option value="OPHTHALMOLOGY">OPHTHALMOLOGY</option>
-                <option value="DENTAL">DENTAL</option>
-                <option value="ENT">ENT</option>
-                <option value="ORTHOPEDIC">ORTHOPEDIC</option>
-                <option value="MULTISPECIALITY">MULTISPECIALITY</option>
-                <option value="OTHER">OTHER</option>
-              </select>
+              <Controller
+                name="SpecializationType"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <div className="mb-4">
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger
+                        className={`${inputbox} py-1 px-4 text-sm leading-tight h-10`}
+                      >
+                        {" "}
+                        <SelectValue placeholder="Select Specialization" />
+                      </SelectTrigger>
+                      <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
+                        <SelectItem value="GENERAL">GENERAL</SelectItem>
+                        <SelectItem value="OPHTHALMOLOGY">
+                          OPHTHALMOLOGY
+                        </SelectItem>
+                        <SelectItem value="DENTAL">DENTAL</SelectItem>
+                        <SelectItem value="ENT">ENT</SelectItem>
+                        <SelectItem value="ORTHOPEDIC">ORTHOPEDIC</SelectItem>
+                        <SelectItem value="MULTISPECIALITY">
+                          MULTISPECIALITY
+                        </SelectItem>
+                        <SelectItem value="OTHER">OTHER</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              />
 
               <Input
                 {...register("postalCode")}
@@ -406,7 +429,7 @@ const AddHospitalForm = ({
                 {...register("contactNumber")}
                 placeholder="Contact Number"
                 className={inputbox}
-                maxLength  = {10}
+                maxLength={10}
               />
               <Input
                 {...register("email")}

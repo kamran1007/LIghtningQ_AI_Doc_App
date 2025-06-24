@@ -246,6 +246,30 @@ exports.Prisma.DoctorTimeSlotScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.DoctorCostingScalarFieldEnum = {
+  DoctorCostingId: 'DoctorCostingId',
+  doctorId: 'doctorId',
+  hospitalId: 'hospitalId',
+  walkInFee: 'walkInFee',
+  teleConsultFee: 'teleConsultFee',
+  fastTrackFee: 'fastTrackFee',
+  homeVisitFee: 'homeVisitFee',
+  emergencyFee: 'emergencyFee',
+  procedureFee: 'procedureFee',
+  freeFollowupCount: 'freeFollowupCount',
+  followupValidityDays: 'followupValidityDays',
+  tax: 'tax',
+  discount: 'discount',
+  commission: 'commission',
+  discountedFee: 'discountedFee',
+  totalFee: 'totalFee',
+  doctorPayout: 'doctorPayout',
+  insuranceApplicable: 'insuranceApplicable',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  createdById: 'createdById'
+};
+
 exports.Prisma.AuditLogScalarFieldEnum = {
   AuditLogId: 'AuditLogId',
   UserId: 'UserId',
@@ -361,6 +385,7 @@ exports.Prisma.ModelName = {
   UserHospitalAccess: 'UserHospitalAccess',
   Setting: 'Setting',
   DoctorTimeSlot: 'DoctorTimeSlot',
+  DoctorCosting: 'DoctorCosting',
   AuditLog: 'AuditLog',
   LoginSession: 'LoginSession',
   Role: 'Role',

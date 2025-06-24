@@ -3,8 +3,10 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
+import { ok } from 'assert';
 import { BulkUpdateDoctorSlotDto } from 'src/manage_hospital/dto/BulkUpdateDoctorSlotDto';
 import { CancelSlotDto } from 'src/manage_hospital/dto/CancelSlotDto';
+import { CreateDoctorCostingDto } from 'src/manage_hospital/dto/create-doctor-costing.dto';
 import { CreateDoctorSlotDto } from 'src/manage_hospital/dto/create-doctor-slot.dto';
 import { CreateHospitalDto } from 'src/manage_hospital/dto/create_hospital.dto';
 import { CreateUserDto } from 'src/manage_hospital/dto/create_user.dto';
@@ -181,8 +183,10 @@ export class AdminService {
   }
 
   async updateDoctorSlot(dto: UpdateDoctorSlotDto, updatedById: any) {
-    const createDoctorSlots =
-      await this.ManageHospitalService.updateDoctorSlot(dto, updatedById);
+    const createDoctorSlots = await this.ManageHospitalService.updateDoctorSlot(
+      dto,
+      updatedById,
+    );
     return {
       message: 'Doctor slot have been updated',
       return: createDoctorSlots,
@@ -202,11 +206,34 @@ export class AdminService {
       hospitalId: hospitalId !== undefined ? Number(hospitalId) : undefined,
       day: days !== undefined ? String(days) : undefined,
     });
-  
+
     return {
       message: 'Doctor slots fetched successfully',
       return: doctorSlots,
     };
   }
-  
+
+  //createDoctorCosting
+  async createCostingForDoctor(
+    dto: CreateDoctorCostingDto, // Replace 'any' with the actual DTO type
+    userId: number,
+  ) {
+    const createDoctorCosting =
+      await this.ManageHospitalService.createOrUpdateDoctorCosting(dto, userId);
+    return {
+      ok: true,
+      statusCode: 200,
+      message: 'Doctor costing has been added',
+      return: createDoctorCosting,
+    };
+  }
+
+  async getByDoctorId(doctorId: number) {
+    const doctorCosting =
+      await this.ManageHospitalService.getDoctorCostingById(doctorId);
+    return {
+      message: 'Doctor costing fetched successfully',
+      return: doctorCosting,
+    };
+  }
 }

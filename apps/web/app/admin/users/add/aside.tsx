@@ -9,6 +9,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import Timeslot from "./timeslot";
 import { User } from "app/admin/hospitaluserlist";
+import Costing from "./costing";
 
 interface AsideProps {
   user: User | null;
@@ -16,6 +17,8 @@ interface AsideProps {
 
 const Aside: React.FC<AsideProps> = ({ user }) => {
   const [openModal, setOpenModal] = useState(false);
+  const [openCostingModal, setOpenCostingModal] = useState(false);
+
   const navItems = [
     {
       label: "Access Rights",
@@ -39,7 +42,7 @@ const Aside: React.FC<AsideProps> = ({ user }) => {
 
   const setIsCostingDialogOpen = () => {
     console.log("Opening Timeslot dialog");
-    setOpenModal(true);
+    setOpenCostingModal(true);
   };
   return (
     <>
@@ -85,6 +88,7 @@ const Aside: React.FC<AsideProps> = ({ user }) => {
         </ul>
       </aside>
       <Timeslot open={openModal} onOpenChange={setOpenModal} user={user} />
+      <Costing open={openCostingModal} onOpenChange={setOpenCostingModal} user={user}/>
     </>
   );
 }

@@ -1,4 +1,9 @@
-import { ForbiddenException, HttpCode, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  HttpCode,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateHospitalDto } from './dto/create_hospital.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateHospitalDto } from './dto/update_hospital.dto';
@@ -10,6 +15,7 @@ import { CreateDoctorSlotDto } from './dto/create-doctor-slot.dto';
 import { CancelSlotDto } from './dto/CancelSlotDto';
 import { UpdateDoctorSlotDto } from './dto/update-doctor-slot.dto';
 import { BulkUpdateDoctorSlotDto } from './dto/BulkUpdateDoctorSlotDto';
+import { CreateDoctorCostingDto } from './dto/create-doctor-costing.dto';
 
 @Injectable()
 export class ManageHospitalService {
@@ -557,7 +563,7 @@ export class ManageHospitalService {
       },
     });
 
-    if (!slot || slot=== undefined || slot === null) {
+    if (!slot || slot === undefined || slot === null) {
       throw new Error(
         'Time slot not found or does not belong to the specified user/hospital.',
       );
@@ -614,18 +620,18 @@ export class ManageHospitalService {
       }
       const { DoctorTimeSlotId, hospitalId, ...rest } = slot;
 
-const updated = await this.prisma.doctorTimeSlot.update({
-  where: { DoctorTimeSlotId },
-  data: {
-    ...rest,
-    Hospital: {
-      connect: {
-        HospitalId: hospitalId, // 🔁 use actual PK field name from your schema
-      },
-    },
-    updatedAt: now,
-  },
-});
+      const updated = await this.prisma.doctorTimeSlot.update({
+        where: { DoctorTimeSlotId },
+        data: {
+          ...rest,
+          Hospital: {
+            connect: {
+              HospitalId: hospitalId, // 🔁 use actual PK field name from your schema
+            },
+          },
+          updatedAt: now,
+        },
+      });
 
       results.push({
         DoctorTimeSlotId: updated.DoctorTimeSlotId,
@@ -710,56 +716,56 @@ const updated = await this.prisma.doctorTimeSlot.update({
   //   };
   // }
 
-//  async getDoctorSlotsByDay({
-//     userId,
-//     hospitalId,
-//     day,
-//   }: {
-//     userId: number;
-//     hospitalId?: number;
-//     day?: string;
-//   }) {
-//     const whereClause: any = {
-//       userId,
-//       isDeleted: false,
-//     };
-  
-//     if (hospitalId) {
-//       whereClause.HospitalId = hospitalId;
-//     }
-  
-//     if (day) {
-//       whereClause.DayOfWeek = day;
-//     }
-  
-//     // Optional access check
-//     if (hospitalId) {
-//       const access = await this.prisma.userHospitalAccess.findFirst({
-//         where: {
-//           UserId: userId,
-//           hospitalId,
-//         },
-//       });
-  
-//       if (!access) {
-//         throw new ForbiddenException('User is not mapped to this hospital.');
-//       }
-//     }
-  
-//     const slots = await this.prisma.doctorTimeSlot.findMany({
-//       where: whereClause,
-//       orderBy: {
-//         createdAt: 'desc',
-//       },
-//     });
-  
-//     return {
-//       message: `Slots fetched successfully.`,
-//       count: slots.length,
-//       slots,
-//     };
-//   } 
-  
+  //  async getDoctorSlotsByDay({
+  //     userId,
+  //     hospitalId,
+  //     day,
+  //   }: {
+  //     userId: number;
+  //     hospitalId?: number;
+  //     day?: string;
+  //   }) {
+  //     const whereClause: any = {
+  //       userId,
+  //       isDeleted: false,
+  //     };
+
+  //     if (hospitalId) {
+  //       whereClause.HospitalId = hospitalId;
+  //     }
+
+  //     if (day) {
+  //       whereClause.DayOfWeek = day;
+  //     }
+
+  //     // Optional access check
+  //     if (hospitalId) {
+  //       const access = await this.prisma.userHospitalAccess.findFirst({
+  //         where: {
+  //           UserId: userId,
+  //           hospitalId,
+  //         },
+  //       });
+
+  //       if (!access) {
+  //         throw new ForbiddenException('User is not mapped to this hospital.');
+  //       }
+  //     }
+
+  //     const slots = await this.prisma.doctorTimeSlot.findMany({
+  //       where: whereClause,
+  //       orderBy: {
+  //         createdAt: 'desc',
+  //       },
+  //     });
+
+  //     return {
+  //       message: `Slots fetched successfully.`,
+  //       count: slots.length,
+  //       slots,
+  //     };
+  //   }
+
   async getDoctorSlotsByDay({
     userId,
     hospitalId,
@@ -773,15 +779,15 @@ const updated = await this.prisma.doctorTimeSlot.update({
       userId,
       isDeleted: false,
     };
-  
+
     if (hospitalId) {
       whereClause.HospitalId = hospitalId;
     }
-  
+
     if (day) {
       whereClause.DayOfWeek = day;
     }
-  
+
     // Optional access check
     if (hospitalId) {
       const access = await this.prisma.userHospitalAccess.findFirst({
@@ -790,23 +796,23 @@ const updated = await this.prisma.doctorTimeSlot.update({
           hospitalId,
         },
       });
-  
+
       if (!access) {
         throw new ForbiddenException('User is not mapped to this hospital.');
       }
     }
-  
+
     const slots = await this.prisma.doctorTimeSlot.findMany({
       where: whereClause,
       orderBy: {
         createdAt: 'desc',
       },
     });
-  
+
     // To reset temporary cancellations after midnight of that day
     const now = new Date();
     const todayIndex = now.getDay(); // 0 = Sunday, ..., 6 = Saturday
-  
+
     const dayIndexMap: Record<string, number> = {
       SUNDAY: 0,
       MONDAY: 1,
@@ -816,11 +822,11 @@ const updated = await this.prisma.doctorTimeSlot.update({
       FRIDAY: 5,
       SATURDAY: 6,
     };
-  
+
     const adjustedSlots = slots.map((slot) => {
       const slotDay = slot.DayOfWeek?.toUpperCase();
       const slotDayIndex = dayIndexMap[slotDay ?? ''];
-  
+
       // Proceed if all values are valid
       if (
         slot.is_SlotCancelled &&
@@ -828,9 +834,8 @@ const updated = await this.prisma.doctorTimeSlot.update({
         typeof slotDayIndex === 'number'
       ) {
         // Check if today is the NEXT DAY of the slot's day
-        const isNextDay =
-          (todayIndex - slotDayIndex + 7) % 7 === 1; // today is one day after the slot day
-  
+        const isNextDay = (todayIndex - slotDayIndex + 7) % 7 === 1; // today is one day after the slot day
+
         if (isNextDay) {
           return {
             ...slot,
@@ -839,17 +844,179 @@ const updated = await this.prisma.doctorTimeSlot.update({
           };
         }
       }
-  
+
       return slot;
     });
-  
+
     return {
       message: `Slots fetched successfully.`,
       count: adjustedSlots.length,
       slots: adjustedSlots,
     };
   }
+
+  async createOrUpdateDoctorCosting(dto: CreateDoctorCostingDto, userId: number) {
+    const {
+      doctorId,
+      hospitalIds = [],
+      CreatedById = userId,
+      insuranceApplicable,
+      walkInFee,
+      discount = 0,
+      tax = 0,
+      commission = 0,
+      ...restCostingFields
+    } = dto;
+
+    if (typeof doctorId !== 'number') {
+      throw new Error('doctorId is required and must be a number.');
+    }
+
+    if (typeof walkInFee !== 'number') {
+      throw new Error('walkInFee is required and must be a number.');
+    }
+
+    if (typeof insuranceApplicable !== 'boolean') {
+      throw new Error('insuranceApplicable is required and must be a boolean.');
+    }
+
+    // Apply core logic for calculation (can be refactored into a utility)
+    const computeAmountDetails = (baseFee: number) => {
+      const discountedFee = baseFee - (baseFee * discount) / 100;
+      const taxAmount = (discountedFee * tax) / 100;
+      const totalFee = discountedFee + taxAmount;
+      const commissionAmount = (discountedFee * commission) / 100;
+      const doctorPayout = discountedFee - commissionAmount;
+
+      return {
+        discountedFee,
+        taxAmount,
+        totalFee,
+        commissionAmount,
+        doctorPayout,
+      };
+    };
+    // Step 1: Delete existing entries for doctor + hospitals
+    await this.prisma.doctorCosting.deleteMany({
+      where: {
+        doctorId,
+        hospitalId: { in: hospitalIds },
+      },
+    });
+
+    // Prepare entries for each hospital
+    const entries = hospitalIds.map((hospitalId) => {
+      const {
+        discountedFee,
+        taxAmount,
+        totalFee,
+        commissionAmount,
+        doctorPayout,
+      } = computeAmountDetails(walkInFee);
+
+      return {
+        doctorId,
+        hospitalId,
+        walkInFee,
+        teleConsultFee: restCostingFields.teleConsultFee,
+        fastTrackFee: restCostingFields.fastTrackFee,
+        homeVisitFee: restCostingFields.homeVisitFee,
+        emergencyFee: restCostingFields.emergencyFee,
+        procedureFee: restCostingFields.procedureFee,
+        freeFollowupCount: restCostingFields.freeFollowupCount,
+        followupValidityDays: restCostingFields.followupValidityDays,
+        tax,
+        discount,
+        commission,
+        insuranceApplicable,
+        // Optional: You can store these derived values in separate fields if needed
+        discountedFee,
+        totalFee,
+        doctorPayout,
+      };
+    });
+
+    const saved = await this.prisma.doctorCosting.createMany({
+      data: entries,
+      skipDuplicates: true,
+    });
+
+    return {
+      message: 'Doctor costing added successfully.',
+      count: saved.count,
+      data: entries,
+    };
+  }
+
+  // Apply discount, tax, and commission to all fee types (walk-in, teleconsultation, and fast-track), here's a complete, clean approach.
+  // const applyCharges = (fee: number = 0) => {
+  //   const discounted = fee - (fee * discount) / 100;
+  //   const taxAmount = (discounted * tax) / 100;
+  //   const commissionAmount = (discounted * commission) / 100;
+  //   const totalFee = discounted + taxAmount;
+  //   const doctorPayout = discounted - commissionAmount;
+
+  //   return {
+  //     originalFee: fee,
+  //     discountedFee: parseFloat(discounted.toFixed(2)),
+  //     taxAmount: parseFloat(taxAmount.toFixed(2)),
+  //     commissionAmount: parseFloat(commissionAmount.toFixed(2)),
+  //     totalFee: parseFloat(totalFee.toFixed(2)),
+  //     doctorPayout: parseFloat(doctorPayout.toFixed(2)),
+  //   };
+  // };
+
+  // const entries = hospitalIds.map((hospitalId) => {
+  //   const walkIn = applyCharges(walkInFee);
+  //   const tele = applyCharges(restCostingFields.teleConsultFee);
+  //   const fastTrack = applyCharges(restCostingFields.fastTrackFee);
+
+  //   return {
+  //     doctorId,
+  //     hospitalId,
+  //     walkInFee: walkIn.originalFee,
+  //     teleConsultFee: tele.originalFee,
+  //     fastTrackFee: fastTrack.originalFee,
+  //     homeVisitFee: restCostingFields.homeVisitFee,
+  //     emergencyFee: restCostingFields.emergencyFee,
+  //     procedureFee: restCostingFields.procedureFee,
+  //     freeFollowupCount: restCostingFields.freeFollowupCount,
+  //     followupValidityDays: restCostingFields.followupValidityDays,
+  //     tax,
+  //     discount,
+  //     commission,
+  //     insuranceApplicable,
+
+  //     // Optional: Save breakdowns
+  //     walkInDiscounted: walkIn.discountedFee,
+  //     walkInTax: walkIn.taxAmount,
+  //     walkInTotal: walkIn.totalFee,
+  //     walkInPayout: walkIn.doctorPayout,
+
+  //     teleDiscounted: tele.discountedFee,
+  //     teleTax: tele.taxAmount,
+  //     teleTotal: tele.totalFee,
+  //     telePayout: tele.doctorPayout,
+
+  //     fastTrackDiscounted: fastTrack.discountedFee,
+  //     fastTrackTax: fastTrack.taxAmount,
+  //     fastTrackTotal: fastTrack.totalFee,
+  //     fastTrackPayout: fastTrack.doctorPayout,
+  //   };
+  // });
+  //
+
+
+
+
   
+// Get Doctor Costing by ID
+  async getDoctorCostingById(doctorId: number) {
+    const data = await this.prisma.doctorCosting.findMany({
+      where: { doctorId },
+      include: { hospital: false },
+    });
 
-
+    return { doctorId, costings: data };
+  }
 }

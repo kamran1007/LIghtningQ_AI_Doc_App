@@ -73,6 +73,10 @@ model User {
   UserHospitalAccess UserHospitalAccess[] @relation("CreatedUserHospitalAccess")
 
   DoctorTimeSlot DoctorTimeSlot[]
+
+  DoctorCosting DoctorCosting[]
+
+  DoctorCostingCreatedBy DoctorCosting[] @relation("UserCreatedDoctorCosting")
 }
 
 // Organization (Top-most head entity created by you or BA)
@@ -154,6 +158,8 @@ model Hospital {
   deletedAt DateTime?
 
   DoctorTimeSlot DoctorTimeSlot[]
+
+  DoctorCosting DoctorCosting[]
 }
 
 // User ↔ Hospital mapping model
@@ -213,6 +219,7 @@ model DoctorTimeSlot {
   DNDremarks                String?
   Slot_cancellation_remarks String?
   isSlotChanged             Boolean  @default(false)
+  isPermanentCancelled      Boolean  @default(false)
   isActive                  Boolean  @default(true)
   isDeleted                 Boolean  @default(false)
   isAvailable               Boolean  @default(true)
@@ -222,6 +229,35 @@ model DoctorTimeSlot {
   createdBy                 Int?
   createdAt                 DateTime @default(now())
   updatedAt                 DateTime @updatedAt
+}
+
+model DoctorCosting {
+  DoctorCostingId      Int      @id @default(autoincrement())
+  doctorId             Int
+  doctor               User     @relation(fields: [doctorId], references: [UserId])
+  hospitalId           Int
+  hospital             Hospital @relation(fields: [hospitalId], references: [HospitalId])
+  walkInFee            Float
+  teleConsultFee       Float?
+  fastTrackFee         Float?
+  homeVisitFee         Float?
+  emergencyFee         Float?
+  procedureFee         Float?
+  freeFollowupCount    Int?
+  followupValidityDays Int?
+  tax                  Float?
+  discount             Float?
+  commission           Float?
+  discountedFee        Float?
+  totalFee             Float?
+  doctorPayout         Float?
+  insuranceApplicable  Boolean
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  createdById          Int?
+  createdBy            User?    @relation("UserCreatedDoctorCosting", fields: [createdById], references: [UserId])
+
+  @@unique([doctorId, hospitalId])
 }
 
 model AuditLog {

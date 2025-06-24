@@ -27,6 +27,15 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+
 import { User } from "app/admin/hospitaluserlist";
 import { RootState } from "@/store";
 import { useSelector } from "react-redux";
@@ -64,24 +73,6 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
   const [remarkType, setRemarkType] = useState<"DND" | "CANCEL" | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isPermanentCancelled, setIsPermanentCancel] = useState(false);
-
-
-  // const [slotsByDay, setSlotsByDay] = useState<
-  //   Record<
-  //     string,
-  //     {
-  //       DoctorTimeSlotId?: number;
-  //       morning: { from: string; to: string };
-  //       evening: { from: string; to: string };
-  //       consultTime: string;
-  //       isDND: boolean;
-  //       dndRemarks?: string;
-  //       isCancelled: boolean;
-  //       cancellationRemarks?: string;
-  //       acceptAppointments: boolean;
-  //     }
-  //   >
-  // >({});
 
   type TimeSlot = {
     DoctorTimeSlotId?: number;
@@ -123,23 +114,20 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
 
   const isTimeInRange = (target: string, start?: string, end?: string) => {
     if (!target || !start || !end) return false;
-  
+
     const toMinutes = (time: string): number => {
       const [h = "0", m = "0"] = time.split(":");
       return parseInt(h) * 60 + parseInt(m);
     };
-  
+
     const targetMins = toMinutes(target);
     const startMins = toMinutes(start);
     const endMins = toMinutes(end);
-  
+
     return targetMins >= startMins && targetMins <= endMins;
   };
-  
-  
 
-// Slot time helpers should be inside a function where 'day' is defined, such as renderSlotInputs.
-  
+  // Slot time helpers should be inside a function where 'day' is defined, such as renderSlotInputs.
 
   type SlotUpdateDetails = {
     DoctorTimeSlotId?: number;
@@ -599,10 +587,11 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
           <Label className="mb-1 block text-sm font-medium text-gray-700">
             Select Hospital (Branch)
           </Label>
-          <select
-            value={slotsByDay[day]?.hospitalId ?? ""}
-            onChange={(e) => {
-              const hospitalId = Number(e.target.value);
+
+          <Select
+            value={slotsByDay[day]?.hospitalId?.toString() ?? ""}
+            onValueChange={(value) => {
+              const hospitalId = Number(value);
 
               setSlotsByDay((prev) => {
                 const existing = prev[day] || {
@@ -616,7 +605,7 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
                   cancellationRemarks: "",
                   acceptAppointments: true,
                   isPermanentCancelled: false,
-                  hospitalId: hospitalId, // this will be overridden below but safe fallback
+                  hospitalId,
                 };
 
                 return {
@@ -628,19 +617,21 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
                 };
               });
             }}
-            className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            title="Select Hospital"
           >
-            <option value="">Select Hospital</option>
-            {user?.AdminAccess.map((hosp: any) => (
-              <option
-                key={hosp.hospital.HospitalId}
-                value={hosp.hospital.HospitalId}
-              >
-                {hosp.hospital.HospitalName}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+              <SelectValue placeholder="Select Hospital" />
+            </SelectTrigger>
+            <SelectContent className="border-white shadow-2xl rounded-2xl data-[state=checked]:bg-white data-[highlighted]:bg-white">
+              {user?.AdminAccess.map((hosp: any) => (
+                <SelectItem
+                  key={hosp.hospital.HospitalId}
+                  value={hosp.hospital.HospitalId.toString()}
+                >
+                  {hosp.hospital.HospitalName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </>
@@ -691,11 +682,13 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
                               ? "bg-red-500 text-white"
                               : isDND
                                 ? "bg-yellow-400 text-white"
-                                : isSelected
-                                  ? "bg-green-500 text-white"
+                                : isToday && isSelected
+                                  ? "bg-blue-500 hover:bg-green-500 text-white"
                                   : isToday
-                                    ? "bg-blue-400 text-white"
-                                    : "bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-300"
+                                    ? "bg-blue-400 text-white" // 💙 Today gets priority
+                                    : isSelected
+                                      ? "bg-green-500 text-white"
+                                      : "bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-300"
                           )}
                           onClick={() => toggleDay(day)}
                         >
@@ -959,7 +952,7 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
                         ? "bg-red-50 text-black"
                         : dndDays.includes(today)
                           ? "bg-yellow-50 text-black"
-                          : "bg-green-50 text-black"
+                          : "bg-blue-50 text-black"
                     )}
                   >
                     <div className="flex justify-between items-center w-full">
