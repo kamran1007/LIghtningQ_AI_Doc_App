@@ -1,0 +1,30 @@
+-- CreateTable
+CREATE TABLE "DoctorTimeSlotHistory" (
+    "DoctorTimeSlotHistoryId" SERIAL NOT NULL,
+    "DoctorTimeSlotId" INTEGER,
+    "userId" INTEGER NOT NULL,
+    "HospitalId" INTEGER NOT NULL,
+    "DayOfWeek" TEXT NOT NULL,
+    "Morning_From" TEXT,
+    "Morning_To" TEXT,
+    "Evening_From" TEXT,
+    "Evening_To" TEXT,
+    "consult_Time_InMin" INTEGER NOT NULL,
+    "Accept_Appointment_Selected_Date" BOOLEAN NOT NULL,
+    "is_DND" BOOLEAN NOT NULL,
+    "is_SlotCancelled" BOOLEAN NOT NULL,
+    "isPermanentCancelled" BOOLEAN NOT NULL,
+    "DNDremarks" TEXT,
+    "Slot_cancellation_remarks" TEXT,
+    "isDeleted" BOOLEAN NOT NULL,
+    "isAvailable" BOOLEAN NOT NULL,
+    "isBooked" BOOLEAN NOT NULL,
+    "isConfirmed" BOOLEAN NOT NULL,
+    "isRejected" BOOLEAN NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "changedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "changedBy" INTEGER NOT NULL,
+
+    CONSTRAINT "DoctorTimeSlotHistory_pkey" PRIMARY KEY ("DoctorTimeSlotHistoryId")
+);

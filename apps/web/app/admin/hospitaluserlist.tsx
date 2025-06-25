@@ -64,10 +64,16 @@ const UserList = () => {
     pageSize: 10,
   });
 
+  // const handleEdit = (user: User) => {
+  //   router.push(`/admin/users/add?page=edit&userId=${user.UserId}`);
+  // };
   const handleEdit = (user: User) => {
+    // Store current tab in localStorage
+    localStorage.setItem("adminTab", "user");
+  
+    // Redirect to user edit page
     router.push(`/admin/users/add?page=edit&userId=${user.UserId}`);
   };
-
   const toggleStatus = async (user: User) => {
     const success = await toggleUserStatus(user);
     if (success) {
@@ -180,7 +186,7 @@ const UserList = () => {
           >
             <DropdownMenuItem
               onClick={() => handleEdit(row.original)}
-              className="flex items-center gap-1 px-2 py-1 text-sm text-gray-700 hover:bg-blue-50"
+              className="flex items-center gap-1 px-2 py-1 text-sm text-gray-700 hover:bg-blue-50 cursor-pointer"
             >
               <Edit className="w-4 h-4 text-blue-500" />
               Edit

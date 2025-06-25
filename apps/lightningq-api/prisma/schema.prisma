@@ -184,6 +184,38 @@ model UserHospitalAccess {
   @@unique([UserId, hospitalId]) // Prevent duplicate mappings
 }
 
+model DoctorTimeSlotHistory {
+  DoctorTimeSlotHistoryId          Int      @id @default(autoincrement())
+  DoctorTimeSlotId                 Int?
+  userId                           Int
+  HospitalId                       Int
+  DayOfWeek                        String
+  Morning_From                     String?
+  Morning_To                       String?
+  Evening_From                     String?
+  Evening_To                       String?
+  consult_Time_InMin               Int
+  Accept_Appointment_Selected_Date Boolean
+  is_DND                           Boolean
+  is_SlotCancelled                 Boolean
+  isPermanentCancelled             Boolean
+  DNDremarks                       String?
+  Slot_cancellation_remarks        String?
+  isDeleted                        Boolean
+  isAvailable                      Boolean
+  isBooked                         Boolean
+  isConfirmed                      Boolean
+  isRejected                       Boolean
+  createdAt                        DateTime
+  updatedAt                        DateTime
+  changedAt                        DateTime @default(now()) // ← when change happened
+  changedBy                        Int // ← user who made the change
+  isSlotChanged                    Boolean? // ✅ Add this here
+  isActive                         Boolean @default(true)
+  createdBy                        Int?
+  
+}
+
 model Setting {
   SettingId Int    @id @default(autoincrement())
   UserId    Int    @unique
@@ -248,17 +280,16 @@ model DoctorCosting {
   tax                  Float?
   discount             Float?
   commission           Float?
-   discountedFee       Float?   
-  totalFee             Float?   
-  doctorPayout         Float?   
+  discountedFee        Float?
+  totalFee             Float?
+  doctorPayout         Float?
   insuranceApplicable  Boolean
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
   createdById          Int?
-  createdBy            User? @relation("UserCreatedDoctorCosting", fields: [createdById], references: [UserId])
+  createdBy            User?    @relation("UserCreatedDoctorCosting", fields: [createdById], references: [UserId])
 
   @@unique([doctorId, hospitalId])
-
 }
 
 model AuditLog {

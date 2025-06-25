@@ -40,7 +40,7 @@ import { User } from "app/admin/hospitaluserlist";
 import { RootState } from "@/store";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
-import { CreateTimeSlot, fetchDoctorSlots, UpdateTimeslot } from "@/lib/admin";
+import { AddUpdateDoctorTimeSlot, CreateTimeSlot, fetchDoctorSlots, UpdateTimeslot } from "@/lib/admin";
 import { DoctorSlotSkeleton } from "@/components/ui/skeletonloader/DoctorSlotSkeleton";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
@@ -137,7 +137,6 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
     Evening_From: string | null;
     Evening_To: string | null;
     consult_Time_InMin: number;
-    Accept_Appointment_Selected_Date: boolean;
     DNDremarks?: string;
     Slot_cancellation_remarks?: string;
     is_DND?: boolean;
@@ -145,143 +144,248 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
     isPermanentCancelled?: boolean;
     isDeleted?: boolean; // optional, only if supported
     hospitalId?: number; // optional, if needed
+    isSlotChanged?: boolean; // optional, if needed
   };
+
+  // const handleSave = async () => {
+  //   if (!user) return;
+
+  //   try {
+  //     const updateSlots: SlotUpdateDetails[] = [];
+  //     const createSlots: Omit<SlotUpdateDetails, "DoctorTimeSlotId">[] = [];
+
+  //     for (const day of selectedDays) {
+  //       const slot = slotsByDay[day];
+  //       const errors: string[] = [];
+
+  //       if (!slot) {
+  //         errors.push(`${day}: Slot is not configured.`);
+  //         continue;
+  //       }
+
+  //       if (!slot.morning?.from || !slot.morning?.to) {
+  //         errors.push(`${day}: Morning slot time is incomplete.`);
+  //       }
+
+  //       if (!slot.evening?.from || !slot.evening?.to) {
+  //         errors.push(`${day}: Evening slot time is incomplete.`);
+  //       }
+
+  //       if (!slot.consultTime || isNaN(parseInt(slot.consultTime))) {
+  //         errors.push(`${day}: Consult time is missing or invalid.`);
+  //       }
+
+  //       if (!slot.hospitalId || isNaN(Number(slot.hospitalId))) {
+  //         errors.push(`${day}: Hospital is not selected.`);
+  //       }
+
+  //       if (errors.length > 0) {
+  //         toast.error(errors.join("\n"));
+  //         return;
+  //       }
+  //     }
+
+  //     selectedDays.forEach((day) => {
+  //       const slot = slotsByDay[day] ?? defaultDaySlot;
+
+  //       const baseSlot = {
+  //         DayOfWeek: day,
+  //         Morning_From: slot.morning?.from || "",
+  //         Morning_To: slot.morning?.to || "",
+  //         Evening_From: slot.evening?.from || "",
+  //         Evening_To: slot.evening?.to || "",
+  //         consult_Time_InMin: parseInt(slot.consultTime) || 15,
+  //         Accept_Appointment_Selected_Date: slot.acceptAppointments ?? true,
+  //         DNDremarks: slot.isDND ? slot.dndRemarks || "Marked DND" : undefined,
+  //         Slot_cancellation_remarks: slot.isCancelled
+  //           ? slot.cancellationRemarks || "Marked Cancelled"
+  //           : undefined,
+  //         isPermanentCancelled: slot.isPermanentCancelled ?? false,
+  //         hospitalId: slot.hospitalId,
+  //       };
+
+  //       if ("DoctorTimeSlotId" in slot && slot.DoctorTimeSlotId) {
+  //         updateSlots.push({
+  //           ...baseSlot,
+  //           DoctorTimeSlotId: slot.DoctorTimeSlotId,
+  //           is_DND: slot.isDND,
+  //           is_SlotCancelled: slot.isCancelled,
+  //           isDeleted: false,
+  //           hospitalId: slot.hospitalId ?? undefined, // ✅ use per-slot hospital ID
+  //         });
+  //       } else {
+  //         createSlots.push({
+  //           ...baseSlot,
+  //           is_DND: slot.isDND,
+  //           is_SlotCancelled: slot.isCancelled,
+  //           isDeleted: false,
+  //           hospitalId: slot.hospitalId ?? undefined, // ✅ use per-slot hospital ID
+  //         });
+  //       }
+  //     }); // ✅ closing forEach here
+
+  //     const allSavedDays = Object.keys(slotsByDay); // Previously saved
+  //     const inactiveDays = allSavedDays.filter(
+  //       (day) => !selectedDays.includes(day)
+  //     );
+
+  //     inactiveDays.forEach((day) => {
+  //       const slot = slotsByDay[day];
+  //       if (slot?.DoctorTimeSlotId) {
+  //         updateSlots.push({
+  //           DayOfWeek: day,
+  //           DoctorTimeSlotId: slot.DoctorTimeSlotId,
+  //           Morning_From: "",
+  //           Morning_To: "",
+  //           Evening_From: "",
+  //           Evening_To: "",
+  //           consult_Time_InMin: 15,
+  //           Accept_Appointment_Selected_Date: false,
+  //           is_DND: false,
+  //           is_SlotCancelled: false,
+  //           isPermanentCancelled: false,
+  //           DNDremarks: "",
+  //           Slot_cancellation_remarks: "",
+  //           isDeleted: true, // optional: only if supported
+  //         });
+  //       }
+  //     });
+
+  //     const commonPayload = {
+  //       userId: user.UserId,
+  //     };
+  //     let res = null;
+  //     let response = null;
+  //     // 1. Update
+  //     if (updateSlots.length > 0) {
+  //       const updatePayload = {
+  //         ...commonPayload,
+  //         slots: updateSlots,
+  //       };
+  //       res = await UpdateTimeslot(updatePayload);
+  //       console.log("Response from UpdateTimeslot:", res);
+  //     }
+
+  //     // 2. Create
+  //     if (createSlots.length > 0) {
+  //       const createPayload = {
+  //         ...commonPayload,
+  //         timeSlots: createSlots,
+  //       };
+  //       response = await CreateTimeSlot(createPayload);
+  //       console.log("Response from CreateTimeSlot:", response);
+  //     }
+  //     console.log("Slots saved successfully:", {
+  //       updateSlots,
+  //       createSlots,
+  //     });
+  //     if (res?.return?.HttpCode === 200 || response?.return?.HttpCode === 201) {
+  //       toast.success("Time slots saved successfully!");
+  //       onOpenChange(false);
+  //     }
+  //   } catch (err) {
+  //     console.error("Save error:", err);
+  //     toast.error("Failed to save time slots.");
+  //   }
+  // };
 
   const handleSave = async () => {
     if (!user) return;
-
+  
     try {
-      const updateSlots: SlotUpdateDetails[] = [];
-      const createSlots: Omit<SlotUpdateDetails, "DoctorTimeSlotId">[] = [];
-
+      const finalSlots: Omit<SlotUpdateDetails, "DoctorTimeSlotId">[] = [];
+  
       for (const day of selectedDays) {
         const slot = slotsByDay[day];
         const errors: string[] = [];
-
+  
         if (!slot) {
           errors.push(`${day}: Slot is not configured.`);
           continue;
         }
-
-        if (!slot.morning?.from || !slot.morning?.to) {
-          errors.push(`${day}: Morning slot time is incomplete.`);
+  
+        if (
+          (!slot.morning?.from || !slot.morning?.to) &&
+          (!slot.evening?.from || !slot.evening?.to)
+        ) {
+          errors.push(`${day}: At least one complete slot (morning or evening) is required.`);
         }
-
-        if (!slot.evening?.from || !slot.evening?.to) {
-          errors.push(`${day}: Evening slot time is incomplete.`);
-        }
-
+  
         if (!slot.consultTime || isNaN(parseInt(slot.consultTime))) {
           errors.push(`${day}: Consult time is missing or invalid.`);
         }
-
+  
         if (!slot.hospitalId || isNaN(Number(slot.hospitalId))) {
           errors.push(`${day}: Hospital is not selected.`);
         }
-
+  
         if (errors.length > 0) {
           toast.error(errors.join("\n"));
           return;
         }
-      }
-
-      selectedDays.forEach((day) => {
-        const slot = slotsByDay[day] ?? defaultDaySlot;
-
-        const baseSlot = {
+  
+        finalSlots.push({
           DayOfWeek: day,
           Morning_From: slot.morning?.from || "",
           Morning_To: slot.morning?.to || "",
           Evening_From: slot.evening?.from || "",
           Evening_To: slot.evening?.to || "",
           consult_Time_InMin: parseInt(slot.consultTime) || 15,
-          Accept_Appointment_Selected_Date: slot.acceptAppointments ?? true,
           DNDremarks: slot.isDND ? slot.dndRemarks || "Marked DND" : undefined,
           Slot_cancellation_remarks: slot.isCancelled
             ? slot.cancellationRemarks || "Marked Cancelled"
             : undefined,
           isPermanentCancelled: slot.isPermanentCancelled ?? false,
           hospitalId: slot.hospitalId,
-        };
-
-        if ("DoctorTimeSlotId" in slot && slot.DoctorTimeSlotId) {
-          updateSlots.push({
-            ...baseSlot,
-            DoctorTimeSlotId: slot.DoctorTimeSlotId,
-            is_DND: slot.isDND,
-            is_SlotCancelled: slot.isCancelled,
-            isDeleted: false,
-            hospitalId: slot.hospitalId ?? undefined, // ✅ use per-slot hospital ID
-          });
-        } else {
-          createSlots.push({
-            ...baseSlot,
-            is_DND: slot.isDND,
-            is_SlotCancelled: slot.isCancelled,
-            isDeleted: false,
-            hospitalId: slot.hospitalId ?? undefined, // ✅ use per-slot hospital ID
-          });
-        }
-      }); // ✅ closing forEach here
-
-      const allSavedDays = Object.keys(slotsByDay); // Previously saved
-      const inactiveDays = allSavedDays.filter(
-        (day) => !selectedDays.includes(day)
-      );
-
+          is_DND: slot.isDND,
+          is_SlotCancelled: slot.isCancelled,
+          isDeleted: false,
+          isSlotChanged: Boolean(slot.DoctorTimeSlotId), // Track if this is an update
+        });
+      }
+  
+      // Handle deselected days → mark as deleted
+      const allSavedDays = Object.keys(slotsByDay);
+      const inactiveDays = allSavedDays.filter((day) => !selectedDays.includes(day));
+  
       inactiveDays.forEach((day) => {
         const slot = slotsByDay[day];
         if (slot?.DoctorTimeSlotId) {
-          updateSlots.push({
+          finalSlots.push({
             DayOfWeek: day,
-            DoctorTimeSlotId: slot.DoctorTimeSlotId,
             Morning_From: "",
             Morning_To: "",
             Evening_From: "",
             Evening_To: "",
             consult_Time_InMin: 15,
-            Accept_Appointment_Selected_Date: false,
+            DNDremarks: "",
+            Slot_cancellation_remarks: "",
             is_DND: false,
             is_SlotCancelled: false,
             isPermanentCancelled: false,
-            DNDremarks: "",
-            Slot_cancellation_remarks: "",
-            isDeleted: true, // optional: only if supported
+            isDeleted: true,
+            hospitalId: slot.hospitalId ?? undefined,
+            isSlotChanged: true, // Mark as deleted
           });
         }
       });
-
-      const commonPayload = {
+  
+      // 🔁 New unified payload
+      const payload = {
         userId: user.UserId,
+        Accept_Appointment_Selected_Date: selectedDays.every(
+          (day) => slotsByDay[day]?.acceptAppointments
+        ),
+        timeSlots: finalSlots,
       };
-      let res = null;
-      let response = null;
-      // 1. Update
-      if (updateSlots.length > 0) {
-        const updatePayload = {
-          ...commonPayload,
-          slots: updateSlots,
-        };
-        res = await UpdateTimeslot(updatePayload);
-        console.log("Response from UpdateTimeslot:", res);
-      }
-
-      // 2. Create
-      if (createSlots.length > 0) {
-        const createPayload = {
-          ...commonPayload,
-          timeSlots: createSlots,
-        };
-        response = await CreateTimeSlot(createPayload);
-        console.log("Response from CreateTimeSlot:", response);
-      }
-      console.log("Slots saved successfully:", {
-        updateSlots,
-        createSlots,
-      });
-      if (res?.return?.HttpCode === 200 || response?.return?.HttpCode === 201) {
+  
+      const res = await AddUpdateDoctorTimeSlot(payload);
+      console.log("Response from AddUpdateDoctorTimeSlot:", res);
+      if (res?.return?.HttpCode === 201) {
         toast.success("Time slots saved successfully!");
         onOpenChange(false);
+      } else {
+        toast.error("Something went wrong saving slots.");
       }
     } catch (err) {
       console.error("Save error:", err);
@@ -361,6 +465,7 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
           const result = await fetchDoctorSlots(user.UserId); // ✅ Here!
 
           const allSlots = result?.return?.slots || [];
+          console.log("Fetched slots:", allSlots);
           // const selectedHospitals = allSlots?.HospitalId;
           // if (!selectedHospitals && allSlots?.HospitalId) {
           //   setSelectedHospitalId(selectedHospitals);
@@ -387,7 +492,7 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
               isCancelled: slot?.is_SlotCancelled ?? false,
               cancellationRemarks: slot?.Slot_cancellation_remarks || "",
               acceptAppointments:
-                slot?.Accept_Appointment_Selected_Date ?? true,
+                Boolean(slot?.Accept_Appointment_Selected_Date),
 
               isPermanentCancelled: slot?.isPermanentCancelled ?? false,
               hospitalId: slot?.HospitalId ?? undefined, // ✅ Store per-slot hospital

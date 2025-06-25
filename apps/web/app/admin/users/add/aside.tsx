@@ -10,6 +10,8 @@ import React, { useState } from "react";
 import Timeslot from "./timeslot";
 import { User } from "app/admin/hospitaluserlist";
 import Costing from "./costing";
+import { set } from "zod";
+import toast from "react-hot-toast";
 
 interface AsideProps {
   user: User | null;
@@ -36,13 +38,26 @@ const Aside: React.FC<AsideProps> = ({ user }) => {
     },
   ];
   const setIsTimeSlotDialogOpen = () => {
-    console.log("Opening Timeslot dialog");
-    setOpenModal(true);
+    if (!user) {
+      setOpenModal(false);
+      toast.error("User has Not Added!  Add user first.");
+    } else {
+      console.log("Opening Timeslot dialog");
+      setOpenModal(true);
+    }
   };
 
   const setIsCostingDialogOpen = () => {
-    console.log("Opening Timeslot dialog");
-    setOpenCostingModal(true);
+
+    if (!user) {
+      setOpenCostingModal(false);
+      toast.error("User has Not Added!  Add user first.");
+    } else {
+      console.log("Opening Timeslot dialog");
+      setOpenCostingModal(true);
+    }
+
+
   };
   return (
     <>
@@ -88,9 +103,13 @@ const Aside: React.FC<AsideProps> = ({ user }) => {
         </ul>
       </aside>
       <Timeslot open={openModal} onOpenChange={setOpenModal} user={user} />
-      <Costing open={openCostingModal} onOpenChange={setOpenCostingModal} user={user}/>
+      <Costing
+        open={openCostingModal}
+        onOpenChange={setOpenCostingModal}
+        user={user}
+      />
     </>
   );
-}
+};
 
 export default Aside;

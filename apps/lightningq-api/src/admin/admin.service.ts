@@ -4,6 +4,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { ok } from 'assert';
+import { AddUpdateTimeSlotDto } from 'src/manage_hospital/dto/AddUpdateTimeSlot.dto';
 import { BulkUpdateDoctorSlotDto } from 'src/manage_hospital/dto/BulkUpdateDoctorSlotDto';
 import { CancelSlotDto } from 'src/manage_hospital/dto/CancelSlotDto';
 import { CreateDoctorCostingDto } from 'src/manage_hospital/dto/create-doctor-costing.dto';
@@ -153,6 +154,17 @@ export class AdminService {
       message: 'USER ACTIVATED SUCCESSFULLY',
       return: GetAllHospital,
     };
+  }
+
+  //AddUpdateTimeSlot
+  async addUpdateTimeSlot(dto: AddUpdateTimeSlotDto, createdById: any) {
+    const addUpdateTimeSlot =
+      await this.ManageHospitalService.addUpdateTimeSlot(dto, createdById);
+      return {
+      message: 'Time slot has been added/updated',  
+      return: addUpdateTimeSlot,
+    };
+  
   }
 
   async createDoctorSlots(dto: CreateDoctorSlotDto, createdById: any) {

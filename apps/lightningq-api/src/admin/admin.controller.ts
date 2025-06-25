@@ -33,6 +33,7 @@ import { CancelSlotDto } from 'src/manage_hospital/dto/CancelSlotDto';
 import { UpdateDoctorSlotDto } from 'src/manage_hospital/dto/update-doctor-slot.dto';
 import { BulkUpdateDoctorSlotDto } from 'src/manage_hospital/dto/BulkUpdateDoctorSlotDto';
 import { CreateDoctorCostingDto } from 'src/manage_hospital/dto/create-doctor-costing.dto';
+import { AddUpdateTimeSlotDto } from 'src/manage_hospital/dto/AddUpdateTimeSlot.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -363,6 +364,13 @@ export class AdminController {
   async UserSpecialization(@Request() req) {
     const organizationId = req.user.organizationId;
     return this.adminservice.UserSpecialization(organizationId);
+  }
+
+  //AddUpdate TimeSlot
+  @Post('AddUpdateTimeSlot')
+  async saveTimeSlots(@Body() dto: AddUpdateTimeSlotDto, @Req() req: any) {
+    const userId = req.user?.UserId || 1;
+    return this.adminservice.addUpdateTimeSlot(dto, userId);
   }
 
   //Create sots

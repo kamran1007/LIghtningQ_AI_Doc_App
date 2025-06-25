@@ -16,6 +16,7 @@ import { CancelSlotDto } from './dto/CancelSlotDto';
 import { UpdateDoctorSlotDto } from './dto/update-doctor-slot.dto';
 import { BulkUpdateDoctorSlotDto } from './dto/BulkUpdateDoctorSlotDto';
 import { CreateDoctorCostingDto } from './dto/create-doctor-costing.dto';
+import { AddUpdateTimeSlotDto } from './dto/AddUpdateTimeSlot.dto';
 
 @Injectable()
 export class ManageHospitalService {
@@ -481,6 +482,87 @@ export class ManageHospitalService {
       },
     });
   }
+  //AddUpdate Doctor Slot
+  async addUpdateTimeSlot(dto: AddUpdateTimeSlotDto, userId: number) {
+    if (!dto.userId || !dto.timeSlots || dto.timeSlots.length === 0) {
+      throw new Error('userId and timeSlots are required.');
+    }
+  
+    const affectedHospitals: number[] = dto.timeSlots
+      .map((s) => s.hospitalId)
+      .filter((id): id is number => typeof id === 'number');
+  
+    // Step 1: Archive
+    const existingSlots = await this.prisma.doctorTimeSlot.findMany({
+      where: {
+        userId: dto.userId,
+        HospitalId: { in: affectedHospitals },
+        isDeleted: false,
+      },
+    });
+  
+    if (existingSlots.length > 0) {
+      const historyData = existingSlots.map((slot) => ({
+        ...slot,
+        DoctorTimeSlotId: slot.DoctorTimeSlotId,
+        changedBy: userId,
+        changedAt: new Date(),
+      }));
+  
+      await this.prisma.doctorTimeSlotHistory.createMany({
+        data: historyData,
+      });
+    }
+  
+    // Step 2: Delete old
+    await this.prisma.doctorTimeSlot.deleteMany({
+      where: {
+        userId: dto.userId,
+        HospitalId: { in: affectedHospitals },
+        isDeleted: false,
+      },
+    });
+  
+    // Step 3: Insert new
+    const now = new Date();
+    const newSlotData = dto.timeSlots.map((slot) => ({
+      userId: dto.userId!,
+      HospitalId: slot.hospitalId!,
+      DayOfWeek: slot.DayOfWeek!,
+      Morning_From: slot.Morning_From ?? null,
+      Morning_To: slot.Morning_To ?? null,
+      Evening_From: slot.Evening_From ?? null,
+      Evening_To: slot.Evening_To ?? null,
+      consult_Time_InMin: slot.consult_Time_InMin ?? 15,
+      Accept_Appointment_Selected_Date: dto.Accept_Appointment_Selected_Date ?? true,
+      DNDremarks: slot.DNDremarks ?? null,
+      Slot_cancellation_remarks: slot.Slot_cancellation_remarks ?? null,
+      is_DND: slot.is_DND ?? false,
+      is_SlotCancelled: slot.is_SlotCancelled ?? false,
+      isPermanentCancelled: slot.isPermanentCancelled ?? false,
+      isDeleted: slot.isDeleted ?? false,
+      isSlotChanged: slot.isSlotChanged ?? false,
+      isActive: true,
+      isAvailable: true,
+      isBooked: false,
+      isConfirmed: false,
+      isRejected: false,
+      createdBy: userId,
+      createdAt: now,
+      updatedAt: now,
+    }));
+  
+    const inserted = await this.prisma.doctorTimeSlot.createMany({
+      data: newSlotData,
+    });
+  
+    return {
+      message: 'Time slots replaced with history logging.',
+      count: inserted.count,
+      HttpCode: 201,
+    };
+  }
+  
 
   // Create Doctor Slot
   async createDoctorSlots(dto: CreateDoctorSlotDto, createdById: number) {
@@ -855,7 +937,10 @@ export class ManageHospitalService {
     };
   }
 
-  async createOrUpdateDoctorCosting(dto: CreateDoctorCostingDto, userId: number) {
+  async createOrUpdateDoctorCosting(
+    dto: CreateDoctorCostingDto,
+    userId: number,
+  ) {
     const {
       doctorId,
       hospitalIds = [],
@@ -1006,11 +1091,7 @@ export class ManageHospitalService {
   // });
   //
 
-
-
-
-  
-// Get Doctor Costing by ID
+  // Get Doctor Costing by ID
   async getDoctorCostingById(doctorId: number) {
     const data = await this.prisma.doctorCosting.findMany({
       where: { doctorId },

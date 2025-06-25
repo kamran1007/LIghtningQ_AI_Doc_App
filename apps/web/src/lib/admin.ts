@@ -278,6 +278,31 @@ export const Updateuserinfo = async (id: number, payload: any) => {
   }
 };
 
+//addupdate timeslot
+export const AddUpdateDoctorTimeSlot = async (payload: any) => {
+  const session = await getSession();
+
+  try {
+    console.log("Sending doctor TimeSlot data:", payload);
+    const res = await axios.post(
+      `${BACKEND_URL}/admin/AddUpdateTimeSlot`,
+      payload, // this is the actual body
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.accessToken}`,
+        },
+      }
+    );
+    return res.data;
+  } catch (error: any) {
+    const message = error.response?.data?.message || error.message;
+    console.error("Error updating doctor TimeSlot:", message);
+  }
+};
+
+
 export const CreateTimeSlot = async (data: any) => {
   const session = await getSession();
 

@@ -211,6 +211,37 @@ exports.Prisma.UserHospitalAccessScalarFieldEnum = {
   createdById: 'createdById'
 };
 
+exports.Prisma.DoctorTimeSlotHistoryScalarFieldEnum = {
+  DoctorTimeSlotHistoryId: 'DoctorTimeSlotHistoryId',
+  DoctorTimeSlotId: 'DoctorTimeSlotId',
+  userId: 'userId',
+  HospitalId: 'HospitalId',
+  DayOfWeek: 'DayOfWeek',
+  Morning_From: 'Morning_From',
+  Morning_To: 'Morning_To',
+  Evening_From: 'Evening_From',
+  Evening_To: 'Evening_To',
+  consult_Time_InMin: 'consult_Time_InMin',
+  Accept_Appointment_Selected_Date: 'Accept_Appointment_Selected_Date',
+  is_DND: 'is_DND',
+  is_SlotCancelled: 'is_SlotCancelled',
+  isPermanentCancelled: 'isPermanentCancelled',
+  DNDremarks: 'DNDremarks',
+  Slot_cancellation_remarks: 'Slot_cancellation_remarks',
+  isDeleted: 'isDeleted',
+  isAvailable: 'isAvailable',
+  isBooked: 'isBooked',
+  isConfirmed: 'isConfirmed',
+  isRejected: 'isRejected',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  changedAt: 'changedAt',
+  changedBy: 'changedBy',
+  isSlotChanged: 'isSlotChanged',
+  isActive: 'isActive',
+  createdBy: 'createdBy'
+};
+
 exports.Prisma.SettingScalarFieldEnum = {
   SettingId: 'SettingId',
   UserId: 'UserId',
@@ -383,6 +414,7 @@ exports.Prisma.ModelName = {
   Organization: 'Organization',
   Hospital: 'Hospital',
   UserHospitalAccess: 'UserHospitalAccess',
+  DoctorTimeSlotHistory: 'DoctorTimeSlotHistory',
   Setting: 'Setting',
   DoctorTimeSlot: 'DoctorTimeSlot',
   DoctorCosting: 'DoctorCosting',
