@@ -19,6 +19,8 @@ interface EventsContextType {
   setEventViewOpen: (value: boolean) => void;
   eventAddOpen: boolean;
   setEventAddOpen: (value: boolean) => void;
+  isRegisterPatientOpen: boolean;
+  setRegisterPatientOpen: (value: boolean) => void;
   eventEditOpen: boolean;
   setEventEditOpen: (value: boolean) => void;
   eventDeleteOpen: boolean;
@@ -49,6 +51,8 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({
   );
   const [eventViewOpen, setEventViewOpen] = useState(false);
   const [eventAddOpen, setEventAddOpen] = useState(false);
+  const [isRegisterPatientOpen, setRegisterPatientOpen] = useState(false);
+
   const [eventEditOpen, setEventEditOpen] = useState(false);
   const [eventDeleteOpen, setEventDeleteOpen] = useState(false);
   const [availabilityCheckerEventAddOpen, setAvailabilityCheckerEventAddOpen] =
@@ -74,6 +78,8 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({
         setEventViewOpen,
         eventAddOpen,
         setEventAddOpen,
+        isRegisterPatientOpen,
+        setRegisterPatientOpen,
         eventEditOpen,
         setEventEditOpen,
         eventDeleteOpen,

@@ -32,9 +32,13 @@ export default function PatientClientWrapper() {
     <EventsProvider>
       <div className="flex w-full px-0 py-0">
         <div className="flex w-full flex-col space-y-2">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
             {/* Top right: Tabs + Register */}
-            <div className="flex justify-end items-center gap-4 w-full">
+            <div className="flex justify-end items-center  w-full gap-0">
               <div className="relative">
                 <TabsList className="relative flex bg-white border border-gray-200 rounded-full p-1 shadow-sm cursor-pointer">
                   {/* 🟦 Animated background behind the active tab */}
@@ -51,7 +55,7 @@ export default function PatientClientWrapper() {
                       damping: 30,
                     }}
                   />
-                  
+
                   <TabsTrigger
                     ref={(el) => (tabRefs.current.appointments = el)}
                     value="appointments"
@@ -70,7 +74,13 @@ export default function PatientClientWrapper() {
               </div>
 
               <RegisterPatient />
-              {/* <EventAddForm/> */}
+              <EventAddForm />
+
+              {/* Buttons with tighter spacing */}
+              {/* <div className="flex items-center gap-2">
+                <RegisterPatient />
+                <EventAddForm />
+              </div> */}
             </div>
 
             {/* Tabs Content Section */}

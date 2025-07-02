@@ -102,7 +102,8 @@ type RegisterPatient = z.infer<typeof eventAddFormSchema>;
 export function RegisterPatient() {
   const { events, addEvent } = useEvents();
   const { eventAddOpen, setEventAddOpen } = useEvents();
-  
+  const { isRegisterPatientOpen, setRegisterPatientOpen } = useEvents(); // updated context
+
   const [booked, setBooked] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
@@ -233,7 +234,7 @@ export function RegisterPatient() {
       .then((data) => setStates(data.map((s: any) => s.name)));
 
     if (shouldOpen) {
-      setEventAddOpen(true);
+      setRegisterPatientOpen(true);
 
       // Clean the URL after opening the modal (without full page reload)
       router.replace("/patientcare", { scroll: false });
@@ -244,7 +245,7 @@ export function RegisterPatient() {
       setBooked(true);
       setTimeout(() => {
         setBooked(false);
-        setEventAddOpen(false);
+        setRegisterPatientOpen(false);
       }, 2000);
     }, 800);
   };
@@ -289,11 +290,11 @@ export function RegisterPatient() {
     }
   };
   return (
-    <AlertDialog open={eventAddOpen} onOpenChange={setEventAddOpen}>
+    <AlertDialog open={isRegisterPatientOpen} onOpenChange={setRegisterPatientOpen}>
       <div className="w-full flex justify-end pr-4">
         <Button
           className="glow-reister-button bg-white text-black text-[1rem] md:text-sm cursor-pointer border border-black flex items-center gap-2"
-          onClick={() => setEventAddOpen(true)}
+          onClick={() => setRegisterPatientOpen(true)}
         >
           <UserPlus className="w-5 h-5" />
           Register Patient
@@ -309,7 +310,7 @@ export function RegisterPatient() {
           </h2>
           <AlertDialogCancel
             className="p-1 text-red-400 hover:text-red-500 cursor-pointer rounded-tr-xs shadow-2xl h-7 w-8 -mb-2"
-            onClick={() => setEventAddOpen(false)}
+            onClick={() => setRegisterPatientOpen(false)}
           >
             <X className="w-4 h-4 cursor-pointer" />
           </AlertDialogCancel>
@@ -821,7 +822,7 @@ export function RegisterPatient() {
                     type="button"
                     variant="outline"
                     className="font-sans flex-1 border-gray-300 text-gray-700 hover:bg-gray-100 rounded-full py-5 text-lg transition flex items-center justify-center gap-2 cursor-pointer"
-                    onClick={() => setEventAddOpen(false)}
+                    onClick={() => setRegisterPatientOpen(false)}
                   >
                     <XCircle className="w-5 h-5" />
                     Cancel
@@ -974,7 +975,7 @@ export function RegisterPatient() {
           }}
           onRegisterNew={() => {
             console.log("opening");
-            setEventAddOpen(true);
+            setRegisterPatientOpen(true);
           }}
         />
       </AlertDialogContent>
