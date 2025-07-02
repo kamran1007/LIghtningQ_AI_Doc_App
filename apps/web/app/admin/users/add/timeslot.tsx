@@ -746,7 +746,7 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
       <DialogTrigger asChild></DialogTrigger>
       <DialogContent
         size="md"
-        className="max-h-[95vh] overflow-y-auto p-4 max-w-3xl"
+        className="max-h-[95vh] overflow-y-auto p-4 max-w-3xl no-scrollbar"
       >
         <div className="flex justify-between items-center">
           <DialogTitle className="text-xl font-semibold">

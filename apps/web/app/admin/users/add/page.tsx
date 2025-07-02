@@ -9,6 +9,7 @@ import {
   LockKeyholeOpen,
   UserCheck,
   RotateCcwKey,
+  Loader2Icon,
 } from "lucide-react";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
@@ -42,7 +43,7 @@ import { useRouter } from "next/navigation"; // App Router
 import { zodResolver } from "@hookform/resolvers/zod";
 import { userFormSchema } from "@/helper/userFormSchema";
 import Aside from "./aside";
-import { set } from "zod";
+import z, { set } from "zod";
 import AddUserSkeleton from "@/components/ui/skeletonloader/AddUserSkeleton";
 export default function AddUserPage() {
   const hospitals = useSelector((state: RootState) => state.hospital.data);
@@ -725,7 +726,7 @@ export default function AddUserPage() {
                     <SelectTrigger
                       className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
                     >
-                      <SelectValue placeholder="Select Role" />
+                      <SelectValue placeholder="Select Role"/>
                     </SelectTrigger>
                     <SelectContent  className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white" >
                       {roles.map((role: any) => (
@@ -1123,15 +1124,16 @@ export default function AddUserPage() {
                 disabled={isSubmitting}
                 className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full shadow-2xl transition duration-200 ease-in-out cursor-pointer"
               >
-                {isSubmitting ? "Submitting..." : "Submit"}
+                {isSubmitting ? <Loader2Icon className="animate-spin" /> : "Submit"}
               </button>
               <button
                 type="button"
                 disabled={isSubmitting}
                 onClick={handleSaveAndContinue}
-                className="bg-sky-500 hover:bg-sky-700 text-white px-6 py-2 rounded-full shadow-2xl transition duration-200 ease-in-out cursor-pointer"
+                className="bg-sky-500 hover:bg-sky-600 text-white px-6 py-2 rounded-full shadow-2xl transition duration-200 ease-in-out cursor-pointer"
               >
-                {isSubmitting ? "Saving..." : "Save and Continue"}
+                {isSubmitting ? <Loader2Icon className="animate-spin" />
+                   : "Save and Continue"}
               </button>
             </div>
           </div>

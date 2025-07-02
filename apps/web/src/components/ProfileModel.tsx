@@ -205,7 +205,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
   }, [open, reset]);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent size="md" className="max-h-[95vh] overflow-y-auto p-6">
+      <DialogContent size="md" className="max-h-[95vh] overflow-y-auto p-6 no-scrollbar">
         <div className="flex justify-between items-start mb-2 shadow-2xl rounded-lg p-1 bg-white">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-gray-700">

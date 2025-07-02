@@ -211,9 +211,8 @@ model DoctorTimeSlotHistory {
   changedAt                        DateTime @default(now()) // ← when change happened
   changedBy                        Int // ← user who made the change
   isSlotChanged                    Boolean? // ✅ Add this here
-  isActive                         Boolean @default(true)
+  isActive                         Boolean  @default(true)
   createdBy                        Int?
-  
 }
 
 model Setting {
@@ -355,6 +354,24 @@ model Specialization {
   SpecializationName String @unique
   Description        String
   Users              User[]
+}
+
+//Appointmrnt Screen    
+//PATIENT TABLE
+model Patient {
+  PatientId   Int    @id @default(autoincrement())
+  PatientCode String @unique // Unique code for patient (MR No. or similar)
+  Prefix      Title
+  firstName   String
+  lastName    String
+  mobile      String @unique // Unique mobile number
+  email       String @unique // Unique
+  dateOfBirth DateTime
+  Address     String
+  city        String
+  state       String
+  country     String
+  postalCode  String
 }
 
 //Enums

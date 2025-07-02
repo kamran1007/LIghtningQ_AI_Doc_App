@@ -302,9 +302,9 @@ const AddHospitalForm = ({
       <DialogTrigger asChild></DialogTrigger>
       <DialogContent
         size="fullscreen"
-        className="max-h-[10vh] overflow-y-auto p-4"
+        className="max-h-[10vh] overflow-y-auto p-4 no-scrollbar"
       >
-        <div className="flex justify-between items-start mb-1 shadow-2xl rounded-lg p-1 bg-white">
+        <div className="font-sans flex justify-between items-start mb-1 shadow-2xl rounded-lg p-1 bg-white">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-gray-700">
               {hospital ? "Edit Hospital" : "Add Hospital"}

@@ -184,6 +184,37 @@ model UserHospitalAccess {
   @@unique([UserId, hospitalId]) // Prevent duplicate mappings
 }
 
+model DoctorTimeSlotHistory {
+  DoctorTimeSlotHistoryId          Int      @id @default(autoincrement())
+  DoctorTimeSlotId                 Int?
+  userId                           Int
+  HospitalId                       Int
+  DayOfWeek                        String
+  Morning_From                     String?
+  Morning_To                       String?
+  Evening_From                     String?
+  Evening_To                       String?
+  consult_Time_InMin               Int
+  Accept_Appointment_Selected_Date Boolean
+  is_DND                           Boolean
+  is_SlotCancelled                 Boolean
+  isPermanentCancelled             Boolean
+  DNDremarks                       String?
+  Slot_cancellation_remarks        String?
+  isDeleted                        Boolean
+  isAvailable                      Boolean
+  isBooked                         Boolean
+  isConfirmed                      Boolean
+  isRejected                       Boolean
+  createdAt                        DateTime
+  updatedAt                        DateTime
+  changedAt                        DateTime @default(now()) // ← when change happened
+  changedBy                        Int // ← user who made the change
+  isSlotChanged                    Boolean? // ✅ Add this here
+  isActive                         Boolean  @default(true)
+  createdBy                        Int?
+}
+
 model Setting {
   SettingId Int    @id @default(autoincrement())
   UserId    Int    @unique
@@ -323,6 +354,24 @@ model Specialization {
   SpecializationName String @unique
   Description        String
   Users              User[]
+}
+
+//Appointmrnt Screen    
+//PATIENT TABLE
+model Patient {
+  PatientId   Int      @id @default(autoincrement())
+  PatientCode String   @unique // Unique code for patient (MR No. or similar)
+  Prefix      Title
+  firstName   String
+  lastName    String
+  mobile      String   @unique // Unique mobile number
+  email       String   @unique // Unique
+  dateOfBirth DateTime
+  Address     String
+  city        String
+  state       String
+  country     String
+  postalCode  String
 }
 
 //Enums

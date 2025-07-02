@@ -81,12 +81,12 @@ const AdminTabs = () => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="flex items-center gap-2 text-2xl font-bold text-black-600">
             <Image
-              src="/location.png"
+              src="/hospital.png"
               alt="User avatar"
               width={30}
               height={30}
             />
-            <span className="font-display text-[22px] sm:text-[24px] leading-snug">
+            <span className="font-sans font-display text-[22px] sm:text-[24px] leading-snug">
               Hospital List
             </span>
           </h2>{" "}
@@ -118,7 +118,7 @@ const AdminTabs = () => {
               width={30}
               height={30}
             />
-            <span className="font-display text-[22px] sm:text-[24px] leading-snug">
+            <span className=" font-sans font-display text-[22px] sm:text-[24px] leading-snug">
               User List
             </span>
           </h2>

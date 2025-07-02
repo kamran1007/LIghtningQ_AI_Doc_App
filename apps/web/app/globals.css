@@ -1,6 +1,15 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* @tailwind base;
+@tailwind components;
+@tailwind utilities; */
+
+@import "primereact/resources/themes/lara-light-blue/theme.css";
+@import "primereact/resources/primereact.min.css";
+@import "primeicons/primeicons.css";
+
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -317,4 +326,115 @@ input[type="checkbox"].gradient-checkbox:checked {
       rgba(25, 138, 224, 1) 0%,
       rgba(34, 224, 212, 1) 97%);
   border: none;
+}
+
+/* More aggressive version */
+.no-scrollbar::-webkit-scrollbar {
+  width: 0px !important;
+  height: 0px !important;
+  display: none !important;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+
+
+
+.glow-button {
+  background: rgb(150, 235, 221);
+  color: rgb(0, 0, 0);
+  font-size: 1rem;
+  /* or remove and let Tailwind handle font-size */
+  padding: 0.4rem 1rem;
+  border-radius: none;
+  border: none;
+  position: relative;
+  width: 200px;
+  font-weight: 500;
+    /* semi-bold */}
+
+.glow-button::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(270deg,
+      #ff6ec4,
+      #7873f5,
+      #4ade80,
+      #60a5fa,
+      #facc15,
+      #ff6ec4);
+  background-size: 300%;
+  animation: moveGradient 5s linear infinite;
+  z-index: -1;
+  border-radius: inherit;
+  filter: blur(20px);
+  opacity: 0.8;
+}
+
+@keyframes moveGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+
+
+.glow-reister-button {
+  background: rgb(130, 217, 243);
+  color: rgb(0, 0, 0);
+  font-size: 1rem;
+  /* or remove and let Tailwind handle font-size */
+  padding: 0.4rem 1rem;
+  border-radius: none;
+  border: none;
+  position: relative;
+  width: 200px;
+  font-weight: 500;
+  color: rgb(0, 0, 0);
+  /* semi-bold */
+}
+
+.glow-reister-button::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(270deg,
+      #ff6ec4,
+      #7873f5,
+      #4ade80,
+      #60a5fa,
+      #facc15,
+      #ff6ec4);
+  background-size: 300%;
+  animation: moveGradient 5s linear infinite;
+  z-index: -1;
+  border-radius: inherit;
+  filter: blur(20px);
+  opacity: 0.8;
+}
+
+@keyframes moveGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }

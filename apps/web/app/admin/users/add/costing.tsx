@@ -149,8 +149,8 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[95vh] overflow-y-auto p-6 max-w-4xl rounded-2xl">
-        {/* ✅ Always render DialogTitle for accessibility */}
+<DialogContent className="max-h-[95vh] overflow-y-auto p-6 max-w-4xl rounded-2xl no-scrollbar">
+{/* ✅ Always render DialogTitle for accessibility */}
         <div className="flex items-center justify-between mb-4">
           <DialogTitle className="text-2xl font-semibold">
             Add Costing Details
@@ -311,8 +311,8 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
               </Button>
               <Button
                 type="submit"
-                className="rounded-full h-10 px-6 cursor-pointer bg-green-500 text-white shadow-2xl hover:bg-green-600"
-              >
+                className="rounded-full h-10 px-6 cursor-pointer bg-green-400 text-white shadow-2xl hover:bg-green-500"
+              > 
                 Save
               </Button>
             </DialogFooter>

@@ -346,6 +346,22 @@ exports.Prisma.SpecializationScalarFieldEnum = {
   Description: 'Description'
 };
 
+exports.Prisma.PatientScalarFieldEnum = {
+  PatientId: 'PatientId',
+  PatientCode: 'PatientCode',
+  Prefix: 'Prefix',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  mobile: 'mobile',
+  email: 'email',
+  dateOfBirth: 'dateOfBirth',
+  Address: 'Address',
+  city: 'city',
+  state: 'state',
+  country: 'country',
+  postalCode: 'postalCode'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -423,7 +439,8 @@ exports.Prisma.ModelName = {
   Role: 'Role',
   RolePermission: 'RolePermission',
   Permission: 'Permission',
-  Specialization: 'Specialization'
+  Specialization: 'Specialization',
+  Patient: 'Patient'
 };
 
 /**
