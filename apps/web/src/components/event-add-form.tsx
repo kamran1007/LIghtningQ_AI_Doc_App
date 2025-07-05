@@ -144,11 +144,11 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
         {/* Header with search and close */}
         {/* Header with dark background */}
         <div className="font-sans  bg-[#ffffff] text-white px-4 h-8 flex justify-between items-center sticky top-0 z-10">
-          <h2 className="text-2xl font-semibold text-gray-700 -mb-1">
+          <h2 className="text-2xl font-semibold text-gray-700 -mb-0.5">
             Make Appointment
           </h2>
           <AlertDialogCancel
-            className="p-1 text-red-400 hover:text-red-500 cursor-pointer rounded-tr-xs shadow-2xl h-7 w-8 -mb-2"
+            className="p-1 text-red-400 hover:text-red-500 cursor-pointer rounded-tr-xs shadow-2xl h-7 w-8 -mb-1"
             onClick={() => setEventAddOpen(false)}
           >
             <X className="w-4 h-4 cursor-pointer" />
@@ -158,7 +158,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
         {/* Pull input box upward using negative margin */}
         {/* <div className="bg-[#f7f5fe] h-16 px-4 py-0 rounded-tr-xs shadow-xl"> */}
         <div className="bg-gradient-to-r from-[#F1F3F5] to-[#EDEDED] h-16 px-4 flex items-center rounded-tr-xl shadow-md -mb-2 border-b border-gray-300">
-          <div className="flex items-center h-full">
+          <div className="flex items-center">
             {/* Input Box */}
             <div className="mr-6 mt-1 w-80">
               <Input

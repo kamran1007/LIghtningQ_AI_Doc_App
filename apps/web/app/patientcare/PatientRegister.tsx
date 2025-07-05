@@ -301,15 +301,15 @@ export function RegisterPatient() {
         </Button>
       </div>
 
-      <AlertDialogContent className="max-w-290 h-[95vh] overflow-y-auto p-0 rounded-2xl shadow-2xl bg-white no-scrollbar">
+      <AlertDialogContent className="max-w-300 h-[95vh] overflow-y-auto p-0 rounded-2xl shadow-2xl bg-white no-scrollbar">
         {/* Header with search and close */}
         {/* Header with dark background */}
-        <div className="font-Nunito bg-[#ffffff] text-white px-4 h-6 flex justify-between items-center sticky top-0 z-10">
-          <h2 className="text-2xl font-semibold text-gray-700 -mb-1">
+        <div className="font-nunito bg-[#ffffff] text-white px-4 h-10 flex justify-between items-center sticky top-0 z-10 shadow-sm">
+        <h2 className="text-2xl font-semibold text-gray-700 -mb-1">
             Register Patient
           </h2>
           <AlertDialogCancel
-            className="p-1 text-red-400 hover:text-red-500 cursor-pointer rounded-tr-xs shadow-2xl h-7 w-8 -mb-2"
+            className="p-1 text-red-400 hover:text-red-500 cursor-pointer rounded-tr-xs shadow-2xl h-7 w-8 -mb-1"
             onClick={() => setRegisterPatientOpen(false)}
           >
             <X className="w-4 h-4 cursor-pointer" />

@@ -348,18 +348,163 @@ exports.Prisma.SpecializationScalarFieldEnum = {
 
 exports.Prisma.PatientScalarFieldEnum = {
   PatientId: 'PatientId',
-  PatientCode: 'PatientCode',
+  Patient_Medical_Record_No: 'Patient_Medical_Record_No',
+  profileImageUrl: 'profileImageUrl',
   Prefix: 'Prefix',
   firstName: 'firstName',
   lastName: 'lastName',
-  mobile: 'mobile',
-  email: 'email',
   dateOfBirth: 'dateOfBirth',
-  Address: 'Address',
+  gender: 'gender',
+  isQuickRegistered: 'isQuickRegistered',
+  mobile: 'mobile',
+  altContactNumber: 'altContactNumber',
+  email: 'email',
+  addressLine1: 'addressLine1',
+  addressLine2: 'addressLine2',
+  area: 'area',
   city: 'city',
+  cityId: 'cityId',
   state: 'state',
   country: 'country',
-  postalCode: 'postalCode'
+  postalCode: 'postalCode',
+  landmark: 'landmark',
+  taluka: 'taluka',
+  emergencyName: 'emergencyName',
+  emergencyContact: 'emergencyContact',
+  emergencyRelation: 'emergencyRelation',
+  kinName: 'kinName',
+  kinContact: 'kinContact',
+  kinRelation: 'kinRelation',
+  bloodGroup: 'bloodGroup',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  isDraft: 'isDraft',
+  HospitalId: 'HospitalId',
+  OrganizationId: 'OrganizationId'
+};
+
+exports.Prisma.TagPatientScalarFieldEnum = {
+  TagPatientId: 'TagPatientId',
+  TagPatientName: 'TagPatientName'
+};
+
+exports.Prisma.AllergyScalarFieldEnum = {
+  AllergyId: 'AllergyId',
+  AllergyName: 'AllergyName',
+  duration: 'duration',
+  Remark: 'Remark'
+};
+
+exports.Prisma.LanguageScalarFieldEnum = {
+  LanguageId: 'LanguageId',
+  LanguageName: 'LanguageName'
+};
+
+exports.Prisma.MedicalHistoryScalarFieldEnum = {
+  MedicalHistoryId: 'MedicalHistoryId',
+  MedicalHistoryName: 'MedicalHistoryName',
+  duration: 'duration',
+  Remark: 'Remark'
+};
+
+exports.Prisma.AppointmentScalarFieldEnum = {
+  AppointmentId: 'AppointmentId',
+  PatientId: 'PatientId',
+  DoctorId: 'DoctorId',
+  hospitalId: 'hospitalId',
+  visitTypeId: 'visitTypeId',
+  paymentTypeId: 'paymentTypeId',
+  acuity: 'acuity',
+  AssignedProviderId: 'AssignedProviderId',
+  SpecializationId: 'SpecializationId',
+  appointmentDate: 'appointmentDate',
+  reason: 'reason',
+  status: 'status',
+  age: 'age',
+  createdAt: 'createdAt',
+  createdBy: 'createdBy',
+  rescheduledAt: 'rescheduledAt',
+  rescheduledBy: 'rescheduledBy',
+  sendWhatsappMessage: 'sendWhatsappMessage',
+  sendSmsMessage: 'sendSmsMessage',
+  sendEmailMessage: 'sendEmailMessage',
+  isDraft: 'isDraft'
+};
+
+exports.Prisma.AppointmentNotificationScalarFieldEnum = {
+  id: 'id',
+  appointmentId: 'appointmentId',
+  channel: 'channel',
+  status: 'status',
+  sentAt: 'sentAt',
+  response: 'response',
+  retryCount: 'retryCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ConsultationScalarFieldEnum = {
+  ConsultationId: 'ConsultationId',
+  AppointmentId: 'AppointmentId',
+  consultationDatTime: 'consultationDatTime',
+  consultationEndDateTime: 'consultationEndDateTime',
+  notes: 'notes',
+  diagnosis: 'diagnosis',
+  followUpDate: 'followUpDate',
+  isDraft: 'isDraft'
+};
+
+exports.Prisma.VitalsScalarFieldEnum = {
+  VitalsId: 'VitalsId',
+  consultationId: 'consultationId',
+  BloodPressure: 'BloodPressure',
+  PulseRate: 'PulseRate',
+  Temperature: 'Temperature',
+  Weight: 'Weight',
+  Height: 'Height',
+  SpO2: 'SpO2',
+  BloodGroup: 'BloodGroup',
+  BMI: 'BMI'
+};
+
+exports.Prisma.MedicationRecordScalarFieldEnum = {
+  MedicationRecordId: 'MedicationRecordId',
+  consultationId: 'consultationId',
+  medicationName: 'medicationName',
+  dosage: 'dosage',
+  frequency: 'frequency',
+  duration: 'duration',
+  remarks: 'remarks'
+};
+
+exports.Prisma.ClinicalNoteScalarFieldEnum = {
+  ClinicalNoteId: 'ClinicalNoteId',
+  consultationId: 'consultationId',
+  title: 'title',
+  content: 'content'
+};
+
+exports.Prisma.AppointmentTypeScalarFieldEnum = {
+  AppointmentTypeId: 'AppointmentTypeId',
+  AppointmentTypeName: 'AppointmentTypeName'
+};
+
+exports.Prisma.PaymentTypeScalarFieldEnum = {
+  PaymentTypeId: 'PaymentTypeId',
+  TransactionId: 'TransactionId',
+  Transaction_DateTime: 'Transaction_DateTime',
+  PaymentTypeName: 'PaymentTypeName'
+};
+
+exports.Prisma.SurgeryScalarFieldEnum = {
+  SurgeryId: 'SurgeryId',
+  consultationId: 'consultationId',
+  surgeryType: 'surgeryType',
+  surgeonId: 'surgeonId',
+  surgeryDate: 'surgeryDate',
+  notes: 'notes'
 };
 
 exports.Prisma.SortOrder = {
@@ -425,6 +570,44 @@ exports.HospitalLevel = exports.$Enums.HospitalLevel = {
   SUB_CHILD: 'SUB_CHILD'
 };
 
+exports.BloodGroup = exports.$Enums.BloodGroup = {
+  A_POS: 'A_POS',
+  A_NEG: 'A_NEG',
+  B_POS: 'B_POS',
+  B_NEG: 'B_NEG',
+  AB_POS: 'AB_POS',
+  AB_NEG: 'AB_NEG',
+  O_POS: 'O_POS',
+  O_NEG: 'O_NEG'
+};
+
+exports.AcuityLevel = exports.$Enums.AcuityLevel = {
+  LOW: 'LOW',
+  MODERATE: 'MODERATE',
+  HIGH: 'HIGH',
+  CRITICAL: 'CRITICAL'
+};
+
+exports.AppointmentStatus = exports.$Enums.AppointmentStatus = {
+  SCHEDULED: 'SCHEDULED',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+  RESCHEDULED: 'RESCHEDULED'
+};
+
+exports.NotificationType = exports.$Enums.NotificationType = {
+  WHATSAPP: 'WHATSAPP',
+  SMS: 'SMS',
+  EMAIL: 'EMAIL'
+};
+
+exports.NotificationStatus = exports.$Enums.NotificationStatus = {
+  PENDING: 'PENDING',
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED',
+  RETRYING: 'RETRYING'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Organization: 'Organization',
@@ -440,7 +623,20 @@ exports.Prisma.ModelName = {
   RolePermission: 'RolePermission',
   Permission: 'Permission',
   Specialization: 'Specialization',
-  Patient: 'Patient'
+  Patient: 'Patient',
+  TagPatient: 'TagPatient',
+  Allergy: 'Allergy',
+  Language: 'Language',
+  MedicalHistory: 'MedicalHistory',
+  Appointment: 'Appointment',
+  AppointmentNotification: 'AppointmentNotification',
+  Consultation: 'Consultation',
+  Vitals: 'Vitals',
+  MedicationRecord: 'MedicationRecord',
+  ClinicalNote: 'ClinicalNote',
+  AppointmentType: 'AppointmentType',
+  PaymentType: 'PaymentType',
+  Surgery: 'Surgery'
 };
 
 /**

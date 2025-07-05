@@ -9,6 +9,7 @@ import { LocalAuthGuard } from './auth/guards/local-auth/local-auth.guard';
 import { AdminModule } from './admin/admin.module';
 import { ManageHospitalModule } from './manage_hospital/manage_hospital.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { PatientcareModule } from './patientcare/patientcare.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { PrismaModule } from './prisma/prisma.module';
     AdminModule,
     ManageHospitalModule,
     PrismaModule,
+    PatientcareModule
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

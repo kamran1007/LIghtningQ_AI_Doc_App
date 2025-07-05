@@ -77,6 +77,16 @@ model User {
   DoctorCosting DoctorCosting[]
 
   DoctorCostingCreatedBy DoctorCosting[] @relation("UserCreatedDoctorCosting")
+
+  DoctorAppointments Appointment[] @relation("Doctor")
+
+  AssignedProviderAppointment Appointment[] @relation("AssignedProvider")
+
+  ConsultationSpecialist Appointment[] @relation("Specialist")
+
+  AppointmentCreatedBy Appointment[] @relation("CreatedBy")
+
+  Appointment Appointment[] @relation("RescheduledBy")
 }
 
 // Organization (Top-most head entity created by you or BA)
@@ -107,6 +117,8 @@ model Organization {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
+
+  Patient Patient[]
 }
 
 // Hospital entity (can be super/child/sub-child)
@@ -160,6 +172,10 @@ model Hospital {
   DoctorTimeSlot DoctorTimeSlot[]
 
   DoctorCosting DoctorCosting[]
+
+  Appointment Appointment[]
+
+  Patient Patient[]
 }
 
 // User ↔ Hospital mapping model
@@ -359,19 +375,248 @@ model Specialization {
 //Appointmrnt Screen    
 //PATIENT TABLE
 model Patient {
-  PatientId   Int    @id @default(autoincrement())
-  PatientCode String @unique // Unique code for patient (MR No. or similar)
-  Prefix      Title
-  firstName   String
-  lastName    String
-  mobile      String @unique // Unique mobile number
-  email       String @unique // Unique
-  dateOfBirth DateTime
-  Address     String
-  city        String
-  state       String
-  country     String
-  postalCode  String
+  PatientId Int @id @default(autoincrement())
+  // userId   Int?
+
+  Patient_Medical_Record_No String? @unique // MRN
+  // PatirntImage              String?
+  // Basic Details
+  profileImageUrl           String?
+
+  Prefix            Title
+  firstName         String
+  lastName          String
+  dateOfBirth       DateTime
+  gender            String
+  isQuickRegistered Boolean  @default(false) // ✅ NEW field
+  // Contact Information
+  mobile            String   @unique
+  altContactNumber  String?
+  email             String?  @unique
+  addressLine1      String?
+  addressLine2      String?
+  area              String?
+  city              String
+  cityId            String? // for future relational mapping
+  state             String
+  country           String   @default("India")
+  postalCode        Int
+  landmark          String?
+  taluka            String?
+
+  // Emergency Contact
+  emergencyName     String?
+  emergencyContact  String?
+  emergencyRelation String?
+
+  // Kin Details
+  kinName     String?
+  kinContact  String?
+  kinRelation String?
+
+  // Patient Meta
+  bloodGroup BloodGroup
+  TagPatient TagPatient[] @relation("PatientTagPatient")
+
+  allergies      Allergy[]        @relation("PatientAllergies")
+  languages      Language[]       @relation("PatientLanguages")
+  medicalHistory MedicalHistory[] @relation("PatientMedicalHistory")
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  CreatedBy   String?
+  UpdatedBy   String?
+  Appointment Appointment[]
+
+  isDraft Boolean @default(false)
+
+  //hospital and organization map
+  HospitalId     Int
+  OrganizationId Int
+
+  hospital     Hospital     @relation(fields: [HospitalId], references: [HospitalId])
+  organization Organization @relation(fields: [OrganizationId], references: [OrganizationId])
+}
+
+model TagPatient {
+  TagPatientId   Int    @id @default(autoincrement())
+  TagPatientName String @unique
+
+  patients Patient[] @relation("PatientTagPatient")
+}
+
+model Allergy {
+  AllergyId   Int       @id @default(autoincrement())
+  AllergyName String    @unique
+  duration    String?
+  Remark      String
+  patients    Patient[] @relation("PatientAllergies")
+}
+
+model Language {
+  LanguageId   Int    @id @default(autoincrement())
+  LanguageName String @unique
+
+  patients Patient[] @relation("PatientLanguages")
+}
+
+model MedicalHistory {
+  MedicalHistoryId   Int       @id @default(autoincrement())
+  MedicalHistoryName String    @unique
+  duration           String?
+  Remark             String
+  patients           Patient[] @relation("PatientMedicalHistory")
+}
+
+model Appointment {
+  AppointmentId      Int         @id @default(autoincrement())
+  PatientId          Int
+  DoctorId           Int
+  hospitalId         Int
+  visitTypeId        Int
+  paymentTypeId      Int
+  acuity             AcuityLevel
+  AssignedProviderId Int?
+  SpecializationId   Int?
+
+  appointmentDate DateTime
+  reason          String?
+  status          AppointmentStatus @default(SCHEDULED)
+  age             Int?
+
+  createdAt     DateTime  @default(now())
+  createdBy     Int?
+  rescheduledAt DateTime?
+  rescheduledBy Int?
+
+  // Relations
+  patient           Patient @relation(fields: [PatientId], references: [PatientId])
+  doctor            User    @relation("Doctor", fields: [DoctorId], references: [UserId])
+  assignedProvider  User?   @relation("AssignedProvider", fields: [AssignedProviderId], references: [UserId])
+  specialist        User?   @relation("Specialist", fields: [SpecializationId], references: [UserId])
+  createdByUser     User?   @relation("CreatedBy", fields: [createdBy], references: [UserId])
+  rescheduledByUser User?   @relation("RescheduledBy", fields: [rescheduledBy], references: [UserId])
+
+  hospital    Hospital        @relation(fields: [hospitalId], references: [HospitalId])
+  visitType   AppointmentType @relation(fields: [visitTypeId], references: [AppointmentTypeId])
+  paymentType PaymentType     @relation(fields: [paymentTypeId], references: [PaymentTypeId])
+
+  sendWhatsappMessage Boolean @default(false)
+  sendSmsMessage      Boolean @default(false)
+  sendEmailMessage    Boolean @default(false)
+
+  consultation Consultation?
+  isDraft Boolean @default(false)
+
+  // New relation
+  notifications AppointmentNotification[]
+}
+
+model AppointmentNotification {
+  id            Int                @id @default(autoincrement())
+  appointmentId Int
+  channel       NotificationType
+  status        NotificationStatus @default(PENDING)
+  sentAt        DateTime?
+  response      String?
+  retryCount    Int                @default(0)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  appointment Appointment @relation(fields: [appointmentId], references: [AppointmentId])
+}
+
+model Consultation {
+  ConsultationId          Int       @id @default(autoincrement())
+  AppointmentId           Int       @unique
+  consultationDatTime     DateTime  @default(now()) // New
+  consultationEndDateTime DateTime?
+  notes                   String?
+  diagnosis               String?
+  followUpDate            DateTime?
+
+  vitals        Vitals?
+  medications   MedicationRecord[]
+  clinicalNotes ClinicalNote[]
+  surgery       Surgery?
+
+  appointment Appointment @relation(fields: [AppointmentId], references: [AppointmentId])
+  isDraft     Boolean     @default(false)
+}
+
+model Vitals {
+  VitalsId       Int     @id @default(autoincrement())
+  consultationId Int     @unique
+  BloodPressure  String?
+  PulseRate      Int?
+  Temperature    Float?
+  Weight         Float?
+  Height         Float?
+  SpO2           Float?
+  BloodGroup     Float?
+  BMI            Float?
+
+  consultation Consultation @relation(fields: [consultationId], references: [ConsultationId])
+}
+
+model MedicationRecord {
+  MedicationRecordId Int     @id @default(autoincrement())
+  consultationId     Int
+  medicationName     String
+  dosage             String
+  frequency          String
+  duration           String
+  remarks            String?
+
+  consultation Consultation @relation(fields: [consultationId], references: [ConsultationId])
+}
+
+model ClinicalNote {
+  ClinicalNoteId Int    @id @default(autoincrement())
+  consultationId Int
+  title          String
+  content        String
+
+  consultation Consultation @relation(fields: [consultationId], references: [ConsultationId])
+}
+
+model AppointmentType {
+  AppointmentTypeId   Int           @id @default(autoincrement())
+  AppointmentTypeName String        @unique
+  appointments        Appointment[]
+}
+
+model PaymentType {
+  PaymentTypeId        Int           @id @default(autoincrement())
+  TransactionId        Int
+  Transaction_DateTime DateTime
+  PaymentTypeName      String        @unique
+  appointments         Appointment[]
+}
+
+model Surgery {
+  SurgeryId      Int      @id @default(autoincrement())
+  consultationId Int      @unique
+  surgeryType    String
+  surgeonId      Int
+  surgeryDate    DateTime
+  notes          String?
+
+  consultation Consultation @relation(fields: [consultationId], references: [ConsultationId])
+}
+
+enum AcuityLevel {
+  LOW
+  MODERATE
+  HIGH
+  CRITICAL
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  RESCHEDULED
 }
 
 //Enums
@@ -412,4 +657,28 @@ enum OrganizationType {
   HOSPITAL
   CLINIC
   DIAGNOSTICS
+}
+
+enum BloodGroup {
+  A_POS  @map("A+")
+  A_NEG  @map("A-")
+  B_POS  @map("B+")
+  B_NEG  @map("B-")
+  AB_POS @map("AB+")
+  AB_NEG @map("AB-")
+  O_POS  @map("O+")
+  O_NEG  @map("O-")
+}
+
+enum NotificationType {
+  WHATSAPP
+  SMS
+  EMAIL
+}
+
+enum NotificationStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  RETRYING
 }
