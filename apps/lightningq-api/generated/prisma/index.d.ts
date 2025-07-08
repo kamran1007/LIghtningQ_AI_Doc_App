@@ -144,6 +144,11 @@ export type ClinicalNote = $Result.DefaultSelection<Prisma.$ClinicalNotePayload>
  */
 export type AppointmentType = $Result.DefaultSelection<Prisma.$AppointmentTypePayload>
 /**
+ * Model PaymentHistory
+ * 
+ */
+export type PaymentHistory = $Result.DefaultSelection<Prisma.$PaymentHistoryPayload>
+/**
  * Model PaymentType
  * 
  */
@@ -263,6 +268,15 @@ export const NotificationStatus: {
 
 export type NotificationStatus = (typeof NotificationStatus)[keyof typeof NotificationStatus]
 
+
+export const GenderType: {
+  MALE: 'MALE',
+  FEMALE: 'FEMALE',
+  OTHER: 'OTHER'
+};
+
+export type GenderType = (typeof GenderType)[keyof typeof GenderType]
+
 }
 
 export type AcuityLevel = $Enums.AcuityLevel
@@ -304,6 +318,10 @@ export const NotificationType: typeof $Enums.NotificationType
 export type NotificationStatus = $Enums.NotificationStatus
 
 export const NotificationStatus: typeof $Enums.NotificationStatus
+
+export type GenderType = $Enums.GenderType
+
+export const GenderType: typeof $Enums.GenderType
 
 /**
  * ##  Prisma Client ʲˢ
@@ -689,6 +707,16 @@ export class PrismaClient<
     * ```
     */
   get appointmentType(): Prisma.AppointmentTypeDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.paymentHistory`: Exposes CRUD operations for the **PaymentHistory** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PaymentHistories
+    * const paymentHistories = await prisma.paymentHistory.findMany()
+    * ```
+    */
+  get paymentHistory(): Prisma.PaymentHistoryDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.paymentType`: Exposes CRUD operations for the **PaymentType** model.
@@ -1175,6 +1203,7 @@ export namespace Prisma {
     MedicationRecord: 'MedicationRecord',
     ClinicalNote: 'ClinicalNote',
     AppointmentType: 'AppointmentType',
+    PaymentHistory: 'PaymentHistory',
     PaymentType: 'PaymentType',
     Surgery: 'Surgery'
   };
@@ -1195,7 +1224,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "organization" | "hospital" | "userHospitalAccess" | "doctorTimeSlotHistory" | "setting" | "doctorTimeSlot" | "doctorCosting" | "auditLog" | "loginSession" | "role" | "rolePermission" | "permission" | "specialization" | "patient" | "tagPatient" | "allergy" | "language" | "medicalHistory" | "appointment" | "appointmentNotification" | "consultation" | "vitals" | "medicationRecord" | "clinicalNote" | "appointmentType" | "paymentType" | "surgery"
+      modelProps: "user" | "organization" | "hospital" | "userHospitalAccess" | "doctorTimeSlotHistory" | "setting" | "doctorTimeSlot" | "doctorCosting" | "auditLog" | "loginSession" | "role" | "rolePermission" | "permission" | "specialization" | "patient" | "tagPatient" | "allergy" | "language" | "medicalHistory" | "appointment" | "appointmentNotification" | "consultation" | "vitals" | "medicationRecord" | "clinicalNote" | "appointmentType" | "paymentHistory" | "paymentType" | "surgery"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3123,6 +3152,80 @@ export namespace Prisma {
           }
         }
       }
+      PaymentHistory: {
+        payload: Prisma.$PaymentHistoryPayload<ExtArgs>
+        fields: Prisma.PaymentHistoryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PaymentHistoryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentHistoryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PaymentHistoryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentHistoryPayload>
+          }
+          findFirst: {
+            args: Prisma.PaymentHistoryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentHistoryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PaymentHistoryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentHistoryPayload>
+          }
+          findMany: {
+            args: Prisma.PaymentHistoryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentHistoryPayload>[]
+          }
+          create: {
+            args: Prisma.PaymentHistoryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentHistoryPayload>
+          }
+          createMany: {
+            args: Prisma.PaymentHistoryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PaymentHistoryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentHistoryPayload>[]
+          }
+          delete: {
+            args: Prisma.PaymentHistoryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentHistoryPayload>
+          }
+          update: {
+            args: Prisma.PaymentHistoryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentHistoryPayload>
+          }
+          deleteMany: {
+            args: Prisma.PaymentHistoryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PaymentHistoryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PaymentHistoryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentHistoryPayload>[]
+          }
+          upsert: {
+            args: Prisma.PaymentHistoryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentHistoryPayload>
+          }
+          aggregate: {
+            args: Prisma.PaymentHistoryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePaymentHistory>
+          }
+          groupBy: {
+            args: Prisma.PaymentHistoryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PaymentHistoryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PaymentHistoryCountArgs<ExtArgs>
+            result: $Utils.Optional<PaymentHistoryCountAggregateOutputType> | number
+          }
+        }
+      }
       PaymentType: {
         payload: Prisma.$PaymentTypePayload<ExtArgs>
         fields: Prisma.PaymentTypeFieldRefs
@@ -3381,6 +3484,7 @@ export namespace Prisma {
     medicationRecord?: MedicationRecordOmit
     clinicalNote?: ClinicalNoteOmit
     appointmentType?: AppointmentTypeOmit
+    paymentHistory?: PaymentHistoryOmit
     paymentType?: PaymentTypeOmit
     surgery?: SurgeryOmit
   }
@@ -4204,15 +4308,48 @@ export namespace Prisma {
 
 
   /**
+   * Count Type PaymentHistoryCountOutputType
+   */
+
+  export type PaymentHistoryCountOutputType = {
+    appointments: number
+  }
+
+  export type PaymentHistoryCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    appointments?: boolean | PaymentHistoryCountOutputTypeCountAppointmentsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * PaymentHistoryCountOutputType without action
+   */
+  export type PaymentHistoryCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentHistoryCountOutputType
+     */
+    select?: PaymentHistoryCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * PaymentHistoryCountOutputType without action
+   */
+  export type PaymentHistoryCountOutputTypeCountAppointmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AppointmentWhereInput
+  }
+
+
+  /**
    * Count Type PaymentTypeCountOutputType
    */
 
   export type PaymentTypeCountOutputType = {
-    appointments: number
+    Appointment: number
+    PaymentHistory: number
   }
 
   export type PaymentTypeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    appointments?: boolean | PaymentTypeCountOutputTypeCountAppointmentsArgs
+    Appointment?: boolean | PaymentTypeCountOutputTypeCountAppointmentArgs
+    PaymentHistory?: boolean | PaymentTypeCountOutputTypeCountPaymentHistoryArgs
   }
 
   // Custom InputTypes
@@ -4229,8 +4366,15 @@ export namespace Prisma {
   /**
    * PaymentTypeCountOutputType without action
    */
-  export type PaymentTypeCountOutputTypeCountAppointmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PaymentTypeCountOutputTypeCountAppointmentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AppointmentWhereInput
+  }
+
+  /**
+   * PaymentTypeCountOutputType without action
+   */
+  export type PaymentTypeCountOutputTypeCountPaymentHistoryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaymentHistoryWhereInput
   }
 
 
@@ -22408,7 +22552,7 @@ export namespace Prisma {
     firstName: string | null
     lastName: string | null
     dateOfBirth: Date | null
-    gender: string | null
+    gender: $Enums.GenderType | null
     isQuickRegistered: boolean | null
     mobile: string | null
     altContactNumber: string | null
@@ -22447,7 +22591,7 @@ export namespace Prisma {
     firstName: string | null
     lastName: string | null
     dateOfBirth: Date | null
-    gender: string | null
+    gender: $Enums.GenderType | null
     isQuickRegistered: boolean | null
     mobile: string | null
     altContactNumber: string | null
@@ -22745,7 +22889,7 @@ export namespace Prisma {
     firstName: string
     lastName: string
     dateOfBirth: Date
-    gender: string
+    gender: $Enums.GenderType | null
     isQuickRegistered: boolean
     mobile: string
     altContactNumber: string | null
@@ -23002,7 +23146,7 @@ export namespace Prisma {
       firstName: string
       lastName: string
       dateOfBirth: Date
-      gender: string
+      gender: $Enums.GenderType | null
       isQuickRegistered: boolean
       mobile: string
       altContactNumber: string | null
@@ -23468,7 +23612,7 @@ export namespace Prisma {
     readonly firstName: FieldRef<"Patient", 'String'>
     readonly lastName: FieldRef<"Patient", 'String'>
     readonly dateOfBirth: FieldRef<"Patient", 'DateTime'>
-    readonly gender: FieldRef<"Patient", 'String'>
+    readonly gender: FieldRef<"Patient", 'GenderType'>
     readonly isQuickRegistered: FieldRef<"Patient", 'Boolean'>
     readonly mobile: FieldRef<"Patient", 'String'>
     readonly altContactNumber: FieldRef<"Patient", 'String'>
@@ -28361,12 +28505,13 @@ export namespace Prisma {
     DoctorId: number | null
     hospitalId: number | null
     visitTypeId: number | null
-    paymentTypeId: number | null
     AssignedProviderId: number | null
     SpecializationId: number | null
     age: number | null
     createdBy: number | null
     rescheduledBy: number | null
+    paymentHistoryId: number | null
+    paymentTypeId: number | null
   }
 
   export type AppointmentSumAggregateOutputType = {
@@ -28375,12 +28520,13 @@ export namespace Prisma {
     DoctorId: number | null
     hospitalId: number | null
     visitTypeId: number | null
-    paymentTypeId: number | null
     AssignedProviderId: number | null
     SpecializationId: number | null
     age: number | null
     createdBy: number | null
     rescheduledBy: number | null
+    paymentHistoryId: number | null
+    paymentTypeId: number | null
   }
 
   export type AppointmentMinAggregateOutputType = {
@@ -28389,7 +28535,6 @@ export namespace Prisma {
     DoctorId: number | null
     hospitalId: number | null
     visitTypeId: number | null
-    paymentTypeId: number | null
     acuity: $Enums.AcuityLevel | null
     AssignedProviderId: number | null
     SpecializationId: number | null
@@ -28400,7 +28545,11 @@ export namespace Prisma {
     createdAt: Date | null
     createdBy: number | null
     rescheduledAt: Date | null
+    rescheduledDate: Date | null
+    rescheduleReason: string | null
     rescheduledBy: number | null
+    paymentHistoryId: number | null
+    paymentTypeId: number | null
     sendWhatsappMessage: boolean | null
     sendSmsMessage: boolean | null
     sendEmailMessage: boolean | null
@@ -28413,7 +28562,6 @@ export namespace Prisma {
     DoctorId: number | null
     hospitalId: number | null
     visitTypeId: number | null
-    paymentTypeId: number | null
     acuity: $Enums.AcuityLevel | null
     AssignedProviderId: number | null
     SpecializationId: number | null
@@ -28424,7 +28572,11 @@ export namespace Prisma {
     createdAt: Date | null
     createdBy: number | null
     rescheduledAt: Date | null
+    rescheduledDate: Date | null
+    rescheduleReason: string | null
     rescheduledBy: number | null
+    paymentHistoryId: number | null
+    paymentTypeId: number | null
     sendWhatsappMessage: boolean | null
     sendSmsMessage: boolean | null
     sendEmailMessage: boolean | null
@@ -28437,7 +28589,6 @@ export namespace Prisma {
     DoctorId: number
     hospitalId: number
     visitTypeId: number
-    paymentTypeId: number
     acuity: number
     AssignedProviderId: number
     SpecializationId: number
@@ -28448,7 +28599,11 @@ export namespace Prisma {
     createdAt: number
     createdBy: number
     rescheduledAt: number
+    rescheduledDate: number
+    rescheduleReason: number
     rescheduledBy: number
+    paymentHistoryId: number
+    paymentTypeId: number
     sendWhatsappMessage: number
     sendSmsMessage: number
     sendEmailMessage: number
@@ -28463,12 +28618,13 @@ export namespace Prisma {
     DoctorId?: true
     hospitalId?: true
     visitTypeId?: true
-    paymentTypeId?: true
     AssignedProviderId?: true
     SpecializationId?: true
     age?: true
     createdBy?: true
     rescheduledBy?: true
+    paymentHistoryId?: true
+    paymentTypeId?: true
   }
 
   export type AppointmentSumAggregateInputType = {
@@ -28477,12 +28633,13 @@ export namespace Prisma {
     DoctorId?: true
     hospitalId?: true
     visitTypeId?: true
-    paymentTypeId?: true
     AssignedProviderId?: true
     SpecializationId?: true
     age?: true
     createdBy?: true
     rescheduledBy?: true
+    paymentHistoryId?: true
+    paymentTypeId?: true
   }
 
   export type AppointmentMinAggregateInputType = {
@@ -28491,7 +28648,6 @@ export namespace Prisma {
     DoctorId?: true
     hospitalId?: true
     visitTypeId?: true
-    paymentTypeId?: true
     acuity?: true
     AssignedProviderId?: true
     SpecializationId?: true
@@ -28502,7 +28658,11 @@ export namespace Prisma {
     createdAt?: true
     createdBy?: true
     rescheduledAt?: true
+    rescheduledDate?: true
+    rescheduleReason?: true
     rescheduledBy?: true
+    paymentHistoryId?: true
+    paymentTypeId?: true
     sendWhatsappMessage?: true
     sendSmsMessage?: true
     sendEmailMessage?: true
@@ -28515,7 +28675,6 @@ export namespace Prisma {
     DoctorId?: true
     hospitalId?: true
     visitTypeId?: true
-    paymentTypeId?: true
     acuity?: true
     AssignedProviderId?: true
     SpecializationId?: true
@@ -28526,7 +28685,11 @@ export namespace Prisma {
     createdAt?: true
     createdBy?: true
     rescheduledAt?: true
+    rescheduledDate?: true
+    rescheduleReason?: true
     rescheduledBy?: true
+    paymentHistoryId?: true
+    paymentTypeId?: true
     sendWhatsappMessage?: true
     sendSmsMessage?: true
     sendEmailMessage?: true
@@ -28539,7 +28702,6 @@ export namespace Prisma {
     DoctorId?: true
     hospitalId?: true
     visitTypeId?: true
-    paymentTypeId?: true
     acuity?: true
     AssignedProviderId?: true
     SpecializationId?: true
@@ -28550,7 +28712,11 @@ export namespace Prisma {
     createdAt?: true
     createdBy?: true
     rescheduledAt?: true
+    rescheduledDate?: true
+    rescheduleReason?: true
     rescheduledBy?: true
+    paymentHistoryId?: true
+    paymentTypeId?: true
     sendWhatsappMessage?: true
     sendSmsMessage?: true
     sendEmailMessage?: true
@@ -28650,7 +28816,6 @@ export namespace Prisma {
     DoctorId: number
     hospitalId: number
     visitTypeId: number
-    paymentTypeId: number
     acuity: $Enums.AcuityLevel
     AssignedProviderId: number | null
     SpecializationId: number | null
@@ -28661,7 +28826,11 @@ export namespace Prisma {
     createdAt: Date
     createdBy: number | null
     rescheduledAt: Date | null
+    rescheduledDate: Date | null
+    rescheduleReason: string | null
     rescheduledBy: number | null
+    paymentHistoryId: number
+    paymentTypeId: number
     sendWhatsappMessage: boolean
     sendSmsMessage: boolean
     sendEmailMessage: boolean
@@ -28693,7 +28862,6 @@ export namespace Prisma {
     DoctorId?: boolean
     hospitalId?: boolean
     visitTypeId?: boolean
-    paymentTypeId?: boolean
     acuity?: boolean
     AssignedProviderId?: boolean
     SpecializationId?: boolean
@@ -28704,7 +28872,11 @@ export namespace Prisma {
     createdAt?: boolean
     createdBy?: boolean
     rescheduledAt?: boolean
+    rescheduledDate?: boolean
+    rescheduleReason?: boolean
     rescheduledBy?: boolean
+    paymentHistoryId?: boolean
+    paymentTypeId?: boolean
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -28717,7 +28889,8 @@ export namespace Prisma {
     rescheduledByUser?: boolean | Appointment$rescheduledByUserArgs<ExtArgs>
     hospital?: boolean | HospitalDefaultArgs<ExtArgs>
     visitType?: boolean | AppointmentTypeDefaultArgs<ExtArgs>
-    paymentType?: boolean | PaymentTypeDefaultArgs<ExtArgs>
+    PaymentType?: boolean | PaymentTypeDefaultArgs<ExtArgs>
+    paymentHistory?: boolean | PaymentHistoryDefaultArgs<ExtArgs>
     consultation?: boolean | Appointment$consultationArgs<ExtArgs>
     notifications?: boolean | Appointment$notificationsArgs<ExtArgs>
     _count?: boolean | AppointmentCountOutputTypeDefaultArgs<ExtArgs>
@@ -28729,7 +28902,6 @@ export namespace Prisma {
     DoctorId?: boolean
     hospitalId?: boolean
     visitTypeId?: boolean
-    paymentTypeId?: boolean
     acuity?: boolean
     AssignedProviderId?: boolean
     SpecializationId?: boolean
@@ -28740,7 +28912,11 @@ export namespace Prisma {
     createdAt?: boolean
     createdBy?: boolean
     rescheduledAt?: boolean
+    rescheduledDate?: boolean
+    rescheduleReason?: boolean
     rescheduledBy?: boolean
+    paymentHistoryId?: boolean
+    paymentTypeId?: boolean
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -28753,7 +28929,8 @@ export namespace Prisma {
     rescheduledByUser?: boolean | Appointment$rescheduledByUserArgs<ExtArgs>
     hospital?: boolean | HospitalDefaultArgs<ExtArgs>
     visitType?: boolean | AppointmentTypeDefaultArgs<ExtArgs>
-    paymentType?: boolean | PaymentTypeDefaultArgs<ExtArgs>
+    PaymentType?: boolean | PaymentTypeDefaultArgs<ExtArgs>
+    paymentHistory?: boolean | PaymentHistoryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["appointment"]>
 
   export type AppointmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -28762,7 +28939,6 @@ export namespace Prisma {
     DoctorId?: boolean
     hospitalId?: boolean
     visitTypeId?: boolean
-    paymentTypeId?: boolean
     acuity?: boolean
     AssignedProviderId?: boolean
     SpecializationId?: boolean
@@ -28773,7 +28949,11 @@ export namespace Prisma {
     createdAt?: boolean
     createdBy?: boolean
     rescheduledAt?: boolean
+    rescheduledDate?: boolean
+    rescheduleReason?: boolean
     rescheduledBy?: boolean
+    paymentHistoryId?: boolean
+    paymentTypeId?: boolean
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -28786,7 +28966,8 @@ export namespace Prisma {
     rescheduledByUser?: boolean | Appointment$rescheduledByUserArgs<ExtArgs>
     hospital?: boolean | HospitalDefaultArgs<ExtArgs>
     visitType?: boolean | AppointmentTypeDefaultArgs<ExtArgs>
-    paymentType?: boolean | PaymentTypeDefaultArgs<ExtArgs>
+    PaymentType?: boolean | PaymentTypeDefaultArgs<ExtArgs>
+    paymentHistory?: boolean | PaymentHistoryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["appointment"]>
 
   export type AppointmentSelectScalar = {
@@ -28795,7 +28976,6 @@ export namespace Prisma {
     DoctorId?: boolean
     hospitalId?: boolean
     visitTypeId?: boolean
-    paymentTypeId?: boolean
     acuity?: boolean
     AssignedProviderId?: boolean
     SpecializationId?: boolean
@@ -28806,14 +28986,18 @@ export namespace Prisma {
     createdAt?: boolean
     createdBy?: boolean
     rescheduledAt?: boolean
+    rescheduledDate?: boolean
+    rescheduleReason?: boolean
     rescheduledBy?: boolean
+    paymentHistoryId?: boolean
+    paymentTypeId?: boolean
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
     isDraft?: boolean
   }
 
-  export type AppointmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"AppointmentId" | "PatientId" | "DoctorId" | "hospitalId" | "visitTypeId" | "paymentTypeId" | "acuity" | "AssignedProviderId" | "SpecializationId" | "appointmentDate" | "reason" | "status" | "age" | "createdAt" | "createdBy" | "rescheduledAt" | "rescheduledBy" | "sendWhatsappMessage" | "sendSmsMessage" | "sendEmailMessage" | "isDraft", ExtArgs["result"]["appointment"]>
+  export type AppointmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"AppointmentId" | "PatientId" | "DoctorId" | "hospitalId" | "visitTypeId" | "acuity" | "AssignedProviderId" | "SpecializationId" | "appointmentDate" | "reason" | "status" | "age" | "createdAt" | "createdBy" | "rescheduledAt" | "rescheduledDate" | "rescheduleReason" | "rescheduledBy" | "paymentHistoryId" | "paymentTypeId" | "sendWhatsappMessage" | "sendSmsMessage" | "sendEmailMessage" | "isDraft", ExtArgs["result"]["appointment"]>
   export type AppointmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     patient?: boolean | PatientDefaultArgs<ExtArgs>
     doctor?: boolean | UserDefaultArgs<ExtArgs>
@@ -28823,7 +29007,8 @@ export namespace Prisma {
     rescheduledByUser?: boolean | Appointment$rescheduledByUserArgs<ExtArgs>
     hospital?: boolean | HospitalDefaultArgs<ExtArgs>
     visitType?: boolean | AppointmentTypeDefaultArgs<ExtArgs>
-    paymentType?: boolean | PaymentTypeDefaultArgs<ExtArgs>
+    PaymentType?: boolean | PaymentTypeDefaultArgs<ExtArgs>
+    paymentHistory?: boolean | PaymentHistoryDefaultArgs<ExtArgs>
     consultation?: boolean | Appointment$consultationArgs<ExtArgs>
     notifications?: boolean | Appointment$notificationsArgs<ExtArgs>
     _count?: boolean | AppointmentCountOutputTypeDefaultArgs<ExtArgs>
@@ -28837,7 +29022,8 @@ export namespace Prisma {
     rescheduledByUser?: boolean | Appointment$rescheduledByUserArgs<ExtArgs>
     hospital?: boolean | HospitalDefaultArgs<ExtArgs>
     visitType?: boolean | AppointmentTypeDefaultArgs<ExtArgs>
-    paymentType?: boolean | PaymentTypeDefaultArgs<ExtArgs>
+    PaymentType?: boolean | PaymentTypeDefaultArgs<ExtArgs>
+    paymentHistory?: boolean | PaymentHistoryDefaultArgs<ExtArgs>
   }
   export type AppointmentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     patient?: boolean | PatientDefaultArgs<ExtArgs>
@@ -28848,7 +29034,8 @@ export namespace Prisma {
     rescheduledByUser?: boolean | Appointment$rescheduledByUserArgs<ExtArgs>
     hospital?: boolean | HospitalDefaultArgs<ExtArgs>
     visitType?: boolean | AppointmentTypeDefaultArgs<ExtArgs>
-    paymentType?: boolean | PaymentTypeDefaultArgs<ExtArgs>
+    PaymentType?: boolean | PaymentTypeDefaultArgs<ExtArgs>
+    paymentHistory?: boolean | PaymentHistoryDefaultArgs<ExtArgs>
   }
 
   export type $AppointmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -28862,7 +29049,8 @@ export namespace Prisma {
       rescheduledByUser: Prisma.$UserPayload<ExtArgs> | null
       hospital: Prisma.$HospitalPayload<ExtArgs>
       visitType: Prisma.$AppointmentTypePayload<ExtArgs>
-      paymentType: Prisma.$PaymentTypePayload<ExtArgs>
+      PaymentType: Prisma.$PaymentTypePayload<ExtArgs>
+      paymentHistory: Prisma.$PaymentHistoryPayload<ExtArgs>
       consultation: Prisma.$ConsultationPayload<ExtArgs> | null
       notifications: Prisma.$AppointmentNotificationPayload<ExtArgs>[]
     }
@@ -28872,7 +29060,6 @@ export namespace Prisma {
       DoctorId: number
       hospitalId: number
       visitTypeId: number
-      paymentTypeId: number
       acuity: $Enums.AcuityLevel
       AssignedProviderId: number | null
       SpecializationId: number | null
@@ -28883,7 +29070,11 @@ export namespace Prisma {
       createdAt: Date
       createdBy: number | null
       rescheduledAt: Date | null
+      rescheduledDate: Date | null
+      rescheduleReason: string | null
       rescheduledBy: number | null
+      paymentHistoryId: number
+      paymentTypeId: number
       sendWhatsappMessage: boolean
       sendSmsMessage: boolean
       sendEmailMessage: boolean
@@ -29290,7 +29481,8 @@ export namespace Prisma {
     rescheduledByUser<T extends Appointment$rescheduledByUserArgs<ExtArgs> = {}>(args?: Subset<T, Appointment$rescheduledByUserArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     hospital<T extends HospitalDefaultArgs<ExtArgs> = {}>(args?: Subset<T, HospitalDefaultArgs<ExtArgs>>): Prisma__HospitalClient<$Result.GetResult<Prisma.$HospitalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     visitType<T extends AppointmentTypeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AppointmentTypeDefaultArgs<ExtArgs>>): Prisma__AppointmentTypeClient<$Result.GetResult<Prisma.$AppointmentTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    paymentType<T extends PaymentTypeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PaymentTypeDefaultArgs<ExtArgs>>): Prisma__PaymentTypeClient<$Result.GetResult<Prisma.$PaymentTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    PaymentType<T extends PaymentTypeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PaymentTypeDefaultArgs<ExtArgs>>): Prisma__PaymentTypeClient<$Result.GetResult<Prisma.$PaymentTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    paymentHistory<T extends PaymentHistoryDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PaymentHistoryDefaultArgs<ExtArgs>>): Prisma__PaymentHistoryClient<$Result.GetResult<Prisma.$PaymentHistoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     consultation<T extends Appointment$consultationArgs<ExtArgs> = {}>(args?: Subset<T, Appointment$consultationArgs<ExtArgs>>): Prisma__ConsultationClient<$Result.GetResult<Prisma.$ConsultationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     notifications<T extends Appointment$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, Appointment$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AppointmentNotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -29327,7 +29519,6 @@ export namespace Prisma {
     readonly DoctorId: FieldRef<"Appointment", 'Int'>
     readonly hospitalId: FieldRef<"Appointment", 'Int'>
     readonly visitTypeId: FieldRef<"Appointment", 'Int'>
-    readonly paymentTypeId: FieldRef<"Appointment", 'Int'>
     readonly acuity: FieldRef<"Appointment", 'AcuityLevel'>
     readonly AssignedProviderId: FieldRef<"Appointment", 'Int'>
     readonly SpecializationId: FieldRef<"Appointment", 'Int'>
@@ -29338,7 +29529,11 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"Appointment", 'DateTime'>
     readonly createdBy: FieldRef<"Appointment", 'Int'>
     readonly rescheduledAt: FieldRef<"Appointment", 'DateTime'>
+    readonly rescheduledDate: FieldRef<"Appointment", 'DateTime'>
+    readonly rescheduleReason: FieldRef<"Appointment", 'String'>
     readonly rescheduledBy: FieldRef<"Appointment", 'Int'>
+    readonly paymentHistoryId: FieldRef<"Appointment", 'Int'>
+    readonly paymentTypeId: FieldRef<"Appointment", 'Int'>
     readonly sendWhatsappMessage: FieldRef<"Appointment", 'Boolean'>
     readonly sendSmsMessage: FieldRef<"Appointment", 'Boolean'>
     readonly sendEmailMessage: FieldRef<"Appointment", 'Boolean'>
@@ -36727,6 +36922,1123 @@ export namespace Prisma {
 
 
   /**
+   * Model PaymentHistory
+   */
+
+  export type AggregatePaymentHistory = {
+    _count: PaymentHistoryCountAggregateOutputType | null
+    _avg: PaymentHistoryAvgAggregateOutputType | null
+    _sum: PaymentHistorySumAggregateOutputType | null
+    _min: PaymentHistoryMinAggregateOutputType | null
+    _max: PaymentHistoryMaxAggregateOutputType | null
+  }
+
+  export type PaymentHistoryAvgAggregateOutputType = {
+    PaymentHistoryId: number | null
+    TransactionId: number | null
+    paymentTypePaymentTypeId: number | null
+  }
+
+  export type PaymentHistorySumAggregateOutputType = {
+    PaymentHistoryId: number | null
+    TransactionId: bigint | null
+    paymentTypePaymentTypeId: number | null
+  }
+
+  export type PaymentHistoryMinAggregateOutputType = {
+    PaymentHistoryId: number | null
+    TransactionId: bigint | null
+    Transaction_DateTime: Date | null
+    paymentTypePaymentTypeId: number | null
+  }
+
+  export type PaymentHistoryMaxAggregateOutputType = {
+    PaymentHistoryId: number | null
+    TransactionId: bigint | null
+    Transaction_DateTime: Date | null
+    paymentTypePaymentTypeId: number | null
+  }
+
+  export type PaymentHistoryCountAggregateOutputType = {
+    PaymentHistoryId: number
+    TransactionId: number
+    Transaction_DateTime: number
+    paymentTypePaymentTypeId: number
+    _all: number
+  }
+
+
+  export type PaymentHistoryAvgAggregateInputType = {
+    PaymentHistoryId?: true
+    TransactionId?: true
+    paymentTypePaymentTypeId?: true
+  }
+
+  export type PaymentHistorySumAggregateInputType = {
+    PaymentHistoryId?: true
+    TransactionId?: true
+    paymentTypePaymentTypeId?: true
+  }
+
+  export type PaymentHistoryMinAggregateInputType = {
+    PaymentHistoryId?: true
+    TransactionId?: true
+    Transaction_DateTime?: true
+    paymentTypePaymentTypeId?: true
+  }
+
+  export type PaymentHistoryMaxAggregateInputType = {
+    PaymentHistoryId?: true
+    TransactionId?: true
+    Transaction_DateTime?: true
+    paymentTypePaymentTypeId?: true
+  }
+
+  export type PaymentHistoryCountAggregateInputType = {
+    PaymentHistoryId?: true
+    TransactionId?: true
+    Transaction_DateTime?: true
+    paymentTypePaymentTypeId?: true
+    _all?: true
+  }
+
+  export type PaymentHistoryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaymentHistory to aggregate.
+     */
+    where?: PaymentHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentHistories to fetch.
+     */
+    orderBy?: PaymentHistoryOrderByWithRelationInput | PaymentHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PaymentHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentHistories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PaymentHistories
+    **/
+    _count?: true | PaymentHistoryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PaymentHistoryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PaymentHistorySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PaymentHistoryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PaymentHistoryMaxAggregateInputType
+  }
+
+  export type GetPaymentHistoryAggregateType<T extends PaymentHistoryAggregateArgs> = {
+        [P in keyof T & keyof AggregatePaymentHistory]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePaymentHistory[P]>
+      : GetScalarType<T[P], AggregatePaymentHistory[P]>
+  }
+
+
+
+
+  export type PaymentHistoryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaymentHistoryWhereInput
+    orderBy?: PaymentHistoryOrderByWithAggregationInput | PaymentHistoryOrderByWithAggregationInput[]
+    by: PaymentHistoryScalarFieldEnum[] | PaymentHistoryScalarFieldEnum
+    having?: PaymentHistoryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PaymentHistoryCountAggregateInputType | true
+    _avg?: PaymentHistoryAvgAggregateInputType
+    _sum?: PaymentHistorySumAggregateInputType
+    _min?: PaymentHistoryMinAggregateInputType
+    _max?: PaymentHistoryMaxAggregateInputType
+  }
+
+  export type PaymentHistoryGroupByOutputType = {
+    PaymentHistoryId: number
+    TransactionId: bigint
+    Transaction_DateTime: Date
+    paymentTypePaymentTypeId: number
+    _count: PaymentHistoryCountAggregateOutputType | null
+    _avg: PaymentHistoryAvgAggregateOutputType | null
+    _sum: PaymentHistorySumAggregateOutputType | null
+    _min: PaymentHistoryMinAggregateOutputType | null
+    _max: PaymentHistoryMaxAggregateOutputType | null
+  }
+
+  type GetPaymentHistoryGroupByPayload<T extends PaymentHistoryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PaymentHistoryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PaymentHistoryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PaymentHistoryGroupByOutputType[P]>
+            : GetScalarType<T[P], PaymentHistoryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PaymentHistorySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    PaymentHistoryId?: boolean
+    TransactionId?: boolean
+    Transaction_DateTime?: boolean
+    paymentTypePaymentTypeId?: boolean
+    PaymentTypeName?: boolean | PaymentTypeDefaultArgs<ExtArgs>
+    appointments?: boolean | PaymentHistory$appointmentsArgs<ExtArgs>
+    _count?: boolean | PaymentHistoryCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paymentHistory"]>
+
+  export type PaymentHistorySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    PaymentHistoryId?: boolean
+    TransactionId?: boolean
+    Transaction_DateTime?: boolean
+    paymentTypePaymentTypeId?: boolean
+    PaymentTypeName?: boolean | PaymentTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paymentHistory"]>
+
+  export type PaymentHistorySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    PaymentHistoryId?: boolean
+    TransactionId?: boolean
+    Transaction_DateTime?: boolean
+    paymentTypePaymentTypeId?: boolean
+    PaymentTypeName?: boolean | PaymentTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paymentHistory"]>
+
+  export type PaymentHistorySelectScalar = {
+    PaymentHistoryId?: boolean
+    TransactionId?: boolean
+    Transaction_DateTime?: boolean
+    paymentTypePaymentTypeId?: boolean
+  }
+
+  export type PaymentHistoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"PaymentHistoryId" | "TransactionId" | "Transaction_DateTime" | "paymentTypePaymentTypeId", ExtArgs["result"]["paymentHistory"]>
+  export type PaymentHistoryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    PaymentTypeName?: boolean | PaymentTypeDefaultArgs<ExtArgs>
+    appointments?: boolean | PaymentHistory$appointmentsArgs<ExtArgs>
+    _count?: boolean | PaymentHistoryCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type PaymentHistoryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    PaymentTypeName?: boolean | PaymentTypeDefaultArgs<ExtArgs>
+  }
+  export type PaymentHistoryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    PaymentTypeName?: boolean | PaymentTypeDefaultArgs<ExtArgs>
+  }
+
+  export type $PaymentHistoryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PaymentHistory"
+    objects: {
+      PaymentTypeName: Prisma.$PaymentTypePayload<ExtArgs>
+      appointments: Prisma.$AppointmentPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      PaymentHistoryId: number
+      TransactionId: bigint
+      Transaction_DateTime: Date
+      paymentTypePaymentTypeId: number
+    }, ExtArgs["result"]["paymentHistory"]>
+    composites: {}
+  }
+
+  type PaymentHistoryGetPayload<S extends boolean | null | undefined | PaymentHistoryDefaultArgs> = $Result.GetResult<Prisma.$PaymentHistoryPayload, S>
+
+  type PaymentHistoryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PaymentHistoryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PaymentHistoryCountAggregateInputType | true
+    }
+
+  export interface PaymentHistoryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PaymentHistory'], meta: { name: 'PaymentHistory' } }
+    /**
+     * Find zero or one PaymentHistory that matches the filter.
+     * @param {PaymentHistoryFindUniqueArgs} args - Arguments to find a PaymentHistory
+     * @example
+     * // Get one PaymentHistory
+     * const paymentHistory = await prisma.paymentHistory.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PaymentHistoryFindUniqueArgs>(args: SelectSubset<T, PaymentHistoryFindUniqueArgs<ExtArgs>>): Prisma__PaymentHistoryClient<$Result.GetResult<Prisma.$PaymentHistoryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PaymentHistory that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PaymentHistoryFindUniqueOrThrowArgs} args - Arguments to find a PaymentHistory
+     * @example
+     * // Get one PaymentHistory
+     * const paymentHistory = await prisma.paymentHistory.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PaymentHistoryFindUniqueOrThrowArgs>(args: SelectSubset<T, PaymentHistoryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PaymentHistoryClient<$Result.GetResult<Prisma.$PaymentHistoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaymentHistory that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentHistoryFindFirstArgs} args - Arguments to find a PaymentHistory
+     * @example
+     * // Get one PaymentHistory
+     * const paymentHistory = await prisma.paymentHistory.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PaymentHistoryFindFirstArgs>(args?: SelectSubset<T, PaymentHistoryFindFirstArgs<ExtArgs>>): Prisma__PaymentHistoryClient<$Result.GetResult<Prisma.$PaymentHistoryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaymentHistory that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentHistoryFindFirstOrThrowArgs} args - Arguments to find a PaymentHistory
+     * @example
+     * // Get one PaymentHistory
+     * const paymentHistory = await prisma.paymentHistory.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PaymentHistoryFindFirstOrThrowArgs>(args?: SelectSubset<T, PaymentHistoryFindFirstOrThrowArgs<ExtArgs>>): Prisma__PaymentHistoryClient<$Result.GetResult<Prisma.$PaymentHistoryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PaymentHistories that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentHistoryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PaymentHistories
+     * const paymentHistories = await prisma.paymentHistory.findMany()
+     * 
+     * // Get first 10 PaymentHistories
+     * const paymentHistories = await prisma.paymentHistory.findMany({ take: 10 })
+     * 
+     * // Only select the `PaymentHistoryId`
+     * const paymentHistoryWithPaymentHistoryIdOnly = await prisma.paymentHistory.findMany({ select: { PaymentHistoryId: true } })
+     * 
+     */
+    findMany<T extends PaymentHistoryFindManyArgs>(args?: SelectSubset<T, PaymentHistoryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PaymentHistory.
+     * @param {PaymentHistoryCreateArgs} args - Arguments to create a PaymentHistory.
+     * @example
+     * // Create one PaymentHistory
+     * const PaymentHistory = await prisma.paymentHistory.create({
+     *   data: {
+     *     // ... data to create a PaymentHistory
+     *   }
+     * })
+     * 
+     */
+    create<T extends PaymentHistoryCreateArgs>(args: SelectSubset<T, PaymentHistoryCreateArgs<ExtArgs>>): Prisma__PaymentHistoryClient<$Result.GetResult<Prisma.$PaymentHistoryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PaymentHistories.
+     * @param {PaymentHistoryCreateManyArgs} args - Arguments to create many PaymentHistories.
+     * @example
+     * // Create many PaymentHistories
+     * const paymentHistory = await prisma.paymentHistory.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PaymentHistoryCreateManyArgs>(args?: SelectSubset<T, PaymentHistoryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PaymentHistories and returns the data saved in the database.
+     * @param {PaymentHistoryCreateManyAndReturnArgs} args - Arguments to create many PaymentHistories.
+     * @example
+     * // Create many PaymentHistories
+     * const paymentHistory = await prisma.paymentHistory.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PaymentHistories and only return the `PaymentHistoryId`
+     * const paymentHistoryWithPaymentHistoryIdOnly = await prisma.paymentHistory.createManyAndReturn({
+     *   select: { PaymentHistoryId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PaymentHistoryCreateManyAndReturnArgs>(args?: SelectSubset<T, PaymentHistoryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentHistoryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PaymentHistory.
+     * @param {PaymentHistoryDeleteArgs} args - Arguments to delete one PaymentHistory.
+     * @example
+     * // Delete one PaymentHistory
+     * const PaymentHistory = await prisma.paymentHistory.delete({
+     *   where: {
+     *     // ... filter to delete one PaymentHistory
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PaymentHistoryDeleteArgs>(args: SelectSubset<T, PaymentHistoryDeleteArgs<ExtArgs>>): Prisma__PaymentHistoryClient<$Result.GetResult<Prisma.$PaymentHistoryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PaymentHistory.
+     * @param {PaymentHistoryUpdateArgs} args - Arguments to update one PaymentHistory.
+     * @example
+     * // Update one PaymentHistory
+     * const paymentHistory = await prisma.paymentHistory.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PaymentHistoryUpdateArgs>(args: SelectSubset<T, PaymentHistoryUpdateArgs<ExtArgs>>): Prisma__PaymentHistoryClient<$Result.GetResult<Prisma.$PaymentHistoryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PaymentHistories.
+     * @param {PaymentHistoryDeleteManyArgs} args - Arguments to filter PaymentHistories to delete.
+     * @example
+     * // Delete a few PaymentHistories
+     * const { count } = await prisma.paymentHistory.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PaymentHistoryDeleteManyArgs>(args?: SelectSubset<T, PaymentHistoryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaymentHistories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentHistoryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PaymentHistories
+     * const paymentHistory = await prisma.paymentHistory.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PaymentHistoryUpdateManyArgs>(args: SelectSubset<T, PaymentHistoryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaymentHistories and returns the data updated in the database.
+     * @param {PaymentHistoryUpdateManyAndReturnArgs} args - Arguments to update many PaymentHistories.
+     * @example
+     * // Update many PaymentHistories
+     * const paymentHistory = await prisma.paymentHistory.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PaymentHistories and only return the `PaymentHistoryId`
+     * const paymentHistoryWithPaymentHistoryIdOnly = await prisma.paymentHistory.updateManyAndReturn({
+     *   select: { PaymentHistoryId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PaymentHistoryUpdateManyAndReturnArgs>(args: SelectSubset<T, PaymentHistoryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentHistoryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PaymentHistory.
+     * @param {PaymentHistoryUpsertArgs} args - Arguments to update or create a PaymentHistory.
+     * @example
+     * // Update or create a PaymentHistory
+     * const paymentHistory = await prisma.paymentHistory.upsert({
+     *   create: {
+     *     // ... data to create a PaymentHistory
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PaymentHistory we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PaymentHistoryUpsertArgs>(args: SelectSubset<T, PaymentHistoryUpsertArgs<ExtArgs>>): Prisma__PaymentHistoryClient<$Result.GetResult<Prisma.$PaymentHistoryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PaymentHistories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentHistoryCountArgs} args - Arguments to filter PaymentHistories to count.
+     * @example
+     * // Count the number of PaymentHistories
+     * const count = await prisma.paymentHistory.count({
+     *   where: {
+     *     // ... the filter for the PaymentHistories we want to count
+     *   }
+     * })
+    **/
+    count<T extends PaymentHistoryCountArgs>(
+      args?: Subset<T, PaymentHistoryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PaymentHistoryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PaymentHistory.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentHistoryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PaymentHistoryAggregateArgs>(args: Subset<T, PaymentHistoryAggregateArgs>): Prisma.PrismaPromise<GetPaymentHistoryAggregateType<T>>
+
+    /**
+     * Group by PaymentHistory.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentHistoryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PaymentHistoryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PaymentHistoryGroupByArgs['orderBy'] }
+        : { orderBy?: PaymentHistoryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PaymentHistoryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPaymentHistoryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PaymentHistory model
+   */
+  readonly fields: PaymentHistoryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PaymentHistory.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PaymentHistoryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    PaymentTypeName<T extends PaymentTypeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PaymentTypeDefaultArgs<ExtArgs>>): Prisma__PaymentTypeClient<$Result.GetResult<Prisma.$PaymentTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    appointments<T extends PaymentHistory$appointmentsArgs<ExtArgs> = {}>(args?: Subset<T, PaymentHistory$appointmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AppointmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PaymentHistory model
+   */
+  interface PaymentHistoryFieldRefs {
+    readonly PaymentHistoryId: FieldRef<"PaymentHistory", 'Int'>
+    readonly TransactionId: FieldRef<"PaymentHistory", 'BigInt'>
+    readonly Transaction_DateTime: FieldRef<"PaymentHistory", 'DateTime'>
+    readonly paymentTypePaymentTypeId: FieldRef<"PaymentHistory", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PaymentHistory findUnique
+   */
+  export type PaymentHistoryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentHistory
+     */
+    select?: PaymentHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentHistory
+     */
+    omit?: PaymentHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentHistory to fetch.
+     */
+    where: PaymentHistoryWhereUniqueInput
+  }
+
+  /**
+   * PaymentHistory findUniqueOrThrow
+   */
+  export type PaymentHistoryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentHistory
+     */
+    select?: PaymentHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentHistory
+     */
+    omit?: PaymentHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentHistory to fetch.
+     */
+    where: PaymentHistoryWhereUniqueInput
+  }
+
+  /**
+   * PaymentHistory findFirst
+   */
+  export type PaymentHistoryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentHistory
+     */
+    select?: PaymentHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentHistory
+     */
+    omit?: PaymentHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentHistory to fetch.
+     */
+    where?: PaymentHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentHistories to fetch.
+     */
+    orderBy?: PaymentHistoryOrderByWithRelationInput | PaymentHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaymentHistories.
+     */
+    cursor?: PaymentHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentHistories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaymentHistories.
+     */
+    distinct?: PaymentHistoryScalarFieldEnum | PaymentHistoryScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentHistory findFirstOrThrow
+   */
+  export type PaymentHistoryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentHistory
+     */
+    select?: PaymentHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentHistory
+     */
+    omit?: PaymentHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentHistory to fetch.
+     */
+    where?: PaymentHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentHistories to fetch.
+     */
+    orderBy?: PaymentHistoryOrderByWithRelationInput | PaymentHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaymentHistories.
+     */
+    cursor?: PaymentHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentHistories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaymentHistories.
+     */
+    distinct?: PaymentHistoryScalarFieldEnum | PaymentHistoryScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentHistory findMany
+   */
+  export type PaymentHistoryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentHistory
+     */
+    select?: PaymentHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentHistory
+     */
+    omit?: PaymentHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentHistories to fetch.
+     */
+    where?: PaymentHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentHistories to fetch.
+     */
+    orderBy?: PaymentHistoryOrderByWithRelationInput | PaymentHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PaymentHistories.
+     */
+    cursor?: PaymentHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentHistories.
+     */
+    skip?: number
+    distinct?: PaymentHistoryScalarFieldEnum | PaymentHistoryScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentHistory create
+   */
+  export type PaymentHistoryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentHistory
+     */
+    select?: PaymentHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentHistory
+     */
+    omit?: PaymentHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentHistoryInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PaymentHistory.
+     */
+    data: XOR<PaymentHistoryCreateInput, PaymentHistoryUncheckedCreateInput>
+  }
+
+  /**
+   * PaymentHistory createMany
+   */
+  export type PaymentHistoryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PaymentHistories.
+     */
+    data: PaymentHistoryCreateManyInput | PaymentHistoryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PaymentHistory createManyAndReturn
+   */
+  export type PaymentHistoryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentHistory
+     */
+    select?: PaymentHistorySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentHistory
+     */
+    omit?: PaymentHistoryOmit<ExtArgs> | null
+    /**
+     * The data used to create many PaymentHistories.
+     */
+    data: PaymentHistoryCreateManyInput | PaymentHistoryCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentHistoryIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PaymentHistory update
+   */
+  export type PaymentHistoryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentHistory
+     */
+    select?: PaymentHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentHistory
+     */
+    omit?: PaymentHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentHistoryInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PaymentHistory.
+     */
+    data: XOR<PaymentHistoryUpdateInput, PaymentHistoryUncheckedUpdateInput>
+    /**
+     * Choose, which PaymentHistory to update.
+     */
+    where: PaymentHistoryWhereUniqueInput
+  }
+
+  /**
+   * PaymentHistory updateMany
+   */
+  export type PaymentHistoryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PaymentHistories.
+     */
+    data: XOR<PaymentHistoryUpdateManyMutationInput, PaymentHistoryUncheckedUpdateManyInput>
+    /**
+     * Filter which PaymentHistories to update
+     */
+    where?: PaymentHistoryWhereInput
+    /**
+     * Limit how many PaymentHistories to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaymentHistory updateManyAndReturn
+   */
+  export type PaymentHistoryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentHistory
+     */
+    select?: PaymentHistorySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentHistory
+     */
+    omit?: PaymentHistoryOmit<ExtArgs> | null
+    /**
+     * The data used to update PaymentHistories.
+     */
+    data: XOR<PaymentHistoryUpdateManyMutationInput, PaymentHistoryUncheckedUpdateManyInput>
+    /**
+     * Filter which PaymentHistories to update
+     */
+    where?: PaymentHistoryWhereInput
+    /**
+     * Limit how many PaymentHistories to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentHistoryIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PaymentHistory upsert
+   */
+  export type PaymentHistoryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentHistory
+     */
+    select?: PaymentHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentHistory
+     */
+    omit?: PaymentHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentHistoryInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PaymentHistory to update in case it exists.
+     */
+    where: PaymentHistoryWhereUniqueInput
+    /**
+     * In case the PaymentHistory found by the `where` argument doesn't exist, create a new PaymentHistory with this data.
+     */
+    create: XOR<PaymentHistoryCreateInput, PaymentHistoryUncheckedCreateInput>
+    /**
+     * In case the PaymentHistory was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PaymentHistoryUpdateInput, PaymentHistoryUncheckedUpdateInput>
+  }
+
+  /**
+   * PaymentHistory delete
+   */
+  export type PaymentHistoryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentHistory
+     */
+    select?: PaymentHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentHistory
+     */
+    omit?: PaymentHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentHistoryInclude<ExtArgs> | null
+    /**
+     * Filter which PaymentHistory to delete.
+     */
+    where: PaymentHistoryWhereUniqueInput
+  }
+
+  /**
+   * PaymentHistory deleteMany
+   */
+  export type PaymentHistoryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaymentHistories to delete
+     */
+    where?: PaymentHistoryWhereInput
+    /**
+     * Limit how many PaymentHistories to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaymentHistory.appointments
+   */
+  export type PaymentHistory$appointmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Appointment
+     */
+    select?: AppointmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Appointment
+     */
+    omit?: AppointmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AppointmentInclude<ExtArgs> | null
+    where?: AppointmentWhereInput
+    orderBy?: AppointmentOrderByWithRelationInput | AppointmentOrderByWithRelationInput[]
+    cursor?: AppointmentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AppointmentScalarFieldEnum | AppointmentScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentHistory without action
+   */
+  export type PaymentHistoryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentHistory
+     */
+    select?: PaymentHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentHistory
+     */
+    omit?: PaymentHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentHistoryInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model PaymentType
    */
 
@@ -36740,32 +38052,24 @@ export namespace Prisma {
 
   export type PaymentTypeAvgAggregateOutputType = {
     PaymentTypeId: number | null
-    TransactionId: number | null
   }
 
   export type PaymentTypeSumAggregateOutputType = {
     PaymentTypeId: number | null
-    TransactionId: number | null
   }
 
   export type PaymentTypeMinAggregateOutputType = {
     PaymentTypeId: number | null
-    TransactionId: number | null
-    Transaction_DateTime: Date | null
     PaymentTypeName: string | null
   }
 
   export type PaymentTypeMaxAggregateOutputType = {
     PaymentTypeId: number | null
-    TransactionId: number | null
-    Transaction_DateTime: Date | null
     PaymentTypeName: string | null
   }
 
   export type PaymentTypeCountAggregateOutputType = {
     PaymentTypeId: number
-    TransactionId: number
-    Transaction_DateTime: number
     PaymentTypeName: number
     _all: number
   }
@@ -36773,32 +38077,24 @@ export namespace Prisma {
 
   export type PaymentTypeAvgAggregateInputType = {
     PaymentTypeId?: true
-    TransactionId?: true
   }
 
   export type PaymentTypeSumAggregateInputType = {
     PaymentTypeId?: true
-    TransactionId?: true
   }
 
   export type PaymentTypeMinAggregateInputType = {
     PaymentTypeId?: true
-    TransactionId?: true
-    Transaction_DateTime?: true
     PaymentTypeName?: true
   }
 
   export type PaymentTypeMaxAggregateInputType = {
     PaymentTypeId?: true
-    TransactionId?: true
-    Transaction_DateTime?: true
     PaymentTypeName?: true
   }
 
   export type PaymentTypeCountAggregateInputType = {
     PaymentTypeId?: true
-    TransactionId?: true
-    Transaction_DateTime?: true
     PaymentTypeName?: true
     _all?: true
   }
@@ -36891,8 +38187,6 @@ export namespace Prisma {
 
   export type PaymentTypeGroupByOutputType = {
     PaymentTypeId: number
-    TransactionId: number
-    Transaction_DateTime: Date
     PaymentTypeName: string
     _count: PaymentTypeCountAggregateOutputType | null
     _avg: PaymentTypeAvgAggregateOutputType | null
@@ -36917,37 +38211,31 @@ export namespace Prisma {
 
   export type PaymentTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     PaymentTypeId?: boolean
-    TransactionId?: boolean
-    Transaction_DateTime?: boolean
     PaymentTypeName?: boolean
-    appointments?: boolean | PaymentType$appointmentsArgs<ExtArgs>
+    Appointment?: boolean | PaymentType$AppointmentArgs<ExtArgs>
+    PaymentHistory?: boolean | PaymentType$PaymentHistoryArgs<ExtArgs>
     _count?: boolean | PaymentTypeCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["paymentType"]>
 
   export type PaymentTypeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     PaymentTypeId?: boolean
-    TransactionId?: boolean
-    Transaction_DateTime?: boolean
     PaymentTypeName?: boolean
   }, ExtArgs["result"]["paymentType"]>
 
   export type PaymentTypeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     PaymentTypeId?: boolean
-    TransactionId?: boolean
-    Transaction_DateTime?: boolean
     PaymentTypeName?: boolean
   }, ExtArgs["result"]["paymentType"]>
 
   export type PaymentTypeSelectScalar = {
     PaymentTypeId?: boolean
-    TransactionId?: boolean
-    Transaction_DateTime?: boolean
     PaymentTypeName?: boolean
   }
 
-  export type PaymentTypeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"PaymentTypeId" | "TransactionId" | "Transaction_DateTime" | "PaymentTypeName", ExtArgs["result"]["paymentType"]>
+  export type PaymentTypeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"PaymentTypeId" | "PaymentTypeName", ExtArgs["result"]["paymentType"]>
   export type PaymentTypeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    appointments?: boolean | PaymentType$appointmentsArgs<ExtArgs>
+    Appointment?: boolean | PaymentType$AppointmentArgs<ExtArgs>
+    PaymentHistory?: boolean | PaymentType$PaymentHistoryArgs<ExtArgs>
     _count?: boolean | PaymentTypeCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type PaymentTypeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -36956,12 +38244,11 @@ export namespace Prisma {
   export type $PaymentTypePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "PaymentType"
     objects: {
-      appointments: Prisma.$AppointmentPayload<ExtArgs>[]
+      Appointment: Prisma.$AppointmentPayload<ExtArgs>[]
+      PaymentHistory: Prisma.$PaymentHistoryPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       PaymentTypeId: number
-      TransactionId: number
-      Transaction_DateTime: Date
       PaymentTypeName: string
     }, ExtArgs["result"]["paymentType"]>
     composites: {}
@@ -37357,7 +38644,8 @@ export namespace Prisma {
    */
   export interface Prisma__PaymentTypeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    appointments<T extends PaymentType$appointmentsArgs<ExtArgs> = {}>(args?: Subset<T, PaymentType$appointmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AppointmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    Appointment<T extends PaymentType$AppointmentArgs<ExtArgs> = {}>(args?: Subset<T, PaymentType$AppointmentArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AppointmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    PaymentHistory<T extends PaymentType$PaymentHistoryArgs<ExtArgs> = {}>(args?: Subset<T, PaymentType$PaymentHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -37388,8 +38676,6 @@ export namespace Prisma {
    */
   interface PaymentTypeFieldRefs {
     readonly PaymentTypeId: FieldRef<"PaymentType", 'Int'>
-    readonly TransactionId: FieldRef<"PaymentType", 'Int'>
-    readonly Transaction_DateTime: FieldRef<"PaymentType", 'DateTime'>
     readonly PaymentTypeName: FieldRef<"PaymentType", 'String'>
   }
     
@@ -37779,9 +39065,9 @@ export namespace Prisma {
   }
 
   /**
-   * PaymentType.appointments
+   * PaymentType.Appointment
    */
-  export type PaymentType$appointmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PaymentType$AppointmentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the Appointment
      */
@@ -37800,6 +39086,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AppointmentScalarFieldEnum | AppointmentScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentType.PaymentHistory
+   */
+  export type PaymentType$PaymentHistoryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentHistory
+     */
+    select?: PaymentHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentHistory
+     */
+    omit?: PaymentHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentHistoryInclude<ExtArgs> | null
+    where?: PaymentHistoryWhereInput
+    orderBy?: PaymentHistoryOrderByWithRelationInput | PaymentHistoryOrderByWithRelationInput[]
+    cursor?: PaymentHistoryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PaymentHistoryScalarFieldEnum | PaymentHistoryScalarFieldEnum[]
   }
 
   /**
@@ -39300,7 +40610,6 @@ export namespace Prisma {
     DoctorId: 'DoctorId',
     hospitalId: 'hospitalId',
     visitTypeId: 'visitTypeId',
-    paymentTypeId: 'paymentTypeId',
     acuity: 'acuity',
     AssignedProviderId: 'AssignedProviderId',
     SpecializationId: 'SpecializationId',
@@ -39311,7 +40620,11 @@ export namespace Prisma {
     createdAt: 'createdAt',
     createdBy: 'createdBy',
     rescheduledAt: 'rescheduledAt',
+    rescheduledDate: 'rescheduledDate',
+    rescheduleReason: 'rescheduleReason',
     rescheduledBy: 'rescheduledBy',
+    paymentHistoryId: 'paymentHistoryId',
+    paymentTypeId: 'paymentTypeId',
     sendWhatsappMessage: 'sendWhatsappMessage',
     sendSmsMessage: 'sendSmsMessage',
     sendEmailMessage: 'sendEmailMessage',
@@ -39397,10 +40710,18 @@ export namespace Prisma {
   export type AppointmentTypeScalarFieldEnum = (typeof AppointmentTypeScalarFieldEnum)[keyof typeof AppointmentTypeScalarFieldEnum]
 
 
-  export const PaymentTypeScalarFieldEnum: {
-    PaymentTypeId: 'PaymentTypeId',
+  export const PaymentHistoryScalarFieldEnum: {
+    PaymentHistoryId: 'PaymentHistoryId',
     TransactionId: 'TransactionId',
     Transaction_DateTime: 'Transaction_DateTime',
+    paymentTypePaymentTypeId: 'paymentTypePaymentTypeId'
+  };
+
+  export type PaymentHistoryScalarFieldEnum = (typeof PaymentHistoryScalarFieldEnum)[keyof typeof PaymentHistoryScalarFieldEnum]
+
+
+  export const PaymentTypeScalarFieldEnum: {
+    PaymentTypeId: 'PaymentTypeId',
     PaymentTypeName: 'PaymentTypeName'
   };
 
@@ -39613,6 +40934,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'GenderType'
+   */
+  export type EnumGenderTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GenderType'>
+    
+
+
+  /**
+   * Reference to a field of type 'GenderType[]'
+   */
+  export type ListEnumGenderTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GenderType[]'>
+    
+
+
+  /**
    * Reference to a field of type 'BloodGroup'
    */
   export type EnumBloodGroupFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BloodGroup'>
@@ -39679,6 +41014,20 @@ export namespace Prisma {
    * Reference to a field of type 'NotificationStatus[]'
    */
   export type ListEnumNotificationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'BigInt'
+   */
+  export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt'>
+    
+
+
+  /**
+   * Reference to a field of type 'BigInt[]'
+   */
+  export type ListBigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt[]'>
     
   /**
    * Deep Input Types
@@ -41205,7 +42554,7 @@ export namespace Prisma {
     firstName?: StringFilter<"Patient"> | string
     lastName?: StringFilter<"Patient"> | string
     dateOfBirth?: DateTimeFilter<"Patient"> | Date | string
-    gender?: StringFilter<"Patient"> | string
+    gender?: EnumGenderTypeNullableFilter<"Patient"> | $Enums.GenderType | null
     isQuickRegistered?: BoolFilter<"Patient"> | boolean
     mobile?: StringFilter<"Patient"> | string
     altContactNumber?: StringNullableFilter<"Patient"> | string | null
@@ -41251,7 +42600,7 @@ export namespace Prisma {
     firstName?: SortOrder
     lastName?: SortOrder
     dateOfBirth?: SortOrder
-    gender?: SortOrder
+    gender?: SortOrderInput | SortOrder
     isQuickRegistered?: SortOrder
     mobile?: SortOrder
     altContactNumber?: SortOrderInput | SortOrder
@@ -41302,7 +42651,7 @@ export namespace Prisma {
     firstName?: StringFilter<"Patient"> | string
     lastName?: StringFilter<"Patient"> | string
     dateOfBirth?: DateTimeFilter<"Patient"> | Date | string
-    gender?: StringFilter<"Patient"> | string
+    gender?: EnumGenderTypeNullableFilter<"Patient"> | $Enums.GenderType | null
     isQuickRegistered?: BoolFilter<"Patient"> | boolean
     altContactNumber?: StringNullableFilter<"Patient"> | string | null
     addressLine1?: StringNullableFilter<"Patient"> | string | null
@@ -41346,7 +42695,7 @@ export namespace Prisma {
     firstName?: SortOrder
     lastName?: SortOrder
     dateOfBirth?: SortOrder
-    gender?: SortOrder
+    gender?: SortOrderInput | SortOrder
     isQuickRegistered?: SortOrder
     mobile?: SortOrder
     altContactNumber?: SortOrderInput | SortOrder
@@ -41393,7 +42742,7 @@ export namespace Prisma {
     firstName?: StringWithAggregatesFilter<"Patient"> | string
     lastName?: StringWithAggregatesFilter<"Patient"> | string
     dateOfBirth?: DateTimeWithAggregatesFilter<"Patient"> | Date | string
-    gender?: StringWithAggregatesFilter<"Patient"> | string
+    gender?: EnumGenderTypeNullableWithAggregatesFilter<"Patient"> | $Enums.GenderType | null
     isQuickRegistered?: BoolWithAggregatesFilter<"Patient"> | boolean
     mobile?: StringWithAggregatesFilter<"Patient"> | string
     altContactNumber?: StringNullableWithAggregatesFilter<"Patient"> | string | null
@@ -41621,7 +42970,6 @@ export namespace Prisma {
     DoctorId?: IntFilter<"Appointment"> | number
     hospitalId?: IntFilter<"Appointment"> | number
     visitTypeId?: IntFilter<"Appointment"> | number
-    paymentTypeId?: IntFilter<"Appointment"> | number
     acuity?: EnumAcuityLevelFilter<"Appointment"> | $Enums.AcuityLevel
     AssignedProviderId?: IntNullableFilter<"Appointment"> | number | null
     SpecializationId?: IntNullableFilter<"Appointment"> | number | null
@@ -41632,7 +42980,11 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Appointment"> | Date | string
     createdBy?: IntNullableFilter<"Appointment"> | number | null
     rescheduledAt?: DateTimeNullableFilter<"Appointment"> | Date | string | null
+    rescheduledDate?: DateTimeNullableFilter<"Appointment"> | Date | string | null
+    rescheduleReason?: StringNullableFilter<"Appointment"> | string | null
     rescheduledBy?: IntNullableFilter<"Appointment"> | number | null
+    paymentHistoryId?: IntFilter<"Appointment"> | number
+    paymentTypeId?: IntFilter<"Appointment"> | number
     sendWhatsappMessage?: BoolFilter<"Appointment"> | boolean
     sendSmsMessage?: BoolFilter<"Appointment"> | boolean
     sendEmailMessage?: BoolFilter<"Appointment"> | boolean
@@ -41645,7 +42997,8 @@ export namespace Prisma {
     rescheduledByUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     hospital?: XOR<HospitalScalarRelationFilter, HospitalWhereInput>
     visitType?: XOR<AppointmentTypeScalarRelationFilter, AppointmentTypeWhereInput>
-    paymentType?: XOR<PaymentTypeScalarRelationFilter, PaymentTypeWhereInput>
+    PaymentType?: XOR<PaymentTypeScalarRelationFilter, PaymentTypeWhereInput>
+    paymentHistory?: XOR<PaymentHistoryScalarRelationFilter, PaymentHistoryWhereInput>
     consultation?: XOR<ConsultationNullableScalarRelationFilter, ConsultationWhereInput> | null
     notifications?: AppointmentNotificationListRelationFilter
   }
@@ -41656,7 +43009,6 @@ export namespace Prisma {
     DoctorId?: SortOrder
     hospitalId?: SortOrder
     visitTypeId?: SortOrder
-    paymentTypeId?: SortOrder
     acuity?: SortOrder
     AssignedProviderId?: SortOrderInput | SortOrder
     SpecializationId?: SortOrderInput | SortOrder
@@ -41667,7 +43019,11 @@ export namespace Prisma {
     createdAt?: SortOrder
     createdBy?: SortOrderInput | SortOrder
     rescheduledAt?: SortOrderInput | SortOrder
+    rescheduledDate?: SortOrderInput | SortOrder
+    rescheduleReason?: SortOrderInput | SortOrder
     rescheduledBy?: SortOrderInput | SortOrder
+    paymentHistoryId?: SortOrder
+    paymentTypeId?: SortOrder
     sendWhatsappMessage?: SortOrder
     sendSmsMessage?: SortOrder
     sendEmailMessage?: SortOrder
@@ -41680,7 +43036,8 @@ export namespace Prisma {
     rescheduledByUser?: UserOrderByWithRelationInput
     hospital?: HospitalOrderByWithRelationInput
     visitType?: AppointmentTypeOrderByWithRelationInput
-    paymentType?: PaymentTypeOrderByWithRelationInput
+    PaymentType?: PaymentTypeOrderByWithRelationInput
+    paymentHistory?: PaymentHistoryOrderByWithRelationInput
     consultation?: ConsultationOrderByWithRelationInput
     notifications?: AppointmentNotificationOrderByRelationAggregateInput
   }
@@ -41694,7 +43051,6 @@ export namespace Prisma {
     DoctorId?: IntFilter<"Appointment"> | number
     hospitalId?: IntFilter<"Appointment"> | number
     visitTypeId?: IntFilter<"Appointment"> | number
-    paymentTypeId?: IntFilter<"Appointment"> | number
     acuity?: EnumAcuityLevelFilter<"Appointment"> | $Enums.AcuityLevel
     AssignedProviderId?: IntNullableFilter<"Appointment"> | number | null
     SpecializationId?: IntNullableFilter<"Appointment"> | number | null
@@ -41705,7 +43061,11 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Appointment"> | Date | string
     createdBy?: IntNullableFilter<"Appointment"> | number | null
     rescheduledAt?: DateTimeNullableFilter<"Appointment"> | Date | string | null
+    rescheduledDate?: DateTimeNullableFilter<"Appointment"> | Date | string | null
+    rescheduleReason?: StringNullableFilter<"Appointment"> | string | null
     rescheduledBy?: IntNullableFilter<"Appointment"> | number | null
+    paymentHistoryId?: IntFilter<"Appointment"> | number
+    paymentTypeId?: IntFilter<"Appointment"> | number
     sendWhatsappMessage?: BoolFilter<"Appointment"> | boolean
     sendSmsMessage?: BoolFilter<"Appointment"> | boolean
     sendEmailMessage?: BoolFilter<"Appointment"> | boolean
@@ -41718,7 +43078,8 @@ export namespace Prisma {
     rescheduledByUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     hospital?: XOR<HospitalScalarRelationFilter, HospitalWhereInput>
     visitType?: XOR<AppointmentTypeScalarRelationFilter, AppointmentTypeWhereInput>
-    paymentType?: XOR<PaymentTypeScalarRelationFilter, PaymentTypeWhereInput>
+    PaymentType?: XOR<PaymentTypeScalarRelationFilter, PaymentTypeWhereInput>
+    paymentHistory?: XOR<PaymentHistoryScalarRelationFilter, PaymentHistoryWhereInput>
     consultation?: XOR<ConsultationNullableScalarRelationFilter, ConsultationWhereInput> | null
     notifications?: AppointmentNotificationListRelationFilter
   }, "AppointmentId">
@@ -41729,7 +43090,6 @@ export namespace Prisma {
     DoctorId?: SortOrder
     hospitalId?: SortOrder
     visitTypeId?: SortOrder
-    paymentTypeId?: SortOrder
     acuity?: SortOrder
     AssignedProviderId?: SortOrderInput | SortOrder
     SpecializationId?: SortOrderInput | SortOrder
@@ -41740,7 +43100,11 @@ export namespace Prisma {
     createdAt?: SortOrder
     createdBy?: SortOrderInput | SortOrder
     rescheduledAt?: SortOrderInput | SortOrder
+    rescheduledDate?: SortOrderInput | SortOrder
+    rescheduleReason?: SortOrderInput | SortOrder
     rescheduledBy?: SortOrderInput | SortOrder
+    paymentHistoryId?: SortOrder
+    paymentTypeId?: SortOrder
     sendWhatsappMessage?: SortOrder
     sendSmsMessage?: SortOrder
     sendEmailMessage?: SortOrder
@@ -41761,7 +43125,6 @@ export namespace Prisma {
     DoctorId?: IntWithAggregatesFilter<"Appointment"> | number
     hospitalId?: IntWithAggregatesFilter<"Appointment"> | number
     visitTypeId?: IntWithAggregatesFilter<"Appointment"> | number
-    paymentTypeId?: IntWithAggregatesFilter<"Appointment"> | number
     acuity?: EnumAcuityLevelWithAggregatesFilter<"Appointment"> | $Enums.AcuityLevel
     AssignedProviderId?: IntNullableWithAggregatesFilter<"Appointment"> | number | null
     SpecializationId?: IntNullableWithAggregatesFilter<"Appointment"> | number | null
@@ -41772,7 +43135,11 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Appointment"> | Date | string
     createdBy?: IntNullableWithAggregatesFilter<"Appointment"> | number | null
     rescheduledAt?: DateTimeNullableWithAggregatesFilter<"Appointment"> | Date | string | null
+    rescheduledDate?: DateTimeNullableWithAggregatesFilter<"Appointment"> | Date | string | null
+    rescheduleReason?: StringNullableWithAggregatesFilter<"Appointment"> | string | null
     rescheduledBy?: IntNullableWithAggregatesFilter<"Appointment"> | number | null
+    paymentHistoryId?: IntWithAggregatesFilter<"Appointment"> | number
+    paymentTypeId?: IntWithAggregatesFilter<"Appointment"> | number
     sendWhatsappMessage?: BoolWithAggregatesFilter<"Appointment"> | boolean
     sendSmsMessage?: BoolWithAggregatesFilter<"Appointment"> | boolean
     sendEmailMessage?: BoolWithAggregatesFilter<"Appointment"> | boolean
@@ -42183,23 +43550,76 @@ export namespace Prisma {
     AppointmentTypeName?: StringWithAggregatesFilter<"AppointmentType"> | string
   }
 
+  export type PaymentHistoryWhereInput = {
+    AND?: PaymentHistoryWhereInput | PaymentHistoryWhereInput[]
+    OR?: PaymentHistoryWhereInput[]
+    NOT?: PaymentHistoryWhereInput | PaymentHistoryWhereInput[]
+    PaymentHistoryId?: IntFilter<"PaymentHistory"> | number
+    TransactionId?: BigIntFilter<"PaymentHistory"> | bigint | number
+    Transaction_DateTime?: DateTimeFilter<"PaymentHistory"> | Date | string
+    paymentTypePaymentTypeId?: IntFilter<"PaymentHistory"> | number
+    PaymentTypeName?: XOR<PaymentTypeScalarRelationFilter, PaymentTypeWhereInput>
+    appointments?: AppointmentListRelationFilter
+  }
+
+  export type PaymentHistoryOrderByWithRelationInput = {
+    PaymentHistoryId?: SortOrder
+    TransactionId?: SortOrder
+    Transaction_DateTime?: SortOrder
+    paymentTypePaymentTypeId?: SortOrder
+    PaymentTypeName?: PaymentTypeOrderByWithRelationInput
+    appointments?: AppointmentOrderByRelationAggregateInput
+  }
+
+  export type PaymentHistoryWhereUniqueInput = Prisma.AtLeast<{
+    PaymentHistoryId?: number
+    AND?: PaymentHistoryWhereInput | PaymentHistoryWhereInput[]
+    OR?: PaymentHistoryWhereInput[]
+    NOT?: PaymentHistoryWhereInput | PaymentHistoryWhereInput[]
+    TransactionId?: BigIntFilter<"PaymentHistory"> | bigint | number
+    Transaction_DateTime?: DateTimeFilter<"PaymentHistory"> | Date | string
+    paymentTypePaymentTypeId?: IntFilter<"PaymentHistory"> | number
+    PaymentTypeName?: XOR<PaymentTypeScalarRelationFilter, PaymentTypeWhereInput>
+    appointments?: AppointmentListRelationFilter
+  }, "PaymentHistoryId">
+
+  export type PaymentHistoryOrderByWithAggregationInput = {
+    PaymentHistoryId?: SortOrder
+    TransactionId?: SortOrder
+    Transaction_DateTime?: SortOrder
+    paymentTypePaymentTypeId?: SortOrder
+    _count?: PaymentHistoryCountOrderByAggregateInput
+    _avg?: PaymentHistoryAvgOrderByAggregateInput
+    _max?: PaymentHistoryMaxOrderByAggregateInput
+    _min?: PaymentHistoryMinOrderByAggregateInput
+    _sum?: PaymentHistorySumOrderByAggregateInput
+  }
+
+  export type PaymentHistoryScalarWhereWithAggregatesInput = {
+    AND?: PaymentHistoryScalarWhereWithAggregatesInput | PaymentHistoryScalarWhereWithAggregatesInput[]
+    OR?: PaymentHistoryScalarWhereWithAggregatesInput[]
+    NOT?: PaymentHistoryScalarWhereWithAggregatesInput | PaymentHistoryScalarWhereWithAggregatesInput[]
+    PaymentHistoryId?: IntWithAggregatesFilter<"PaymentHistory"> | number
+    TransactionId?: BigIntWithAggregatesFilter<"PaymentHistory"> | bigint | number
+    Transaction_DateTime?: DateTimeWithAggregatesFilter<"PaymentHistory"> | Date | string
+    paymentTypePaymentTypeId?: IntWithAggregatesFilter<"PaymentHistory"> | number
+  }
+
   export type PaymentTypeWhereInput = {
     AND?: PaymentTypeWhereInput | PaymentTypeWhereInput[]
     OR?: PaymentTypeWhereInput[]
     NOT?: PaymentTypeWhereInput | PaymentTypeWhereInput[]
     PaymentTypeId?: IntFilter<"PaymentType"> | number
-    TransactionId?: IntFilter<"PaymentType"> | number
-    Transaction_DateTime?: DateTimeFilter<"PaymentType"> | Date | string
     PaymentTypeName?: StringFilter<"PaymentType"> | string
-    appointments?: AppointmentListRelationFilter
+    Appointment?: AppointmentListRelationFilter
+    PaymentHistory?: PaymentHistoryListRelationFilter
   }
 
   export type PaymentTypeOrderByWithRelationInput = {
     PaymentTypeId?: SortOrder
-    TransactionId?: SortOrder
-    Transaction_DateTime?: SortOrder
     PaymentTypeName?: SortOrder
-    appointments?: AppointmentOrderByRelationAggregateInput
+    Appointment?: AppointmentOrderByRelationAggregateInput
+    PaymentHistory?: PaymentHistoryOrderByRelationAggregateInput
   }
 
   export type PaymentTypeWhereUniqueInput = Prisma.AtLeast<{
@@ -42208,15 +43628,12 @@ export namespace Prisma {
     AND?: PaymentTypeWhereInput | PaymentTypeWhereInput[]
     OR?: PaymentTypeWhereInput[]
     NOT?: PaymentTypeWhereInput | PaymentTypeWhereInput[]
-    TransactionId?: IntFilter<"PaymentType"> | number
-    Transaction_DateTime?: DateTimeFilter<"PaymentType"> | Date | string
-    appointments?: AppointmentListRelationFilter
+    Appointment?: AppointmentListRelationFilter
+    PaymentHistory?: PaymentHistoryListRelationFilter
   }, "PaymentTypeId" | "PaymentTypeName">
 
   export type PaymentTypeOrderByWithAggregationInput = {
     PaymentTypeId?: SortOrder
-    TransactionId?: SortOrder
-    Transaction_DateTime?: SortOrder
     PaymentTypeName?: SortOrder
     _count?: PaymentTypeCountOrderByAggregateInput
     _avg?: PaymentTypeAvgOrderByAggregateInput
@@ -42230,8 +43647,6 @@ export namespace Prisma {
     OR?: PaymentTypeScalarWhereWithAggregatesInput[]
     NOT?: PaymentTypeScalarWhereWithAggregatesInput | PaymentTypeScalarWhereWithAggregatesInput[]
     PaymentTypeId?: IntWithAggregatesFilter<"PaymentType"> | number
-    TransactionId?: IntWithAggregatesFilter<"PaymentType"> | number
-    Transaction_DateTime?: DateTimeWithAggregatesFilter<"PaymentType"> | Date | string
     PaymentTypeName?: StringWithAggregatesFilter<"PaymentType"> | string
   }
 
@@ -43960,7 +45375,7 @@ export namespace Prisma {
     firstName: string
     lastName: string
     dateOfBirth: Date | string
-    gender: string
+    gender?: $Enums.GenderType | null
     isQuickRegistered?: boolean
     mobile: string
     altContactNumber?: string | null
@@ -44004,7 +45419,7 @@ export namespace Prisma {
     firstName: string
     lastName: string
     dateOfBirth: Date | string
-    gender: string
+    gender?: $Enums.GenderType | null
     isQuickRegistered?: boolean
     mobile: string
     altContactNumber?: string | null
@@ -44047,7 +45462,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44091,7 +45506,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44135,7 +45550,7 @@ export namespace Prisma {
     firstName: string
     lastName: string
     dateOfBirth: Date | string
-    gender: string
+    gender?: $Enums.GenderType | null
     isQuickRegistered?: boolean
     mobile: string
     altContactNumber?: string | null
@@ -44173,7 +45588,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44210,7 +45625,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44421,6 +45836,8 @@ export namespace Prisma {
     age?: number | null
     createdAt?: Date | string
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -44433,7 +45850,8 @@ export namespace Prisma {
     rescheduledByUser?: UserCreateNestedOneWithoutAppointmentInput
     hospital: HospitalCreateNestedOneWithoutAppointmentInput
     visitType: AppointmentTypeCreateNestedOneWithoutAppointmentsInput
-    paymentType: PaymentTypeCreateNestedOneWithoutAppointmentsInput
+    PaymentType: PaymentTypeCreateNestedOneWithoutAppointmentInput
+    paymentHistory: PaymentHistoryCreateNestedOneWithoutAppointmentsInput
     consultation?: ConsultationCreateNestedOneWithoutAppointmentInput
     notifications?: AppointmentNotificationCreateNestedManyWithoutAppointmentInput
   }
@@ -44444,7 +45862,6 @@ export namespace Prisma {
     DoctorId: number
     hospitalId: number
     visitTypeId: number
-    paymentTypeId: number
     acuity: $Enums.AcuityLevel
     AssignedProviderId?: number | null
     SpecializationId?: number | null
@@ -44455,7 +45872,11 @@ export namespace Prisma {
     createdAt?: Date | string
     createdBy?: number | null
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     rescheduledBy?: number | null
+    paymentHistoryId: number
+    paymentTypeId: number
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -44472,6 +45893,8 @@ export namespace Prisma {
     age?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -44484,7 +45907,8 @@ export namespace Prisma {
     rescheduledByUser?: UserUpdateOneWithoutAppointmentNestedInput
     hospital?: HospitalUpdateOneRequiredWithoutAppointmentNestedInput
     visitType?: AppointmentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
-    paymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
+    PaymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentNestedInput
+    paymentHistory?: PaymentHistoryUpdateOneRequiredWithoutAppointmentsNestedInput
     consultation?: ConsultationUpdateOneWithoutAppointmentNestedInput
     notifications?: AppointmentNotificationUpdateManyWithoutAppointmentNestedInput
   }
@@ -44495,7 +45919,6 @@ export namespace Prisma {
     DoctorId?: IntFieldUpdateOperationsInput | number
     hospitalId?: IntFieldUpdateOperationsInput | number
     visitTypeId?: IntFieldUpdateOperationsInput | number
-    paymentTypeId?: IntFieldUpdateOperationsInput | number
     acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
     AssignedProviderId?: NullableIntFieldUpdateOperationsInput | number | null
     SpecializationId?: NullableIntFieldUpdateOperationsInput | number | null
@@ -44506,7 +45929,11 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     rescheduledBy?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentHistoryId?: IntFieldUpdateOperationsInput | number
+    paymentTypeId?: IntFieldUpdateOperationsInput | number
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -44521,7 +45948,6 @@ export namespace Prisma {
     DoctorId: number
     hospitalId: number
     visitTypeId: number
-    paymentTypeId: number
     acuity: $Enums.AcuityLevel
     AssignedProviderId?: number | null
     SpecializationId?: number | null
@@ -44532,7 +45958,11 @@ export namespace Prisma {
     createdAt?: Date | string
     createdBy?: number | null
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     rescheduledBy?: number | null
+    paymentHistoryId: number
+    paymentTypeId: number
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -44547,6 +45977,8 @@ export namespace Prisma {
     age?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -44559,7 +45991,6 @@ export namespace Prisma {
     DoctorId?: IntFieldUpdateOperationsInput | number
     hospitalId?: IntFieldUpdateOperationsInput | number
     visitTypeId?: IntFieldUpdateOperationsInput | number
-    paymentTypeId?: IntFieldUpdateOperationsInput | number
     acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
     AssignedProviderId?: NullableIntFieldUpdateOperationsInput | number | null
     SpecializationId?: NullableIntFieldUpdateOperationsInput | number | null
@@ -44570,7 +46001,11 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     rescheduledBy?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentHistoryId?: IntFieldUpdateOperationsInput | number
+    paymentTypeId?: IntFieldUpdateOperationsInput | number
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -44980,53 +46415,92 @@ export namespace Prisma {
     AppointmentTypeName?: StringFieldUpdateOperationsInput | string
   }
 
-  export type PaymentTypeCreateInput = {
-    TransactionId: number
+  export type PaymentHistoryCreateInput = {
+    TransactionId: bigint | number
     Transaction_DateTime: Date | string
+    PaymentTypeName: PaymentTypeCreateNestedOneWithoutPaymentHistoryInput
+    appointments?: AppointmentCreateNestedManyWithoutPaymentHistoryInput
+  }
+
+  export type PaymentHistoryUncheckedCreateInput = {
+    PaymentHistoryId?: number
+    TransactionId: bigint | number
+    Transaction_DateTime: Date | string
+    paymentTypePaymentTypeId: number
+    appointments?: AppointmentUncheckedCreateNestedManyWithoutPaymentHistoryInput
+  }
+
+  export type PaymentHistoryUpdateInput = {
+    TransactionId?: BigIntFieldUpdateOperationsInput | bigint | number
+    Transaction_DateTime?: DateTimeFieldUpdateOperationsInput | Date | string
+    PaymentTypeName?: PaymentTypeUpdateOneRequiredWithoutPaymentHistoryNestedInput
+    appointments?: AppointmentUpdateManyWithoutPaymentHistoryNestedInput
+  }
+
+  export type PaymentHistoryUncheckedUpdateInput = {
+    PaymentHistoryId?: IntFieldUpdateOperationsInput | number
+    TransactionId?: BigIntFieldUpdateOperationsInput | bigint | number
+    Transaction_DateTime?: DateTimeFieldUpdateOperationsInput | Date | string
+    paymentTypePaymentTypeId?: IntFieldUpdateOperationsInput | number
+    appointments?: AppointmentUncheckedUpdateManyWithoutPaymentHistoryNestedInput
+  }
+
+  export type PaymentHistoryCreateManyInput = {
+    PaymentHistoryId?: number
+    TransactionId: bigint | number
+    Transaction_DateTime: Date | string
+    paymentTypePaymentTypeId: number
+  }
+
+  export type PaymentHistoryUpdateManyMutationInput = {
+    TransactionId?: BigIntFieldUpdateOperationsInput | bigint | number
+    Transaction_DateTime?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentHistoryUncheckedUpdateManyInput = {
+    PaymentHistoryId?: IntFieldUpdateOperationsInput | number
+    TransactionId?: BigIntFieldUpdateOperationsInput | bigint | number
+    Transaction_DateTime?: DateTimeFieldUpdateOperationsInput | Date | string
+    paymentTypePaymentTypeId?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type PaymentTypeCreateInput = {
     PaymentTypeName: string
-    appointments?: AppointmentCreateNestedManyWithoutPaymentTypeInput
+    Appointment?: AppointmentCreateNestedManyWithoutPaymentTypeInput
+    PaymentHistory?: PaymentHistoryCreateNestedManyWithoutPaymentTypeNameInput
   }
 
   export type PaymentTypeUncheckedCreateInput = {
     PaymentTypeId?: number
-    TransactionId: number
-    Transaction_DateTime: Date | string
     PaymentTypeName: string
-    appointments?: AppointmentUncheckedCreateNestedManyWithoutPaymentTypeInput
+    Appointment?: AppointmentUncheckedCreateNestedManyWithoutPaymentTypeInput
+    PaymentHistory?: PaymentHistoryUncheckedCreateNestedManyWithoutPaymentTypeNameInput
   }
 
   export type PaymentTypeUpdateInput = {
-    TransactionId?: IntFieldUpdateOperationsInput | number
-    Transaction_DateTime?: DateTimeFieldUpdateOperationsInput | Date | string
     PaymentTypeName?: StringFieldUpdateOperationsInput | string
-    appointments?: AppointmentUpdateManyWithoutPaymentTypeNestedInput
+    Appointment?: AppointmentUpdateManyWithoutPaymentTypeNestedInput
+    PaymentHistory?: PaymentHistoryUpdateManyWithoutPaymentTypeNameNestedInput
   }
 
   export type PaymentTypeUncheckedUpdateInput = {
     PaymentTypeId?: IntFieldUpdateOperationsInput | number
-    TransactionId?: IntFieldUpdateOperationsInput | number
-    Transaction_DateTime?: DateTimeFieldUpdateOperationsInput | Date | string
     PaymentTypeName?: StringFieldUpdateOperationsInput | string
-    appointments?: AppointmentUncheckedUpdateManyWithoutPaymentTypeNestedInput
+    Appointment?: AppointmentUncheckedUpdateManyWithoutPaymentTypeNestedInput
+    PaymentHistory?: PaymentHistoryUncheckedUpdateManyWithoutPaymentTypeNameNestedInput
   }
 
   export type PaymentTypeCreateManyInput = {
     PaymentTypeId?: number
-    TransactionId: number
-    Transaction_DateTime: Date | string
     PaymentTypeName: string
   }
 
   export type PaymentTypeUpdateManyMutationInput = {
-    TransactionId?: IntFieldUpdateOperationsInput | number
-    Transaction_DateTime?: DateTimeFieldUpdateOperationsInput | Date | string
     PaymentTypeName?: StringFieldUpdateOperationsInput | string
   }
 
   export type PaymentTypeUncheckedUpdateManyInput = {
     PaymentTypeId?: IntFieldUpdateOperationsInput | number
-    TransactionId?: IntFieldUpdateOperationsInput | number
-    Transaction_DateTime?: DateTimeFieldUpdateOperationsInput | Date | string
     PaymentTypeName?: StringFieldUpdateOperationsInput | string
   }
 
@@ -46526,6 +48000,13 @@ export namespace Prisma {
     SpecializationId?: SortOrder
   }
 
+  export type EnumGenderTypeNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.GenderType | EnumGenderTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.GenderType[] | ListEnumGenderTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.GenderType[] | ListEnumGenderTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumGenderTypeNullableFilter<$PrismaModel> | $Enums.GenderType | null
+  }
+
   export type EnumBloodGroupFilter<$PrismaModel = never> = {
     equals?: $Enums.BloodGroup | EnumBloodGroupFieldRefInput<$PrismaModel>
     in?: $Enums.BloodGroup[] | ListEnumBloodGroupFieldRefInput<$PrismaModel>
@@ -46704,6 +48185,16 @@ export namespace Prisma {
     OrganizationId?: SortOrder
   }
 
+  export type EnumGenderTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.GenderType | EnumGenderTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.GenderType[] | ListEnumGenderTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.GenderType[] | ListEnumGenderTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumGenderTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.GenderType | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumGenderTypeNullableFilter<$PrismaModel>
+    _max?: NestedEnumGenderTypeNullableFilter<$PrismaModel>
+  }
+
   export type EnumBloodGroupWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.BloodGroup | EnumBloodGroupFieldRefInput<$PrismaModel>
     in?: $Enums.BloodGroup[] | ListEnumBloodGroupFieldRefInput<$PrismaModel>
@@ -46847,6 +48338,11 @@ export namespace Prisma {
     isNot?: PaymentTypeWhereInput
   }
 
+  export type PaymentHistoryScalarRelationFilter = {
+    is?: PaymentHistoryWhereInput
+    isNot?: PaymentHistoryWhereInput
+  }
+
   export type ConsultationNullableScalarRelationFilter = {
     is?: ConsultationWhereInput | null
     isNot?: ConsultationWhereInput | null
@@ -46868,7 +48364,6 @@ export namespace Prisma {
     DoctorId?: SortOrder
     hospitalId?: SortOrder
     visitTypeId?: SortOrder
-    paymentTypeId?: SortOrder
     acuity?: SortOrder
     AssignedProviderId?: SortOrder
     SpecializationId?: SortOrder
@@ -46879,7 +48374,11 @@ export namespace Prisma {
     createdAt?: SortOrder
     createdBy?: SortOrder
     rescheduledAt?: SortOrder
+    rescheduledDate?: SortOrder
+    rescheduleReason?: SortOrder
     rescheduledBy?: SortOrder
+    paymentHistoryId?: SortOrder
+    paymentTypeId?: SortOrder
     sendWhatsappMessage?: SortOrder
     sendSmsMessage?: SortOrder
     sendEmailMessage?: SortOrder
@@ -46892,12 +48391,13 @@ export namespace Prisma {
     DoctorId?: SortOrder
     hospitalId?: SortOrder
     visitTypeId?: SortOrder
-    paymentTypeId?: SortOrder
     AssignedProviderId?: SortOrder
     SpecializationId?: SortOrder
     age?: SortOrder
     createdBy?: SortOrder
     rescheduledBy?: SortOrder
+    paymentHistoryId?: SortOrder
+    paymentTypeId?: SortOrder
   }
 
   export type AppointmentMaxOrderByAggregateInput = {
@@ -46906,7 +48406,6 @@ export namespace Prisma {
     DoctorId?: SortOrder
     hospitalId?: SortOrder
     visitTypeId?: SortOrder
-    paymentTypeId?: SortOrder
     acuity?: SortOrder
     AssignedProviderId?: SortOrder
     SpecializationId?: SortOrder
@@ -46917,7 +48416,11 @@ export namespace Prisma {
     createdAt?: SortOrder
     createdBy?: SortOrder
     rescheduledAt?: SortOrder
+    rescheduledDate?: SortOrder
+    rescheduleReason?: SortOrder
     rescheduledBy?: SortOrder
+    paymentHistoryId?: SortOrder
+    paymentTypeId?: SortOrder
     sendWhatsappMessage?: SortOrder
     sendSmsMessage?: SortOrder
     sendEmailMessage?: SortOrder
@@ -46930,7 +48433,6 @@ export namespace Prisma {
     DoctorId?: SortOrder
     hospitalId?: SortOrder
     visitTypeId?: SortOrder
-    paymentTypeId?: SortOrder
     acuity?: SortOrder
     AssignedProviderId?: SortOrder
     SpecializationId?: SortOrder
@@ -46941,7 +48443,11 @@ export namespace Prisma {
     createdAt?: SortOrder
     createdBy?: SortOrder
     rescheduledAt?: SortOrder
+    rescheduledDate?: SortOrder
+    rescheduleReason?: SortOrder
     rescheduledBy?: SortOrder
+    paymentHistoryId?: SortOrder
+    paymentTypeId?: SortOrder
     sendWhatsappMessage?: SortOrder
     sendSmsMessage?: SortOrder
     sendEmailMessage?: SortOrder
@@ -46954,12 +48460,13 @@ export namespace Prisma {
     DoctorId?: SortOrder
     hospitalId?: SortOrder
     visitTypeId?: SortOrder
-    paymentTypeId?: SortOrder
     AssignedProviderId?: SortOrder
     SpecializationId?: SortOrder
     age?: SortOrder
     createdBy?: SortOrder
     rescheduledBy?: SortOrder
+    paymentHistoryId?: SortOrder
+    paymentTypeId?: SortOrder
   }
 
   export type EnumAcuityLevelWithAggregatesFilter<$PrismaModel = never> = {
@@ -47304,35 +48811,97 @@ export namespace Prisma {
     AppointmentTypeId?: SortOrder
   }
 
-  export type PaymentTypeCountOrderByAggregateInput = {
-    PaymentTypeId?: SortOrder
+  export type BigIntFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntFilter<$PrismaModel> | bigint | number
+  }
+
+  export type PaymentHistoryCountOrderByAggregateInput = {
+    PaymentHistoryId?: SortOrder
     TransactionId?: SortOrder
     Transaction_DateTime?: SortOrder
+    paymentTypePaymentTypeId?: SortOrder
+  }
+
+  export type PaymentHistoryAvgOrderByAggregateInput = {
+    PaymentHistoryId?: SortOrder
+    TransactionId?: SortOrder
+    paymentTypePaymentTypeId?: SortOrder
+  }
+
+  export type PaymentHistoryMaxOrderByAggregateInput = {
+    PaymentHistoryId?: SortOrder
+    TransactionId?: SortOrder
+    Transaction_DateTime?: SortOrder
+    paymentTypePaymentTypeId?: SortOrder
+  }
+
+  export type PaymentHistoryMinOrderByAggregateInput = {
+    PaymentHistoryId?: SortOrder
+    TransactionId?: SortOrder
+    Transaction_DateTime?: SortOrder
+    paymentTypePaymentTypeId?: SortOrder
+  }
+
+  export type PaymentHistorySumOrderByAggregateInput = {
+    PaymentHistoryId?: SortOrder
+    TransactionId?: SortOrder
+    paymentTypePaymentTypeId?: SortOrder
+  }
+
+  export type BigIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntWithAggregatesFilter<$PrismaModel> | bigint | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedBigIntFilter<$PrismaModel>
+    _min?: NestedBigIntFilter<$PrismaModel>
+    _max?: NestedBigIntFilter<$PrismaModel>
+  }
+
+  export type PaymentHistoryListRelationFilter = {
+    every?: PaymentHistoryWhereInput
+    some?: PaymentHistoryWhereInput
+    none?: PaymentHistoryWhereInput
+  }
+
+  export type PaymentHistoryOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PaymentTypeCountOrderByAggregateInput = {
+    PaymentTypeId?: SortOrder
     PaymentTypeName?: SortOrder
   }
 
   export type PaymentTypeAvgOrderByAggregateInput = {
     PaymentTypeId?: SortOrder
-    TransactionId?: SortOrder
   }
 
   export type PaymentTypeMaxOrderByAggregateInput = {
     PaymentTypeId?: SortOrder
-    TransactionId?: SortOrder
-    Transaction_DateTime?: SortOrder
     PaymentTypeName?: SortOrder
   }
 
   export type PaymentTypeMinOrderByAggregateInput = {
     PaymentTypeId?: SortOrder
-    TransactionId?: SortOrder
-    Transaction_DateTime?: SortOrder
     PaymentTypeName?: SortOrder
   }
 
   export type PaymentTypeSumOrderByAggregateInput = {
     PaymentTypeId?: SortOrder
-    TransactionId?: SortOrder
   }
 
   export type SurgeryCountOrderByAggregateInput = {
@@ -49346,6 +50915,10 @@ export namespace Prisma {
     connect?: AppointmentWhereUniqueInput | AppointmentWhereUniqueInput[]
   }
 
+  export type NullableEnumGenderTypeFieldUpdateOperationsInput = {
+    set?: $Enums.GenderType | null
+  }
+
   export type EnumBloodGroupFieldUpdateOperationsInput = {
     set?: $Enums.BloodGroup
   }
@@ -49698,10 +51271,16 @@ export namespace Prisma {
     connect?: AppointmentTypeWhereUniqueInput
   }
 
-  export type PaymentTypeCreateNestedOneWithoutAppointmentsInput = {
-    create?: XOR<PaymentTypeCreateWithoutAppointmentsInput, PaymentTypeUncheckedCreateWithoutAppointmentsInput>
-    connectOrCreate?: PaymentTypeCreateOrConnectWithoutAppointmentsInput
+  export type PaymentTypeCreateNestedOneWithoutAppointmentInput = {
+    create?: XOR<PaymentTypeCreateWithoutAppointmentInput, PaymentTypeUncheckedCreateWithoutAppointmentInput>
+    connectOrCreate?: PaymentTypeCreateOrConnectWithoutAppointmentInput
     connect?: PaymentTypeWhereUniqueInput
+  }
+
+  export type PaymentHistoryCreateNestedOneWithoutAppointmentsInput = {
+    create?: XOR<PaymentHistoryCreateWithoutAppointmentsInput, PaymentHistoryUncheckedCreateWithoutAppointmentsInput>
+    connectOrCreate?: PaymentHistoryCreateOrConnectWithoutAppointmentsInput
+    connect?: PaymentHistoryWhereUniqueInput
   }
 
   export type ConsultationCreateNestedOneWithoutAppointmentInput = {
@@ -49810,12 +51389,20 @@ export namespace Prisma {
     update?: XOR<XOR<AppointmentTypeUpdateToOneWithWhereWithoutAppointmentsInput, AppointmentTypeUpdateWithoutAppointmentsInput>, AppointmentTypeUncheckedUpdateWithoutAppointmentsInput>
   }
 
-  export type PaymentTypeUpdateOneRequiredWithoutAppointmentsNestedInput = {
-    create?: XOR<PaymentTypeCreateWithoutAppointmentsInput, PaymentTypeUncheckedCreateWithoutAppointmentsInput>
-    connectOrCreate?: PaymentTypeCreateOrConnectWithoutAppointmentsInput
-    upsert?: PaymentTypeUpsertWithoutAppointmentsInput
+  export type PaymentTypeUpdateOneRequiredWithoutAppointmentNestedInput = {
+    create?: XOR<PaymentTypeCreateWithoutAppointmentInput, PaymentTypeUncheckedCreateWithoutAppointmentInput>
+    connectOrCreate?: PaymentTypeCreateOrConnectWithoutAppointmentInput
+    upsert?: PaymentTypeUpsertWithoutAppointmentInput
     connect?: PaymentTypeWhereUniqueInput
-    update?: XOR<XOR<PaymentTypeUpdateToOneWithWhereWithoutAppointmentsInput, PaymentTypeUpdateWithoutAppointmentsInput>, PaymentTypeUncheckedUpdateWithoutAppointmentsInput>
+    update?: XOR<XOR<PaymentTypeUpdateToOneWithWhereWithoutAppointmentInput, PaymentTypeUpdateWithoutAppointmentInput>, PaymentTypeUncheckedUpdateWithoutAppointmentInput>
+  }
+
+  export type PaymentHistoryUpdateOneRequiredWithoutAppointmentsNestedInput = {
+    create?: XOR<PaymentHistoryCreateWithoutAppointmentsInput, PaymentHistoryUncheckedCreateWithoutAppointmentsInput>
+    connectOrCreate?: PaymentHistoryCreateOrConnectWithoutAppointmentsInput
+    upsert?: PaymentHistoryUpsertWithoutAppointmentsInput
+    connect?: PaymentHistoryWhereUniqueInput
+    update?: XOR<XOR<PaymentHistoryUpdateToOneWithWhereWithoutAppointmentsInput, PaymentHistoryUpdateWithoutAppointmentsInput>, PaymentHistoryUncheckedUpdateWithoutAppointmentsInput>
   }
 
   export type ConsultationUpdateOneWithoutAppointmentNestedInput = {
@@ -50134,6 +51721,70 @@ export namespace Prisma {
     deleteMany?: AppointmentScalarWhereInput | AppointmentScalarWhereInput[]
   }
 
+  export type PaymentTypeCreateNestedOneWithoutPaymentHistoryInput = {
+    create?: XOR<PaymentTypeCreateWithoutPaymentHistoryInput, PaymentTypeUncheckedCreateWithoutPaymentHistoryInput>
+    connectOrCreate?: PaymentTypeCreateOrConnectWithoutPaymentHistoryInput
+    connect?: PaymentTypeWhereUniqueInput
+  }
+
+  export type AppointmentCreateNestedManyWithoutPaymentHistoryInput = {
+    create?: XOR<AppointmentCreateWithoutPaymentHistoryInput, AppointmentUncheckedCreateWithoutPaymentHistoryInput> | AppointmentCreateWithoutPaymentHistoryInput[] | AppointmentUncheckedCreateWithoutPaymentHistoryInput[]
+    connectOrCreate?: AppointmentCreateOrConnectWithoutPaymentHistoryInput | AppointmentCreateOrConnectWithoutPaymentHistoryInput[]
+    createMany?: AppointmentCreateManyPaymentHistoryInputEnvelope
+    connect?: AppointmentWhereUniqueInput | AppointmentWhereUniqueInput[]
+  }
+
+  export type AppointmentUncheckedCreateNestedManyWithoutPaymentHistoryInput = {
+    create?: XOR<AppointmentCreateWithoutPaymentHistoryInput, AppointmentUncheckedCreateWithoutPaymentHistoryInput> | AppointmentCreateWithoutPaymentHistoryInput[] | AppointmentUncheckedCreateWithoutPaymentHistoryInput[]
+    connectOrCreate?: AppointmentCreateOrConnectWithoutPaymentHistoryInput | AppointmentCreateOrConnectWithoutPaymentHistoryInput[]
+    createMany?: AppointmentCreateManyPaymentHistoryInputEnvelope
+    connect?: AppointmentWhereUniqueInput | AppointmentWhereUniqueInput[]
+  }
+
+  export type BigIntFieldUpdateOperationsInput = {
+    set?: bigint | number
+    increment?: bigint | number
+    decrement?: bigint | number
+    multiply?: bigint | number
+    divide?: bigint | number
+  }
+
+  export type PaymentTypeUpdateOneRequiredWithoutPaymentHistoryNestedInput = {
+    create?: XOR<PaymentTypeCreateWithoutPaymentHistoryInput, PaymentTypeUncheckedCreateWithoutPaymentHistoryInput>
+    connectOrCreate?: PaymentTypeCreateOrConnectWithoutPaymentHistoryInput
+    upsert?: PaymentTypeUpsertWithoutPaymentHistoryInput
+    connect?: PaymentTypeWhereUniqueInput
+    update?: XOR<XOR<PaymentTypeUpdateToOneWithWhereWithoutPaymentHistoryInput, PaymentTypeUpdateWithoutPaymentHistoryInput>, PaymentTypeUncheckedUpdateWithoutPaymentHistoryInput>
+  }
+
+  export type AppointmentUpdateManyWithoutPaymentHistoryNestedInput = {
+    create?: XOR<AppointmentCreateWithoutPaymentHistoryInput, AppointmentUncheckedCreateWithoutPaymentHistoryInput> | AppointmentCreateWithoutPaymentHistoryInput[] | AppointmentUncheckedCreateWithoutPaymentHistoryInput[]
+    connectOrCreate?: AppointmentCreateOrConnectWithoutPaymentHistoryInput | AppointmentCreateOrConnectWithoutPaymentHistoryInput[]
+    upsert?: AppointmentUpsertWithWhereUniqueWithoutPaymentHistoryInput | AppointmentUpsertWithWhereUniqueWithoutPaymentHistoryInput[]
+    createMany?: AppointmentCreateManyPaymentHistoryInputEnvelope
+    set?: AppointmentWhereUniqueInput | AppointmentWhereUniqueInput[]
+    disconnect?: AppointmentWhereUniqueInput | AppointmentWhereUniqueInput[]
+    delete?: AppointmentWhereUniqueInput | AppointmentWhereUniqueInput[]
+    connect?: AppointmentWhereUniqueInput | AppointmentWhereUniqueInput[]
+    update?: AppointmentUpdateWithWhereUniqueWithoutPaymentHistoryInput | AppointmentUpdateWithWhereUniqueWithoutPaymentHistoryInput[]
+    updateMany?: AppointmentUpdateManyWithWhereWithoutPaymentHistoryInput | AppointmentUpdateManyWithWhereWithoutPaymentHistoryInput[]
+    deleteMany?: AppointmentScalarWhereInput | AppointmentScalarWhereInput[]
+  }
+
+  export type AppointmentUncheckedUpdateManyWithoutPaymentHistoryNestedInput = {
+    create?: XOR<AppointmentCreateWithoutPaymentHistoryInput, AppointmentUncheckedCreateWithoutPaymentHistoryInput> | AppointmentCreateWithoutPaymentHistoryInput[] | AppointmentUncheckedCreateWithoutPaymentHistoryInput[]
+    connectOrCreate?: AppointmentCreateOrConnectWithoutPaymentHistoryInput | AppointmentCreateOrConnectWithoutPaymentHistoryInput[]
+    upsert?: AppointmentUpsertWithWhereUniqueWithoutPaymentHistoryInput | AppointmentUpsertWithWhereUniqueWithoutPaymentHistoryInput[]
+    createMany?: AppointmentCreateManyPaymentHistoryInputEnvelope
+    set?: AppointmentWhereUniqueInput | AppointmentWhereUniqueInput[]
+    disconnect?: AppointmentWhereUniqueInput | AppointmentWhereUniqueInput[]
+    delete?: AppointmentWhereUniqueInput | AppointmentWhereUniqueInput[]
+    connect?: AppointmentWhereUniqueInput | AppointmentWhereUniqueInput[]
+    update?: AppointmentUpdateWithWhereUniqueWithoutPaymentHistoryInput | AppointmentUpdateWithWhereUniqueWithoutPaymentHistoryInput[]
+    updateMany?: AppointmentUpdateManyWithWhereWithoutPaymentHistoryInput | AppointmentUpdateManyWithWhereWithoutPaymentHistoryInput[]
+    deleteMany?: AppointmentScalarWhereInput | AppointmentScalarWhereInput[]
+  }
+
   export type AppointmentCreateNestedManyWithoutPaymentTypeInput = {
     create?: XOR<AppointmentCreateWithoutPaymentTypeInput, AppointmentUncheckedCreateWithoutPaymentTypeInput> | AppointmentCreateWithoutPaymentTypeInput[] | AppointmentUncheckedCreateWithoutPaymentTypeInput[]
     connectOrCreate?: AppointmentCreateOrConnectWithoutPaymentTypeInput | AppointmentCreateOrConnectWithoutPaymentTypeInput[]
@@ -50141,11 +51792,25 @@ export namespace Prisma {
     connect?: AppointmentWhereUniqueInput | AppointmentWhereUniqueInput[]
   }
 
+  export type PaymentHistoryCreateNestedManyWithoutPaymentTypeNameInput = {
+    create?: XOR<PaymentHistoryCreateWithoutPaymentTypeNameInput, PaymentHistoryUncheckedCreateWithoutPaymentTypeNameInput> | PaymentHistoryCreateWithoutPaymentTypeNameInput[] | PaymentHistoryUncheckedCreateWithoutPaymentTypeNameInput[]
+    connectOrCreate?: PaymentHistoryCreateOrConnectWithoutPaymentTypeNameInput | PaymentHistoryCreateOrConnectWithoutPaymentTypeNameInput[]
+    createMany?: PaymentHistoryCreateManyPaymentTypeNameInputEnvelope
+    connect?: PaymentHistoryWhereUniqueInput | PaymentHistoryWhereUniqueInput[]
+  }
+
   export type AppointmentUncheckedCreateNestedManyWithoutPaymentTypeInput = {
     create?: XOR<AppointmentCreateWithoutPaymentTypeInput, AppointmentUncheckedCreateWithoutPaymentTypeInput> | AppointmentCreateWithoutPaymentTypeInput[] | AppointmentUncheckedCreateWithoutPaymentTypeInput[]
     connectOrCreate?: AppointmentCreateOrConnectWithoutPaymentTypeInput | AppointmentCreateOrConnectWithoutPaymentTypeInput[]
     createMany?: AppointmentCreateManyPaymentTypeInputEnvelope
     connect?: AppointmentWhereUniqueInput | AppointmentWhereUniqueInput[]
+  }
+
+  export type PaymentHistoryUncheckedCreateNestedManyWithoutPaymentTypeNameInput = {
+    create?: XOR<PaymentHistoryCreateWithoutPaymentTypeNameInput, PaymentHistoryUncheckedCreateWithoutPaymentTypeNameInput> | PaymentHistoryCreateWithoutPaymentTypeNameInput[] | PaymentHistoryUncheckedCreateWithoutPaymentTypeNameInput[]
+    connectOrCreate?: PaymentHistoryCreateOrConnectWithoutPaymentTypeNameInput | PaymentHistoryCreateOrConnectWithoutPaymentTypeNameInput[]
+    createMany?: PaymentHistoryCreateManyPaymentTypeNameInputEnvelope
+    connect?: PaymentHistoryWhereUniqueInput | PaymentHistoryWhereUniqueInput[]
   }
 
   export type AppointmentUpdateManyWithoutPaymentTypeNestedInput = {
@@ -50162,6 +51827,20 @@ export namespace Prisma {
     deleteMany?: AppointmentScalarWhereInput | AppointmentScalarWhereInput[]
   }
 
+  export type PaymentHistoryUpdateManyWithoutPaymentTypeNameNestedInput = {
+    create?: XOR<PaymentHistoryCreateWithoutPaymentTypeNameInput, PaymentHistoryUncheckedCreateWithoutPaymentTypeNameInput> | PaymentHistoryCreateWithoutPaymentTypeNameInput[] | PaymentHistoryUncheckedCreateWithoutPaymentTypeNameInput[]
+    connectOrCreate?: PaymentHistoryCreateOrConnectWithoutPaymentTypeNameInput | PaymentHistoryCreateOrConnectWithoutPaymentTypeNameInput[]
+    upsert?: PaymentHistoryUpsertWithWhereUniqueWithoutPaymentTypeNameInput | PaymentHistoryUpsertWithWhereUniqueWithoutPaymentTypeNameInput[]
+    createMany?: PaymentHistoryCreateManyPaymentTypeNameInputEnvelope
+    set?: PaymentHistoryWhereUniqueInput | PaymentHistoryWhereUniqueInput[]
+    disconnect?: PaymentHistoryWhereUniqueInput | PaymentHistoryWhereUniqueInput[]
+    delete?: PaymentHistoryWhereUniqueInput | PaymentHistoryWhereUniqueInput[]
+    connect?: PaymentHistoryWhereUniqueInput | PaymentHistoryWhereUniqueInput[]
+    update?: PaymentHistoryUpdateWithWhereUniqueWithoutPaymentTypeNameInput | PaymentHistoryUpdateWithWhereUniqueWithoutPaymentTypeNameInput[]
+    updateMany?: PaymentHistoryUpdateManyWithWhereWithoutPaymentTypeNameInput | PaymentHistoryUpdateManyWithWhereWithoutPaymentTypeNameInput[]
+    deleteMany?: PaymentHistoryScalarWhereInput | PaymentHistoryScalarWhereInput[]
+  }
+
   export type AppointmentUncheckedUpdateManyWithoutPaymentTypeNestedInput = {
     create?: XOR<AppointmentCreateWithoutPaymentTypeInput, AppointmentUncheckedCreateWithoutPaymentTypeInput> | AppointmentCreateWithoutPaymentTypeInput[] | AppointmentUncheckedCreateWithoutPaymentTypeInput[]
     connectOrCreate?: AppointmentCreateOrConnectWithoutPaymentTypeInput | AppointmentCreateOrConnectWithoutPaymentTypeInput[]
@@ -50174,6 +51853,20 @@ export namespace Prisma {
     update?: AppointmentUpdateWithWhereUniqueWithoutPaymentTypeInput | AppointmentUpdateWithWhereUniqueWithoutPaymentTypeInput[]
     updateMany?: AppointmentUpdateManyWithWhereWithoutPaymentTypeInput | AppointmentUpdateManyWithWhereWithoutPaymentTypeInput[]
     deleteMany?: AppointmentScalarWhereInput | AppointmentScalarWhereInput[]
+  }
+
+  export type PaymentHistoryUncheckedUpdateManyWithoutPaymentTypeNameNestedInput = {
+    create?: XOR<PaymentHistoryCreateWithoutPaymentTypeNameInput, PaymentHistoryUncheckedCreateWithoutPaymentTypeNameInput> | PaymentHistoryCreateWithoutPaymentTypeNameInput[] | PaymentHistoryUncheckedCreateWithoutPaymentTypeNameInput[]
+    connectOrCreate?: PaymentHistoryCreateOrConnectWithoutPaymentTypeNameInput | PaymentHistoryCreateOrConnectWithoutPaymentTypeNameInput[]
+    upsert?: PaymentHistoryUpsertWithWhereUniqueWithoutPaymentTypeNameInput | PaymentHistoryUpsertWithWhereUniqueWithoutPaymentTypeNameInput[]
+    createMany?: PaymentHistoryCreateManyPaymentTypeNameInputEnvelope
+    set?: PaymentHistoryWhereUniqueInput | PaymentHistoryWhereUniqueInput[]
+    disconnect?: PaymentHistoryWhereUniqueInput | PaymentHistoryWhereUniqueInput[]
+    delete?: PaymentHistoryWhereUniqueInput | PaymentHistoryWhereUniqueInput[]
+    connect?: PaymentHistoryWhereUniqueInput | PaymentHistoryWhereUniqueInput[]
+    update?: PaymentHistoryUpdateWithWhereUniqueWithoutPaymentTypeNameInput | PaymentHistoryUpdateWithWhereUniqueWithoutPaymentTypeNameInput[]
+    updateMany?: PaymentHistoryUpdateManyWithWhereWithoutPaymentTypeNameInput | PaymentHistoryUpdateManyWithWhereWithoutPaymentTypeNameInput[]
+    deleteMany?: PaymentHistoryScalarWhereInput | PaymentHistoryScalarWhereInput[]
   }
 
   export type ConsultationCreateNestedOneWithoutSurgeryInput = {
@@ -50544,11 +52237,28 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type NestedEnumGenderTypeNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.GenderType | EnumGenderTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.GenderType[] | ListEnumGenderTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.GenderType[] | ListEnumGenderTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumGenderTypeNullableFilter<$PrismaModel> | $Enums.GenderType | null
+  }
+
   export type NestedEnumBloodGroupFilter<$PrismaModel = never> = {
     equals?: $Enums.BloodGroup | EnumBloodGroupFieldRefInput<$PrismaModel>
     in?: $Enums.BloodGroup[] | ListEnumBloodGroupFieldRefInput<$PrismaModel>
     notIn?: $Enums.BloodGroup[] | ListEnumBloodGroupFieldRefInput<$PrismaModel>
     not?: NestedEnumBloodGroupFilter<$PrismaModel> | $Enums.BloodGroup
+  }
+
+  export type NestedEnumGenderTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.GenderType | EnumGenderTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.GenderType[] | ListEnumGenderTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.GenderType[] | ListEnumGenderTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumGenderTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.GenderType | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumGenderTypeNullableFilter<$PrismaModel>
+    _max?: NestedEnumGenderTypeNullableFilter<$PrismaModel>
   }
 
   export type NestedEnumBloodGroupWithAggregatesFilter<$PrismaModel = never> = {
@@ -50627,6 +52337,33 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumNotificationStatusFilter<$PrismaModel>
     _max?: NestedEnumNotificationStatusFilter<$PrismaModel>
+  }
+
+  export type NestedBigIntFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntFilter<$PrismaModel> | bigint | number
+  }
+
+  export type NestedBigIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntWithAggregatesFilter<$PrismaModel> | bigint | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedBigIntFilter<$PrismaModel>
+    _min?: NestedBigIntFilter<$PrismaModel>
+    _max?: NestedBigIntFilter<$PrismaModel>
   }
 
   export type RoleCreateWithoutUsersInput = {
@@ -51930,6 +53667,8 @@ export namespace Prisma {
     age?: number | null
     createdAt?: Date | string
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -51941,7 +53680,8 @@ export namespace Prisma {
     rescheduledByUser?: UserCreateNestedOneWithoutAppointmentInput
     hospital: HospitalCreateNestedOneWithoutAppointmentInput
     visitType: AppointmentTypeCreateNestedOneWithoutAppointmentsInput
-    paymentType: PaymentTypeCreateNestedOneWithoutAppointmentsInput
+    PaymentType: PaymentTypeCreateNestedOneWithoutAppointmentInput
+    paymentHistory: PaymentHistoryCreateNestedOneWithoutAppointmentsInput
     consultation?: ConsultationCreateNestedOneWithoutAppointmentInput
     notifications?: AppointmentNotificationCreateNestedManyWithoutAppointmentInput
   }
@@ -51951,7 +53691,6 @@ export namespace Prisma {
     PatientId: number
     hospitalId: number
     visitTypeId: number
-    paymentTypeId: number
     acuity: $Enums.AcuityLevel
     AssignedProviderId?: number | null
     SpecializationId?: number | null
@@ -51962,7 +53701,11 @@ export namespace Prisma {
     createdAt?: Date | string
     createdBy?: number | null
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     rescheduledBy?: number | null
+    paymentHistoryId: number
+    paymentTypeId: number
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -51989,6 +53732,8 @@ export namespace Prisma {
     age?: number | null
     createdAt?: Date | string
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -52000,7 +53745,8 @@ export namespace Prisma {
     rescheduledByUser?: UserCreateNestedOneWithoutAppointmentInput
     hospital: HospitalCreateNestedOneWithoutAppointmentInput
     visitType: AppointmentTypeCreateNestedOneWithoutAppointmentsInput
-    paymentType: PaymentTypeCreateNestedOneWithoutAppointmentsInput
+    PaymentType: PaymentTypeCreateNestedOneWithoutAppointmentInput
+    paymentHistory: PaymentHistoryCreateNestedOneWithoutAppointmentsInput
     consultation?: ConsultationCreateNestedOneWithoutAppointmentInput
     notifications?: AppointmentNotificationCreateNestedManyWithoutAppointmentInput
   }
@@ -52011,7 +53757,6 @@ export namespace Prisma {
     DoctorId: number
     hospitalId: number
     visitTypeId: number
-    paymentTypeId: number
     acuity: $Enums.AcuityLevel
     SpecializationId?: number | null
     appointmentDate: Date | string
@@ -52021,7 +53766,11 @@ export namespace Prisma {
     createdAt?: Date | string
     createdBy?: number | null
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     rescheduledBy?: number | null
+    paymentHistoryId: number
+    paymentTypeId: number
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -52048,6 +53797,8 @@ export namespace Prisma {
     age?: number | null
     createdAt?: Date | string
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -52059,7 +53810,8 @@ export namespace Prisma {
     rescheduledByUser?: UserCreateNestedOneWithoutAppointmentInput
     hospital: HospitalCreateNestedOneWithoutAppointmentInput
     visitType: AppointmentTypeCreateNestedOneWithoutAppointmentsInput
-    paymentType: PaymentTypeCreateNestedOneWithoutAppointmentsInput
+    PaymentType: PaymentTypeCreateNestedOneWithoutAppointmentInput
+    paymentHistory: PaymentHistoryCreateNestedOneWithoutAppointmentsInput
     consultation?: ConsultationCreateNestedOneWithoutAppointmentInput
     notifications?: AppointmentNotificationCreateNestedManyWithoutAppointmentInput
   }
@@ -52070,7 +53822,6 @@ export namespace Prisma {
     DoctorId: number
     hospitalId: number
     visitTypeId: number
-    paymentTypeId: number
     acuity: $Enums.AcuityLevel
     AssignedProviderId?: number | null
     appointmentDate: Date | string
@@ -52080,7 +53831,11 @@ export namespace Prisma {
     createdAt?: Date | string
     createdBy?: number | null
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     rescheduledBy?: number | null
+    paymentHistoryId: number
+    paymentTypeId: number
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -52107,6 +53862,8 @@ export namespace Prisma {
     age?: number | null
     createdAt?: Date | string
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -52118,7 +53875,8 @@ export namespace Prisma {
     rescheduledByUser?: UserCreateNestedOneWithoutAppointmentInput
     hospital: HospitalCreateNestedOneWithoutAppointmentInput
     visitType: AppointmentTypeCreateNestedOneWithoutAppointmentsInput
-    paymentType: PaymentTypeCreateNestedOneWithoutAppointmentsInput
+    PaymentType: PaymentTypeCreateNestedOneWithoutAppointmentInput
+    paymentHistory: PaymentHistoryCreateNestedOneWithoutAppointmentsInput
     consultation?: ConsultationCreateNestedOneWithoutAppointmentInput
     notifications?: AppointmentNotificationCreateNestedManyWithoutAppointmentInput
   }
@@ -52129,7 +53887,6 @@ export namespace Prisma {
     DoctorId: number
     hospitalId: number
     visitTypeId: number
-    paymentTypeId: number
     acuity: $Enums.AcuityLevel
     AssignedProviderId?: number | null
     SpecializationId?: number | null
@@ -52139,7 +53896,11 @@ export namespace Prisma {
     age?: number | null
     createdAt?: Date | string
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     rescheduledBy?: number | null
+    paymentHistoryId: number
+    paymentTypeId: number
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -52166,6 +53927,8 @@ export namespace Prisma {
     age?: number | null
     createdAt?: Date | string
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -52177,7 +53940,8 @@ export namespace Prisma {
     createdByUser?: UserCreateNestedOneWithoutAppointmentCreatedByInput
     hospital: HospitalCreateNestedOneWithoutAppointmentInput
     visitType: AppointmentTypeCreateNestedOneWithoutAppointmentsInput
-    paymentType: PaymentTypeCreateNestedOneWithoutAppointmentsInput
+    PaymentType: PaymentTypeCreateNestedOneWithoutAppointmentInput
+    paymentHistory: PaymentHistoryCreateNestedOneWithoutAppointmentsInput
     consultation?: ConsultationCreateNestedOneWithoutAppointmentInput
     notifications?: AppointmentNotificationCreateNestedManyWithoutAppointmentInput
   }
@@ -52188,7 +53952,6 @@ export namespace Prisma {
     DoctorId: number
     hospitalId: number
     visitTypeId: number
-    paymentTypeId: number
     acuity: $Enums.AcuityLevel
     AssignedProviderId?: number | null
     SpecializationId?: number | null
@@ -52199,6 +53962,10 @@ export namespace Prisma {
     createdAt?: Date | string
     createdBy?: number | null
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
+    paymentHistoryId: number
+    paymentTypeId: number
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -53058,7 +54825,6 @@ export namespace Prisma {
     DoctorId?: IntFilter<"Appointment"> | number
     hospitalId?: IntFilter<"Appointment"> | number
     visitTypeId?: IntFilter<"Appointment"> | number
-    paymentTypeId?: IntFilter<"Appointment"> | number
     acuity?: EnumAcuityLevelFilter<"Appointment"> | $Enums.AcuityLevel
     AssignedProviderId?: IntNullableFilter<"Appointment"> | number | null
     SpecializationId?: IntNullableFilter<"Appointment"> | number | null
@@ -53069,7 +54835,11 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Appointment"> | Date | string
     createdBy?: IntNullableFilter<"Appointment"> | number | null
     rescheduledAt?: DateTimeNullableFilter<"Appointment"> | Date | string | null
+    rescheduledDate?: DateTimeNullableFilter<"Appointment"> | Date | string | null
+    rescheduleReason?: StringNullableFilter<"Appointment"> | string | null
     rescheduledBy?: IntNullableFilter<"Appointment"> | number | null
+    paymentHistoryId?: IntFilter<"Appointment"> | number
+    paymentTypeId?: IntFilter<"Appointment"> | number
     sendWhatsappMessage?: BoolFilter<"Appointment"> | boolean
     sendSmsMessage?: BoolFilter<"Appointment"> | boolean
     sendEmailMessage?: BoolFilter<"Appointment"> | boolean
@@ -53329,7 +55099,7 @@ export namespace Prisma {
     firstName: string
     lastName: string
     dateOfBirth: Date | string
-    gender: string
+    gender?: $Enums.GenderType | null
     isQuickRegistered?: boolean
     mobile: string
     altContactNumber?: string | null
@@ -53372,7 +55142,7 @@ export namespace Prisma {
     firstName: string
     lastName: string
     dateOfBirth: Date | string
-    gender: string
+    gender?: $Enums.GenderType | null
     isQuickRegistered?: boolean
     mobile: string
     altContactNumber?: string | null
@@ -53476,7 +55246,7 @@ export namespace Prisma {
     firstName?: StringFilter<"Patient"> | string
     lastName?: StringFilter<"Patient"> | string
     dateOfBirth?: DateTimeFilter<"Patient"> | Date | string
-    gender?: StringFilter<"Patient"> | string
+    gender?: EnumGenderTypeNullableFilter<"Patient"> | $Enums.GenderType | null
     isQuickRegistered?: BoolFilter<"Patient"> | boolean
     mobile?: StringFilter<"Patient"> | string
     altContactNumber?: StringNullableFilter<"Patient"> | string | null
@@ -54253,6 +56023,8 @@ export namespace Prisma {
     age?: number | null
     createdAt?: Date | string
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -54264,7 +56036,8 @@ export namespace Prisma {
     createdByUser?: UserCreateNestedOneWithoutAppointmentCreatedByInput
     rescheduledByUser?: UserCreateNestedOneWithoutAppointmentInput
     visitType: AppointmentTypeCreateNestedOneWithoutAppointmentsInput
-    paymentType: PaymentTypeCreateNestedOneWithoutAppointmentsInput
+    PaymentType: PaymentTypeCreateNestedOneWithoutAppointmentInput
+    paymentHistory: PaymentHistoryCreateNestedOneWithoutAppointmentsInput
     consultation?: ConsultationCreateNestedOneWithoutAppointmentInput
     notifications?: AppointmentNotificationCreateNestedManyWithoutAppointmentInput
   }
@@ -54274,7 +56047,6 @@ export namespace Prisma {
     PatientId: number
     DoctorId: number
     visitTypeId: number
-    paymentTypeId: number
     acuity: $Enums.AcuityLevel
     AssignedProviderId?: number | null
     SpecializationId?: number | null
@@ -54285,7 +56057,11 @@ export namespace Prisma {
     createdAt?: Date | string
     createdBy?: number | null
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     rescheduledBy?: number | null
+    paymentHistoryId: number
+    paymentTypeId: number
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -54311,7 +56087,7 @@ export namespace Prisma {
     firstName: string
     lastName: string
     dateOfBirth: Date | string
-    gender: string
+    gender?: $Enums.GenderType | null
     isQuickRegistered?: boolean
     mobile: string
     altContactNumber?: string | null
@@ -54354,7 +56130,7 @@ export namespace Prisma {
     firstName: string
     lastName: string
     dateOfBirth: Date | string
-    gender: string
+    gender?: $Enums.GenderType | null
     isQuickRegistered?: boolean
     mobile: string
     altContactNumber?: string | null
@@ -57565,6 +59341,8 @@ export namespace Prisma {
     age?: number | null
     createdAt?: Date | string
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -57576,7 +59354,8 @@ export namespace Prisma {
     rescheduledByUser?: UserCreateNestedOneWithoutAppointmentInput
     hospital: HospitalCreateNestedOneWithoutAppointmentInput
     visitType: AppointmentTypeCreateNestedOneWithoutAppointmentsInput
-    paymentType: PaymentTypeCreateNestedOneWithoutAppointmentsInput
+    PaymentType: PaymentTypeCreateNestedOneWithoutAppointmentInput
+    paymentHistory: PaymentHistoryCreateNestedOneWithoutAppointmentsInput
     consultation?: ConsultationCreateNestedOneWithoutAppointmentInput
     notifications?: AppointmentNotificationCreateNestedManyWithoutAppointmentInput
   }
@@ -57586,7 +59365,6 @@ export namespace Prisma {
     DoctorId: number
     hospitalId: number
     visitTypeId: number
-    paymentTypeId: number
     acuity: $Enums.AcuityLevel
     AssignedProviderId?: number | null
     SpecializationId?: number | null
@@ -57597,7 +59375,11 @@ export namespace Prisma {
     createdAt?: Date | string
     createdBy?: number | null
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     rescheduledBy?: number | null
+    paymentHistoryId: number
+    paymentTypeId: number
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -58019,7 +59801,7 @@ export namespace Prisma {
     firstName: string
     lastName: string
     dateOfBirth: Date | string
-    gender: string
+    gender?: $Enums.GenderType | null
     isQuickRegistered?: boolean
     mobile: string
     altContactNumber?: string | null
@@ -58062,7 +59844,7 @@ export namespace Prisma {
     firstName: string
     lastName: string
     dateOfBirth: Date | string
-    gender: string
+    gender?: $Enums.GenderType | null
     isQuickRegistered?: boolean
     mobile: string
     altContactNumber?: string | null
@@ -58125,7 +59907,7 @@ export namespace Prisma {
     firstName: string
     lastName: string
     dateOfBirth: Date | string
-    gender: string
+    gender?: $Enums.GenderType | null
     isQuickRegistered?: boolean
     mobile: string
     altContactNumber?: string | null
@@ -58168,7 +59950,7 @@ export namespace Prisma {
     firstName: string
     lastName: string
     dateOfBirth: Date | string
-    gender: string
+    gender?: $Enums.GenderType | null
     isQuickRegistered?: boolean
     mobile: string
     altContactNumber?: string | null
@@ -58231,7 +60013,7 @@ export namespace Prisma {
     firstName: string
     lastName: string
     dateOfBirth: Date | string
-    gender: string
+    gender?: $Enums.GenderType | null
     isQuickRegistered?: boolean
     mobile: string
     altContactNumber?: string | null
@@ -58274,7 +60056,7 @@ export namespace Prisma {
     firstName: string
     lastName: string
     dateOfBirth: Date | string
-    gender: string
+    gender?: $Enums.GenderType | null
     isQuickRegistered?: boolean
     mobile: string
     altContactNumber?: string | null
@@ -58337,7 +60119,7 @@ export namespace Prisma {
     firstName: string
     lastName: string
     dateOfBirth: Date | string
-    gender: string
+    gender?: $Enums.GenderType | null
     isQuickRegistered?: boolean
     mobile: string
     altContactNumber?: string | null
@@ -58380,7 +60162,7 @@ export namespace Prisma {
     firstName: string
     lastName: string
     dateOfBirth: Date | string
-    gender: string
+    gender?: $Enums.GenderType | null
     isQuickRegistered?: boolean
     mobile: string
     altContactNumber?: string | null
@@ -58443,7 +60225,7 @@ export namespace Prisma {
     firstName: string
     lastName: string
     dateOfBirth: Date | string
-    gender: string
+    gender?: $Enums.GenderType | null
     isQuickRegistered?: boolean
     mobile: string
     altContactNumber?: string | null
@@ -58486,7 +60268,7 @@ export namespace Prisma {
     firstName: string
     lastName: string
     dateOfBirth: Date | string
-    gender: string
+    gender?: $Enums.GenderType | null
     isQuickRegistered?: boolean
     mobile: string
     altContactNumber?: string | null
@@ -59088,22 +60870,38 @@ export namespace Prisma {
     create: XOR<AppointmentTypeCreateWithoutAppointmentsInput, AppointmentTypeUncheckedCreateWithoutAppointmentsInput>
   }
 
-  export type PaymentTypeCreateWithoutAppointmentsInput = {
-    TransactionId: number
-    Transaction_DateTime: Date | string
+  export type PaymentTypeCreateWithoutAppointmentInput = {
     PaymentTypeName: string
+    PaymentHistory?: PaymentHistoryCreateNestedManyWithoutPaymentTypeNameInput
   }
 
-  export type PaymentTypeUncheckedCreateWithoutAppointmentsInput = {
+  export type PaymentTypeUncheckedCreateWithoutAppointmentInput = {
     PaymentTypeId?: number
-    TransactionId: number
-    Transaction_DateTime: Date | string
     PaymentTypeName: string
+    PaymentHistory?: PaymentHistoryUncheckedCreateNestedManyWithoutPaymentTypeNameInput
   }
 
-  export type PaymentTypeCreateOrConnectWithoutAppointmentsInput = {
+  export type PaymentTypeCreateOrConnectWithoutAppointmentInput = {
     where: PaymentTypeWhereUniqueInput
-    create: XOR<PaymentTypeCreateWithoutAppointmentsInput, PaymentTypeUncheckedCreateWithoutAppointmentsInput>
+    create: XOR<PaymentTypeCreateWithoutAppointmentInput, PaymentTypeUncheckedCreateWithoutAppointmentInput>
+  }
+
+  export type PaymentHistoryCreateWithoutAppointmentsInput = {
+    TransactionId: bigint | number
+    Transaction_DateTime: Date | string
+    PaymentTypeName: PaymentTypeCreateNestedOneWithoutPaymentHistoryInput
+  }
+
+  export type PaymentHistoryUncheckedCreateWithoutAppointmentsInput = {
+    PaymentHistoryId?: number
+    TransactionId: bigint | number
+    Transaction_DateTime: Date | string
+    paymentTypePaymentTypeId: number
+  }
+
+  export type PaymentHistoryCreateOrConnectWithoutAppointmentsInput = {
+    where: PaymentHistoryWhereUniqueInput
+    create: XOR<PaymentHistoryCreateWithoutAppointmentsInput, PaymentHistoryUncheckedCreateWithoutAppointmentsInput>
   }
 
   export type ConsultationCreateWithoutAppointmentInput = {
@@ -59187,7 +60985,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -59230,7 +61028,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -59869,28 +61667,50 @@ export namespace Prisma {
     AppointmentTypeName?: StringFieldUpdateOperationsInput | string
   }
 
-  export type PaymentTypeUpsertWithoutAppointmentsInput = {
-    update: XOR<PaymentTypeUpdateWithoutAppointmentsInput, PaymentTypeUncheckedUpdateWithoutAppointmentsInput>
-    create: XOR<PaymentTypeCreateWithoutAppointmentsInput, PaymentTypeUncheckedCreateWithoutAppointmentsInput>
+  export type PaymentTypeUpsertWithoutAppointmentInput = {
+    update: XOR<PaymentTypeUpdateWithoutAppointmentInput, PaymentTypeUncheckedUpdateWithoutAppointmentInput>
+    create: XOR<PaymentTypeCreateWithoutAppointmentInput, PaymentTypeUncheckedCreateWithoutAppointmentInput>
     where?: PaymentTypeWhereInput
   }
 
-  export type PaymentTypeUpdateToOneWithWhereWithoutAppointmentsInput = {
+  export type PaymentTypeUpdateToOneWithWhereWithoutAppointmentInput = {
     where?: PaymentTypeWhereInput
-    data: XOR<PaymentTypeUpdateWithoutAppointmentsInput, PaymentTypeUncheckedUpdateWithoutAppointmentsInput>
+    data: XOR<PaymentTypeUpdateWithoutAppointmentInput, PaymentTypeUncheckedUpdateWithoutAppointmentInput>
   }
 
-  export type PaymentTypeUpdateWithoutAppointmentsInput = {
-    TransactionId?: IntFieldUpdateOperationsInput | number
-    Transaction_DateTime?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type PaymentTypeUpdateWithoutAppointmentInput = {
     PaymentTypeName?: StringFieldUpdateOperationsInput | string
+    PaymentHistory?: PaymentHistoryUpdateManyWithoutPaymentTypeNameNestedInput
   }
 
-  export type PaymentTypeUncheckedUpdateWithoutAppointmentsInput = {
+  export type PaymentTypeUncheckedUpdateWithoutAppointmentInput = {
     PaymentTypeId?: IntFieldUpdateOperationsInput | number
-    TransactionId?: IntFieldUpdateOperationsInput | number
-    Transaction_DateTime?: DateTimeFieldUpdateOperationsInput | Date | string
     PaymentTypeName?: StringFieldUpdateOperationsInput | string
+    PaymentHistory?: PaymentHistoryUncheckedUpdateManyWithoutPaymentTypeNameNestedInput
+  }
+
+  export type PaymentHistoryUpsertWithoutAppointmentsInput = {
+    update: XOR<PaymentHistoryUpdateWithoutAppointmentsInput, PaymentHistoryUncheckedUpdateWithoutAppointmentsInput>
+    create: XOR<PaymentHistoryCreateWithoutAppointmentsInput, PaymentHistoryUncheckedCreateWithoutAppointmentsInput>
+    where?: PaymentHistoryWhereInput
+  }
+
+  export type PaymentHistoryUpdateToOneWithWhereWithoutAppointmentsInput = {
+    where?: PaymentHistoryWhereInput
+    data: XOR<PaymentHistoryUpdateWithoutAppointmentsInput, PaymentHistoryUncheckedUpdateWithoutAppointmentsInput>
+  }
+
+  export type PaymentHistoryUpdateWithoutAppointmentsInput = {
+    TransactionId?: BigIntFieldUpdateOperationsInput | bigint | number
+    Transaction_DateTime?: DateTimeFieldUpdateOperationsInput | Date | string
+    PaymentTypeName?: PaymentTypeUpdateOneRequiredWithoutPaymentHistoryNestedInput
+  }
+
+  export type PaymentHistoryUncheckedUpdateWithoutAppointmentsInput = {
+    PaymentHistoryId?: IntFieldUpdateOperationsInput | number
+    TransactionId?: BigIntFieldUpdateOperationsInput | bigint | number
+    Transaction_DateTime?: DateTimeFieldUpdateOperationsInput | Date | string
+    paymentTypePaymentTypeId?: IntFieldUpdateOperationsInput | number
   }
 
   export type ConsultationUpsertWithoutAppointmentInput = {
@@ -59970,6 +61790,8 @@ export namespace Prisma {
     age?: number | null
     createdAt?: Date | string
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -59982,7 +61804,8 @@ export namespace Prisma {
     rescheduledByUser?: UserCreateNestedOneWithoutAppointmentInput
     hospital: HospitalCreateNestedOneWithoutAppointmentInput
     visitType: AppointmentTypeCreateNestedOneWithoutAppointmentsInput
-    paymentType: PaymentTypeCreateNestedOneWithoutAppointmentsInput
+    PaymentType: PaymentTypeCreateNestedOneWithoutAppointmentInput
+    paymentHistory: PaymentHistoryCreateNestedOneWithoutAppointmentsInput
     consultation?: ConsultationCreateNestedOneWithoutAppointmentInput
   }
 
@@ -59992,7 +61815,6 @@ export namespace Prisma {
     DoctorId: number
     hospitalId: number
     visitTypeId: number
-    paymentTypeId: number
     acuity: $Enums.AcuityLevel
     AssignedProviderId?: number | null
     SpecializationId?: number | null
@@ -60003,7 +61825,11 @@ export namespace Prisma {
     createdAt?: Date | string
     createdBy?: number | null
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     rescheduledBy?: number | null
+    paymentHistoryId: number
+    paymentTypeId: number
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -60035,6 +61861,8 @@ export namespace Prisma {
     age?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -60047,7 +61875,8 @@ export namespace Prisma {
     rescheduledByUser?: UserUpdateOneWithoutAppointmentNestedInput
     hospital?: HospitalUpdateOneRequiredWithoutAppointmentNestedInput
     visitType?: AppointmentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
-    paymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
+    PaymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentNestedInput
+    paymentHistory?: PaymentHistoryUpdateOneRequiredWithoutAppointmentsNestedInput
     consultation?: ConsultationUpdateOneWithoutAppointmentNestedInput
   }
 
@@ -60057,7 +61886,6 @@ export namespace Prisma {
     DoctorId?: IntFieldUpdateOperationsInput | number
     hospitalId?: IntFieldUpdateOperationsInput | number
     visitTypeId?: IntFieldUpdateOperationsInput | number
-    paymentTypeId?: IntFieldUpdateOperationsInput | number
     acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
     AssignedProviderId?: NullableIntFieldUpdateOperationsInput | number | null
     SpecializationId?: NullableIntFieldUpdateOperationsInput | number | null
@@ -60068,7 +61896,11 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     rescheduledBy?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentHistoryId?: IntFieldUpdateOperationsInput | number
+    paymentTypeId?: IntFieldUpdateOperationsInput | number
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -60180,6 +62012,8 @@ export namespace Prisma {
     age?: number | null
     createdAt?: Date | string
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -60192,7 +62026,8 @@ export namespace Prisma {
     rescheduledByUser?: UserCreateNestedOneWithoutAppointmentInput
     hospital: HospitalCreateNestedOneWithoutAppointmentInput
     visitType: AppointmentTypeCreateNestedOneWithoutAppointmentsInput
-    paymentType: PaymentTypeCreateNestedOneWithoutAppointmentsInput
+    PaymentType: PaymentTypeCreateNestedOneWithoutAppointmentInput
+    paymentHistory: PaymentHistoryCreateNestedOneWithoutAppointmentsInput
     notifications?: AppointmentNotificationCreateNestedManyWithoutAppointmentInput
   }
 
@@ -60202,7 +62037,6 @@ export namespace Prisma {
     DoctorId: number
     hospitalId: number
     visitTypeId: number
-    paymentTypeId: number
     acuity: $Enums.AcuityLevel
     AssignedProviderId?: number | null
     SpecializationId?: number | null
@@ -60213,7 +62047,11 @@ export namespace Prisma {
     createdAt?: Date | string
     createdBy?: number | null
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     rescheduledBy?: number | null
+    paymentHistoryId: number
+    paymentTypeId: number
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -60360,6 +62198,8 @@ export namespace Prisma {
     age?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -60372,7 +62212,8 @@ export namespace Prisma {
     rescheduledByUser?: UserUpdateOneWithoutAppointmentNestedInput
     hospital?: HospitalUpdateOneRequiredWithoutAppointmentNestedInput
     visitType?: AppointmentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
-    paymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
+    PaymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentNestedInput
+    paymentHistory?: PaymentHistoryUpdateOneRequiredWithoutAppointmentsNestedInput
     notifications?: AppointmentNotificationUpdateManyWithoutAppointmentNestedInput
   }
 
@@ -60382,7 +62223,6 @@ export namespace Prisma {
     DoctorId?: IntFieldUpdateOperationsInput | number
     hospitalId?: IntFieldUpdateOperationsInput | number
     visitTypeId?: IntFieldUpdateOperationsInput | number
-    paymentTypeId?: IntFieldUpdateOperationsInput | number
     acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
     AssignedProviderId?: NullableIntFieldUpdateOperationsInput | number | null
     SpecializationId?: NullableIntFieldUpdateOperationsInput | number | null
@@ -60393,7 +62233,11 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     rescheduledBy?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentHistoryId?: IntFieldUpdateOperationsInput | number
+    paymentTypeId?: IntFieldUpdateOperationsInput | number
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -60619,6 +62463,8 @@ export namespace Prisma {
     age?: number | null
     createdAt?: Date | string
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -60630,7 +62476,8 @@ export namespace Prisma {
     createdByUser?: UserCreateNestedOneWithoutAppointmentCreatedByInput
     rescheduledByUser?: UserCreateNestedOneWithoutAppointmentInput
     hospital: HospitalCreateNestedOneWithoutAppointmentInput
-    paymentType: PaymentTypeCreateNestedOneWithoutAppointmentsInput
+    PaymentType: PaymentTypeCreateNestedOneWithoutAppointmentInput
+    paymentHistory: PaymentHistoryCreateNestedOneWithoutAppointmentsInput
     consultation?: ConsultationCreateNestedOneWithoutAppointmentInput
     notifications?: AppointmentNotificationCreateNestedManyWithoutAppointmentInput
   }
@@ -60640,7 +62487,6 @@ export namespace Prisma {
     PatientId: number
     DoctorId: number
     hospitalId: number
-    paymentTypeId: number
     acuity: $Enums.AcuityLevel
     AssignedProviderId?: number | null
     SpecializationId?: number | null
@@ -60651,7 +62497,11 @@ export namespace Prisma {
     createdAt?: Date | string
     createdBy?: number | null
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     rescheduledBy?: number | null
+    paymentHistoryId: number
+    paymentTypeId: number
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -60686,7 +62536,23 @@ export namespace Prisma {
     data: XOR<AppointmentUpdateManyMutationInput, AppointmentUncheckedUpdateManyWithoutVisitTypeInput>
   }
 
-  export type AppointmentCreateWithoutPaymentTypeInput = {
+  export type PaymentTypeCreateWithoutPaymentHistoryInput = {
+    PaymentTypeName: string
+    Appointment?: AppointmentCreateNestedManyWithoutPaymentTypeInput
+  }
+
+  export type PaymentTypeUncheckedCreateWithoutPaymentHistoryInput = {
+    PaymentTypeId?: number
+    PaymentTypeName: string
+    Appointment?: AppointmentUncheckedCreateNestedManyWithoutPaymentTypeInput
+  }
+
+  export type PaymentTypeCreateOrConnectWithoutPaymentHistoryInput = {
+    where: PaymentTypeWhereUniqueInput
+    create: XOR<PaymentTypeCreateWithoutPaymentHistoryInput, PaymentTypeUncheckedCreateWithoutPaymentHistoryInput>
+  }
+
+  export type AppointmentCreateWithoutPaymentHistoryInput = {
     acuity: $Enums.AcuityLevel
     appointmentDate: Date | string
     reason?: string | null
@@ -60694,6 +62560,8 @@ export namespace Prisma {
     age?: number | null
     createdAt?: Date | string
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -60706,6 +62574,110 @@ export namespace Prisma {
     rescheduledByUser?: UserCreateNestedOneWithoutAppointmentInput
     hospital: HospitalCreateNestedOneWithoutAppointmentInput
     visitType: AppointmentTypeCreateNestedOneWithoutAppointmentsInput
+    PaymentType: PaymentTypeCreateNestedOneWithoutAppointmentInput
+    consultation?: ConsultationCreateNestedOneWithoutAppointmentInput
+    notifications?: AppointmentNotificationCreateNestedManyWithoutAppointmentInput
+  }
+
+  export type AppointmentUncheckedCreateWithoutPaymentHistoryInput = {
+    AppointmentId?: number
+    PatientId: number
+    DoctorId: number
+    hospitalId: number
+    visitTypeId: number
+    acuity: $Enums.AcuityLevel
+    AssignedProviderId?: number | null
+    SpecializationId?: number | null
+    appointmentDate: Date | string
+    reason?: string | null
+    status?: $Enums.AppointmentStatus
+    age?: number | null
+    createdAt?: Date | string
+    createdBy?: number | null
+    rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
+    rescheduledBy?: number | null
+    paymentTypeId: number
+    sendWhatsappMessage?: boolean
+    sendSmsMessage?: boolean
+    sendEmailMessage?: boolean
+    isDraft?: boolean
+    consultation?: ConsultationUncheckedCreateNestedOneWithoutAppointmentInput
+    notifications?: AppointmentNotificationUncheckedCreateNestedManyWithoutAppointmentInput
+  }
+
+  export type AppointmentCreateOrConnectWithoutPaymentHistoryInput = {
+    where: AppointmentWhereUniqueInput
+    create: XOR<AppointmentCreateWithoutPaymentHistoryInput, AppointmentUncheckedCreateWithoutPaymentHistoryInput>
+  }
+
+  export type AppointmentCreateManyPaymentHistoryInputEnvelope = {
+    data: AppointmentCreateManyPaymentHistoryInput | AppointmentCreateManyPaymentHistoryInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type PaymentTypeUpsertWithoutPaymentHistoryInput = {
+    update: XOR<PaymentTypeUpdateWithoutPaymentHistoryInput, PaymentTypeUncheckedUpdateWithoutPaymentHistoryInput>
+    create: XOR<PaymentTypeCreateWithoutPaymentHistoryInput, PaymentTypeUncheckedCreateWithoutPaymentHistoryInput>
+    where?: PaymentTypeWhereInput
+  }
+
+  export type PaymentTypeUpdateToOneWithWhereWithoutPaymentHistoryInput = {
+    where?: PaymentTypeWhereInput
+    data: XOR<PaymentTypeUpdateWithoutPaymentHistoryInput, PaymentTypeUncheckedUpdateWithoutPaymentHistoryInput>
+  }
+
+  export type PaymentTypeUpdateWithoutPaymentHistoryInput = {
+    PaymentTypeName?: StringFieldUpdateOperationsInput | string
+    Appointment?: AppointmentUpdateManyWithoutPaymentTypeNestedInput
+  }
+
+  export type PaymentTypeUncheckedUpdateWithoutPaymentHistoryInput = {
+    PaymentTypeId?: IntFieldUpdateOperationsInput | number
+    PaymentTypeName?: StringFieldUpdateOperationsInput | string
+    Appointment?: AppointmentUncheckedUpdateManyWithoutPaymentTypeNestedInput
+  }
+
+  export type AppointmentUpsertWithWhereUniqueWithoutPaymentHistoryInput = {
+    where: AppointmentWhereUniqueInput
+    update: XOR<AppointmentUpdateWithoutPaymentHistoryInput, AppointmentUncheckedUpdateWithoutPaymentHistoryInput>
+    create: XOR<AppointmentCreateWithoutPaymentHistoryInput, AppointmentUncheckedCreateWithoutPaymentHistoryInput>
+  }
+
+  export type AppointmentUpdateWithWhereUniqueWithoutPaymentHistoryInput = {
+    where: AppointmentWhereUniqueInput
+    data: XOR<AppointmentUpdateWithoutPaymentHistoryInput, AppointmentUncheckedUpdateWithoutPaymentHistoryInput>
+  }
+
+  export type AppointmentUpdateManyWithWhereWithoutPaymentHistoryInput = {
+    where: AppointmentScalarWhereInput
+    data: XOR<AppointmentUpdateManyMutationInput, AppointmentUncheckedUpdateManyWithoutPaymentHistoryInput>
+  }
+
+  export type AppointmentCreateWithoutPaymentTypeInput = {
+    acuity: $Enums.AcuityLevel
+    appointmentDate: Date | string
+    reason?: string | null
+    status?: $Enums.AppointmentStatus
+    age?: number | null
+    createdAt?: Date | string
+    rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
+    sendWhatsappMessage?: boolean
+    sendSmsMessage?: boolean
+    sendEmailMessage?: boolean
+    isDraft?: boolean
+    patient: PatientCreateNestedOneWithoutAppointmentInput
+    doctor: UserCreateNestedOneWithoutDoctorAppointmentsInput
+    assignedProvider?: UserCreateNestedOneWithoutAssignedProviderAppointmentInput
+    specialist?: UserCreateNestedOneWithoutConsultationSpecialistInput
+    createdByUser?: UserCreateNestedOneWithoutAppointmentCreatedByInput
+    rescheduledByUser?: UserCreateNestedOneWithoutAppointmentInput
+    hospital: HospitalCreateNestedOneWithoutAppointmentInput
+    visitType: AppointmentTypeCreateNestedOneWithoutAppointmentsInput
+    paymentHistory: PaymentHistoryCreateNestedOneWithoutAppointmentsInput
     consultation?: ConsultationCreateNestedOneWithoutAppointmentInput
     notifications?: AppointmentNotificationCreateNestedManyWithoutAppointmentInput
   }
@@ -60726,7 +62698,10 @@ export namespace Prisma {
     createdAt?: Date | string
     createdBy?: number | null
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     rescheduledBy?: number | null
+    paymentHistoryId: number
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -60745,6 +62720,29 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type PaymentHistoryCreateWithoutPaymentTypeNameInput = {
+    TransactionId: bigint | number
+    Transaction_DateTime: Date | string
+    appointments?: AppointmentCreateNestedManyWithoutPaymentHistoryInput
+  }
+
+  export type PaymentHistoryUncheckedCreateWithoutPaymentTypeNameInput = {
+    PaymentHistoryId?: number
+    TransactionId: bigint | number
+    Transaction_DateTime: Date | string
+    appointments?: AppointmentUncheckedCreateNestedManyWithoutPaymentHistoryInput
+  }
+
+  export type PaymentHistoryCreateOrConnectWithoutPaymentTypeNameInput = {
+    where: PaymentHistoryWhereUniqueInput
+    create: XOR<PaymentHistoryCreateWithoutPaymentTypeNameInput, PaymentHistoryUncheckedCreateWithoutPaymentTypeNameInput>
+  }
+
+  export type PaymentHistoryCreateManyPaymentTypeNameInputEnvelope = {
+    data: PaymentHistoryCreateManyPaymentTypeNameInput | PaymentHistoryCreateManyPaymentTypeNameInput[]
+    skipDuplicates?: boolean
+  }
+
   export type AppointmentUpsertWithWhereUniqueWithoutPaymentTypeInput = {
     where: AppointmentWhereUniqueInput
     update: XOR<AppointmentUpdateWithoutPaymentTypeInput, AppointmentUncheckedUpdateWithoutPaymentTypeInput>
@@ -60759,6 +62757,32 @@ export namespace Prisma {
   export type AppointmentUpdateManyWithWhereWithoutPaymentTypeInput = {
     where: AppointmentScalarWhereInput
     data: XOR<AppointmentUpdateManyMutationInput, AppointmentUncheckedUpdateManyWithoutPaymentTypeInput>
+  }
+
+  export type PaymentHistoryUpsertWithWhereUniqueWithoutPaymentTypeNameInput = {
+    where: PaymentHistoryWhereUniqueInput
+    update: XOR<PaymentHistoryUpdateWithoutPaymentTypeNameInput, PaymentHistoryUncheckedUpdateWithoutPaymentTypeNameInput>
+    create: XOR<PaymentHistoryCreateWithoutPaymentTypeNameInput, PaymentHistoryUncheckedCreateWithoutPaymentTypeNameInput>
+  }
+
+  export type PaymentHistoryUpdateWithWhereUniqueWithoutPaymentTypeNameInput = {
+    where: PaymentHistoryWhereUniqueInput
+    data: XOR<PaymentHistoryUpdateWithoutPaymentTypeNameInput, PaymentHistoryUncheckedUpdateWithoutPaymentTypeNameInput>
+  }
+
+  export type PaymentHistoryUpdateManyWithWhereWithoutPaymentTypeNameInput = {
+    where: PaymentHistoryScalarWhereInput
+    data: XOR<PaymentHistoryUpdateManyMutationInput, PaymentHistoryUncheckedUpdateManyWithoutPaymentTypeNameInput>
+  }
+
+  export type PaymentHistoryScalarWhereInput = {
+    AND?: PaymentHistoryScalarWhereInput | PaymentHistoryScalarWhereInput[]
+    OR?: PaymentHistoryScalarWhereInput[]
+    NOT?: PaymentHistoryScalarWhereInput | PaymentHistoryScalarWhereInput[]
+    PaymentHistoryId?: IntFilter<"PaymentHistory"> | number
+    TransactionId?: BigIntFilter<"PaymentHistory"> | bigint | number
+    Transaction_DateTime?: DateTimeFilter<"PaymentHistory"> | Date | string
+    paymentTypePaymentTypeId?: IntFilter<"PaymentHistory"> | number
   }
 
   export type ConsultationCreateWithoutSurgeryInput = {
@@ -61108,7 +63132,6 @@ export namespace Prisma {
     PatientId: number
     hospitalId: number
     visitTypeId: number
-    paymentTypeId: number
     acuity: $Enums.AcuityLevel
     AssignedProviderId?: number | null
     SpecializationId?: number | null
@@ -61119,7 +63142,11 @@ export namespace Prisma {
     createdAt?: Date | string
     createdBy?: number | null
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     rescheduledBy?: number | null
+    paymentHistoryId: number
+    paymentTypeId: number
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -61132,7 +63159,6 @@ export namespace Prisma {
     DoctorId: number
     hospitalId: number
     visitTypeId: number
-    paymentTypeId: number
     acuity: $Enums.AcuityLevel
     SpecializationId?: number | null
     appointmentDate: Date | string
@@ -61142,7 +63168,11 @@ export namespace Prisma {
     createdAt?: Date | string
     createdBy?: number | null
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     rescheduledBy?: number | null
+    paymentHistoryId: number
+    paymentTypeId: number
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -61155,7 +63185,6 @@ export namespace Prisma {
     DoctorId: number
     hospitalId: number
     visitTypeId: number
-    paymentTypeId: number
     acuity: $Enums.AcuityLevel
     AssignedProviderId?: number | null
     appointmentDate: Date | string
@@ -61165,7 +63194,11 @@ export namespace Prisma {
     createdAt?: Date | string
     createdBy?: number | null
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     rescheduledBy?: number | null
+    paymentHistoryId: number
+    paymentTypeId: number
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -61178,7 +63211,6 @@ export namespace Prisma {
     DoctorId: number
     hospitalId: number
     visitTypeId: number
-    paymentTypeId: number
     acuity: $Enums.AcuityLevel
     AssignedProviderId?: number | null
     SpecializationId?: number | null
@@ -61188,7 +63220,11 @@ export namespace Prisma {
     age?: number | null
     createdAt?: Date | string
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     rescheduledBy?: number | null
+    paymentHistoryId: number
+    paymentTypeId: number
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -61201,7 +63237,6 @@ export namespace Prisma {
     DoctorId: number
     hospitalId: number
     visitTypeId: number
-    paymentTypeId: number
     acuity: $Enums.AcuityLevel
     AssignedProviderId?: number | null
     SpecializationId?: number | null
@@ -61212,6 +63247,10 @@ export namespace Prisma {
     createdAt?: Date | string
     createdBy?: number | null
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
+    paymentHistoryId: number
+    paymentTypeId: number
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -62295,6 +64334,8 @@ export namespace Prisma {
     age?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -62306,7 +64347,8 @@ export namespace Prisma {
     rescheduledByUser?: UserUpdateOneWithoutAppointmentNestedInput
     hospital?: HospitalUpdateOneRequiredWithoutAppointmentNestedInput
     visitType?: AppointmentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
-    paymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
+    PaymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentNestedInput
+    paymentHistory?: PaymentHistoryUpdateOneRequiredWithoutAppointmentsNestedInput
     consultation?: ConsultationUpdateOneWithoutAppointmentNestedInput
     notifications?: AppointmentNotificationUpdateManyWithoutAppointmentNestedInput
   }
@@ -62316,7 +64358,6 @@ export namespace Prisma {
     PatientId?: IntFieldUpdateOperationsInput | number
     hospitalId?: IntFieldUpdateOperationsInput | number
     visitTypeId?: IntFieldUpdateOperationsInput | number
-    paymentTypeId?: IntFieldUpdateOperationsInput | number
     acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
     AssignedProviderId?: NullableIntFieldUpdateOperationsInput | number | null
     SpecializationId?: NullableIntFieldUpdateOperationsInput | number | null
@@ -62327,7 +64368,11 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     rescheduledBy?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentHistoryId?: IntFieldUpdateOperationsInput | number
+    paymentTypeId?: IntFieldUpdateOperationsInput | number
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -62341,7 +64386,6 @@ export namespace Prisma {
     PatientId?: IntFieldUpdateOperationsInput | number
     hospitalId?: IntFieldUpdateOperationsInput | number
     visitTypeId?: IntFieldUpdateOperationsInput | number
-    paymentTypeId?: IntFieldUpdateOperationsInput | number
     acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
     AssignedProviderId?: NullableIntFieldUpdateOperationsInput | number | null
     SpecializationId?: NullableIntFieldUpdateOperationsInput | number | null
@@ -62352,7 +64396,11 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     rescheduledBy?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentHistoryId?: IntFieldUpdateOperationsInput | number
+    paymentTypeId?: IntFieldUpdateOperationsInput | number
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -62367,6 +64415,8 @@ export namespace Prisma {
     age?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -62378,7 +64428,8 @@ export namespace Prisma {
     rescheduledByUser?: UserUpdateOneWithoutAppointmentNestedInput
     hospital?: HospitalUpdateOneRequiredWithoutAppointmentNestedInput
     visitType?: AppointmentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
-    paymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
+    PaymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentNestedInput
+    paymentHistory?: PaymentHistoryUpdateOneRequiredWithoutAppointmentsNestedInput
     consultation?: ConsultationUpdateOneWithoutAppointmentNestedInput
     notifications?: AppointmentNotificationUpdateManyWithoutAppointmentNestedInput
   }
@@ -62389,7 +64440,6 @@ export namespace Prisma {
     DoctorId?: IntFieldUpdateOperationsInput | number
     hospitalId?: IntFieldUpdateOperationsInput | number
     visitTypeId?: IntFieldUpdateOperationsInput | number
-    paymentTypeId?: IntFieldUpdateOperationsInput | number
     acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
     SpecializationId?: NullableIntFieldUpdateOperationsInput | number | null
     appointmentDate?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -62399,7 +64449,11 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     rescheduledBy?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentHistoryId?: IntFieldUpdateOperationsInput | number
+    paymentTypeId?: IntFieldUpdateOperationsInput | number
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -62414,7 +64468,6 @@ export namespace Prisma {
     DoctorId?: IntFieldUpdateOperationsInput | number
     hospitalId?: IntFieldUpdateOperationsInput | number
     visitTypeId?: IntFieldUpdateOperationsInput | number
-    paymentTypeId?: IntFieldUpdateOperationsInput | number
     acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
     SpecializationId?: NullableIntFieldUpdateOperationsInput | number | null
     appointmentDate?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -62424,7 +64477,11 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     rescheduledBy?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentHistoryId?: IntFieldUpdateOperationsInput | number
+    paymentTypeId?: IntFieldUpdateOperationsInput | number
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -62439,6 +64496,8 @@ export namespace Prisma {
     age?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -62450,7 +64509,8 @@ export namespace Prisma {
     rescheduledByUser?: UserUpdateOneWithoutAppointmentNestedInput
     hospital?: HospitalUpdateOneRequiredWithoutAppointmentNestedInput
     visitType?: AppointmentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
-    paymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
+    PaymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentNestedInput
+    paymentHistory?: PaymentHistoryUpdateOneRequiredWithoutAppointmentsNestedInput
     consultation?: ConsultationUpdateOneWithoutAppointmentNestedInput
     notifications?: AppointmentNotificationUpdateManyWithoutAppointmentNestedInput
   }
@@ -62461,7 +64521,6 @@ export namespace Prisma {
     DoctorId?: IntFieldUpdateOperationsInput | number
     hospitalId?: IntFieldUpdateOperationsInput | number
     visitTypeId?: IntFieldUpdateOperationsInput | number
-    paymentTypeId?: IntFieldUpdateOperationsInput | number
     acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
     AssignedProviderId?: NullableIntFieldUpdateOperationsInput | number | null
     appointmentDate?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -62471,7 +64530,11 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     rescheduledBy?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentHistoryId?: IntFieldUpdateOperationsInput | number
+    paymentTypeId?: IntFieldUpdateOperationsInput | number
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -62486,7 +64549,6 @@ export namespace Prisma {
     DoctorId?: IntFieldUpdateOperationsInput | number
     hospitalId?: IntFieldUpdateOperationsInput | number
     visitTypeId?: IntFieldUpdateOperationsInput | number
-    paymentTypeId?: IntFieldUpdateOperationsInput | number
     acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
     AssignedProviderId?: NullableIntFieldUpdateOperationsInput | number | null
     appointmentDate?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -62496,7 +64558,11 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     rescheduledBy?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentHistoryId?: IntFieldUpdateOperationsInput | number
+    paymentTypeId?: IntFieldUpdateOperationsInput | number
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -62511,6 +64577,8 @@ export namespace Prisma {
     age?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -62522,7 +64590,8 @@ export namespace Prisma {
     rescheduledByUser?: UserUpdateOneWithoutAppointmentNestedInput
     hospital?: HospitalUpdateOneRequiredWithoutAppointmentNestedInput
     visitType?: AppointmentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
-    paymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
+    PaymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentNestedInput
+    paymentHistory?: PaymentHistoryUpdateOneRequiredWithoutAppointmentsNestedInput
     consultation?: ConsultationUpdateOneWithoutAppointmentNestedInput
     notifications?: AppointmentNotificationUpdateManyWithoutAppointmentNestedInput
   }
@@ -62533,7 +64602,6 @@ export namespace Prisma {
     DoctorId?: IntFieldUpdateOperationsInput | number
     hospitalId?: IntFieldUpdateOperationsInput | number
     visitTypeId?: IntFieldUpdateOperationsInput | number
-    paymentTypeId?: IntFieldUpdateOperationsInput | number
     acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
     AssignedProviderId?: NullableIntFieldUpdateOperationsInput | number | null
     SpecializationId?: NullableIntFieldUpdateOperationsInput | number | null
@@ -62543,7 +64611,11 @@ export namespace Prisma {
     age?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     rescheduledBy?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentHistoryId?: IntFieldUpdateOperationsInput | number
+    paymentTypeId?: IntFieldUpdateOperationsInput | number
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -62558,7 +64630,6 @@ export namespace Prisma {
     DoctorId?: IntFieldUpdateOperationsInput | number
     hospitalId?: IntFieldUpdateOperationsInput | number
     visitTypeId?: IntFieldUpdateOperationsInput | number
-    paymentTypeId?: IntFieldUpdateOperationsInput | number
     acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
     AssignedProviderId?: NullableIntFieldUpdateOperationsInput | number | null
     SpecializationId?: NullableIntFieldUpdateOperationsInput | number | null
@@ -62568,7 +64639,11 @@ export namespace Prisma {
     age?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     rescheduledBy?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentHistoryId?: IntFieldUpdateOperationsInput | number
+    paymentTypeId?: IntFieldUpdateOperationsInput | number
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -62583,6 +64658,8 @@ export namespace Prisma {
     age?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -62594,7 +64671,8 @@ export namespace Prisma {
     createdByUser?: UserUpdateOneWithoutAppointmentCreatedByNestedInput
     hospital?: HospitalUpdateOneRequiredWithoutAppointmentNestedInput
     visitType?: AppointmentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
-    paymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
+    PaymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentNestedInput
+    paymentHistory?: PaymentHistoryUpdateOneRequiredWithoutAppointmentsNestedInput
     consultation?: ConsultationUpdateOneWithoutAppointmentNestedInput
     notifications?: AppointmentNotificationUpdateManyWithoutAppointmentNestedInput
   }
@@ -62605,7 +64683,6 @@ export namespace Prisma {
     DoctorId?: IntFieldUpdateOperationsInput | number
     hospitalId?: IntFieldUpdateOperationsInput | number
     visitTypeId?: IntFieldUpdateOperationsInput | number
-    paymentTypeId?: IntFieldUpdateOperationsInput | number
     acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
     AssignedProviderId?: NullableIntFieldUpdateOperationsInput | number | null
     SpecializationId?: NullableIntFieldUpdateOperationsInput | number | null
@@ -62616,6 +64693,10 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentHistoryId?: IntFieldUpdateOperationsInput | number
+    paymentTypeId?: IntFieldUpdateOperationsInput | number
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -62630,7 +64711,6 @@ export namespace Prisma {
     DoctorId?: IntFieldUpdateOperationsInput | number
     hospitalId?: IntFieldUpdateOperationsInput | number
     visitTypeId?: IntFieldUpdateOperationsInput | number
-    paymentTypeId?: IntFieldUpdateOperationsInput | number
     acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
     AssignedProviderId?: NullableIntFieldUpdateOperationsInput | number | null
     SpecializationId?: NullableIntFieldUpdateOperationsInput | number | null
@@ -62641,6 +64721,10 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentHistoryId?: IntFieldUpdateOperationsInput | number
+    paymentTypeId?: IntFieldUpdateOperationsInput | number
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -62710,7 +64794,7 @@ export namespace Prisma {
     firstName: string
     lastName: string
     dateOfBirth: Date | string
-    gender: string
+    gender?: $Enums.GenderType | null
     isQuickRegistered?: boolean
     mobile: string
     altContactNumber?: string | null
@@ -62964,7 +65048,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63007,7 +65091,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63050,7 +65134,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63174,7 +65258,6 @@ export namespace Prisma {
     PatientId: number
     DoctorId: number
     visitTypeId: number
-    paymentTypeId: number
     acuity: $Enums.AcuityLevel
     AssignedProviderId?: number | null
     SpecializationId?: number | null
@@ -63185,7 +65268,11 @@ export namespace Prisma {
     createdAt?: Date | string
     createdBy?: number | null
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     rescheduledBy?: number | null
+    paymentHistoryId: number
+    paymentTypeId: number
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -63200,7 +65287,7 @@ export namespace Prisma {
     firstName: string
     lastName: string
     dateOfBirth: Date | string
-    gender: string
+    gender?: $Enums.GenderType | null
     isQuickRegistered?: boolean
     mobile: string
     altContactNumber?: string | null
@@ -63630,6 +65717,8 @@ export namespace Prisma {
     age?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -63641,7 +65730,8 @@ export namespace Prisma {
     createdByUser?: UserUpdateOneWithoutAppointmentCreatedByNestedInput
     rescheduledByUser?: UserUpdateOneWithoutAppointmentNestedInput
     visitType?: AppointmentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
-    paymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
+    PaymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentNestedInput
+    paymentHistory?: PaymentHistoryUpdateOneRequiredWithoutAppointmentsNestedInput
     consultation?: ConsultationUpdateOneWithoutAppointmentNestedInput
     notifications?: AppointmentNotificationUpdateManyWithoutAppointmentNestedInput
   }
@@ -63651,7 +65741,6 @@ export namespace Prisma {
     PatientId?: IntFieldUpdateOperationsInput | number
     DoctorId?: IntFieldUpdateOperationsInput | number
     visitTypeId?: IntFieldUpdateOperationsInput | number
-    paymentTypeId?: IntFieldUpdateOperationsInput | number
     acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
     AssignedProviderId?: NullableIntFieldUpdateOperationsInput | number | null
     SpecializationId?: NullableIntFieldUpdateOperationsInput | number | null
@@ -63662,7 +65751,11 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     rescheduledBy?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentHistoryId?: IntFieldUpdateOperationsInput | number
+    paymentTypeId?: IntFieldUpdateOperationsInput | number
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -63676,7 +65769,6 @@ export namespace Prisma {
     PatientId?: IntFieldUpdateOperationsInput | number
     DoctorId?: IntFieldUpdateOperationsInput | number
     visitTypeId?: IntFieldUpdateOperationsInput | number
-    paymentTypeId?: IntFieldUpdateOperationsInput | number
     acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
     AssignedProviderId?: NullableIntFieldUpdateOperationsInput | number | null
     SpecializationId?: NullableIntFieldUpdateOperationsInput | number | null
@@ -63687,7 +65779,11 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     rescheduledBy?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentHistoryId?: IntFieldUpdateOperationsInput | number
+    paymentTypeId?: IntFieldUpdateOperationsInput | number
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -63701,7 +65797,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63744,7 +65840,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63787,7 +65883,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -64173,7 +66269,6 @@ export namespace Prisma {
     DoctorId: number
     hospitalId: number
     visitTypeId: number
-    paymentTypeId: number
     acuity: $Enums.AcuityLevel
     AssignedProviderId?: number | null
     SpecializationId?: number | null
@@ -64184,7 +66279,11 @@ export namespace Prisma {
     createdAt?: Date | string
     createdBy?: number | null
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     rescheduledBy?: number | null
+    paymentHistoryId: number
+    paymentTypeId: number
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -64267,6 +66366,8 @@ export namespace Prisma {
     age?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -64278,7 +66379,8 @@ export namespace Prisma {
     rescheduledByUser?: UserUpdateOneWithoutAppointmentNestedInput
     hospital?: HospitalUpdateOneRequiredWithoutAppointmentNestedInput
     visitType?: AppointmentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
-    paymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
+    PaymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentNestedInput
+    paymentHistory?: PaymentHistoryUpdateOneRequiredWithoutAppointmentsNestedInput
     consultation?: ConsultationUpdateOneWithoutAppointmentNestedInput
     notifications?: AppointmentNotificationUpdateManyWithoutAppointmentNestedInput
   }
@@ -64288,7 +66390,6 @@ export namespace Prisma {
     DoctorId?: IntFieldUpdateOperationsInput | number
     hospitalId?: IntFieldUpdateOperationsInput | number
     visitTypeId?: IntFieldUpdateOperationsInput | number
-    paymentTypeId?: IntFieldUpdateOperationsInput | number
     acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
     AssignedProviderId?: NullableIntFieldUpdateOperationsInput | number | null
     SpecializationId?: NullableIntFieldUpdateOperationsInput | number | null
@@ -64299,7 +66400,11 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     rescheduledBy?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentHistoryId?: IntFieldUpdateOperationsInput | number
+    paymentTypeId?: IntFieldUpdateOperationsInput | number
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -64313,7 +66418,6 @@ export namespace Prisma {
     DoctorId?: IntFieldUpdateOperationsInput | number
     hospitalId?: IntFieldUpdateOperationsInput | number
     visitTypeId?: IntFieldUpdateOperationsInput | number
-    paymentTypeId?: IntFieldUpdateOperationsInput | number
     acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
     AssignedProviderId?: NullableIntFieldUpdateOperationsInput | number | null
     SpecializationId?: NullableIntFieldUpdateOperationsInput | number | null
@@ -64324,7 +66428,11 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     rescheduledBy?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentHistoryId?: IntFieldUpdateOperationsInput | number
+    paymentTypeId?: IntFieldUpdateOperationsInput | number
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -64338,7 +66446,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -64381,7 +66489,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -64424,7 +66532,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -64462,7 +66570,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -64505,7 +66613,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -64548,7 +66656,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -64586,7 +66694,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -64629,7 +66737,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -64672,7 +66780,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -64710,7 +66818,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -64753,7 +66861,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -64796,7 +66904,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
-    gender?: StringFieldUpdateOperationsInput | string
+    gender?: NullableEnumGenderTypeFieldUpdateOperationsInput | $Enums.GenderType | null
     isQuickRegistered?: BoolFieldUpdateOperationsInput | boolean
     mobile?: StringFieldUpdateOperationsInput | string
     altContactNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -64933,7 +67041,6 @@ export namespace Prisma {
     PatientId: number
     DoctorId: number
     hospitalId: number
-    paymentTypeId: number
     acuity: $Enums.AcuityLevel
     AssignedProviderId?: number | null
     SpecializationId?: number | null
@@ -64944,7 +67051,11 @@ export namespace Prisma {
     createdAt?: Date | string
     createdBy?: number | null
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     rescheduledBy?: number | null
+    paymentHistoryId: number
+    paymentTypeId: number
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
@@ -64959,6 +67070,8 @@ export namespace Prisma {
     age?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -64970,7 +67083,8 @@ export namespace Prisma {
     createdByUser?: UserUpdateOneWithoutAppointmentCreatedByNestedInput
     rescheduledByUser?: UserUpdateOneWithoutAppointmentNestedInput
     hospital?: HospitalUpdateOneRequiredWithoutAppointmentNestedInput
-    paymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
+    PaymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentNestedInput
+    paymentHistory?: PaymentHistoryUpdateOneRequiredWithoutAppointmentsNestedInput
     consultation?: ConsultationUpdateOneWithoutAppointmentNestedInput
     notifications?: AppointmentNotificationUpdateManyWithoutAppointmentNestedInput
   }
@@ -64980,7 +67094,6 @@ export namespace Prisma {
     PatientId?: IntFieldUpdateOperationsInput | number
     DoctorId?: IntFieldUpdateOperationsInput | number
     hospitalId?: IntFieldUpdateOperationsInput | number
-    paymentTypeId?: IntFieldUpdateOperationsInput | number
     acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
     AssignedProviderId?: NullableIntFieldUpdateOperationsInput | number | null
     SpecializationId?: NullableIntFieldUpdateOperationsInput | number | null
@@ -64991,7 +67104,11 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     rescheduledBy?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentHistoryId?: IntFieldUpdateOperationsInput | number
+    paymentTypeId?: IntFieldUpdateOperationsInput | number
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -65005,7 +67122,6 @@ export namespace Prisma {
     PatientId?: IntFieldUpdateOperationsInput | number
     DoctorId?: IntFieldUpdateOperationsInput | number
     hospitalId?: IntFieldUpdateOperationsInput | number
-    paymentTypeId?: IntFieldUpdateOperationsInput | number
     acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
     AssignedProviderId?: NullableIntFieldUpdateOperationsInput | number | null
     SpecializationId?: NullableIntFieldUpdateOperationsInput | number | null
@@ -65016,7 +67132,118 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     rescheduledBy?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentHistoryId?: IntFieldUpdateOperationsInput | number
+    paymentTypeId?: IntFieldUpdateOperationsInput | number
+    sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
+    sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
+    sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
+    isDraft?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type AppointmentCreateManyPaymentHistoryInput = {
+    AppointmentId?: number
+    PatientId: number
+    DoctorId: number
+    hospitalId: number
+    visitTypeId: number
+    acuity: $Enums.AcuityLevel
+    AssignedProviderId?: number | null
+    SpecializationId?: number | null
+    appointmentDate: Date | string
+    reason?: string | null
+    status?: $Enums.AppointmentStatus
+    age?: number | null
+    createdAt?: Date | string
+    createdBy?: number | null
+    rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
+    rescheduledBy?: number | null
+    paymentTypeId: number
+    sendWhatsappMessage?: boolean
+    sendSmsMessage?: boolean
+    sendEmailMessage?: boolean
+    isDraft?: boolean
+  }
+
+  export type AppointmentUpdateWithoutPaymentHistoryInput = {
+    acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
+    appointmentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
+    age?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
+    sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
+    sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
+    sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
+    isDraft?: BoolFieldUpdateOperationsInput | boolean
+    patient?: PatientUpdateOneRequiredWithoutAppointmentNestedInput
+    doctor?: UserUpdateOneRequiredWithoutDoctorAppointmentsNestedInput
+    assignedProvider?: UserUpdateOneWithoutAssignedProviderAppointmentNestedInput
+    specialist?: UserUpdateOneWithoutConsultationSpecialistNestedInput
+    createdByUser?: UserUpdateOneWithoutAppointmentCreatedByNestedInput
+    rescheduledByUser?: UserUpdateOneWithoutAppointmentNestedInput
+    hospital?: HospitalUpdateOneRequiredWithoutAppointmentNestedInput
+    visitType?: AppointmentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
+    PaymentType?: PaymentTypeUpdateOneRequiredWithoutAppointmentNestedInput
+    consultation?: ConsultationUpdateOneWithoutAppointmentNestedInput
+    notifications?: AppointmentNotificationUpdateManyWithoutAppointmentNestedInput
+  }
+
+  export type AppointmentUncheckedUpdateWithoutPaymentHistoryInput = {
+    AppointmentId?: IntFieldUpdateOperationsInput | number
+    PatientId?: IntFieldUpdateOperationsInput | number
+    DoctorId?: IntFieldUpdateOperationsInput | number
+    hospitalId?: IntFieldUpdateOperationsInput | number
+    visitTypeId?: IntFieldUpdateOperationsInput | number
+    acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
+    AssignedProviderId?: NullableIntFieldUpdateOperationsInput | number | null
+    SpecializationId?: NullableIntFieldUpdateOperationsInput | number | null
+    appointmentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
+    age?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
+    rescheduledBy?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentTypeId?: IntFieldUpdateOperationsInput | number
+    sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
+    sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
+    sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
+    isDraft?: BoolFieldUpdateOperationsInput | boolean
+    consultation?: ConsultationUncheckedUpdateOneWithoutAppointmentNestedInput
+    notifications?: AppointmentNotificationUncheckedUpdateManyWithoutAppointmentNestedInput
+  }
+
+  export type AppointmentUncheckedUpdateManyWithoutPaymentHistoryInput = {
+    AppointmentId?: IntFieldUpdateOperationsInput | number
+    PatientId?: IntFieldUpdateOperationsInput | number
+    DoctorId?: IntFieldUpdateOperationsInput | number
+    hospitalId?: IntFieldUpdateOperationsInput | number
+    visitTypeId?: IntFieldUpdateOperationsInput | number
+    acuity?: EnumAcuityLevelFieldUpdateOperationsInput | $Enums.AcuityLevel
+    AssignedProviderId?: NullableIntFieldUpdateOperationsInput | number | null
+    SpecializationId?: NullableIntFieldUpdateOperationsInput | number | null
+    appointmentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
+    age?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
+    rescheduledBy?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentTypeId?: IntFieldUpdateOperationsInput | number
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -65039,11 +67266,20 @@ export namespace Prisma {
     createdAt?: Date | string
     createdBy?: number | null
     rescheduledAt?: Date | string | null
+    rescheduledDate?: Date | string | null
+    rescheduleReason?: string | null
     rescheduledBy?: number | null
+    paymentHistoryId: number
     sendWhatsappMessage?: boolean
     sendSmsMessage?: boolean
     sendEmailMessage?: boolean
     isDraft?: boolean
+  }
+
+  export type PaymentHistoryCreateManyPaymentTypeNameInput = {
+    PaymentHistoryId?: number
+    TransactionId: bigint | number
+    Transaction_DateTime: Date | string
   }
 
   export type AppointmentUpdateWithoutPaymentTypeInput = {
@@ -65054,6 +67290,8 @@ export namespace Prisma {
     age?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -65066,6 +67304,7 @@ export namespace Prisma {
     rescheduledByUser?: UserUpdateOneWithoutAppointmentNestedInput
     hospital?: HospitalUpdateOneRequiredWithoutAppointmentNestedInput
     visitType?: AppointmentTypeUpdateOneRequiredWithoutAppointmentsNestedInput
+    paymentHistory?: PaymentHistoryUpdateOneRequiredWithoutAppointmentsNestedInput
     consultation?: ConsultationUpdateOneWithoutAppointmentNestedInput
     notifications?: AppointmentNotificationUpdateManyWithoutAppointmentNestedInput
   }
@@ -65086,7 +67325,10 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     rescheduledBy?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentHistoryId?: IntFieldUpdateOperationsInput | number
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
@@ -65111,11 +67353,33 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     rescheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rescheduleReason?: NullableStringFieldUpdateOperationsInput | string | null
     rescheduledBy?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentHistoryId?: IntFieldUpdateOperationsInput | number
     sendWhatsappMessage?: BoolFieldUpdateOperationsInput | boolean
     sendSmsMessage?: BoolFieldUpdateOperationsInput | boolean
     sendEmailMessage?: BoolFieldUpdateOperationsInput | boolean
     isDraft?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type PaymentHistoryUpdateWithoutPaymentTypeNameInput = {
+    TransactionId?: BigIntFieldUpdateOperationsInput | bigint | number
+    Transaction_DateTime?: DateTimeFieldUpdateOperationsInput | Date | string
+    appointments?: AppointmentUpdateManyWithoutPaymentHistoryNestedInput
+  }
+
+  export type PaymentHistoryUncheckedUpdateWithoutPaymentTypeNameInput = {
+    PaymentHistoryId?: IntFieldUpdateOperationsInput | number
+    TransactionId?: BigIntFieldUpdateOperationsInput | bigint | number
+    Transaction_DateTime?: DateTimeFieldUpdateOperationsInput | Date | string
+    appointments?: AppointmentUncheckedUpdateManyWithoutPaymentHistoryNestedInput
+  }
+
+  export type PaymentHistoryUncheckedUpdateManyWithoutPaymentTypeNameInput = {
+    PaymentHistoryId?: IntFieldUpdateOperationsInput | number
+    TransactionId?: BigIntFieldUpdateOperationsInput | bigint | number
+    Transaction_DateTime?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

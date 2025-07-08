@@ -387,7 +387,7 @@ model Patient {
   firstName         String
   lastName          String
   dateOfBirth       DateTime
-  gender            String
+  gender            GenderType?
   isQuickRegistered Boolean  @default(false) // ✅ NEW field
   // Contact Information
   mobile            String   @unique
@@ -474,7 +474,6 @@ model Appointment {
   DoctorId           Int
   hospitalId         Int
   visitTypeId        Int
-  paymentTypeId      Int
   acuity             AcuityLevel
   AssignedProviderId Int?
   SpecializationId   Int?
@@ -484,10 +483,12 @@ model Appointment {
   status          AppointmentStatus @default(SCHEDULED)
   age             Int?
 
-  createdAt     DateTime  @default(now())
-  createdBy     Int?
-  rescheduledAt DateTime?
-  rescheduledBy Int?
+  createdAt        DateTime  @default(now())
+  createdBy        Int?
+  rescheduledAt    DateTime?
+  rescheduledDate  DateTime? // ✅ New field
+  rescheduleReason String?
+  rescheduledBy    Int?
 
   // Relations
   patient           Patient @relation(fields: [PatientId], references: [PatientId])
@@ -497,17 +498,20 @@ model Appointment {
   createdByUser     User?   @relation("CreatedBy", fields: [createdBy], references: [UserId])
   rescheduledByUser User?   @relation("RescheduledBy", fields: [rescheduledBy], references: [UserId])
 
-  hospital    Hospital        @relation(fields: [hospitalId], references: [HospitalId])
-  visitType   AppointmentType @relation(fields: [visitTypeId], references: [AppointmentTypeId])
-  paymentType PaymentType     @relation(fields: [paymentTypeId], references: [PaymentTypeId])
+  hospital         Hospital        @relation(fields: [hospitalId], references: [HospitalId])
+  visitType        AppointmentType @relation(fields: [visitTypeId], references: [AppointmentTypeId])
+  paymentHistoryId Int // ✅ Add this missing field
+  paymentTypeId    Int
+
+  PaymentType    PaymentType    @relation(fields: [paymentTypeId], references: [PaymentTypeId])
+  paymentHistory PaymentHistory @relation(fields: [paymentHistoryId], references: [PaymentHistoryId])
 
   sendWhatsappMessage Boolean @default(false)
   sendSmsMessage      Boolean @default(false)
   sendEmailMessage    Boolean @default(false)
 
-  consultation Consultation?
-  isDraft Boolean @default(false)
-
+  consultation  Consultation?
+  isDraft       Boolean                   @default(false)
   // New relation
   notifications AppointmentNotification[]
 }
@@ -586,12 +590,20 @@ model AppointmentType {
   appointments        Appointment[]
 }
 
+model PaymentHistory {
+  PaymentHistoryId         Int           @id @default(autoincrement())
+  TransactionId            BigInt
+  Transaction_DateTime     DateTime
+  PaymentTypeName          PaymentType   @relation(fields: [paymentTypePaymentTypeId], references: [PaymentTypeId])
+  appointments             Appointment[]
+  paymentTypePaymentTypeId Int
+}
+
 model PaymentType {
-  PaymentTypeId        Int           @id @default(autoincrement())
-  TransactionId        Int
-  Transaction_DateTime DateTime
-  PaymentTypeName      String        @unique
-  appointments         Appointment[]
+  PaymentTypeId   Int              @id @default(autoincrement())
+  PaymentTypeName String           @unique
+  Appointment     Appointment[]
+  PaymentHistory  PaymentHistory[]
 }
 
 model Surgery {
@@ -681,4 +693,10 @@ enum NotificationStatus {
   SUCCESS
   FAILED
   RETRYING
+}
+
+enum GenderType {
+ MALE
+ FEMALE
+ OTHER
 }

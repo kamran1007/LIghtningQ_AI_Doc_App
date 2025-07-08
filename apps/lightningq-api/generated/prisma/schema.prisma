@@ -387,19 +387,19 @@ model Patient {
   firstName         String
   lastName          String
   dateOfBirth       DateTime
-  gender            String
-  isQuickRegistered Boolean  @default(false) // ✅ NEW field
+  gender            GenderType?
+  isQuickRegistered Boolean     @default(false) // ✅ NEW field
   // Contact Information
-  mobile            String   @unique
+  mobile            String      @unique
   altContactNumber  String?
-  email             String?  @unique
+  email             String?     @unique
   addressLine1      String?
   addressLine2      String?
   area              String?
   city              String
   cityId            String? // for future relational mapping
   state             String
-  country           String   @default("India")
+  country           String      @default("India")
   postalCode        Int
   landmark          String?
   taluka            String?
@@ -473,21 +473,22 @@ model Appointment {
   PatientId          Int
   DoctorId           Int
   hospitalId         Int
-  visitTypeId        Int // FK to VisitType table
-  paymentTypeId      Int // FK to PaymentType table
-  acuity             AcuityLevel // Enum (optional: Mild, Moderate, Critical etc.)
-  AssignedProviderId Int? // Optional: link to provider (doctor)
-  SpecializationId   Int? // Optional: link to specialist (doctor or category)
+  visitTypeId        Int
+  acuity             AcuityLevel
+  AssignedProviderId Int?
+  SpecializationId   Int?
 
   appointmentDate DateTime
   reason          String?
   status          AppointmentStatus @default(SCHEDULED)
   age             Int?
 
-  createdAt     DateTime  @default(now())
-  createdBy     Int? // UserId of staff
-  rescheduledAt DateTime? // If rescheduled
-  rescheduledBy Int? // UserId
+  createdAt        DateTime  @default(now())
+  createdBy        Int?
+  rescheduledAt    DateTime?
+  rescheduledDate  DateTime? // ✅ New field
+  rescheduleReason String?
+  rescheduledBy    Int?
 
   // Relations
   patient           Patient @relation(fields: [PatientId], references: [PatientId])
@@ -497,12 +498,36 @@ model Appointment {
   createdByUser     User?   @relation("CreatedBy", fields: [createdBy], references: [UserId])
   rescheduledByUser User?   @relation("RescheduledBy", fields: [rescheduledBy], references: [UserId])
 
-  hospital     Hospital        @relation(fields: [hospitalId], references: [HospitalId])
-  visitType    AppointmentType @relation(fields: [visitTypeId], references: [AppointmentTypeId])
-  paymentType  PaymentType     @relation(fields: [paymentTypeId], references: [PaymentTypeId])
-  consultation Consultation?
+  hospital         Hospital        @relation(fields: [hospitalId], references: [HospitalId])
+  visitType        AppointmentType @relation(fields: [visitTypeId], references: [AppointmentTypeId])
+  paymentHistoryId Int // ✅ Add this missing field
+  paymentTypeId    Int
 
-  isDraft Boolean @default(false)
+  PaymentType    PaymentType    @relation(fields: [paymentTypeId], references: [PaymentTypeId])
+  paymentHistory PaymentHistory @relation(fields: [paymentHistoryId], references: [PaymentHistoryId])
+
+  sendWhatsappMessage Boolean @default(false)
+  sendSmsMessage      Boolean @default(false)
+  sendEmailMessage    Boolean @default(false)
+
+  consultation  Consultation?
+  isDraft       Boolean                   @default(false)
+  // New relation
+  notifications AppointmentNotification[]
+}
+
+model AppointmentNotification {
+  id            Int                @id @default(autoincrement())
+  appointmentId Int
+  channel       NotificationType
+  status        NotificationStatus @default(PENDING)
+  sentAt        DateTime?
+  response      String?
+  retryCount    Int                @default(0)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  appointment Appointment @relation(fields: [appointmentId], references: [AppointmentId])
 }
 
 model Consultation {
@@ -565,12 +590,20 @@ model AppointmentType {
   appointments        Appointment[]
 }
 
+model PaymentHistory {
+  PaymentHistoryId         Int           @id @default(autoincrement())
+  TransactionId            BigInt
+  Transaction_DateTime     DateTime
+  PaymentTypeName          PaymentType   @relation(fields: [paymentTypePaymentTypeId], references: [PaymentTypeId])
+  appointments             Appointment[]
+  paymentTypePaymentTypeId Int
+}
+
 model PaymentType {
-  PaymentTypeId        Int           @id @default(autoincrement())
-  TransactionId        Int
-  Transaction_DateTime DateTime
-  PaymentTypeName      String        @unique
-  appointments         Appointment[]
+  PaymentTypeId   Int              @id @default(autoincrement())
+  PaymentTypeName String           @unique
+  Appointment     Appointment[]
+  PaymentHistory  PaymentHistory[]
 }
 
 model Surgery {
@@ -647,4 +680,23 @@ enum BloodGroup {
   AB_NEG @map("AB-")
   O_POS  @map("O+")
   O_NEG  @map("O-")
+}
+
+enum NotificationType {
+  WHATSAPP
+  SMS
+  EMAIL
+}
+
+enum NotificationStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  RETRYING
+}
+
+enum GenderType {
+  MALE
+  FEMALE
+  OTHER
 }

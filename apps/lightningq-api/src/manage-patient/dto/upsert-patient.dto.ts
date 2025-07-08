@@ -7,7 +7,7 @@ import {
   IsEnum,
   IsBoolean,
 } from 'class-validator';
-import { Title, BloodGroup } from 'generated/prisma';
+import { Title, BloodGroup,GenderType } from 'generated/prisma';
 
 export class UpsertPatientDto {
   // System fields
@@ -50,8 +50,9 @@ export class UpsertPatientDto {
   @IsDate()
   dateOfBirth!: Date;
 
-  @IsString()
-  gender!: string;
+  @IsOptional()
+  @IsEnum(GenderType, { message: 'gender must be one of the following values: MALE, FEMALE, OTHER' })
+  gender?: GenderType;
 
   // Contact Info
   @IsString()

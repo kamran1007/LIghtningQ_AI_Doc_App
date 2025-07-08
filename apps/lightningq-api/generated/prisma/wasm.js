@@ -415,7 +415,6 @@ exports.Prisma.AppointmentScalarFieldEnum = {
   DoctorId: 'DoctorId',
   hospitalId: 'hospitalId',
   visitTypeId: 'visitTypeId',
-  paymentTypeId: 'paymentTypeId',
   acuity: 'acuity',
   AssignedProviderId: 'AssignedProviderId',
   SpecializationId: 'SpecializationId',
@@ -426,7 +425,11 @@ exports.Prisma.AppointmentScalarFieldEnum = {
   createdAt: 'createdAt',
   createdBy: 'createdBy',
   rescheduledAt: 'rescheduledAt',
+  rescheduledDate: 'rescheduledDate',
+  rescheduleReason: 'rescheduleReason',
   rescheduledBy: 'rescheduledBy',
+  paymentHistoryId: 'paymentHistoryId',
+  paymentTypeId: 'paymentTypeId',
   sendWhatsappMessage: 'sendWhatsappMessage',
   sendSmsMessage: 'sendSmsMessage',
   sendEmailMessage: 'sendEmailMessage',
@@ -491,10 +494,15 @@ exports.Prisma.AppointmentTypeScalarFieldEnum = {
   AppointmentTypeName: 'AppointmentTypeName'
 };
 
-exports.Prisma.PaymentTypeScalarFieldEnum = {
-  PaymentTypeId: 'PaymentTypeId',
+exports.Prisma.PaymentHistoryScalarFieldEnum = {
+  PaymentHistoryId: 'PaymentHistoryId',
   TransactionId: 'TransactionId',
   Transaction_DateTime: 'Transaction_DateTime',
+  paymentTypePaymentTypeId: 'paymentTypePaymentTypeId'
+};
+
+exports.Prisma.PaymentTypeScalarFieldEnum = {
+  PaymentTypeId: 'PaymentTypeId',
   PaymentTypeName: 'PaymentTypeName'
 };
 
@@ -570,6 +578,12 @@ exports.HospitalLevel = exports.$Enums.HospitalLevel = {
   SUB_CHILD: 'SUB_CHILD'
 };
 
+exports.GenderType = exports.$Enums.GenderType = {
+  MALE: 'MALE',
+  FEMALE: 'FEMALE',
+  OTHER: 'OTHER'
+};
+
 exports.BloodGroup = exports.$Enums.BloodGroup = {
   A_POS: 'A_POS',
   A_NEG: 'A_NEG',
@@ -635,6 +649,7 @@ exports.Prisma.ModelName = {
   MedicationRecord: 'MedicationRecord',
   ClinicalNote: 'ClinicalNote',
   AppointmentType: 'AppointmentType',
+  PaymentHistory: 'PaymentHistory',
   PaymentType: 'PaymentType',
   Surgery: 'Surgery'
 };

@@ -12,6 +12,7 @@ import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
 import refreshConfig from './config/refresh.config';
 import { RefreshStrategy } from './strategies/refresh-token.strategy';
 import { APP_GUARD } from '@nestjs/core';
+import { MailerService } from 'src/common/mailer/mailer.service';
 
 @Module({
   imports: [
@@ -20,8 +21,10 @@ import { APP_GUARD } from '@nestjs/core';
     ConfigModule.forFeature(refreshConfig),
 
   ],
+  exports: [MailerService],
+
   controllers: [AuthController],
-  providers: [AuthService, UserService, PrismaService, LocalStrategy,JwtStrategy,JwtAuthGuard ,RefreshStrategy,{
+  providers: [AuthService, UserService, PrismaService, LocalStrategy,JwtStrategy,JwtAuthGuard ,RefreshStrategy,MailerService,{
     provide: APP_GUARD,
     useClass: JwtAuthGuard, //@UseGuard(JwtAuthGuard)
   },],

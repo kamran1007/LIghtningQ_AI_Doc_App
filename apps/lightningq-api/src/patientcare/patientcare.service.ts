@@ -1,11 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import { AppointmentService } from 'src/appointment/appointment.service';
+import { QuickAppointmentDto } from 'src/appointment/dto/create-appointment.dto';
+import { UpdateAppointmentDto } from 'src/appointment/dto/update-appointment.dto';
 import { UpsertPatientDto } from 'src/manage-patient/dto/upsert-patient.dto';
 import { ManagePatientService } from 'src/manage-patient/manage-patient.service';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class PatientcareService {
-  constructor(private readonly ManagePatientService: ManagePatientService) {}
+  constructor(
+    private readonly ManagePatientService: ManagePatientService,
+    private ManageAppointment: AppointmentService,
+  ) {}
 
   async upsertPatient(
     dto: UpsertPatientDto,
@@ -86,8 +92,7 @@ export class PatientcareService {
 
   //get tag patient
   async getAllTags() {
-    const result =
-      await this.ManagePatientService.getAllpatientTags();
+    const result = await this.ManagePatientService.getAllpatientTags();
     return {
       message: 'All patient tag data has successfully Fetch',
       return: result,
@@ -96,8 +101,7 @@ export class PatientcareService {
 
   // get all Medical history
   async getAllMedicalHistory() {
-    const result =
-      await this.ManagePatientService.getAllpastMedicalHistory();
+    const result = await this.ManagePatientService.getAllpastMedicalHistory();
     return {
       message: 'past Medical History data has successfully Fetch',
       return: result,
@@ -105,8 +109,7 @@ export class PatientcareService {
   }
   //get all languge
   async getAllLanguages() {
-    const result =
-      await this.ManagePatientService.getAllLanguages();
+    const result = await this.ManagePatientService.getAllLanguages();
     return {
       message: 'All Languages  data has successfully Fetch',
       return: result,
@@ -114,11 +117,50 @@ export class PatientcareService {
   }
   //get all allergies
   async getAllAllergies() {
-    const result =
-      await this.ManagePatientService.getAllAllergies();
+    const result = await this.ManagePatientService.getAllAllergies();
     return {
       message: 'All Allergies data has successfully Fetch',
       return: result,
     };
   }
+
+  //bookAppointment
+
+  async createAppointment(dto: QuickAppointmentDto, CreatedBy) {
+    const result = await this.ManageAppointment.BookAppointment(dto, CreatedBy);
+    return {
+      message: 'Appointment has been added successfully',
+      return: result,
+    };
+  }
+
+  //updateAppointment
+  async updateAppointment(dto: UpdateAppointmentDto, UpdatedBy: number) {
+    const result = await this.ManageAppointment.updateAppointment(
+      dto,
+      UpdatedBy,
+    );
+    return {
+      message: 'Appointment have been Updated succesfully',
+      return: result,
+    };
+  }
+
+  //searchAppointment
+  async searchAppointments(params: {
+    hospitalId: number;
+    DoctorId: number;
+    status?: string;
+    visitTypeId?: number;
+    acuity?: string;
+    search?: string;
+  }) {
+    const result = await this.ManageAppointment.searchAppointments(params);
+  
+    return {
+      message: 'Appointments fetched successfully',
+      data: result,
+    };
+  }
+  
 }

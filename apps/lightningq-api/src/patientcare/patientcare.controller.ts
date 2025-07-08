@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -18,6 +19,8 @@ import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { CurrentUser } from 'src/auth/decorator/current-user.decorator';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { QuickAppointmentDto } from 'src/appointment/dto/create-appointment.dto';
+import { UpdateAppointmentDto } from 'src/appointment/dto/update-appointment.dto';
 
 @Controller('patientcare')
 export class PatientcareController {
@@ -142,15 +145,52 @@ export class PatientcareController {
     return this.patientcareService.getAllAllergies();
   }
 
-  //get all language 
+  //get all language
   @Get('languages')
   getAllLanguages() {
     return this.patientcareService.getAllLanguages();
   }
 
-  //get pastmedicalhistory 
+  //get pastmedicalhistory
   @Get('medical-history')
   getAllMedicalHistory() {
     return this.patientcareService.getAllMedicalHistory();
+  }
+
+  //book Appointment
+  @Post('quickbookappointment')
+  async quickbookappointment(@Body() dto: QuickAppointmentDto, @Req() req: any) {
+    const CreatedBy = Number(req.user?.UserId || 1);
+
+    return this.patientcareService.createAppointment(dto, CreatedBy);
+  }
+
+  //rescheduleAppointment
+
+  @Patch('updateappointment')
+  async updateAppointment(@Body() dto: UpdateAppointmentDto, @Req() req: any) {
+    const UpdatedBy = Number(req.user?.UserId || 1);
+    return this.patientcareService.updateAppointment(dto, UpdatedBy);
+  }
+
+  //searchappointment
+  @Get('searchappointment')
+  async searchAppointments(@Query() query: any) {
+    const { hospitalId, DoctorId, status, visitTypeId, acuity, search } = query;
+
+    if (search && search.length < 3) {
+      throw new BadRequestException(
+        'Search term must be at least 3 characters',
+      );
+    }
+
+    return this.patientcareService.searchAppointments({
+      hospitalId: Number(hospitalId),
+      DoctorId: Number(DoctorId),
+      status,
+      visitTypeId: Number(visitTypeId),
+      acuity,
+      search,
+    });
   }
 }

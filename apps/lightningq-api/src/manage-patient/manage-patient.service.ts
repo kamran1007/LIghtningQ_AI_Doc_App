@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { UpsertPatientDto } from './dto/upsert-patient.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { QuickAppointmentDto } from 'src/appointment/dto/create-appointment.dto';
 
 @Injectable()
 export class ManagePatientService {
+  
   constructor(private readonly prisma: PrismaService) {}
 
   private parseArray(value: any): string[] | undefined {
