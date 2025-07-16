@@ -524,6 +524,7 @@ export default function AddUserPage() {
                   alt="User avatar"
                   width={80}
                   height={80}
+                  
                   className="object-cover h-full w-full transition-transform duration-300 group-hover:scale-105"
                 />
               ) : (

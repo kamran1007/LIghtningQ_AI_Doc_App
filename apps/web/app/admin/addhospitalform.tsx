@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select"; // adjust path if needed
 import { Controller } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { X } from "lucide-react";
+import { Loader2Icon, X } from "lucide-react";
 import { GoogleMapApiKey } from "@/lib/constants";
 import { fetchHospitals } from "@/store/hospitalSlice";
 import {
@@ -470,8 +470,8 @@ const AddHospitalForm = ({
                 disabled={isSubmitting}
                 className="bg-green-400 hover:bg-green-500 text-white px-5 py-2 rounded-4xl shadow-2xl transition cursor-pointer"
               >
-                {isSubmitting ? "Submit..." : "Submit"}
-              </button>
+{isSubmitting ? <Loader2Icon className="animate-spin" />
+                   : "Save"}              </button>
             </DialogFooter>
           </form>
         </div>

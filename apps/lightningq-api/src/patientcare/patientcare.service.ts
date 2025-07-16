@@ -123,7 +123,45 @@ export class PatientcareService {
       return: result,
     };
   }
+  // get all specialization
+  async getAllSpecialization() {
+    const result = await this.ManagePatientService.getAllSpecialization();
+    return {
+      message: 'All Specialization data has successfully Fetch',
+      return: result,
+    };
+  }
 
+  async getAlldoctoRole() {
+    const result = await this.ManagePatientService.getAlldoctoRole();
+    return {
+      message: 'All Doctor data has successfully Fetch',
+      return: result,
+    };
+  }
+  async getAllPaymentMode() {
+    const result = await this.ManagePatientService.getAllPaymentMode();
+    return {
+      message: 'All Payment data has successfully Fetch',
+      return: result,
+    };
+  }
+
+  async getAllVisitType() {
+    const result = await this.ManagePatientService.getAllVisitType();
+    return {
+      message: 'All Visit Type  data has successfully Fetch',
+      return: result,
+    };
+  }
+
+  async getAllTagType() {
+    const result = await this.ManagePatientService.getAllTagType();
+    return {
+      message: 'All Visit Type  data has successfully Fetch',
+      return: result,
+    };
+  }
   //bookAppointment
 
   async createAppointment(dto: QuickAppointmentDto, CreatedBy) {
@@ -154,13 +192,18 @@ export class PatientcareService {
     visitTypeId?: number;
     acuity?: string;
     search?: string;
+     appointmentDate?: string; // ✅ single date
+  appointmentDateFrom?: string; // ✅ date range
+  appointmentDateTo?: string;
+    page?: number;
+    limit?: number;
+
   }) {
     const result = await this.ManageAppointment.searchAppointments(params);
-  
+
     return {
       message: 'Appointments fetched successfully',
       data: result,
     };
   }
-  
 }

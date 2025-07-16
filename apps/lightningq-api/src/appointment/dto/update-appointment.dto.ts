@@ -6,7 +6,7 @@ import {
   IsEnum,
 } from 'class-validator';
 
-import { AppointmentStatus } from 'generated/prisma';
+import { AppointmentStatus } from '@prisma/client';;
 
 export class UpdateAppointmentDto {
   @IsInt()
@@ -18,8 +18,12 @@ export class UpdateAppointmentDto {
   DoctorId?: number;
 
   @IsOptional()
+  @IsInt()
+  DoctorTimeSlotId?: number;
+
+  @IsOptional()
   @IsDateString()
-  appointmentDay?: string;
+  appointmentDate?: string;
 
   @IsOptional()
   @IsString()

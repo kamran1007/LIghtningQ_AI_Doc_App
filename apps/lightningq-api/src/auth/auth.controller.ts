@@ -52,7 +52,7 @@ export class AuthController {
     return {
       message: 'This is a protected route',
       user: {
-        id: userData.UserId,
+        UserId: userData.UserId,
         title: userData.title,
         imageUrl: userData.imageUrl,
         firstName: userData.firstName,
@@ -63,6 +63,8 @@ export class AuthController {
         gender: userData.gender,
         isActive: userData.isActive,
         roleId: userData.roleId,
+        OrganizationId: userData.organizationId,
+        AssignHospital: userData.AdminAccess
       },
     };
   }

@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { QuickAppointmentDto } from './dto/create-appointment.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BloodGroup, AcuityLevel, $Enums, GenderType } from 'generated/prisma';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { MailerService } from 'src/common/mailer/mailer.service';
 import { createEvent } from 'ics';
+import { STATUS_CODES } from 'http';
 
 @Injectable()
 export class AppointmentService {
@@ -64,7 +65,7 @@ export class AppointmentService {
           dateOfBirth: new Date(dto.dateOfBirth ?? ''),
           gender: (dto.gender as GenderType) ?? 'OTHER',
           mobile: dto.mobile ?? '',
-          // email: dto.email ?? '',
+          email: dto.email ?? '',
           addressLine1: dto.addressLine1,
           isQuickRegistered: true,
           HospitalId: dto.hospitalId,
@@ -74,7 +75,7 @@ export class AppointmentService {
           postalCode: 0,
           country: 'India',
           CreatedBy: String(CreatedBy),
-          bloodGroup: (dto.bloodGroup as BloodGroup) ?? 'UNKNOWN',
+          bloodGroup: (dto.bloodGroup as BloodGroup) ?? null,
           Patient_Medical_Record_No: generatedMRN,
         },
       });
@@ -82,7 +83,7 @@ export class AppointmentService {
 
     // Combine date + time
     const appointmentDate = new Date(
-      `${dto.appointmentDay}T${dto.appointmentTime}:00`,
+      `${dto.appointmentDate}T${dto.appointmentTime}:00`,
     );
 
     if (
@@ -98,6 +99,8 @@ export class AppointmentService {
         TransactionId: Date.now(), // or use a proper transaction service
         Transaction_DateTime: new Date(),
         paymentTypePaymentTypeId: dto.paymentTypeId, // ensure this exists
+        AppointmentChargesPaid: parseFloat(dto.AppointmentCharges || '0'),
+        isAmountPaid: dto.isAmountPaid ?? true,
       },
     });
 
@@ -107,36 +110,48 @@ export class AppointmentService {
         PatientId: patient.PatientId,
         DoctorId: dto.DoctorId,
         appointmentDate: {
-          gte: new Date(dto.appointmentDay + 'T00:00:00'),
-          lt: new Date(dto.appointmentDay + 'T23:59:59'),
+          gte: new Date(dto.appointmentDate + 'T00:00:00'),
+          lt: new Date(dto.appointmentDate + 'T23:59:59'),
         },
         status: 'SCHEDULED',
       },
     });
 
     if (existingAppointment) {
-      throw new Error(
-        `Appointment already exists for this patient with this doctor. Please reschedule instead.`,
+      throw new HttpException(
+        {
+          status: 'failure',
+          message:
+            ' Appointment already exists for this patient with this doctor. Please reschedule instead.',
+        },
+        HttpStatus.BAD_REQUEST,
       );
     }
-    const appointment = await this.prisma.appointment.create({
-      data: {
-        PatientId: patient.PatientId,
-        DoctorId: dto.DoctorId,
-        hospitalId: dto.hospitalId,
-        visitTypeId: dto.visitTypeId,
-        paymentTypeId: dto.paymentTypeId,
-        paymentHistoryId: paymentHistory.PaymentHistoryId,
-        appointmentDate,
-        reason: dto.reason,
-        age: dto.age,
-        createdBy: CreatedBy,
-        sendWhatsappMessage: dto.sendWhatsappMessage,
-        sendSmsMessage: dto.sendSmsMessage,
-        sendEmailMessage: dto.sendEmailMessage,
-        acuity: (dto.acuity as AcuityLevel) ?? 'MODERATE',
-      },
-    });
+    let appointment;
+    try {
+      appointment = await this.prisma.appointment.create({
+        data: {
+          PatientId: patient.PatientId,
+          DoctorId: dto.DoctorId,
+          hospitalId: dto.hospitalId,
+          visitTypeId: dto.visitTypeId,
+          paymentTypeId: dto.paymentTypeId,
+          paymentHistoryId: paymentHistory.PaymentHistoryId,
+          TagPatientId: dto.TagPatientId,
+          appointmentDate,
+          reason: dto.reason,
+          age: dto.age,
+          createdBy: CreatedBy,
+          sendWhatsappMessage: dto.sendWhatsappMessage,
+          sendSmsMessage: dto.sendSmsMessage,
+          sendEmailMessage: dto.sendEmailMessage,
+          acuity: (dto.acuity as AcuityLevel) ?? 'MODERATE',
+        },
+      });
+    } catch (err) {
+      console.error('🔥 Prisma Appointment Creation Error:', err);
+      throw new Error('Failed to create appointment in DB');
+    }
 
     // ✅ Fetch appointment with relations: doctor and hospital
     const appointmentWithDetails = await this.prisma.appointment.findUnique({
@@ -147,6 +162,46 @@ export class AppointmentService {
         doctor: true,
         hospital: true,
         visitType: true,
+      },
+    });
+
+    if (!dto.appointmentDate) {
+      throw new Error('appointmentDay is required to create a DoctorSlot.');
+    }
+
+    const slotDate = new Date(dto.appointmentDate); // ✅ "2025-07-17"
+
+    const slotDayOfWeek = slotDate
+      .toLocaleString('en-US', { weekday: 'long' })
+      .toUpperCase(); // "THURSDAY"
+
+    const doctorTimeSlot = await this.prisma.doctorTimeSlot.findFirst({
+      where: {
+        DoctorId: dto.DoctorId,
+        HospitalId: dto.hospitalId,
+        DoctorTimeSlotId: dto.DoctorTimeSlotId,
+        // DayOfWeek: {
+        //   equals: slotDayOfWeek, // matches exact day name: "THURSDAY"
+        //   mode: 'insensitive',
+        // },
+      },
+    });
+
+    if (!doctorTimeSlot) {
+      throw new Error(`No time slot found for doctor on ${slotDayOfWeek}`);
+    }
+
+    // 🟢 Create DoctorSlot
+    await this.prisma.doctorSlot.create({
+      data: {
+        doctorId: dto.DoctorId!,
+        hospitalId: dto.hospitalId,
+        DoctorTimeSlotId: doctorTimeSlot.DoctorTimeSlotId,
+        slotDate,
+        slotTime: dto.appointmentTime!, // ensure not undefined
+        dayOfWeek: slotDayOfWeek,
+        isBooked: true,
+        appointmentId: appointment.AppointmentId,
       },
     });
 
@@ -165,6 +220,7 @@ export class AppointmentService {
       message: 'Quick appointment booked successfully',
       appointment,
       patient,
+      STATUS_CODES: 200,
     };
   }
   async sendAllNotificationsForAppointment(
@@ -254,8 +310,11 @@ export class AppointmentService {
 
     // ✅ Send Email
     if (sendEmail && toEmail) {
-      const icsBuffer = await this.generateICSFile(appointmentWithDetails, patient);
-    
+      const icsBuffer = await this.generateICSFile(
+        appointmentWithDetails,
+        patient,
+      );
+
       await this.mailerService.sendMailWithAttachment(
         toEmail,
         `Appointment ${appointment?.status}? 'Confirmed': ${appointmentDate} ${appointmentTime}`,
@@ -266,7 +325,7 @@ export class AppointmentService {
             content: icsBuffer,
             contentType: 'text/calendar',
           },
-        ]
+        ],
       );
     }
 
@@ -274,7 +333,7 @@ export class AppointmentService {
     //   const message = `Dear ${patient?.firstName}, Your ${
     //     appointmentWithDetails?.visitType?.AppointmentTypeName ?? 'FollowUp'
     //   } appointment with Dr. ${doctorFullName} at ${appointmentTime} on ${appointmentDate} at ${hospitalName} is confirmed. Please be there at the clinic 15 mins early. For queries contact ${hospitalContact}. Thank you.`;
-    
+
     //   try {
     //     await this.sendSms(patient.mobile, message);
     //   } catch (err) {
@@ -290,7 +349,7 @@ export class AppointmentService {
   //ICS Calender
   async generateICSFile(appointment: any, patient: any): Promise<Buffer> {
     const date = new Date(appointment.appointmentDate);
-  
+
     const event = {
       start: [
         date.getFullYear(),
@@ -303,9 +362,12 @@ export class AppointmentService {
       title: `Appointment with Dr. ${appointment?.doctor?.firstName}`,
       description: `Medical appointment at ${appointment?.hospital?.HospitalName}`,
       location: appointment?.hospital?.address,
-      organizer: { name: 'LightningQ Healthcare', email: 'contact@lightningq.in' },
+      organizer: {
+        name: 'LightningQ Healthcare',
+        email: 'contact@lightningq.in',
+      },
     };
-  
+
     return new Promise((resolve, reject) => {
       createEvent(event, (error, value) => {
         if (error) return reject(error);
@@ -314,35 +376,33 @@ export class AppointmentService {
     });
   }
 
-
   // async sendSms(to: string, message: string) {
   //   const formattedMobile = to.startsWith('+91') ? to : `91${to}`;
-  
+
   //   const url = 'https://api.textlocal.in/send/';
   //   const params = new URLSearchParams();
   //   params.append('apikey', process.env.TEXTLOCAL_API_KEY ?? '');
   //   params.append('numbers', formattedMobile);
   //   params.append('sender', 'TXTLCL'); // must be approved sender name
   //   params.append('message', message);
-  
+
   //   const response = await fetch(url, {
   //     method: 'POST',
   //     body: params,
   //   });
-  
+
   //   const result = await response.json();
   //   if (result.status !== 'success') {
   //     throw new Error(`TextLocal Error: ${JSON.stringify(result)}`);
   //   }
-  
+
   //   console.log('✅ SMS sent successfully:', result);
   // }
-  
+
   // sendAllNotificationsForAppointment() {
   //   throw new Error('Method not implemented.');
   // }
 
-  
   //updateAppointment
   async updateAppointment(dto: UpdateAppointmentDto, UpdatedBy: number) {
     const appointment = await this.prisma.appointment.findUnique({
@@ -367,9 +427,9 @@ export class AppointmentService {
 
     // Combine appointment date + time if provided
     let newAppointmentDate = appointment.appointmentDate;
-    if (dto.appointmentDay && dto.appointmentTime) {
+    if (dto.appointmentDate && dto.appointmentTime) {
       newAppointmentDate = new Date(
-        `${dto.appointmentDay}T${dto.appointmentTime}:00`,
+        `${dto.appointmentDate}T${dto.appointmentTime}:00`,
       );
     }
 
@@ -378,7 +438,7 @@ export class AppointmentService {
       data: {
         DoctorId: dto.DoctorId ?? 0,
         appointmentDate:
-          dto.appointmentDay && dto.appointmentTime
+          dto.appointmentDate && dto.appointmentTime
             ? newAppointmentDate
             : undefined,
         status: dto.status ?? 'RESCHEDULED',
@@ -397,10 +457,10 @@ export class AppointmentService {
         doctor: true,
         hospital: true,
         visitType: true,
-        patient: true
+        patient: true,
       },
     });
-console.log(appointmentWithDetails)
+    console.log(appointmentWithDetails);
     await this.sendAllNotificationsForAppointment(
       appointment.AppointmentId,
       appointmentWithDetails?.patient?.email ?? '',
@@ -435,6 +495,11 @@ console.log(appointmentWithDetails)
     visitTypeId?: number;
     acuity?: string;
     search?: string;
+    appointmentDate?: string;
+    appointmentDateFrom?: string;
+    appointmentDateTo?: string;
+    page?: number;
+    limit?: number;
   }) {
     const whereClause: any = {
       ...(filters.hospitalId && { hospitalId: filters.hospitalId }),
@@ -456,22 +521,60 @@ console.log(appointmentWithDetails)
             lastName: { contains: filters.search, mode: 'insensitive' },
           },
         },
-        { patient: { mobile: { contains: filters.search } } },
         {
-          patient: { Patient_Medical_Record_No: { contains: filters.search } },
+          patient: {
+            mobile: { contains: filters.search },
+          },
+        },
+        {
+          patient: {
+            Patient_Medical_Record_No: {
+              contains: filters.search,
+            },
+          },
         },
       ];
     }
 
-    return this.prisma.appointment.findMany({
-      where: whereClause,
-      include: {
-        patient: true,
-        doctor: true,
-        visitType: true,
-        hospital: true,
-      },
-      orderBy: { appointmentDate: 'desc' },
-    });
+    // ✅ Date filtering logic
+    if (filters.appointmentDate) {
+      whereClause.appointmentDate = new Date(filters.appointmentDate);
+    } else if (filters.appointmentDateFrom || filters.appointmentDateTo) {
+      whereClause.appointmentDate = {};
+      if (filters.appointmentDateFrom) {
+        whereClause.appointmentDate.gte = new Date(filters.appointmentDateFrom);
+      }
+      if (filters.appointmentDateTo) {
+        whereClause.appointmentDate.lte = new Date(filters.appointmentDateTo);
+      }
+    }
+
+    const page = filters.page || 1;
+    const limit = filters.limit || 10;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.appointment.findMany({
+        where: whereClause,
+        skip,
+        take: limit,
+        orderBy: { appointmentDate: 'asc' },
+        include: {
+          patient: true,
+          doctor: { include: { Specialization: true } },
+          visitType: true,
+          hospital: true,
+        },
+      }),
+      this.prisma.appointment.count({ where: whereClause }),
+    ]);
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 }

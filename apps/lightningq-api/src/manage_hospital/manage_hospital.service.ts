@@ -487,46 +487,69 @@ export class ManageHospitalService {
     if (!dto.userId || !dto.timeSlots || dto.timeSlots.length === 0) {
       throw new Error('userId and timeSlots are required.');
     }
-  
+
     const affectedHospitals: number[] = dto.timeSlots
       .map((s) => s.hospitalId)
       .filter((id): id is number => typeof id === 'number');
-  
+
     // Step 1: Archive
     const existingSlots = await this.prisma.doctorTimeSlot.findMany({
       where: {
-        userId: dto.userId,
+        DoctorId: dto.userId,
         HospitalId: { in: affectedHospitals },
         isDeleted: false,
       },
     });
-  
+
     if (existingSlots.length > 0) {
       const historyData = existingSlots.map((slot) => ({
-        ...slot,
         DoctorTimeSlotId: slot.DoctorTimeSlotId,
+        userId: slot.DoctorId, // ✅ explicitly mapped
+        HospitalId: slot.HospitalId,
+        DayOfWeek: slot.DayOfWeek,
+        Morning_From: slot.Morning_From,
+        Morning_To: slot.Morning_To,
+        Evening_From: slot.Evening_From,
+        Evening_To: slot.Evening_To,
+        consult_Time_InMin: slot.consult_Time_InMin,
+        Accept_Appointment_Selected_Date: slot.Accept_Appointment_Selected_Date,
+        is_DND: slot.is_DND,
+        is_SlotCancelled: slot.is_SlotCancelled,
+        isPermanentCancelled: slot.isPermanentCancelled,
+        DNDremarks: slot.DNDremarks,
+        Slot_cancellation_remarks: slot.Slot_cancellation_remarks,
+        isDeleted: slot.isDeleted,
+        isAvailable: slot.isAvailable,
+        isBooked: slot.isBooked,
+        isConfirmed: slot.isConfirmed,
+        isRejected: slot.isRejected,
+        createdAt: slot.createdAt,
+        updatedAt: slot.updatedAt,
         changedBy: userId,
         changedAt: new Date(),
+        isSlotChanged: slot.isSlotChanged,
+        isActive: slot.isActive,
+        createdBy: slot.createdBy,
       }));
-  
+
       await this.prisma.doctorTimeSlotHistory.createMany({
         data: historyData,
       });
     }
-  
+
     // Step 2: Delete old
     await this.prisma.doctorTimeSlot.deleteMany({
       where: {
-        userId: dto.userId,
+        DoctorId: dto.userId,
         HospitalId: { in: affectedHospitals },
         isDeleted: false,
       },
     });
-  
+
     // Step 3: Insert new
     const now = new Date();
     const newSlotData = dto.timeSlots.map((slot) => ({
-      userId: dto.userId!,
+      DoctorId: dto.userId!,
       HospitalId: slot.hospitalId!,
       DayOfWeek: slot.DayOfWeek!,
       Morning_From: slot.Morning_From ?? null,
@@ -534,7 +557,8 @@ export class ManageHospitalService {
       Evening_From: slot.Evening_From ?? null,
       Evening_To: slot.Evening_To ?? null,
       consult_Time_InMin: slot.consult_Time_InMin ?? 15,
-      Accept_Appointment_Selected_Date: dto.Accept_Appointment_Selected_Date ?? true,
+      Accept_Appointment_Selected_Date:
+        dto.Accept_Appointment_Selected_Date ?? true,
       DNDremarks: slot.DNDremarks ?? null,
       Slot_cancellation_remarks: slot.Slot_cancellation_remarks ?? null,
       is_DND: slot.is_DND ?? false,
@@ -551,18 +575,17 @@ export class ManageHospitalService {
       createdAt: now,
       updatedAt: now,
     }));
-  
+
     const inserted = await this.prisma.doctorTimeSlot.createMany({
       data: newSlotData,
     });
-  
+
     return {
       message: 'Time slots replaced with history logging.',
       count: inserted.count,
       HttpCode: 201,
     };
   }
-  
 
   // Create Doctor Slot
   async createDoctorSlots(dto: CreateDoctorSlotDto, createdById: number) {
@@ -593,7 +616,7 @@ export class ManageHospitalService {
     const now = new Date();
 
     const slotData = dto.timeSlots.map((slot) => ({
-      userId: dto.userId as number, // ensure number, not undefined
+      DoctorId: dto.userId as number, // ensure number, not undefined
       // HospitalId: dto.hospitalId as number, // ensure number, not undefined
       DayOfWeek: slot.DayOfWeek || '',
       HospitalId: slot.hospitalId as number, // ensure number, not undefined
@@ -639,7 +662,7 @@ export class ManageHospitalService {
     const slot = await this.prisma.doctorTimeSlot.findFirst({
       where: {
         DoctorTimeSlotId: dto.DoctorTimeSlotId,
-        userId: dto.userId, // validate userId
+        DoctorId: dto.userId, // validate userId
         HospitalId: dto.HospitalId, // validate hospitalId
         isDeleted: false, // optional: skip deleted slots
       },
@@ -687,7 +710,7 @@ export class ManageHospitalService {
       const existing = await this.prisma.doctorTimeSlot.findFirst({
         where: {
           DoctorTimeSlotId: slot.DoctorTimeSlotId,
-          userId: dto.userId,
+          DoctorId: dto.userId,
           // HospitalId: dto.hospitalId,
           isDeleted: false,
         },
@@ -858,7 +881,7 @@ export class ManageHospitalService {
     day?: string;
   }) {
     const whereClause: any = {
-      userId,
+  DoctorId: userId,  // ✅ this matches your model
       isDeleted: false,
     };
 

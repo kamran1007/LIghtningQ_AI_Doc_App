@@ -14,8 +14,11 @@ import {
   AlertDialogTrigger,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { UserPlus, Zap } from "lucide-react";
+import { UserPlus, Zap, PhoneCall, Mail, MapPinHouse } from "lucide-react";
 import Image from "next/image";
+import { BACKEND_URL } from "@/lib/constants";
+import { getSession } from "@/lib/session";
+import { PatientAvatar } from "./PatientAvatar";
 
 type Props = {
   query: string;
@@ -35,6 +38,25 @@ export function PatientSearchDrawer({
   const [notFound, setNotFound] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false); // <--- new dialog state
+  const getInitials = (firstName: string = "", lastName: string = "") => {
+    return `${firstName?.[0] ?? ""}${lastName?.[0] ?? ""}`.toUpperCase();
+  };
+
+  const getColorByInitials = (initials: string) => {
+    const code = initials.charCodeAt(0);
+    const colors = [
+      "bg-blue-100 text-blue-600",
+      "bg-pink-100 text-pink-600",
+      "bg-green-100 text-green-600",
+      "bg-yellow-100 text-yellow-600",
+      "bg-purple-100 text-purple-600",
+      "bg-orange-100 text-orange-600",
+      "bg-red-100 text-red-600",
+      "bg-teal-100 text-teal-600",
+      "bg-indigo-100 text-indigo-600",
+    ];
+    return colors[code % colors.length];
+  };
 
   const debouncedQuery = useDebounce(query, 1000);
   const { setEventAddOpen } = useEvents();
@@ -48,25 +70,48 @@ export function PatientSearchDrawer({
       return;
     }
 
-    setLoading(true);
-    fetch(`/api/search-patient?q=${debouncedQuery}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.patients?.length > 0) {
-          setResults(data.patients);
+    const fetchPatients = async () => {
+      try {
+        setLoading(true);
+        const session = await getSession();
+        const token = session?.accessToken;
+
+        const res = await fetch(
+          `${BACKEND_URL}/patientcare/getallpatientdetail?search=${debouncedQuery}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (res.status === 401) {
+          console.error("Unauthorized access – check token/session.");
+          return;
+        }
+
+        const Search = await res.json();
+        console.log("search data", Search);
+        if (Search?.return?.data?.length > 0) {
+          setResults(Search?.return?.data);
           setNotFound(false);
         } else {
           setResults([]);
           setNotFound(true);
         }
+
         setDrawerOpen(true);
-      })
-      .catch(() => {
+      } catch (error) {
+        console.error("Error fetching patients:", error);
         setResults([]);
         setNotFound(true);
         setDrawerOpen(true);
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPatients();
   }, [debouncedQuery]);
 
   const handleContinue = () => {
@@ -89,30 +134,89 @@ export function PatientSearchDrawer({
 
         {results.length > 0 ? (
           <div>
-            <h2 className="text-lg font-semibold text-gray-700 mb-2">
+            <h2 className="text-lg font-semibold text-gray-700 mb-2 font-sans">
               Matching Patients
             </h2>
-            <ul className="divide-y">
-              {results.map((p) => (
-                <li
-                  key={p.id}
-                  className="py-2 flex justify-between items-center"
-                >
-                  <span>
-                    {p.name} ({p.phone})
-                  </span>
-                  <Button
-                    size="sm"
+            <div className="space-y-2 max-h-[60vh] overflow-y-auto no-scrollbar cursor-pointer">
+              {results.map((p) => {
+                const address = [
+                  p.addressLine1,
+                  p.addressLine2,
+                  p.area,
+                  p.city,
+                  p.postalCode,
+                  p.state,
+                  p.country,
+                ]
+                  .filter(Boolean)
+                  .join(", ");
+
+                const isBase64 = p.profileImageUrl?.startsWith("data:image");
+                const isAbsolute = p.profileImageUrl?.startsWith("http");
+                const imageUrl =
+                  isBase64 || isAbsolute
+                    ? p.profileImageUrl
+                    : p.profileImageUrl
+                      ? `${BACKEND_URL}${p.profileImageUrl}`
+                      : null;
+
+                const initials = getInitials(p.firstName, p.lastName);
+                const colorClass = getColorByInitials(initials);
+
+                // State to handle image load error
+                // const [imageError, setImageError] = useState(false);
+
+                return (
+                  <div
+                    key={p.PatientId}
                     onClick={() => {
                       onSelect(p);
                       setDrawerOpen(false);
                     }}
+                    className="p-4 border rounded-lg shadow-sm hover:shadow-md bg-white hover:bg-[#EFFFFD] cursor-pointer transition-all px-8 border-gray-300"
                   >
-                    Select
-                  </Button>
-                </li>
-              ))}
-            </ul>
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="text-base font-semibold text-gray-800">
+                          {p.firstName} {p.lastName}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          MR No:{" "}
+                          <span className="font-medium text-gray-700">
+                            {p.Patient_Medical_Record_No}
+                          </span>
+                        </p>
+                      </div>
+
+                      <PatientAvatar
+                        src={imageUrl}
+                        alt={p.firstName}
+                        initials={initials}
+                        colorClass={colorClass}
+                      />
+                    </div>
+
+                    {/* Contact + Address */}
+                    <div className="mt-2 text-sm text-gray-600 flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <PhoneCall className="w-4 h-4 text-gray-500" />
+                        <span>{p.mobile}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Mail className="w-4 h-4 text-gray-500" />
+                        <span>{p.email || "—"}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPinHouse className="w-4 h-4 text-gray-500" />
+                        <span className="truncate w-[calc(100%-2rem)]">
+                          {address || "—"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         ) : (
           <div className="text-center space-y-4">

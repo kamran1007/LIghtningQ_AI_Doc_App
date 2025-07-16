@@ -5,7 +5,6 @@ import { QuickAppointmentDto } from 'src/appointment/dto/create-appointment.dto'
 
 @Injectable()
 export class ManagePatientService {
-  
   constructor(private readonly prisma: PrismaService) {}
 
   private parseArray(value: any): string[] | undefined {
@@ -55,7 +54,6 @@ export class ManagePatientService {
       MedicalHistoryId: Number(id),
     }));
 
-    
     let patient;
 
     if (PatientId) {
@@ -67,7 +65,7 @@ export class ManagePatientService {
           Prefix: dto.Prefix,
           HospitalId: Number(HospitalId),
           OrganizationId: Number(organizationId),
-          profileImageUrl: patientImageUrl ?? dto.patientImageUrl, // ✅ FIX
+          profileImageUrl: patientImageUrl ?? dto.profileImageUrl, // ✅ FIX
           UpdatedBy: String(CreatedBy),
           updatedAt: new Date(),
           allergies: connectAllergies ? { set: connectAllergies } : undefined,
@@ -102,7 +100,7 @@ export class ManagePatientService {
         );
       }
 
-      const { patientImageUrl: _, ...cleanedRestData } = restData;
+      const { profileImageUrl: _, ...cleanedRestData } = restData;
 
       patient = await this.prisma.patient.create({
         data: {
@@ -110,7 +108,7 @@ export class ManagePatientService {
           Prefix: dto.Prefix,
           HospitalId: Number(HospitalId),
           OrganizationId: Number(organizationId),
-          profileImageUrl: patientImageUrl ?? dto.patientImageUrl, // ✅ FIX
+          profileImageUrl: patientImageUrl ?? dto.profileImageUrl, // ✅ FIX
           Patient_Medical_Record_No: generatedMRN,
           CreatedBy: String(CreatedBy),
           createdAt: new Date(),
@@ -236,6 +234,11 @@ export class ManagePatientService {
         allergies: true,
         languages: true,
         medicalHistory: true,
+        Appointment: {
+          orderBy: {
+            appointmentDate: 'asc',
+          },
+        },
       },
     });
 
@@ -326,8 +329,7 @@ export class ManagePatientService {
     return { PatientId: patient.PatientId };
   }
 
-
-  //draft data 
+  //draft data
   async getDraftPatients(hospitalId: number) {
     return this.prisma.patient.findMany({
       where: {
@@ -362,6 +364,48 @@ export class ManagePatientService {
   async getAllpastMedicalHistory() {
     return this.prisma.medicalHistory.findMany({
       orderBy: { MedicalHistoryName: 'asc' },
+    });
+  }
+  //specialization
+  async getAllSpecialization() {
+    return this.prisma.specialization.findMany({
+      orderBy: { SpecializationId: 'asc' },
+    });
+  }
+
+  //getAlldoctor
+  async getAlldoctoRole() {
+    return this.prisma.user.findMany({
+      where: {
+        roleId: Number(2),
+        isActive: true,
+      },
+      include: {
+        role: true, // include if you want to return tag info
+        Specialization: true,
+        DoctorTimeSlot: true,
+        DoctorCosting: true,
+        DoctorSlot: true,
+      },
+      orderBy: { UserId: 'asc' },
+    });
+  }
+
+  async getAllPaymentMode() {
+    return this.prisma.paymentType.findMany({
+      orderBy: { PaymentTypeName: 'asc' },
+    });
+  }
+
+  async getAllVisitType() {
+    return this.prisma.appointmentType.findMany({
+      orderBy: { AppointmentTypeId: 'asc' },
+    });
+  }
+
+  async getAllTagType() {
+    return this.prisma.tagPatient.findMany({
+      orderBy: { TagPatientId: 'asc' },
     });
   }
 }

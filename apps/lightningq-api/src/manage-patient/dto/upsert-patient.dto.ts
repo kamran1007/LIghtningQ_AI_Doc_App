@@ -7,7 +7,7 @@ import {
   IsEnum,
   IsBoolean,
 } from 'class-validator';
-import { Title, BloodGroup,GenderType } from 'generated/prisma';
+import { Title, BloodGroup,GenderType } from '@prisma/client';
 
 export class UpsertPatientDto {
   // System fields
@@ -32,9 +32,9 @@ export class UpsertPatientDto {
   @IsString()
   Patient_Medical_Record_No?: string;
 
-  @IsOptional()
-  @IsString()
-  patientImageUrl?: string;
+  // @IsOptional()
+  // @IsString()
+  // patientImageUrl?: string;
 
   // Basic Details
   @IsEnum(Title)
@@ -153,6 +153,9 @@ export class UpsertPatientDto {
   languages?: string[]; // array of LanguageId as string
   @IsOptional()
   medicalHistory?: string[]; // array of MedicalHistoryId as string
+
+  // @IsOptional()
+  // TagPatient?: string[]
 
   // Audit (optional)
   @IsOptional()

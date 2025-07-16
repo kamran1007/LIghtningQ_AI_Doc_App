@@ -5,9 +5,10 @@ import {
   IsEnum,
   IsInt,
   IsOptional,
+  isString,
   IsString,
 } from 'class-validator';
-import { BloodGroup ,GenderType } from 'generated/prisma';
+import { BloodGroup, GenderType } from '@prisma/client';
 
 export class QuickAppointmentDto {
   // Patient fields
@@ -24,14 +25,16 @@ export class QuickAppointmentDto {
   dateOfBirth?: string;
 
   @IsOptional()
-  @IsEnum(GenderType, { message: 'gender must be one of the following values: MALE, FEMALE, OTHER' })
+  @IsEnum(GenderType, {
+    message: 'gender must be one of the following values: MALE, FEMALE, OTHER',
+  })
   gender?: GenderType;
 
-  @IsString()
-  hospitalCode!: string;
+  // @IsString()
+  // hospitalCode!: string;
 
-  @IsInt()
-  HospitalId!: number;
+  // @IsInt()
+  // HospitalId!: number;
 
   @IsInt()
   organizationId!: number;
@@ -43,8 +46,8 @@ export class QuickAppointmentDto {
   @IsString()
   mobile?: string;
 
-  // @IsString()
-  // email?: string;
+  @IsString()
+  email?: string;
 
   @IsOptional()
   @IsString()
@@ -54,17 +57,27 @@ export class QuickAppointmentDto {
   @IsInt()
   DoctorId?: number;
 
+  @IsOptional()
+  @IsInt()
+  DoctorTimeSlotId?: number;
+
   @IsInt()
   hospitalId!: number;
 
   @IsInt()
   visitTypeId?: number;
 
+  @IsString()
+  VisitReason?: string;
+
+  @IsInt()
+  TagPatientId?: number;
+
   @IsInt()
   paymentTypeId?: number;
 
-  @IsDateString()
-  appointmentDay?: string;
+  @IsString()
+  appointmentDate?: string;
 
   @IsString()
   appointmentTime?: string;
@@ -101,5 +114,15 @@ export class QuickAppointmentDto {
   @IsOptional()
   @IsString()
   acuity?: string;
-  
+
+  @IsOptional()
+  @IsString()
+  AppointmentCharges?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isAmountPaid?: boolean;
+
+  // @IsString()
+  // appointmentDate?: string;
 }

@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  // ❌ DO NOT add `output` here
 }
 
 datasource db {
@@ -87,6 +87,8 @@ model User {
   AppointmentCreatedBy Appointment[] @relation("CreatedBy")
 
   Appointment Appointment[] @relation("RescheduledBy")
+
+  DoctorSlot DoctorSlot[]
 }
 
 // Organization (Top-most head entity created by you or BA)
@@ -176,6 +178,8 @@ model Hospital {
   Appointment Appointment[]
 
   Patient Patient[]
+
+  DoctorSlot DoctorSlot[]
 }
 
 // User ↔ Hospital mapping model
@@ -242,17 +246,15 @@ model Setting {
 model DoctorTimeSlot {
   DoctorTimeSlotId Int @id @default(autoincrement())
 
-  // 🔗 Link to User (Doctor)
-  userId Int
-  user   User @relation(fields: [userId], references: [UserId], onDelete: Cascade)
+  DoctorId Int
+  Doctor   User @relation(fields: [DoctorId], references: [UserId], onDelete: Cascade)
 
-  // 🔗 Link to Hospital
-  HospitalId Int
-  Hospital   Hospital @relation(fields: [HospitalId], references: [HospitalId], onDelete: Cascade)
+  HospitalId  Int
+  Hospital    Hospital @relation(fields: [HospitalId], references: [HospitalId], onDelete: Cascade)
 
-  DayOfWeek String // e.g., 'MON', 'TUE', etc.
-
-  Morning_From String? // Format: 'HH:mm'
+  DayOfWeek   String   // 'MON', 'TUE', etc.
+  
+  Morning_From String?
   Morning_To   String?
 
   Evening_From String?
@@ -273,9 +275,57 @@ model DoctorTimeSlot {
   isBooked                  Boolean  @default(false)
   isConfirmed               Boolean  @default(false)
   isRejected                Boolean  @default(false)
-  createdBy                 Int?
-  createdAt                 DateTime @default(now())
-  updatedAt                 DateTime @updatedAt
+
+  createdBy   Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // ⬇️ One-to-many relation to DoctorSlot
+  SlotsDateTime       DoctorSlot[]
+}
+
+// model DoctorTimeSlot {
+//   DoctorTimeSlotId              Int      @id @default(autoincrement())
+//   doctorId        Int
+//   doctor          User     @relation(fields: [doctorId], references: [UserId])
+//   hospitalId      Int?
+//   hospital        Hospital? @relation(fields: [hospitalId], references: [HospitalId])
+//   dayOfWeek       String   // MON, TUE, etc.
+//   morningFrom     String?
+//   morningTo       String?
+//   eveningFrom     String?
+//   eveningTo       String?
+//   consultTimeInMin Int     @default(15)
+
+//   isDND           Boolean  @default(false)
+//   isSlotCancelled Boolean  @default(false)
+
+//   slots           DoctorSlot[] // ⬅️ One-to-many link to booked/generated slots
+// }
+
+model DoctorSlot {
+  DoctorSlotId Int @id @default(autoincrement())
+
+  doctorId     Int
+  doctor       User     @relation(fields: [doctorId], references: [UserId])
+
+  hospitalId   Int
+  hospital     Hospital @relation(fields: [hospitalId], references: [HospitalId])
+
+  DoctorTimeSlotId   Int
+  DoctorTimeSlot     DoctorTimeSlot @relation(fields: [DoctorTimeSlotId], references: [DoctorTimeSlotId])
+
+  slotDate     DateTime
+  slotTime     String   // 'HH:mm'
+  dayOfWeek    String   // 'MON', etc.
+
+  isBooked      Boolean @default(false)
+  appointmentId Int?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([doctorId, slotDate, slotTime], name: "UniqueDoctorSlotPerDateTime")
 }
 
 model DoctorCosting {
@@ -415,7 +465,7 @@ model Patient {
   kinRelation String?
 
   // Patient Meta
-  bloodGroup BloodGroup
+  bloodGroup BloodGroup?
   TagPatient TagPatient[] @relation("PatientTagPatient")
 
   allergies      Allergy[]        @relation("PatientAllergies")
@@ -443,6 +493,8 @@ model TagPatient {
   TagPatientName String @unique
 
   patients Patient[] @relation("PatientTagPatient")
+
+  Appointment Appointment[]
 }
 
 model Allergy {
@@ -489,7 +541,10 @@ model Appointment {
   rescheduledDate  DateTime? // ✅ New field
   rescheduleReason String?
   rescheduledBy    Int?
-
+  TagPatientId Int?
+  TagPatient TagPatient[]
+  // AppointmentAmtPaid Int?
+  // isAmountPaid Boolean default(true)
   // Relations
   patient           Patient @relation(fields: [PatientId], references: [PatientId])
   doctor            User    @relation("Doctor", fields: [DoctorId], references: [UserId])
@@ -595,6 +650,8 @@ model PaymentHistory {
   TransactionId            BigInt
   Transaction_DateTime     DateTime
   PaymentTypeName          PaymentType   @relation(fields: [paymentTypePaymentTypeId], references: [PaymentTypeId])
+  AppointmentChargesPaid        Float?
+  isAmountPaid  Boolean? @default(true)
   appointments             Appointment[]
   paymentTypePaymentTypeId Int
 }

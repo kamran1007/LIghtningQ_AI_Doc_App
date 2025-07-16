@@ -18,7 +18,14 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select"; // import { Button } from "@mui/material";
-import { X, ChevronDown } from "lucide-react";
+import { X, ChevronDown 
+} from "lucide-react";
+
+import {
+
+  Loader2Icon,
+} from "lucide-react";
+
 import {
   Popover,
   PopoverTrigger,
@@ -71,7 +78,7 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
     handleSubmit,
     reset,
     setValue,
-    formState: { errors },
+    formState: { errors,isSubmitting },
   } = useForm();
   const onSubmit = async (formData: any) => {
     try {
@@ -89,7 +96,7 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
         tax: parseFloat(formData.tax),
         discount: parseFloat(formData.discount),
         commission: parseFloat(formData.commission) || 10,
-        insuranceApplicable: formData.insuranceApplicable || 0,
+        insuranceApplicable: !!formData.insuranceApplicable, // ✅ fixed here
       };
 
       const res = await AddUpdateDoctorCosting(payload);
@@ -124,6 +131,7 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
       discount: costing.discount || "",
       insuranceApplicable: costing.insuranceApplicable || false,
       commission: costing.commission || "", // Default to 10% if not provided
+      
     });
   };
 
@@ -149,8 +157,8 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-<DialogContent className="max-h-[95vh] overflow-y-auto p-6 max-w-4xl rounded-2xl no-scrollbar">
-{/* ✅ Always render DialogTitle for accessibility */}
+      <DialogContent className="max-h-[95vh] overflow-y-auto p-6 max-w-4xl rounded-2xl no-scrollbar">
+        {/* ✅ Always render DialogTitle for accessibility */}
         <div className="flex items-center justify-between mb-4">
           <DialogTitle className="text-2xl font-semibold">
             Add Costing Details
@@ -227,19 +235,23 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
                   Walk-in Consultation Fee{" "}
                   <span className="text-red-500">*</span>
                 </Label>
-                <Input {...register("walkInFee")} placeholder="e.g. 500" />
+                <Input {...register("walkInFee")} placeholder="e.g. 500"   defaultValue="0"/>
               </div>
               <div>
                 <Label>Tele Consultation Fee</Label>
-                <Input {...register("teleConsultFee")} placeholder="e.g. 400" />
+                <Input {...register("teleConsultFee")} placeholder="e.g. 400"   defaultValue="0"
+ />
               </div>
               <div>
                 <Label>FastTrack Charges</Label>
-                <Input {...register("fastTrackFee")} placeholder="e.g. 700" />
+                <Input {...register("fastTrackFee")} placeholder="e.g. 700"   defaultValue="0"
+/>
               </div>
               <div>
                 <Label>No. of Free Follow-ups</Label>
                 <Input
+                  defaultValue="0"
+
                   {...register("freeFollowupCount")}
                   placeholder="e.g. 2"
                 />
@@ -247,6 +259,8 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
               <div>
                 <Label>Follow-up Validity (Days)</Label>
                 <Input
+                  defaultValue="0"
+
                   {...register("followupValidityDays")}
                   placeholder="e.g. 10"
                 />
@@ -255,7 +269,8 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
                 <Label>Commission Charges</Label>
                 <Input
                   {...register("commission")}
-                  defaultValue="10"
+
+                  defaultValue="0"
                   placeholder="e.g. 10%"
                 />
               </div>
@@ -265,11 +280,12 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-4 mb-6">
               <div>
                 <Label>Home Visit Charges</Label>
-                <Input {...register("homeVisitFee")} placeholder="e.g. 800" />
+                <Input {...register("homeVisitFee")} placeholder="e.g. 800"   defaultValue="0"
+ />
               </div>
               <div>
                 <Label>Emergency Charges</Label>
-                <Input {...register("emergencyFee")} placeholder="e.g. 1000" />
+                <Input {...register("emergencyFee")} placeholder="e.g. 1000"  />
               </div>
               <div>
                 <Label>Additional Procedure Charges</Label>
@@ -312,8 +328,9 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
               <Button
                 type="submit"
                 className="rounded-full h-10 px-6 cursor-pointer bg-green-400 text-white shadow-2xl hover:bg-green-500"
-              > 
-                Save
+              >
+                {isSubmitting ? <Loader2Icon className="animate-spin" />
+                                   : "Save"}
               </Button>
             </DialogFooter>
           </form>

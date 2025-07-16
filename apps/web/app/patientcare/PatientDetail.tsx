@@ -1,15 +1,23 @@
-'use client';
+"use client";
 
-import { Card, CardHeader, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Camera, Save, Bot } from 'lucide-react';
+import { useDispatch, useSelector } from "react-redux";
+
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Camera, Save, Bot } from "lucide-react";
+import { useEffect } from "react";
+import { fetchAllRegisterPatient } from "@/store/PatientSlice";
+import type { AppDispatch, RootState } from "@/store";
+
 
 export default function PatientRecord() {
+  
+
   return (
     <div className="max-w-6xl mx-auto py-8 px-6 space-y-6">
       {/* Header Section */}
@@ -20,14 +28,24 @@ export default function PatientRecord() {
             <AvatarFallback>PR</AvatarFallback>
           </Avatar>
           <div>
-            <h1 className="text-2xl font-semibold text-zinc-800">Anika Smith</h1>
-            <p className="text-sm text-muted-foreground">MRN: 123456789 • 87 Y, Female</p>
-            <p className="text-sm text-muted-foreground">Last Visit: CBT Therapy • June 2025</p>
+            <h1 className="text-2xl font-semibold text-zinc-800">
+              Anika Smith
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              MRN: 123456789 • 87 Y, Female
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Last Visit: CBT Therapy • June 2025
+            </p>
           </div>
         </div>
         <div className="space-x-2">
-          <Button variant="outline"><Camera className="w-4 h-4 mr-2" /> Capture</Button>
-          <Button><Save className="w-4 h-4 mr-2" /> Save Changes</Button>
+          <Button variant="outline">
+            <Camera className="w-4 h-4 mr-2" /> Capture
+          </Button>
+          <Button>
+            <Save className="w-4 h-4 mr-2" /> Save Changes
+          </Button>
         </div>
       </div>
 
@@ -166,3 +184,4 @@ export default function PatientRecord() {
     </div>
   );
 }
+

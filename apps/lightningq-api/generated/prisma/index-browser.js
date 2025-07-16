@@ -20,12 +20,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.8.0
- * Query Engine version: 2060c79ba17c6bb9f5823312b6f6b7f4a845738e
+ * Prisma Client JS version: 6.11.1
+ * Query Engine version: f40f79ec31188888a2e33acda0ecc8fd10a853a9
  */
 Prisma.prismaVersion = {
-  client: "6.8.0",
-  engine: "2060c79ba17c6bb9f5823312b6f6b7f4a845738e"
+  client: "6.11.1",
+  engine: "f40f79ec31188888a2e33acda0ecc8fd10a853a9"
 }
 
 Prisma.PrismaClientKnownRequestError = () => {
@@ -251,7 +251,7 @@ exports.Prisma.SettingScalarFieldEnum = {
 
 exports.Prisma.DoctorTimeSlotScalarFieldEnum = {
   DoctorTimeSlotId: 'DoctorTimeSlotId',
-  userId: 'userId',
+  DoctorId: 'DoctorId',
   HospitalId: 'HospitalId',
   DayOfWeek: 'DayOfWeek',
   Morning_From: 'Morning_From',
@@ -273,6 +273,20 @@ exports.Prisma.DoctorTimeSlotScalarFieldEnum = {
   isConfirmed: 'isConfirmed',
   isRejected: 'isRejected',
   createdBy: 'createdBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DoctorSlotScalarFieldEnum = {
+  DoctorSlotId: 'DoctorSlotId',
+  doctorId: 'doctorId',
+  hospitalId: 'hospitalId',
+  templateId: 'templateId',
+  slotDate: 'slotDate',
+  slotTime: 'slotTime',
+  dayOfWeek: 'dayOfWeek',
+  isBooked: 'isBooked',
+  appointmentId: 'appointmentId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -630,6 +644,7 @@ exports.Prisma.ModelName = {
   DoctorTimeSlotHistory: 'DoctorTimeSlotHistory',
   Setting: 'Setting',
   DoctorTimeSlot: 'DoctorTimeSlot',
+  DoctorSlot: 'DoctorSlot',
   DoctorCosting: 'DoctorCosting',
   AuditLog: 'AuditLog',
   LoginSession: 'LoginSession',

@@ -34,6 +34,7 @@ import { UpdateDoctorSlotDto } from 'src/manage_hospital/dto/update-doctor-slot.
 import { BulkUpdateDoctorSlotDto } from 'src/manage_hospital/dto/BulkUpdateDoctorSlotDto';
 import { CreateDoctorCostingDto } from 'src/manage_hospital/dto/create-doctor-costing.dto';
 import { AddUpdateTimeSlotDto } from 'src/manage_hospital/dto/AddUpdateTimeSlot.dto';
+import * as fs from 'fs';
 
 @Controller('admin')
 export class AdminController {
@@ -133,26 +134,30 @@ export class AdminController {
 
   @Post('AddUser')
   @UseInterceptors(
-    AnyFilesInterceptor({
-      storage: diskStorage({
-        destination: (req, file, cb) => {
-          const dest = join(__dirname, '..', '..', 'uploads', 'users'); // resolves to /apps/api/uploads/users
-          cb(null, dest);
-        },
-        filename: (req, file, cb) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const userName = req.body.firstName?.replace(/\s+/g, '_') || 'user'; // fallback to 'user' if firstName not provided
+  AnyFilesInterceptor({
+    storage: diskStorage({
+      destination: (req, file, cb) => {
+        const uploadPath = join(process.cwd(), 'uploads', 'users');
 
-          const cleanedFieldName = file.fieldname.replace(/\s+/g, '_');
-          const ext = extname(file.originalname);
+        if (!fs.existsSync(uploadPath)) {
+          fs.mkdirSync(uploadPath, { recursive: true });
+        }
 
-          const newFileName = `${cleanedFieldName}-${userName}-${uniqueSuffix}${ext}`;
-          cb(null, newFileName);
-        },
-      }),
+        cb(null, uploadPath);
+      },
+      filename: (req, file, cb) => {
+        const uniqueSuffix =
+          Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const userName = req.body.firstName?.replace(/\s+/g, '_') || 'user';
+        const cleanedFieldName = file.fieldname.replace(/\s+/g, '_');
+        const ext = extname(file.originalname);
+
+        const newFileName = `${cleanedFieldName}-${userName}-${uniqueSuffix}${ext}`;
+        cb(null, newFileName);
+      },
     }),
-  )
+  }),
+)
   async addUser(
     @Request() req,
     @UploadedFiles() files: Array<Express.Multer.File>,
@@ -200,6 +205,9 @@ export class AdminController {
 
     const profileImage = files?.find((f) => f.fieldname === 'imageUrl');
     const signature = files?.find((f) => f.fieldname === 'SignatureOfUser');
+    if (signature) {
+  console.log('Signature file saved at:', join(process.cwd(), 'uploads', 'users', signature.filename));
+}
     console.log(
       'Received files:',
       files.map((f) => ({ name: f.originalname, field: f.fieldname })),

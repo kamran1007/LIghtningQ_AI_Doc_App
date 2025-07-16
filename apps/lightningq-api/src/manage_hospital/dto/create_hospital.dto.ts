@@ -14,7 +14,7 @@ import {
   Hospital_Org_status,
   HospitalLevel,
   SpecializationType,
-} from 'generated/prisma';
+} from '@prisma/client';
 
 export class CreateHospitalDto {
   @IsString()

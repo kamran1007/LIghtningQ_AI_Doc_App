@@ -23,10 +23,15 @@ interface EventsContextType {
   setRegisterPatientOpen: (value: boolean) => void;
   eventEditOpen: boolean;
   setEventEditOpen: (value: boolean) => void;
+  editingPatient: boolean;
+  setEditingPatient: (value: boolean) => void;
   eventDeleteOpen: boolean;
   setEventDeleteOpen: (value: boolean) => void;
   availabilityCheckerEventAddOpen: boolean;
   setAvailabilityCheckerEventAddOpen: (value: boolean) => void;
+  editingEvent: boolean,
+  setEditingEvent:  (value: boolean) => void;
+  
 }
 
 const EventsContext = createContext<EventsContextType | undefined>(undefined);
@@ -50,9 +55,10 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({
     }))
   );
   const [eventViewOpen, setEventViewOpen] = useState(false);
+  const[editingEvent,setEditingEvent] = useState(false)
   const [eventAddOpen, setEventAddOpen] = useState(false);
   const [isRegisterPatientOpen, setRegisterPatientOpen] = useState(false);
-
+  const [editingPatient, setEditingPatient] = useState(false);
   const [eventEditOpen, setEventEditOpen] = useState(false);
   const [eventDeleteOpen, setEventDeleteOpen] = useState(false);
   const [availabilityCheckerEventAddOpen, setAvailabilityCheckerEventAddOpen] =
@@ -82,10 +88,14 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({
         setRegisterPatientOpen,
         eventEditOpen,
         setEventEditOpen,
+        editingPatient,
+        setEditingPatient,
         eventDeleteOpen,
         setEventDeleteOpen,
         availabilityCheckerEventAddOpen,
         setAvailabilityCheckerEventAddOpen,
+        editingEvent,
+        setEditingEvent
       }}
     >
       {children}

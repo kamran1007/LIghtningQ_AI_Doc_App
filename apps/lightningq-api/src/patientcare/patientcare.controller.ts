@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  InternalServerErrorException,
   Patch,
   Post,
   Query,
@@ -53,35 +54,59 @@ export class PatientcareController {
     @Body() dto: UpsertPatientDto,
     @Req() req: any,
   ) {
-    const CreatedBy = Number(req.user?.UserId || 1);
+    try {
+      console.log('Incoming DTO:', dto);
 
-    // ✅ Use patient name from parsed DTO
-    const safeFirst = dto.firstName?.replace(/[^a-zA-Z0-9]/g, '') || 'unknown';
-    const safeLast = dto.lastName?.replace(/[^a-zA-Z0-9]/g, '') || '';
-    const finalName = `${safeFirst}_${safeLast}_${Date.now()}${extname(file.originalname)}`;
+      const CreatedBy = Number(req.user?.UserId || 1);
 
-    // ✅ Rename the file now
-    const oldPath = join(
-      __dirname,
-      '..',
-      '..',
-      'uploads',
-      'patients',
-      file.filename,
-    );
-    const newPath = join(
-      __dirname,
-      '..',
-      '..',
-      'uploads',
-      'patients',
-      finalName,
-    );
-    fs.renameSync(oldPath, newPath);
+      const safeFirst =
+        dto.firstName?.replace(/[^a-zA-Z0-9]/g, '') || 'unknown';
+      const safeLast = dto.lastName?.replace(/[^a-zA-Z0-9]/g, '') || '';
 
-    const imageUrl = `/uploads/patients/${finalName}`;
+      let imageUrl: string | undefined = dto.profileImageUrl;
 
-    return this.patientcareService.upsertPatient(dto, imageUrl, CreatedBy);
+      // ✅ FIX: If file exists (multipart upload), assign image URL from file
+      if (file) {
+        console.log('📸 File received:', file.originalname, file.size);
+        imageUrl = `/uploads/patients/${file.filename}`;
+      }
+
+      // ✅ Fallback: base64 image conversion if no file but base64 provided
+      else if (dto.profileImageUrl?.startsWith('data:image')) {
+        const base64String = dto.profileImageUrl;
+        const base64Data = base64String.split(',')[1];
+
+        if (!base64Data) {
+          throw new BadRequestException('Invalid base64 image data.');
+        }
+
+        const buffer = Buffer.from(base64Data, 'base64');
+        const finalName = `${safeFirst}_${safeLast}_${Date.now()}.jpg`;
+        const imagePath = join(
+          __dirname,
+          '..',
+          '..',
+          'uploads',
+          'patients',
+          finalName,
+        );
+
+        fs.writeFileSync(imagePath, buffer);
+        imageUrl = `/uploads/patients/${finalName}`;
+      }
+
+      // ✅ Final guard (this now will NOT trigger incorrectly)
+      if (!dto.PatientId && !imageUrl) {
+        throw new BadRequestException(
+          'Patient image is required for new patient.',
+        );
+      }
+
+      return this.patientcareService.upsertPatient(dto, imageUrl, CreatedBy);
+    } catch (err) {
+      console.error('❌ Backend Error:', err);
+      throw new InternalServerErrorException(err);
+    }
   }
 
   //Get All patient
@@ -156,10 +181,42 @@ export class PatientcareController {
   getAllMedicalHistory() {
     return this.patientcareService.getAllMedicalHistory();
   }
+  //specialization
+  @Get('getallSpecialization')
+  getAllSpecialization() {
+    return this.patientcareService.getAllSpecialization();
+  }
+
+  @Get('getAlldoctoRole')
+  getAlldoctorrole() {
+    return this.patientcareService.getAlldoctoRole();
+  }
+  //fetchpaymenttype
+  @Get('getAllPaymentMode')
+  getAllPaymentMode() {
+    return this.patientcareService.getAllPaymentMode();
+  }
+
+  //fetchvisittype
+  @Get('getAllVisitType')
+  getAllVisitType() {
+    return this.patientcareService.getAllVisitType();
+  }
+
+  //tagpatient 
+  @Get('getAllTagType')
+  getAllTagType() {
+    return this.patientcareService.getAllTagType();
+  }
+
+  //
 
   //book Appointment
   @Post('quickbookappointment')
-  async quickbookappointment(@Body() dto: QuickAppointmentDto, @Req() req: any) {
+  async quickbookappointment(
+    @Body() dto: QuickAppointmentDto,
+    @Req() req: any,
+  ) {
     const CreatedBy = Number(req.user?.UserId || 1);
 
     return this.patientcareService.createAppointment(dto, CreatedBy);
@@ -176,7 +233,10 @@ export class PatientcareController {
   //searchappointment
   @Get('searchappointment')
   async searchAppointments(@Query() query: any) {
-    const { hospitalId, DoctorId, status, visitTypeId, acuity, search } = query;
+    const { hospitalId, DoctorId, status, visitTypeId, acuity, search, appointmentDate, // ✅ single date
+  appointmentDateFrom,
+  appointmentDateTo,page = 1,
+      limit = 10, } = query;
 
     if (search && search.length < 3) {
       throw new BadRequestException(
@@ -191,6 +251,11 @@ export class PatientcareController {
       visitTypeId: Number(visitTypeId),
       acuity,
       search,
+      appointmentDate,
+      appointmentDateFrom,
+      appointmentDateTo,
+      page: Number(page),
+      limit: Number(limit)
     });
   }
 }
