@@ -8,6 +8,7 @@ import { Toaster } from "react-hot-toast";
 import { headers } from "next/headers";
 import ClientLayoutWrapper from "@/hooks/ClientLayoutWrapper";
 import { Orbitron } from "next/font/google";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
 
 // ⬇️ Load Orbitron font
 const orbitron = Orbitron({
@@ -38,6 +39,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className={orbitron.className}>
       <body className="h-screen flex flex-col">
+
         <ReactQueryProvider>
           <Toaster position="top-center" reverseOrder={false} />
           <ClientLayoutWrapper>
@@ -47,7 +49,9 @@ export default async function RootLayout({
               <main className="flex-1 overflow-y-auto p-4">{children}</main>
             </div>
           </ClientLayoutWrapper>
+          
         </ReactQueryProvider>
+
       </body>
     </html>
   );

@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { QuickAppointmentDto } from './dto/create-appointment.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BloodGroup, AcuityLevel, $Enums, GenderType } from 'generated/prisma';
@@ -6,6 +11,7 @@ import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { MailerService } from 'src/common/mailer/mailer.service';
 import { createEvent } from 'ics';
 import { STATUS_CODES } from 'http';
+import { subMinutes, addMilliseconds } from 'date-fns';
 
 @Injectable()
 export class AppointmentService {
@@ -169,7 +175,7 @@ export class AppointmentService {
       throw new Error('appointmentDay is required to create a DoctorSlot.');
     }
 
-    const slotDate = new Date(dto.appointmentDate); // ✅ "2025-07-17"
+    const slotDate = new Date(dto.appointmentDate ?? ''); // ✅ "2025-07-17"
 
     const slotDayOfWeek = slotDate
       .toLocaleString('en-US', { weekday: 'long' })
@@ -406,21 +412,32 @@ export class AppointmentService {
   //updateAppointment
   async updateAppointment(dto: UpdateAppointmentDto, UpdatedBy: number) {
     const appointment = await this.prisma.appointment.findUnique({
-      where: { AppointmentId: dto.appointmentId },
+      where: { AppointmentId: dto.AppointmentId },
       include: { patient: true },
     });
 
     if (!appointment) throw new Error('Appointment not found');
+
+    const existingPatient = await this.prisma.patient.findUnique({
+      where: { PatientId: appointment.PatientId },
+    });
+
+    if (!existingPatient) {
+      throw new NotFoundException('Patient not found');
+    }
 
     // Optional: Update patient if quick registered
     if (appointment.patient.isQuickRegistered) {
       await this.prisma.patient.update({
         where: { PatientId: appointment.PatientId },
         data: {
-          firstName: dto.firstName ?? undefined,
-          lastName: dto.lastName ?? undefined,
-          mobile: dto.mobile ?? undefined,
-          dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
+          firstName: dto.firstName ?? existingPatient.firstName,
+          lastName: dto.lastName ?? existingPatient.lastName,
+          mobile: dto.mobile ?? existingPatient.mobile,
+          email: dto.email ?? existingPatient.email,
+          dateOfBirth: dto.dateOfBirth
+            ? new Date(dto.dateOfBirth)
+            : existingPatient.dateOfBirth,
         },
       });
     }
@@ -434,7 +451,7 @@ export class AppointmentService {
     }
 
     const updatedAppointment = await this.prisma.appointment.update({
-      where: { AppointmentId: dto.appointmentId },
+      where: { AppointmentId: dto.AppointmentId },
       data: {
         DoctorId: dto.DoctorId ?? 0,
         appointmentDate:
@@ -442,11 +459,41 @@ export class AppointmentService {
             ? newAppointmentDate
             : undefined,
         status: dto.status ?? 'RESCHEDULED',
-        reason: dto.reason ?? '',
+        RescheduleReason: dto.RescheduleReason ?? '',
+        cancellationReason: dto.cancellationReason ?? '',
         rescheduledAt: new Date(),
         rescheduledDate: newAppointmentDate,
         rescheduledBy: UpdatedBy,
+        sendWhatsappMessage: dto.sendWhatsappMessage,
+        sendSmsMessage: dto.sendSmsMessage,
+        sendEmailMessage: dto.sendEmailMessage,
       },
+    });
+
+    const slotDate = new Date(dto.appointmentDate ?? ''); // ✅ "2025-07-17"
+
+    const slotDayOfWeek = slotDate
+      .toLocaleString('en-US', { weekday: 'long' })
+      .toUpperCase(); // "THURSDAY"
+
+    await this.prisma.doctorSlot.updateMany({
+      where: {
+        appointmentId: dto.AppointmentId,
+      },
+      data:
+        dto.status === 'CANCELLED'
+          ? {
+              isBooked: false,
+              slotDate: null,
+              slotTime: null,
+              dayOfWeek: null,
+            }
+          : {
+              isBooked: true,
+              slotDate,
+              slotTime: dto.appointmentTime!,
+              dayOfWeek: slotDayOfWeek,
+            },
     });
 
     const appointmentWithDetails = await this.prisma.appointment.findUnique({
@@ -484,6 +531,7 @@ export class AppointmentService {
     return {
       message: 'Appointment updated successfully',
       updatedAppointment,
+      STATUS_CODES: 200,
     };
   }
 
@@ -537,17 +585,56 @@ export class AppointmentService {
     }
 
     // ✅ Date filtering logic
+    // ✅ Date filtering logic
     if (filters.appointmentDate) {
-      whereClause.appointmentDate = new Date(filters.appointmentDate);
+      const istDateString = filters.appointmentDate;
+
+      const startIST = new Date(`${istDateString}T00:00:00+05:30`);
+      const endIST = new Date(`${istDateString}T23:59:59+05:30`);
+
+      const startUTC = new Date(startIST.toISOString());
+      const endUTC = new Date(endIST.toISOString());
+
+      whereClause.appointmentDate = {
+        gte: startUTC,
+        lte: endUTC,
+      };
+
+      console.log('📆 IST date:', filters.appointmentDate);
+      console.log('🕒 UTC range (finalized):', {
+        from: startUTC.toISOString(),
+        to: endUTC.toISOString(),
+      });
     } else if (filters.appointmentDateFrom || filters.appointmentDateTo) {
       whereClause.appointmentDate = {};
+
       if (filters.appointmentDateFrom) {
-        whereClause.appointmentDate.gte = new Date(filters.appointmentDateFrom);
+        const from = new Date(filters.appointmentDateFrom);
+        from.setUTCHours(0, 0, 0, 0);
+        whereClause.appointmentDate.gte = from;
       }
+
       if (filters.appointmentDateTo) {
-        whereClause.appointmentDate.lte = new Date(filters.appointmentDateTo);
+        const to = new Date(filters.appointmentDateTo);
+        to.setUTCHours(23, 59, 59, 999);
+        whereClause.appointmentDate.lte = to;
       }
     }
+
+    console.log('📅 Filtering appointments between:');
+    // console.log("   Start:", startDate.toISOString());
+    // console.log("   End  :", endDate.toISOString());
+
+    // Also log a few DB appointmentDates for reference
+    const allAppts = await this.prisma.appointment.findMany({
+      select: { appointmentDate: true },
+      orderBy: { appointmentDate: 'desc' },
+      take: 10,
+    });
+    console.log(
+      '🗂 Recent DB Dates:',
+      allAppts.map((a) => a.appointmentDate.toISOString()),
+    );
 
     const page = filters.page || 1;
     const limit = filters.limit || 10;
@@ -561,9 +648,17 @@ export class AppointmentService {
         orderBy: { appointmentDate: 'asc' },
         include: {
           patient: true,
-          doctor: { include: { Specialization: true } },
+          doctor: {
+            include: {
+              Specialization: true,
+              DoctorSlot: true,
+              DoctorTimeSlot: true,
+              DoctorCosting: true,
+            },
+          },
           visitType: true,
           hospital: true,
+          TagPatient: true,
         },
       }),
       this.prisma.appointment.count({ where: whereClause }),

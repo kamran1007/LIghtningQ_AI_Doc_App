@@ -255,19 +255,6 @@ body {
   animation: gradientShift 30s ease-in-out;
 }
 
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
-
-  100% {
-    background-position: 0% 50%;
-  }
-}
 
 .submit-button:hover {
   opacity: 0.9;

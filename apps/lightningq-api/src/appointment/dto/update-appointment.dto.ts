@@ -4,13 +4,14 @@ import {
   IsDateString,
   IsString,
   IsEnum,
+  IsBoolean,
 } from 'class-validator';
 
-import { AppointmentStatus } from '@prisma/client';;
+import { AppointmentStatus } from '@prisma/client';
 
 export class UpdateAppointmentDto {
   @IsInt()
-  appointmentId?: number;
+  AppointmentId?: number;
 
   // Appointment updates
   @IsOptional()
@@ -21,8 +22,11 @@ export class UpdateAppointmentDto {
   @IsInt()
   DoctorTimeSlotId?: number;
 
-  @IsOptional()
-  @IsDateString()
+  // @IsOptional()
+  // @IsDateString()
+  // appointmentDate?: string;
+
+  @IsString()
   appointmentDate?: string;
 
   @IsOptional()
@@ -37,6 +41,13 @@ export class UpdateAppointmentDto {
   @IsString()
   reason?: string;
 
+  @IsOptional()
+  @IsString()
+  RescheduleReason?: string;
+
+  @IsOptional()
+  @IsString()
+  cancellationReason?: string;
   // Optional patient info (allowed for quick registered)
   @IsOptional()
   @IsString()
@@ -54,8 +65,24 @@ export class UpdateAppointmentDto {
   @IsString()
   email?: string;
 
-
   @IsOptional()
   @IsDateString()
   dateOfBirth?: string;
+
+  @IsOptional()
+  @IsInt()
+  updatedBy?: number;
+
+  @IsOptional()
+  @IsInt()
+  updatedAt?: number;
+
+  @IsBoolean()
+  sendWhatsappMessage?: boolean;
+
+  @IsBoolean()
+  sendSmsMessage?: boolean;
+
+  @IsBoolean()
+  sendEmailMessage?: boolean;
 }

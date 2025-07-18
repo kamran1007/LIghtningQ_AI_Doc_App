@@ -315,9 +315,9 @@ model DoctorSlot {
   DoctorTimeSlotId   Int
   DoctorTimeSlot     DoctorTimeSlot @relation(fields: [DoctorTimeSlotId], references: [DoctorTimeSlotId])
 
-  slotDate     DateTime
-  slotTime     String   // 'HH:mm'
-  dayOfWeek    String   // 'MON', etc.
+  slotDate     DateTime?
+  slotTime     String?   // 'HH:mm'
+  dayOfWeek    String?   // 'MON', etc.
 
   isBooked      Boolean @default(false)
   appointmentId Int?
@@ -533,13 +533,15 @@ model Appointment {
   appointmentDate DateTime
   reason          String?
   status          AppointmentStatus @default(SCHEDULED)
+  RescheduleReason     String?
+  cancellationReason    String?
   age             Int?
 
   createdAt        DateTime  @default(now())
   createdBy        Int?
   rescheduledAt    DateTime?
   rescheduledDate  DateTime? // ✅ New field
-  rescheduleReason String?
+  // rescheduleReason String?
   rescheduledBy    Int?
   TagPatientId Int?
   TagPatient TagPatient[]
@@ -555,11 +557,11 @@ model Appointment {
 
   hospital         Hospital        @relation(fields: [hospitalId], references: [HospitalId])
   visitType        AppointmentType @relation(fields: [visitTypeId], references: [AppointmentTypeId])
-  paymentHistoryId Int // ✅ Add this missing field
+  paymentHistoryId Int? // ✅ Add this missing field
   paymentTypeId    Int
 
   PaymentType    PaymentType    @relation(fields: [paymentTypeId], references: [PaymentTypeId])
-  paymentHistory PaymentHistory @relation(fields: [paymentHistoryId], references: [PaymentHistoryId])
+  paymentHistory PaymentHistory? @relation(fields: [paymentHistoryId], references: [PaymentHistoryId])
 
   sendWhatsappMessage Boolean @default(false)
   sendSmsMessage      Boolean @default(false)

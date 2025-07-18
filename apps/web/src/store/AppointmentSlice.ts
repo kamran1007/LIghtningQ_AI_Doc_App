@@ -3,13 +3,14 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 
 export const fetchAllAppointmentPatient = createAsyncThunk(
-    'Users/fetchAll',
-    async ({ page, limit }: { page: number; limit: number }) => {
-      const response = await GetFilterSearchappointment(page, limit); // pass pagination args
-      console.log(response)
-      return response.data; // this contains: { total, page, limit, data }
-    }
-  );
+  'Users/fetchAll',
+  async (filters: Record<string, string | number | undefined>) => {
+    const response = await GetFilterSearchappointment(filters);
+    console.log("Appointment List",response)
+    return response.data;
+
+  }
+);
   
   const AppointmentSlice = createSlice({
     name: 'appointments',

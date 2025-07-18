@@ -18,6 +18,7 @@ import {
   SelectContent,
   SelectValue,
 } from "@/components/ui/select";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { Toast } from "primereact/toast";
 
@@ -75,6 +76,7 @@ import {
   getAllAppointmentType,
   getAllPaymentMode,
   getAllTagPatientType,
+  UpdateAppointment,
 } from "@/lib/bookappointment";
 import { BACKEND_URL } from "@/lib/constants";
 import dayjs from "dayjs";
@@ -90,7 +92,7 @@ const messages = [
   "Search patient by MR No.",
 ];
 const inputbox =
-  "w-full rounded-lg border border-gray-300 bg-white px-2 py-2 text-sm text-gray-800  placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200";
+  "pl-4 pr-2 py-2 text-sm h-10 border border-gray-300 rounded-4xl  border-[#9de69d] focus:outline-none focus:ring-2 focus:ring-[#9de69d] transition-all duration-300 ease-in-out hover:shadow-md focus:shadow-2xl";
 interface EventAddFormProps {
   start: Date;
   end: Date;
@@ -119,7 +121,7 @@ const getColorByInitials = (initials: string) => {
 
 const InfoColumn = ({ title, value }: { title: string; value: string }) => (
   <div className="flex items-center gap-4">
-    <div className="h-12 w-px bg-gray-400" />
+    <div className="h-12 w-px bg-[#f1b439]" />
     <div className="flex flex-col items-center">
       <h1 className="text-sm text-gray-500 font-medium">{title}</h1>
       <p className="text-sm font-semibold text-black mt-1">{value}</p>
@@ -130,7 +132,8 @@ const InfoColumn = ({ title, value }: { title: string; value: string }) => (
 type EventAddForm = z.infer<typeof quickAppointmentSchema>;
 
 export function EventAddForm({ start, end }: EventAddFormProps) {
-  const { editingEvent, setEventAddOpen, eventAddOpen } = useEvents();
+  const { editingEvent, setEditingEvent, setEventAddOpen, eventAddOpen } =
+    useEvents();
 
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [booked, setBooked] = useState(false);
@@ -139,6 +142,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
   const [displayText, setDisplayText] = useState("");
   const [msgIndex, setMsgIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
+  const [userprofiledata, setUserprofiledata] = useState<any>(null);
   const [userdata, setUserdata] = useState<any>(null);
   const [selectedSpecializationId, setSelectedSpecializationId] = useState<
     string | null
@@ -262,7 +266,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
       try {
         const session = await getSession();
         const resp = await getProfile();
-        setUserdata(resp);
+        setUserprofiledata(resp);
 
         const [
           SpecializationData,
@@ -595,6 +599,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
 
       return;
     }
+    const isUpdate = !!editingEvent.AppointmentId; // ✅ Determine if update
 
     const payload = {
       ...form,
@@ -614,11 +619,32 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
       sendEmailMessage: Boolean(form.sendEmailMessage),
       AppointmentCharges: String(discountedFee), // fixed
       VisitReason: form.reason || "", // fixed
+      // status: editingEvent.mode || 'SCHEDULED',
+    };
+    const updatePayload = {
+      AppointmentId: editingEvent.AppointmentId,
+      DoctorTimeSlotId: selectedTime.slotId,
+      appointmentTime: selectedTime.time,
+      appointmentDate: selectedSlotDate,
+      DoctorId: Number(selectedDoctorId),
+      RescheduleReason: form.reason || "",
+      firstName: form.firstName,
+      lastName: form.lastName,
+      email: form.email,
+      mobile: form.mobile,
+      status: editingEvent.mode,
+      updatedBy: Number(userprofiledata?.user?.UserId) || 0,
+      updatedAt: Date.now(), // ✅ fixed
+      sendWhatsappMessage: Boolean(form.sendWhatsappMessage),
+      sendSmsMessage: Boolean(form.sendSmsMessage),
+      sendEmailMessage: Boolean(form.sendEmailMessage),
     };
 
     try {
       setIsLoading(true);
-      const res = await BookAppointment(payload);
+      const res = isUpdate
+        ? await UpdateAppointment(updatePayload) // call update
+        : await BookAppointment(payload); // call add
       if (res?.return?.STATUS_CODES === 200) {
         setTimeout(() => {
           setBooked(true);
@@ -834,10 +860,19 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
       color: "bg-green-100 text-green-700 border-green-300",
     },
   ];
+  const ACUITY_BORDER_COLORS: Record<string, string> = {
+    HIGH: "border-red-100",
+    MODERATE: "border-yellow-100",
+    LOW: "border-green-100",
+  };
+
+  const selectedAcuity = watch("acuity");
+  const inputBorderColor =
+    ACUITY_BORDER_COLORS[selectedAcuity] || "border-gray-300";
 
   useEffect(() => {
     if (!eventAddOpen) {
-      // Always reset form when closing
+      // Reset form fields
       reset({
         Title: "",
         firstName: "",
@@ -850,16 +885,26 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
         gender: "",
       });
 
-      // Clear editing patient so next open is fresh
-      // if (editingPatient) {
-      //   setEditingPatient(null);
-      // }
+      // Reset editingEvent and any local state
+      setTotalToPay(null);
+      setSelectedPatient(null);
+      setEditingEvent(null);
+      setSelectedDoctorData(null);
+      setSelectedDate(null);
+      setSelectedTime(null);
     }
   }, [eventAddOpen]);
 
   useEffect(() => {
     if (editingEvent) {
-      // ✅ Prefill form fields
+      const appointmentDate = new Date(editingEvent.appointmentDate);
+      const slotDate = appointmentDate.toISOString().split("T")[0];
+      const timeString = appointmentDate.toTimeString().slice(0, 5);
+      const weekday = appointmentDate
+        .toLocaleDateString("en-US", { weekday: "long" })
+        .toUpperCase();
+
+      // 1. Pre-fill form fields
       reset({
         Prefix: editingEvent?.patient?.Prefix || "",
         firstName: editingEvent?.patient?.firstName || "",
@@ -869,51 +914,63 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
         mobile: editingEvent?.patient?.mobile || "",
         email: editingEvent?.patient?.email || "",
         reason: editingEvent?.reason || "",
-        TagPatientId: editingEvent?.TagPatientId || "",
         acuity: editingEvent?.acuity || "",
-        visitTypeId: editingEvent?.visitTypeId || "",
-        paymentTypeId: editingEvent?.paymentTypeId || "",
-        appointmentDate: editingEvent?.appointmentDate?.split("T")[0] || "",
-        appointmentTime: editingEvent?.appointmentDate
-          ? new Date(editingEvent.appointmentDate).toLocaleTimeString("en-IN", {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            })
-          : "",
+        appointmentDate: slotDate,
+        appointmentTime: timeString,
+        TagPatientId: editingEvent?.TagPatientId?.toString() || "",
+        visitTypeId: editingEvent?.visitTypeId?.toString() || "",
+        paymentTypeId: editingEvent?.paymentTypeId?.toString() || "",
       });
+      const matchedSlot = editingEvent.doctor?.DoctorSlot?.find(
+        (slot) => slot.appointmentId === editingEvent.AppointmentId
+      );
 
-      // ✅ Prefill states
+      const slotId = matchedSlot?.DoctorSlotId ?? null;
+      // 2. Set state for UI
       setUserdata(editingEvent.patient);
       setSelectedSpecializationId(
         editingEvent.doctor?.SpecializationId?.toString() ?? null
       );
       setSelectedDoctorId(editingEvent.DoctorId?.toString() ?? null);
       setSelectedDoctorData(editingEvent.doctor);
-      setSelectedSlotDate(
-        editingEvent.appointmentDate
-          ? editingEvent.appointmentDate.split("T")[0]
-          : null
-      );
+      setSelectedSlotDate(slotDate);
+      setSelectedSlotDay(weekday);
+      setSelectedPatient(editingEvent?.patient);
 
-      const timeString = new Date(editingEvent.appointmentDate)
-        .toTimeString()
-        .slice(0, 5);
-
-      const doctorSlotId = editingEvent?.slotId ?? null;
-
+      // 3. Also set selected time slot
       setSelectedTime({
         time: timeString,
-        slotId: doctorSlotId,
+        slotId: slotId ?? null,
       });
-
-      // Optional: If you manage selectedSlotDay via weekday
-      const dayOfWeek = new Date(
-        editingEvent.appointmentDate
-      ).toLocaleDateString("en-US", { weekday: "long" });
-      setSelectedSlotDay(dayOfWeek.toUpperCase()); // e.g., MONDAY
     }
-  }, [editingEvent]);
+  }, [editingEvent, selectedDoctorData]);
+
+  useEffect(() => {
+    if (!editingEvent || !selectedDoctorData?.DoctorSlot) return;
+
+    const appointmentDate = new Date(editingEvent.appointmentDate);
+    const slotDate = appointmentDate.toISOString().split("T")[0];
+    const timeString = appointmentDate.toTimeString().slice(0, 5);
+    const weekday = appointmentDate
+      .toLocaleDateString("en-US", { weekday: "long" })
+      .toUpperCase();
+
+    const matchedSlot = editingEvent.doctor?.DoctorSlot?.find(
+      (slot) => slot.appointmentId === editingEvent.AppointmentId
+    );
+
+    const slotId = matchedSlot?.DoctorTimeSlotId ?? null;
+
+    setSelectedSlotDate(slotDate);
+    setSelectedSlotDay(weekday);
+    setSelectedDate(appointmentDate); // helpful for day button highlighting
+    setSelectedTime({
+      time: timeString,
+      slotId: slotId ?? null,
+    });
+
+    // Also update form again (if needed)
+  }, [editingEvent, selectedDoctorData]);
 
   return (
     <>
@@ -930,7 +987,9 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
               Book Appointment
             </Button>
           </AlertDialogTrigger>
+          
         )}
+        
         <div className="relative">
           {booked && (
             <div
@@ -951,11 +1010,12 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
               </div>
             </div>
           )}
-          <AlertDialogContent className="max-w-350 h-[95vh] overflow-y-auto p-0 rounded-2xl shadow-2xl bg-white no-scrollbar">
+          <AlertDialogContent className="max-w-310 h-[95vh] overflow-y-auto p-0 rounded-2xl shadow-2xl bg-white no-scrollbar">
+            
             {/* Header with search and close */}
             {/* Header with dark background */}
             <div className="font-sans  bg-[#ffffff] text-white px-4 h-8 flex justify-between items-center sticky top-0 z-10">
-              <h2 className="text-2xl font-semibold text-gray-700 -mb-0.5">
+              <h2 className="text-xl font-semibold text-gray-700 -mb-0.5 font-sans">
                 Make Appointment
               </h2>
               <AlertDialogCancel
@@ -969,16 +1029,16 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
             {/* Pull input box upward using negative margin */}
             {/* <div className="bg-[#f7f5fe] h-16 px-4 py-0 rounded-tr-xs shadow-xl"> */}
 
-            <div className="bg-gradient-to-r from-[#F1F3F5] to-[#EDEDED] h-16 px-4 flex items-center rounded-tr-xl shadow-md -mb-2 border-b border-gray-300">
+            <div className="bg-gradient-to-br from-[#FFFDF9] to-[#FDFAF6] border-2 border-[#fcdcdc] h-16 px-4 flex items-center rounded-tr-xl shadow-md ">
               <div className="flex items-center">
                 {/* Input Box */}
 
-                <div className="mr-6 mt-1 w-80 rounded-2xl transition-all group border-2 border-gray-300 focus-within:border-pink-400 focus-within:ring-2 focus-within:ring-pink-300">
+                <div className="mr-6 mt-1 w-80 rounded-2xl group border-2 border-[#f1b439] focus:outline-none focus:ring-2 focus:ring-[#f1b439] transition-all duration-300">
                   <Input
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder={displayText}
-                    className="w-full p-2 bg-white text-black placeholder-black placeholder-opacity-70 font-medium text-center rounded-2xl focus:outline-none border-none"
+                    className="w-full p-2 bg-white text-black placeholder-[#FFFDF9] placeholder-opacity-70 font-medium text-center rounded-2xl focus:outline-none border-none"
                   />
                 </div>
 
@@ -986,7 +1046,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                 <div className="flex items-center h-full gap-6 mt-1 font-sans">
                   {/* Patient Name */}
                   <div className="flex items-center gap-4">
-                    <div className="h-12 w-px bg-gray-400" />
+                    <div className="h-12 w-px bg-[#f1b439]" />
                     <div className="flex flex-col items-center">
                       <h1 className="text-sm text-gray-500 font-medium">
                         Patient Name
@@ -1001,7 +1061,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
 
                   {/* Mobile No */}
                   <div className="flex items-center gap-4">
-                    <div className="h-12 w-px bg-gray-400" />
+                    <div className="h-12 w-px bg-[#f1b439]" />
                     <div className="flex flex-col items-center">
                       <h1 className="text-sm text-gray-500 font-medium">
                         Mobile No
@@ -1014,7 +1074,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                   {/* Medical Record */}
 
                   <div className="flex items-center gap-4">
-                    <div className="h-12 w-px bg-gray-400" />
+                    <div className="h-12 w-px bg-[#f1b439]" />
                     <div className="flex flex-col items-center">
                       <h1 className="text-sm text-gray-500 font-medium">
                         MRN.
@@ -1027,7 +1087,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
 
                   {/* Age */}
                   <div className="flex items-center gap-4">
-                    <div className="h-12 w-px bg-gray-400" />
+                    <div className="h-12 w-px bg-[#f1b439]" />
                     <div className="flex flex-col items-center">
                       <h1 className="text-sm text-gray-500 font-medium">Age</h1>
                       <p className="text-sm font-semibold text-black mt-1">
@@ -1044,7 +1104,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                   </div>
 
                   <div className="flex items-center gap-4">
-                    <div className="h-12 w-px bg-gray-400" />
+                    <div className="h-12 w-px bg-[#f1b439]" />
                     <div className="flex flex-col items-center">
                       {/* <h1 className="text-sm text-gray-500 font-medium">Last Visit</h1>
                   <p className="text-sm font-semibold text-black mt-1">31-March-2025</p> */}
@@ -1063,7 +1123,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
               {isLoadingQuickBook ? (
                 <AppointmentBookingSkeleton />
               ) : (
-                <div className="space-y-1 bg-gradient-to-br from-[#FFFDF9] to-[#FDFAF6] border border-[#fcdcdc] shadow-md rounded-2xl p-2 transition-all duration-200">
+                <div className="space-y-1 bg-gradient-to-br from-[#FFFDF9] to-[#FDFAF6] border-2 border-[#fcdcdc] shadow-md rounded-2xl p-2 transition-all duration-200">
                   <div className="px-2 py-1 ">
                     <h3 className="text-sm font-medium text-gray-600 mb-2">
                       Choose Specialist
@@ -1331,7 +1391,10 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                                   new Date(s.slotDate)
                                 );
 
-                                const slotTimeStr = s.slotTime.padStart(5, "0"); // ensure "09:37" not "9:37"
+                                const slotTimeStr =
+                                  typeof s.slotTime === "string"
+                                    ? s.slotTime.padStart(5, "0")
+                                    : "";
 
                                 const key = `${slotDateStr}|${slotTimeStr}`;
 
@@ -1447,10 +1510,11 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                 </div>
               )}
 
-              <div className="space-y-2 bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-2xl shadow-md p-2 w-full max-w-md mx-auto text-gray-700">
+              <div className="space-y-2 bg-white border-2 border-green-200 rounded-2xl shadow-md p-2 w-full max-w-md mx-auto text-gray-700">
                 {/* Row 1: Title + First Name */}
-                <div className="flex gap-2 ">
-                  <div className="w-40">
+                <div className="flex gap-2">
+                  {/* Title */}
+                  <div className="w-1/2">
                     <Label className="text-sm font-medium text-gray-700 mb-1.5 block">
                       Title
                     </Label>
@@ -1462,7 +1526,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                           onValueChange={field.onChange}
                           value={field.value}
                         >
-                          <SelectTrigger className={`${inputbox} h-9`}>
+                          <SelectTrigger className={inputbox}>
                             <SelectValue placeholder="Select" />
                           </SelectTrigger>
                           <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none">
@@ -1483,14 +1547,15 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                     )}
                   </div>
 
-                  <div className="flex-1">
+                  {/* First Name */}
+                  <div className="w-1/2">
                     <Label className="text-sm font-medium text-gray-700 mb-1.5 block">
                       First Name <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       {...register("firstName")}
                       placeholder="John"
-                      className={`${inputbox} focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm`}
+                      className={inputbox}
                     />
                     {errors.firstName && (
                       <p className="text-sm text-red-500">
@@ -1501,10 +1566,11 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                 </div>
 
                 {/* Row 2: Last Name + DOB */}
-                <div className="flex gap-2">
-                  <div className="w-50">
+                <div className="flex gap-4">
+                  {/* Last Name - 50% */}
+                  <div className="w-1/2">
                     <Label className="text-sm font-medium text-gray-700 mb-1.5 block">
-                      Last Name
+                      Last Name <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       {...register("lastName")}
@@ -1517,9 +1583,11 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                       </p>
                     )}
                   </div>
-                  <div className="flex-1">
+
+                  {/* Date of Birth - 50% */}
+                  <div className="w-1/2">
                     <Label className="text-sm font-medium text-gray-700 mb-1.5 block">
-                      Date of Birth
+                      Date of Birth <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       {...register("dateOfBirth")}
@@ -1535,10 +1603,10 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                 </div>
 
                 {/* Row 3: Gender + Mobile */}
-                <div className="flex gap-2">
-                  <div className="w-40">
+                <div className="flex gap-4">
+                  <div className="w-1/2">
                     <Label className="text-sm font-medium text-gray-700 mb-1.5 block">
-                      Gender
+                      Gender <span className="text-red-500">*</span>
                     </Label>
                     <Controller
                       control={control}
@@ -1548,7 +1616,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                           onValueChange={field.onChange}
                           value={field.value}
                         >
-                          <SelectTrigger className={`${inputbox} h-9`}>
+                          <SelectTrigger className={inputbox}>
                             <SelectValue placeholder="Select" />
                           </SelectTrigger>
                           <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
@@ -1565,9 +1633,9 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                       </p>
                     )}
                   </div>
-                  <div className="flex-1">
+                  <div className="w-1/2">
                     <Label className="text-sm font-medium text-gray-700 mb-1.5 block">
-                      Mobile Number
+                      Mobile Number <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       {...register("mobile")}
@@ -1586,7 +1654,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                 {/* Row 4: Address */}
                 <div>
                   <Label className="text-sm font-medium text-gray-700 mb-1.5 block">
-                    Email Address
+                    Email Address <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     {...register("email")}
@@ -1602,7 +1670,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
 
                 <div>
                   <Label className="text-sm font-medium text-gray-700 mb-1.5 block">
-                    visit Reason
+                    visit Reason <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     {...register("reason")}
@@ -1619,7 +1687,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                 <div className="flex gap-2">
                   <div className="flex-1">
                     <Label className="text-sm font-medium text-gray-700 mb-1.5 block">
-                      Tag Patient
+                      Tag Patient <span className="text-red-500">*</span>
                     </Label>
                     <Controller
                       name="TagPatientId"
@@ -1629,13 +1697,16 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                           onValueChange={field.onChange}
                           value={field.value}
                         >
-                          <SelectTrigger className={`${inputbox} h-9`}>
+                          <SelectTrigger className={inputbox}>
                             <SelectValue placeholder="Select" />
                           </SelectTrigger>
                           <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
                             {" "}
                             {tagpatientType.map((item) => (
-                              <SelectItem key={item.id} value={item.id}>
+                              <SelectItem
+                                key={item.id}
+                                value={item.id.toString()}
+                              >
                                 {item.name}
                               </SelectItem>
                             ))}
@@ -1652,25 +1723,35 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                   </div>
                   <div className="flex-1">
                     <Label className="text-sm font-medium text-gray-700 mb-1 block">
-                      Acuity
+                      Acuity <span className="text-red-500">*</span>
                     </Label>
 
                     <Controller
                       name="acuity"
                       control={control}
                       render={({ field }) => (
-                        <div className="flex gap-1">
+                        <div className="flex gap-2">
                           {ACUITY_OPTIONS.map((option) => {
-                            const isacuitySelected = field.value === option.id;
+                            const isSelected = field.value === option.id;
+
+                            // Extract border color for unselected state
+                            const unselectedBorder = option.color
+                              .split(" ")
+                              .find((cls) => cls.startsWith("border-"));
+
                             return (
                               <button
                                 key={option.id}
                                 type="button"
                                 onClick={() => field.onChange(option.id)}
                                 className={`
-                px-4 py-2 rounded-full border text-sm transition border-gray-300 cursor-pointer shadow-xl
-                ${isacuitySelected ? option.color : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"}
-              `}
+              px-4 py-2 rounded-full text-sm transition shadow-md
+              ${
+                isSelected
+                  ? `${option.color} border`
+                  : `bg-white text-gray-700 ${unselectedBorder} border hover:bg-gray-100`
+              }
+            `}
                               >
                                 {option.name}
                               </button>
@@ -1692,7 +1773,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                 <div className="flex gap-2">
                   <div className="flex-1">
                     <Label className="text-sm font-medium text-gray-700 mb-1.5 block">
-                      Visit Type
+                      Visit Type <span className="text-red-500">*</span>
                     </Label>
                     <Controller
                       name="visitTypeId"
@@ -1702,13 +1783,16 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                           onValueChange={field.onChange}
                           value={field.value}
                         >
-                          <SelectTrigger className={`${inputbox} h-9`}>
+                          <SelectTrigger className={inputbox}>
                             <SelectValue placeholder="Select" />
                           </SelectTrigger>
                           <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
                             {" "}
                             {appointmentType.map((item) => (
-                              <SelectItem key={item.id} value={item.id}>
+                              <SelectItem
+                                key={item.id}
+                                value={item.id.toString()}
+                              >
                                 {item.name}
                               </SelectItem>
                             ))}
@@ -1725,7 +1809,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                   </div>
                   <div className="flex-1">
                     <Label className="text-sm font-medium text-gray-700 mb-1.5 block">
-                      Payment Mode
+                      Payment Mode <span className="text-red-500">*</span>
                     </Label>
                     <Controller
                       name="paymentTypeId"
@@ -1735,12 +1819,15 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                           onValueChange={field.onChange}
                           value={field.value}
                         >
-                          <SelectTrigger className={`${inputbox} h-9`}>
+                          <SelectTrigger className={inputbox}>
                             <SelectValue placeholder="Select" />
                           </SelectTrigger>
                           <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
                             {paymentType.map((item) => (
-                              <SelectItem key={item.id} value={item.id}>
+                              <SelectItem
+                                key={item.id}
+                                value={item.id.toString()}
+                              >
                                 {item.name}
                               </SelectItem>
                             ))}
@@ -1762,8 +1849,8 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
               </pre> */}
               </div>
 
-              <div className="space-y-4 bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-2xl shadow-md p-4 w-full max-w-md mx-auto text-gray-700">
-                <h3 className="text-xl font-semibold text-center text-blue-500 font-sans">
+              <div className="space-y-4 bg-white border-2  border-blue-200 rounded-2xl shadow-md p-4 w-full max-w-md mx-auto text-gray-700">
+                <h3 className="text-xl font-semibold text-center text-blue-400 font-sans">
                   Appointment Summary
                 </h3>
 
@@ -1771,9 +1858,12 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                 <div className="flex items-center justify-between border-b border-blue-300 pb-2 font-sans">
                   <div>
                     <p className="text-sm font-medium">Doctor</p>
-                    <p className="text-base font-semibold text-blue-900">
-                      {selectedDoctorData?.DoctorName || "—"}
+                    <p className="text-base font-semibold text-blue-600">
+                      {selectedDoctorData?.firstName
+                        ? `${selectedDoctorData.firstName} ${selectedDoctorData.lastName ?? ""}`
+                        : "—"}
                     </p>
+
                     <p className="text-sm text-gray-600">
                       {selectedDoctorData?.Specialization?.SpecializationName ||
                         "—"}
@@ -1795,15 +1885,29 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                   <div>
                     <p className="text-sm font-medium">Appointment Fee</p>
                     <p className="text-base font-semibold text-gray-900">
-                      ₹{walkInFee}
+                      {/* ₹{walkInFee} */}₹
+                      {editingEvent?.AppointmentId
+                        ? editingEvent?.doctor?.DoctorCosting[0]?.walkInFee
+                        : walkInFee}
                     </p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-medium">
-                      Discount ({discountPercent}%)
+                      Discount (
+                      {(editingEvent?.AppointmentId
+                        ? editingEvent?.doctor?.DoctorCosting[0]?.discount
+                        : discountPercent) ?? 0}
+                      %)
                     </p>
                     <p className="text-base font-semibold text-green-700">
-                      -₹{(walkInFee - discountedFee).toFixed(0)}
+                      -₹
+                      {(
+                        (walkInFee *
+                          ((editingEvent?.AppointmentId
+                            ? editingEvent?.doctor?.DoctorCosting[0]?.discount
+                            : discountPercent) ?? 0)) /
+                        100
+                      ).toFixed(0)}
                     </p>
                   </div>
                 </div>
@@ -1813,7 +1917,18 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                     Total to Pay
                   </p>
                   <p className="text-lg font-bold text-blue-900">
-                    ₹{totalToPay}{" "}
+                    ₹
+                    {editingEvent?.AppointmentId
+                      ? Math.round(
+                          (editingEvent?.doctor?.DoctorCosting[0]?.walkInFee ||
+                            0) -
+                            ((editingEvent?.doctor?.DoctorCosting[0]
+                              ?.walkInFee || 0) *
+                              (editingEvent?.doctor?.DoctorCosting[0]
+                                ?.discount || 0)) /
+                              100
+                        )
+                      : totalToPay}
                   </p>
                 </div>
                 {/* Notifications */}
