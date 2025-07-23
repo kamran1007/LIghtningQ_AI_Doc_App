@@ -475,3 +475,12 @@ input[type="checkbox"].gradient-checkbox:checked {
     linear-gradient(90deg, #10b981, #6366f1, #ec4899);
   /* border gradient */
 }
+
+.p-speeddial-button {
+  background-color: #22E0D4 !important;
+  border: none !important;
+}
+
+.p-speeddial-button .p-button-icon {
+  color: white !important;
+}

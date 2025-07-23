@@ -86,7 +86,7 @@ export default function AppointmentActionsDialog({
                   }}
                   className="fixed z-50 top-1/2 left-1/2 w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-xl"
                 >
-                  <h2 className="text-lg font-semibold text-center mb-4 text-blue-600">
+                  <h2 className="text-lg font-medium text-center mb-4 text-[#22E0D4] font-mono">
                     Appointment Actions Pannel
                   </h2>
                   <div className="flex flex-col gap-3">

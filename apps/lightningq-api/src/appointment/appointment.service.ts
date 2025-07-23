@@ -11,7 +11,7 @@ import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { MailerService } from 'src/common/mailer/mailer.service';
 import { createEvent } from 'ics';
 import { STATUS_CODES } from 'http';
-import { subMinutes, addMilliseconds } from 'date-fns';
+// import { subMinutes, addMilliseconds } from 'date-fns';
 
 @Injectable()
 export class AppointmentService {

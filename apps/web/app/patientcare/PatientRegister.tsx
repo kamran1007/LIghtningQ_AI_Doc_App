@@ -638,7 +638,7 @@ export function RegisterPatient() {
           {/* Header with search and close */}
           {/* Header with dark background */}
           <div className="font-nunito bg-[#ffffff] text-white px-4 h-10 flex justify-between items-center sticky top-0 z-10 shadow-sm">
-            <h2 className="text-2xl font-semibold text-gray-700 -mb-1">
+              <h2 className="text-xl font-semibold text-gray-700 -mb-0.5 font-sans">
               Register Patient
             </h2>
             <AlertDialogCancel
@@ -654,7 +654,7 @@ export function RegisterPatient() {
             className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-2 px-6 py-2"
           >
             <div className="space-y-2  p-0 w-210">
-              <div className="space-y-1 bg-gradient-to-br from-[#FFFDF9] to-[#FDFAF6] border border-[#fcdcdc] shadow-md rounded-2xl p-2 transition-all duration-200">
+              <div className="space-y-1 bg-gradient-to-br from-[#FFFDF9] to-[#FDFAF6] border-2 border-[#fcdcdc] shadow-md rounded-2xl p-2 transition-all duration-200">
                 <h3 className=" font-sans text-md font-semibold text-[#515151] border-b pb-2 mb-4">
                   Basic Details
                 </h3>
@@ -957,7 +957,7 @@ export function RegisterPatient() {
                 </div>
               </div>
               {/* Contact Details Section */}
-              <div className="space-y-1 bg-gradient-to-br from-[#FFFDF9] to-[#FDFAF6] border border-[#fcdcdc] shadow-md rounded-2xl p-2 transition-all duration-200">
+              <div className="space-y-1 bg-gradient-to-br from-[#FFFDF9] to-[#FDFAF6] border-2 border-[#fcdcdc] shadow-md rounded-2xl p-2 transition-all duration-200">
                 <h3 className=" font-sans text-md font-semibold text-[#515151] border-b pb-2 mb-4">
                   Contact Details
                 </h3>
@@ -1097,7 +1097,7 @@ export function RegisterPatient() {
               </div>
 
               {/* Emergency Contact Section */}
-              <div className="space-y-1 bg-gradient-to-br from-[#FFFDF9] to-[#FDFAF6] border border-[#fcdcdc] shadow-md rounded-2xl p-2 transition-all duration-200">
+              <div className="space-y-1 bg-gradient-to-br from-[#FFFDF9] to-[#FDFAF6] border-2 border-[#fcdcdc] shadow-md rounded-2xl p-2 transition-all duration-200">
                 <div className="flex items-center justify-between border-b pb-2 mb-4">
                   <h3 className="font-sans text-md font-semibold text-[#515151]">
                     Emergency Contact Details
@@ -1163,7 +1163,7 @@ export function RegisterPatient() {
               </div>
 
               {/* Kin Section */}
-              <div className="space-y-1 bg-gradient-to-br from-[#FFFDF9] to-[#FDFAF6] border border-[#fcdcdc] shadow-md rounded-2xl p-2 transition-all duration-200">
+              <div className="space-y-1 bg-gradient-to-br from-[#FFFDF9] to-[#FDFAF6] border-2 border-[#fcdcdc] shadow-md rounded-2xl p-2 transition-all duration-200">
                 <div className="flex items-center justify-between border-b pb-2 mb-4">
                   <h3 className="font-sans text-md font-semibold text-[#515151]">
                     Select your Family Member
@@ -1284,11 +1284,11 @@ export function RegisterPatient() {
               <div className="pt-2"></div>
             </div>
 
-            <div className="space-y-2 bg-gradient-to-br from-blue-50 to-blue-200 border border-blue-200 rounded-xl shadow-sm p-0">
+            <div className="space-y-2  bg-gradient-to-br from-[#c0f9f6] to-[#dbf7f6] border-2 border-[#22E0D4]  rounded-xl shadow-sm p-0 h-93">
               {/* <h3 className="text-sm font-medium text-gray-600 mb-2 text-center">
               Patient Record
             </h3> */}
-              <div className="space-y-2 bg-blue-50 rounded-xl shadow-xl p-3 w-full md:max-w-[320px]">
+              <div className="space-y-2 bg-[#c0f9f6] rounded-xl shadow-xl p-3 w-full md:max-w-[320px]">
                 <Accordion
                   type="single"
                   collapsible

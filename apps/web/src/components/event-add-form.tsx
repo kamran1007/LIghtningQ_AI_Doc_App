@@ -53,6 +53,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import image from "/fast-time";
 import { CalendarClock, Plus, X } from "lucide-react";
 import Lottie from "lottie-react";
 import successAnimation from "@/assets/success-animation.json";
@@ -92,7 +93,7 @@ const messages = [
   "Search patient by MR No.",
 ];
 const inputbox =
-  "pl-4 pr-2 py-2 text-sm h-10 border border-gray-300 rounded-4xl  border-[#9de69d] focus:outline-none focus:ring-2 focus:ring-[#9de69d] transition-all duration-300 ease-in-out hover:shadow-md focus:shadow-2xl";
+  "pl-4 pr-2 py-2 text-sm h-10 border border-gray-300 rounded-4xl  border-[#22E0D4] focus:!border-[#c0f9f6] focus:!ring-2 focus:!ring-[#c0f9f6] focus:!ring-offset-2 focus:!ring-offset-white transition-all duration-300 ease-in-out hover:shadow-md focus:shadow-2xl";
 interface EventAddFormProps {
   start: Date;
   end: Date;
@@ -121,7 +122,7 @@ const getColorByInitials = (initials: string) => {
 
 const InfoColumn = ({ title, value }: { title: string; value: string }) => (
   <div className="flex items-center gap-4">
-    <div className="h-12 w-px bg-[#f1b439]" />
+    <div className="h-12 w-px bg-[#22E0D4]" />
     <div className="flex flex-col items-center">
       <h1 className="text-sm text-gray-500 font-medium">{title}</h1>
       <p className="text-sm font-semibold text-black mt-1">{value}</p>
@@ -599,7 +600,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
 
       return;
     }
-    const isUpdate = !!editingEvent.AppointmentId; // ✅ Determine if update
+    const isUpdate = !!editingEvent?.AppointmentId; // ✅ Determine if update
 
     const payload = {
       ...form,
@@ -622,7 +623,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
       // status: editingEvent.mode || 'SCHEDULED',
     };
     const updatePayload = {
-      AppointmentId: editingEvent.AppointmentId,
+      AppointmentId: editingEvent?.AppointmentId,
       DoctorTimeSlotId: selectedTime.slotId,
       appointmentTime: selectedTime.time,
       appointmentDate: selectedSlotDate,
@@ -632,7 +633,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
       lastName: form.lastName,
       email: form.email,
       mobile: form.mobile,
-      status: editingEvent.mode,
+      status: editingEvent?.mode,
       updatedBy: Number(userprofiledata?.user?.UserId) || 0,
       updatedAt: Date.now(), // ✅ fixed
       sendWhatsappMessage: Boolean(form.sendWhatsappMessage),
@@ -987,9 +988,8 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
               Book Appointment
             </Button>
           </AlertDialogTrigger>
-          
         )}
-        
+
         <div className="relative">
           {booked && (
             <div
@@ -1011,7 +1011,6 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
             </div>
           )}
           <AlertDialogContent className="max-w-310 h-[95vh] overflow-y-auto p-0 rounded-2xl shadow-2xl bg-white no-scrollbar">
-            
             {/* Header with search and close */}
             {/* Header with dark background */}
             <div className="font-sans  bg-[#ffffff] text-white px-4 h-8 flex justify-between items-center sticky top-0 z-10">
@@ -1029,11 +1028,11 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
             {/* Pull input box upward using negative margin */}
             {/* <div className="bg-[#f7f5fe] h-16 px-4 py-0 rounded-tr-xs shadow-xl"> */}
 
-            <div className="bg-gradient-to-br from-[#FFFDF9] to-[#FDFAF6] border-2 border-[#fcdcdc] h-16 px-4 flex items-center rounded-tr-xl shadow-md ">
+            <div className="bg-gradient-to-br from-[#c0f9f6] to-[#dbf7f6] border-2 border-[#22E0D4] h-16 px-4 flex items-center rounded-tr-xl shadow-md ">
               <div className="flex items-center">
                 {/* Input Box */}
 
-                <div className="mr-6 mt-1 w-80 rounded-2xl group border-2 border-[#f1b439] focus:outline-none focus:ring-2 focus:ring-[#f1b439] transition-all duration-300">
+                <div className="mr-6 mt-1 w-80 rounded-2xl group border-2 border-[#22E0D4] focus:outline-none focus:ring-2 focus:ring-[#22E0D4] transition-all duration-300">
                   <Input
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -1046,7 +1045,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                 <div className="flex items-center h-full gap-6 mt-1 font-sans">
                   {/* Patient Name */}
                   <div className="flex items-center gap-4">
-                    <div className="h-12 w-px bg-[#f1b439]" />
+                    <div className="h-12 w-px bg-[#22E0D4]" />
                     <div className="flex flex-col items-center">
                       <h1 className="text-sm text-gray-500 font-medium">
                         Patient Name
@@ -1061,7 +1060,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
 
                   {/* Mobile No */}
                   <div className="flex items-center gap-4">
-                    <div className="h-12 w-px bg-[#f1b439]" />
+                    <div className="h-12 w-px bg-[#22E0D4]" />
                     <div className="flex flex-col items-center">
                       <h1 className="text-sm text-gray-500 font-medium">
                         Mobile No
@@ -1074,7 +1073,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                   {/* Medical Record */}
 
                   <div className="flex items-center gap-4">
-                    <div className="h-12 w-px bg-[#f1b439]" />
+                    <div className="h-12 w-px bg-[#22E0D4]" />
                     <div className="flex flex-col items-center">
                       <h1 className="text-sm text-gray-500 font-medium">
                         MRN.
@@ -1087,7 +1086,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
 
                   {/* Age */}
                   <div className="flex items-center gap-4">
-                    <div className="h-12 w-px bg-[#f1b439]" />
+                    <div className="h-12 w-px bg-[#22E0D4]" />
                     <div className="flex flex-col items-center">
                       <h1 className="text-sm text-gray-500 font-medium">Age</h1>
                       <p className="text-sm font-semibold text-black mt-1">
@@ -1104,7 +1103,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                   </div>
 
                   <div className="flex items-center gap-4">
-                    <div className="h-12 w-px bg-[#f1b439]" />
+                    <div className="h-12 w-px bg-[#22E0D4]" />
                     <div className="flex flex-col items-center">
                       {/* <h1 className="text-sm text-gray-500 font-medium">Last Visit</h1>
                   <p className="text-sm font-semibold text-black mt-1">31-March-2025</p> */}
@@ -1510,7 +1509,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                 </div>
               )}
 
-              <div className="space-y-2 bg-white border-2 border-green-200 rounded-2xl shadow-md p-2 w-full max-w-md mx-auto text-gray-700">
+              <div className="space-y-2 bg-white border-2 border-[#84fcf4] rounded-2xl shadow-md p-2 w-full max-w-md mx-auto text-gray-700">
                 {/* Row 1: Title + First Name */}
                 <div className="flex gap-2">
                   {/* Title */}
@@ -1880,6 +1879,41 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                   </div>
                 </div>
 
+                <Controller
+                  name="fastTrackPatient"
+                  control={control}
+                  defaultValue={false}
+                  render={({ field }) => (
+                    <label
+                      htmlFor="fastTrackPatient"
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        id="fastTrackPatient"
+                        {...field}
+                        checked={field.value}
+                        className="h-4 w-4 accent-green-600 border-gray-300 rounded focus:ring-green-300"
+                      />
+                      <span className="flex items-center gap-1 text-sm font-medium">
+                        <div className="flex items-center gap-2">
+                          <Image
+                            src="/fast-time.png"
+                            alt="Fast Track"
+                            width={20} // or 40 for slightly larger
+                            height={20}
+                            className="object-contain"
+                            priority={false}
+                          />
+                          <span className="text-sm font-medium text-gray-700">
+                            Fast Track
+                          </span>
+                        </div>
+                      </span>
+                    </label>
+                  )}
+                />
+
                 {/* Payment Details */}
                 <div className="flex items-center justify-between">
                   <div>
@@ -1939,7 +1973,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                   <Controller
                     name="sendSmsMessage"
                     control={control}
-                    defaultValue={true}
+                    defaultValue={false}
                     render={({ field }) => (
                       <label
                         htmlFor="sendSmsMessage"
@@ -1962,7 +1996,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                   <Controller
                     name="sendWhatsappMessage"
                     control={control}
-                    defaultValue={true}
+                    defaultValue={false}
                     render={({ field }) => (
                       <label
                         htmlFor="sendWhatsappMessage"

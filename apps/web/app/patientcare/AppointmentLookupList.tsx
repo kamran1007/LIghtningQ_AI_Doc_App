@@ -581,6 +581,7 @@ export default function AppointmentLookupList() {
                         }}
                       />
                       <ConsultationDrawer
+                        // patient={p}
                         open={drawerOpen}
                         onClose={() => closeSheet()}
                         patient={selectedPatient}
