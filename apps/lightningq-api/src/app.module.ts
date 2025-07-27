@@ -13,6 +13,7 @@ import { ManageHospitalModule } from './manage_hospital/manage_hospital.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { PatientcareModule } from './patientcare/patientcare.module';
 import { AppointmentModule } from './appointment/appointment.module';
+import { ConsultationModule } from './consultation/consultation.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { AppointmentModule } from './appointment/appointment.module';
     PrismaModule,
     PatientcareModule,
     AppointmentModule,
+    ConsultationModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

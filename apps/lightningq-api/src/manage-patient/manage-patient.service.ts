@@ -5,6 +5,9 @@ import { QuickAppointmentDto } from 'src/appointment/dto/create-appointment.dto'
 
 @Injectable()
 export class ManagePatientService {
+  getAllDiagnosis() {
+    throw new Error('Method not implemented.');
+  }
   constructor(private readonly prisma: PrismaService) {}
 
   private parseArray(value: any): string[] | undefined {

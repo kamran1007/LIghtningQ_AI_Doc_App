@@ -89,6 +89,14 @@ model User {
   Appointment Appointment[] @relation("RescheduledBy")
 
   DoctorSlot DoctorSlot[]
+
+  VitalsCreatedBy Vitals[] @relation("VitalsCreatedBy")
+
+  VitalsHistoryUpdatedBy VitalsHistory[] @relation("VitalsUpdatedBy")
+
+  ConsultationCreatedBy Consultation[] @relation("ConsultationCreatedBy")
+
+  ConsultationUpdatedBy Consultation[] @relation("ConsultationUpdatedBy")
 }
 
 // Organization (Top-most head entity created by you or BA)
@@ -249,11 +257,11 @@ model DoctorTimeSlot {
   DoctorId Int
   Doctor   User @relation(fields: [DoctorId], references: [UserId], onDelete: Cascade)
 
-  HospitalId  Int
-  Hospital    Hospital @relation(fields: [HospitalId], references: [HospitalId], onDelete: Cascade)
+  HospitalId Int
+  Hospital   Hospital @relation(fields: [HospitalId], references: [HospitalId], onDelete: Cascade)
 
-  DayOfWeek   String   // 'MON', 'TUE', etc.
-  
+  DayOfWeek String // 'MON', 'TUE', etc.
+
   Morning_From String?
   Morning_To   String?
 
@@ -263,25 +271,25 @@ model DoctorTimeSlot {
   consult_Time_InMin               Int     @default(15)
   Accept_Appointment_Selected_Date Boolean @default(true)
 
-  is_DND                    Boolean  @default(false)
-  is_SlotCancelled          Boolean  @default(false)
+  is_DND                    Boolean @default(false)
+  is_SlotCancelled          Boolean @default(false)
   DNDremarks                String?
   Slot_cancellation_remarks String?
-  isSlotChanged             Boolean  @default(false)
-  isPermanentCancelled      Boolean  @default(false)
-  isActive                  Boolean  @default(true)
-  isDeleted                 Boolean  @default(false)
-  isAvailable               Boolean  @default(true)
-  isBooked                  Boolean  @default(false)
-  isConfirmed               Boolean  @default(false)
-  isRejected                Boolean  @default(false)
+  isSlotChanged             Boolean @default(false)
+  isPermanentCancelled      Boolean @default(false)
+  isActive                  Boolean @default(true)
+  isDeleted                 Boolean @default(false)
+  isAvailable               Boolean @default(true)
+  isBooked                  Boolean @default(false)
+  isConfirmed               Boolean @default(false)
+  isRejected                Boolean @default(false)
 
-  createdBy   Int?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdBy Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // ⬇️ One-to-many relation to DoctorSlot
-  SlotsDateTime       DoctorSlot[]
+  SlotsDateTime DoctorSlot[]
 }
 
 // model DoctorTimeSlot {
@@ -306,24 +314,24 @@ model DoctorTimeSlot {
 model DoctorSlot {
   DoctorSlotId Int @id @default(autoincrement())
 
-  doctorId     Int
-  doctor       User     @relation(fields: [doctorId], references: [UserId])
+  doctorId Int
+  doctor   User @relation(fields: [doctorId], references: [UserId])
 
-  hospitalId   Int
-  hospital     Hospital @relation(fields: [hospitalId], references: [HospitalId])
+  hospitalId Int
+  hospital   Hospital @relation(fields: [hospitalId], references: [HospitalId])
 
-  DoctorTimeSlotId   Int
-  DoctorTimeSlot     DoctorTimeSlot @relation(fields: [DoctorTimeSlotId], references: [DoctorTimeSlotId])
+  DoctorTimeSlotId Int
+  DoctorTimeSlot   DoctorTimeSlot @relation(fields: [DoctorTimeSlotId], references: [DoctorTimeSlotId])
 
-  slotDate     DateTime?
-  slotTime     String?   // 'HH:mm'
-  dayOfWeek    String?   // 'MON', etc.
+  slotDate  DateTime?
+  slotTime  String? // 'HH:mm'
+  dayOfWeek String? // 'MON', etc.
 
   isBooked      Boolean @default(false)
   appointmentId Int?
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([doctorId, slotDate, slotTime], name: "UniqueDoctorSlotPerDateTime")
 }
@@ -420,6 +428,10 @@ model Specialization {
   SpecializationName String @unique
   Description        String
   Users              User[]
+
+  ChiefComplaintTag ChiefComplaintTag[]
+
+  Diagnosis Diagnosis[]
 }
 
 //Appointmrnt Screen    
@@ -438,18 +450,18 @@ model Patient {
   lastName          String
   dateOfBirth       DateTime
   gender            GenderType?
-  isQuickRegistered Boolean  @default(false) // ✅ NEW field
+  isQuickRegistered Boolean     @default(false) // ✅ NEW field
   // Contact Information
-  mobile            String   @unique
+  mobile            String      @unique
   altContactNumber  String?
-  email             String?  @unique
+  email             String?     @unique
   addressLine1      String?
   addressLine2      String?
   area              String?
   city              String
   cityId            String? // for future relational mapping
   state             String
-  country           String   @default("India")
+  country           String      @default("India")
   postalCode        Int
   landmark          String?
   taluka            String?
@@ -530,37 +542,37 @@ model Appointment {
   AssignedProviderId Int?
   SpecializationId   Int?
 
-  appointmentDate DateTime
-  reason          String?
-  status          AppointmentStatus @default(SCHEDULED)
-  RescheduleReason     String?
-  cancellationReason    String?
-  age             Int?
+  appointmentDate    DateTime
+  reason             String?
+  status             AppointmentStatus @default(SCHEDULED)
+  RescheduleReason   String?
+  cancellationReason String?
+  age                Int?
 
-  createdAt        DateTime  @default(now())
-  createdBy        Int?
-  rescheduledAt    DateTime?
-  rescheduledDate  DateTime? // ✅ New field
+  createdAt         DateTime     @default(now())
+  createdBy         Int?
+  rescheduledAt     DateTime?
+  rescheduledDate   DateTime? // ✅ New field
   // rescheduleReason String?
-  rescheduledBy    Int?
-  TagPatientId Int?
-  TagPatient TagPatient[]
+  rescheduledBy     Int?
+  TagPatientId      Int?
+  TagPatient        TagPatient[]
   // AppointmentAmtPaid Int?
   // isAmountPaid Boolean default(true)
   // Relations
-  patient           Patient @relation(fields: [PatientId], references: [PatientId])
-  doctor            User    @relation("Doctor", fields: [DoctorId], references: [UserId])
-  assignedProvider  User?   @relation("AssignedProvider", fields: [AssignedProviderId], references: [UserId])
-  specialist        User?   @relation("Specialist", fields: [SpecializationId], references: [UserId])
-  createdByUser     User?   @relation("CreatedBy", fields: [createdBy], references: [UserId])
-  rescheduledByUser User?   @relation("RescheduledBy", fields: [rescheduledBy], references: [UserId])
+  patient           Patient      @relation(fields: [PatientId], references: [PatientId])
+  doctor            User         @relation("Doctor", fields: [DoctorId], references: [UserId])
+  assignedProvider  User?        @relation("AssignedProvider", fields: [AssignedProviderId], references: [UserId])
+  specialist        User?        @relation("Specialist", fields: [SpecializationId], references: [UserId])
+  createdByUser     User?        @relation("CreatedBy", fields: [createdBy], references: [UserId])
+  rescheduledByUser User?        @relation("RescheduledBy", fields: [rescheduledBy], references: [UserId])
 
   hospital         Hospital        @relation(fields: [hospitalId], references: [HospitalId])
   visitType        AppointmentType @relation(fields: [visitTypeId], references: [AppointmentTypeId])
   paymentHistoryId Int? // ✅ Add this missing field
   paymentTypeId    Int
 
-  PaymentType    PaymentType    @relation(fields: [paymentTypeId], references: [PaymentTypeId])
+  PaymentType    PaymentType     @relation(fields: [paymentTypeId], references: [PaymentTypeId])
   paymentHistory PaymentHistory? @relation(fields: [paymentHistoryId], references: [PaymentHistoryId])
 
   sendWhatsappMessage Boolean @default(false)
@@ -571,6 +583,8 @@ model Appointment {
   isDraft       Boolean                   @default(false)
   // New relation
   notifications AppointmentNotification[]
+
+  Vitals Vitals[]
 }
 
 model AppointmentNotification {
@@ -592,42 +606,128 @@ model Consultation {
   AppointmentId           Int       @unique
   consultationDatTime     DateTime  @default(now()) // New
   consultationEndDateTime DateTime?
-  notes                   String?
-  diagnosis               String?
+  CheifcomplaintNotes     String? // Free-text from textarea
   followUpDate            DateTime?
 
-  vitals        Vitals?
-  medications   MedicationRecord[]
-  clinicalNotes ClinicalNote[]
-  surgery       Surgery?
+  // vitals        Vitals?
 
-  appointment Appointment @relation(fields: [AppointmentId], references: [AppointmentId])
-  isDraft     Boolean     @default(false)
+  ConsultationMedication    ConsultationMedication[]
+  ConsultationclinicalNotes ClinicalNote[]
+  // surgery                   Surgery?
+
+  appointment                Appointment                  @relation(fields: [AppointmentId], references: [AppointmentId])
+  ConsultationCheifComplaint ConsultationCheifComplaint[] // Multiple complaint tags
+  ConsultationInvestigation  ConsultationInvestigation[] // ✅ This is needed
+
+  isDraft Boolean @default(false)
+
+  ConsultationDiagnosis ConsultationDiagnosis[]
+
+  ConsultationTreatment ConsultationTreatment[]
+
+  ConsultationFollowUpPlan ConsultationFollowUpPlan[]
+  createdAt                DateTime                   @default(now())
+  updatedAt                DateTime                   @updatedAt
+  createdById              Int?
+  createdBy                User?                      @relation("ConsultationCreatedBy", fields: [createdById], references: [UserId])
+  updatedById              Int?
+  updatedBy                User?                      @relation("ConsultationUpdatedBy", fields: [updatedById], references: [UserId])
 }
 
 model Vitals {
-  VitalsId       Int     @id @default(autoincrement())
-  consultationId Int     @unique
-  BloodPressure  String?
-  PulseRate      Int?
-  Temperature    Float?
-  Weight         Float?
-  Height         Float?
-  SpO2           Float?
-  BloodGroup     Float?
-  BMI            Float?
-
-  consultation Consultation @relation(fields: [consultationId], references: [ConsultationId])
+  VitalsId         Int         @id @default(autoincrement())
+  AppointmentId    Int         @unique
+  Systolic         Int? // e.g. 120
+  Diastolic        Int? // e.g. 80  Weight        Float?
+  Weight           Float?
+  Temperature      Float?
+  HeartRate        Int?
+  // PulseRate      Int?
+  OxygenSaturation Float? //spo2
+  Height           Float?
+  BloodGroup       BloodGroup?
+  BMI              Float?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  createdById      Int?
+  createdBy        User?       @relation("VitalsCreatedBy", fields: [createdById], references: [UserId])
+  appointment      Appointment @relation(fields: [AppointmentId], references: [AppointmentId])
 }
 
-model MedicationRecord {
-  MedicationRecordId Int     @id @default(autoincrement())
-  consultationId     Int
-  medicationName     String
-  dosage             String
-  frequency          String
-  duration           String
-  remarks            String?
+model VitalsHistory {
+  VitalsHistoryId  Int         @id @default(autoincrement())
+  VitalsId         Int
+  AppointmentId    Int
+  Systolic         Int?
+  Diastolic        Int?
+  Weight           Float?
+  Temperature      Float?
+  HeartRate        Int?
+  OxygenSaturation Float?
+  Height           Float?
+  BloodGroup       BloodGroup?
+  BMI              Float?
+  updatedAt        DateTime    @default(now())
+  updatedById      Int?
+  updatedBy        User?       @relation("VitalsUpdatedBy", fields: [updatedById], references: [UserId])
+}
+
+//master/tag list table
+model ChiefComplaintTag {
+  ChiefComplaintTagId    Int                          @id @default(autoincrement())
+  ChiefComplainTagName   String                       @unique
+  createdAt              DateTime                     @default(now())
+  specializationId       Int
+  specialization         Specialization               @relation(fields: [specializationId], references: [SpecializationId])
+  consultationComplaints ConsultationCheifComplaint[]
+}
+
+model ConsultationCheifComplaint {
+  ConsultationComplaintId Int @id @default(autoincrement())
+  ConsultationId          Int
+  ChiefComplaintTagId     Int
+
+  consultation   Consultation      @relation(fields: [ConsultationId], references: [ConsultationId], onDelete: Cascade)
+  chiefComplaint ChiefComplaintTag @relation(fields: [ChiefComplaintTagId], references: [ChiefComplaintTagId], onDelete: Cascade)
+}
+
+model InvestigationType {
+  InvestigationTypeId   Int                         @id @default(autoincrement())
+  InvestigationTypeName String                      @unique
+  InvestigationSubtypes InvestigationSubType[]
+  investigations        ConsultationInvestigation[]
+}
+
+model InvestigationSubType {
+  InvestigationSubTypeId   Int                         @id @default(autoincrement())
+  InvestigationSubTypename String
+  InvestigationTypeId      Int
+  InvestigationType        InvestigationType           @relation(fields: [InvestigationTypeId], references: [InvestigationTypeId])
+  investigations           ConsultationInvestigation[]
+
+  @@unique([InvestigationSubTypename, InvestigationTypeId]) // Prevents duplicate subtype under same type
+}
+
+model ConsultationInvestigation {
+  ConsultationInvestigationId  Int     @id @default(autoincrement())
+  consultationId               Int
+  InvestigationTypeId          Int
+  InvestigationSubTypeId       Int
+  ConsultationInvestigatRemark String?
+
+  consultation         Consultation         @relation(fields: [consultationId], references: [ConsultationId])
+  InvestigationType    InvestigationType    @relation(fields: [InvestigationTypeId], references: [InvestigationTypeId])
+  InvestigationSubType InvestigationSubType @relation(fields: [InvestigationSubTypeId], references: [InvestigationSubTypeId])
+}
+
+model ConsultationMedication {
+  ConsultationMedicationId Int     @id @default(autoincrement())
+  consultationId           Int
+  medicationName           String
+  dosage                   String
+  frequency                String
+  duration                 String
+  remarks                  String?
 
   consultation Consultation @relation(fields: [consultationId], references: [ConsultationId])
 }
@@ -635,8 +735,53 @@ model MedicationRecord {
 model ClinicalNote {
   ClinicalNoteId Int    @id @default(autoincrement())
   consultationId Int
-  title          String
   content        String
+
+  consultation Consultation @relation(fields: [consultationId], references: [ConsultationId])
+}
+
+model Diagnosis {
+  DiagnosisId Int      @id @default(autoincrement())
+  DiagnosisName        String
+  icdCode     String? // optional ICD-10 or similar code
+  specializationId       Int?
+  specialization         Specialization?               @relation(fields: [specializationId], references: [SpecializationId])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  consultations ConsultationDiagnosis[] // many-to-many (diagnosis used in multiple consultations)
+}
+
+model ConsultationDiagnosis {
+  ConsultationDiagnosisId Int      @id @default(autoincrement())
+  consultationId          Int
+  diagnosisId             Int
+  DiagnosisRemark                  String? // optional doctor's remark
+  createdAt               DateTime @default(now())
+
+  consultation Consultation @relation(fields: [consultationId], references: [ConsultationId])
+  diagnosis    Diagnosis    @relation(fields: [diagnosisId], references: [DiagnosisId])
+}
+
+model ConsultationTreatment {
+  ConsultationTreatmentId Int             @id @default(autoincrement())
+  consultationId          Int
+  source                  TreatmentSource // ENUM: TYPED, DICTATED, SNIPPET
+  treatmentText           String          @db.Text
+  createdAt               DateTime        @default(now())
+
+  consultation Consultation @relation(fields: [consultationId], references: [ConsultationId])
+}
+
+model ConsultationFollowUpPlan {
+  id             Int           @id @default(autoincrement())
+  consultationId Int           @unique
+  followUpText   String? // e.g. "Review in 7 days"
+  duration       Int? // e.g. 7
+  unit           FollowUpUnit? // Enum: Days, Weeks, Months, Years
+  nextDate       DateTime? // Optional: for calculated follow-up date
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   consultation Consultation @relation(fields: [consultationId], references: [ConsultationId])
 }
@@ -652,8 +797,8 @@ model PaymentHistory {
   TransactionId            BigInt
   Transaction_DateTime     DateTime
   PaymentTypeName          PaymentType   @relation(fields: [paymentTypePaymentTypeId], references: [PaymentTypeId])
-  AppointmentChargesPaid        Float?
-  isAmountPaid  Boolean? @default(true)
+  AppointmentChargesPaid   Float?
+  isAmountPaid             Boolean?      @default(true)
   appointments             Appointment[]
   paymentTypePaymentTypeId Int
 }
@@ -665,16 +810,18 @@ model PaymentType {
   PaymentHistory  PaymentHistory[]
 }
 
-model Surgery {
-  SurgeryId      Int      @id @default(autoincrement())
-  consultationId Int      @unique
-  surgeryType    String
-  surgeonId      Int
-  surgeryDate    DateTime
-  notes          String?
+// model Surgery {
+//   SurgeryId      Int      @id @default(autoincrement())
+//   consultationId Int      @unique
+//   surgeryType    String
+//   surgeonId      Int
+//   surgeryDate    DateTime
+//   notes          String?
 
-  consultation Consultation @relation(fields: [consultationId], references: [ConsultationId])
-}
+//   consultation Consultation @relation(fields: [consultationId], references: [ConsultationId])
+// }
+
+//Enums
 
 enum AcuityLevel {
   LOW
@@ -689,8 +836,6 @@ enum AppointmentStatus {
   CANCELLED
   RESCHEDULED
 }
-
-//Enums
 
 enum HospitalLevel {
   SUPER // Top-level hospital
@@ -755,7 +900,20 @@ enum NotificationStatus {
 }
 
 enum GenderType {
- MALE
- FEMALE
- OTHER
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum TreatmentSource {
+  TYPED
+  DICTATED
+  SNIPPET
+}
+
+enum FollowUpUnit {
+  Days
+  Weeks
+  Months
+  Years
 }

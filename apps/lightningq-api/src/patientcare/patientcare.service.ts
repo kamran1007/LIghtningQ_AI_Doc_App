@@ -2,15 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { AppointmentService } from 'src/appointment/appointment.service';
 import { QuickAppointmentDto } from 'src/appointment/dto/create-appointment.dto';
 import { UpdateAppointmentDto } from 'src/appointment/dto/update-appointment.dto';
+import { ConsultationService } from 'src/consultation/consultation.service';
+import { CreateDiagnosisDto } from 'src/consultation/dto/create-diagnosis.dto';
+import { CreateOrUpdateConsultationDto } from 'src/consultation/dto/create-update-consultation.dto';
+import { CreateInvestigationSubTypeDto } from 'src/consultation/dto/createinvestigationtype.dto';
+import { VitalsDto } from 'src/consultation/dto/vitals.dto';
 import { UpsertPatientDto } from 'src/manage-patient/dto/upsert-patient.dto';
 import { ManagePatientService } from 'src/manage-patient/manage-patient.service';
-import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class PatientcareService {
+
+
   constructor(
     private readonly ManagePatientService: ManagePatientService,
     private ManageAppointment: AppointmentService,
+    private readonly ConsultationService: ConsultationService,
   ) {}
 
   async upsertPatient(
@@ -192,18 +199,99 @@ export class PatientcareService {
     visitTypeId?: number;
     acuity?: string;
     search?: string;
-     appointmentDate?: string; // ✅ single date
-  appointmentDateFrom?: string; // ✅ date range
-  appointmentDateTo?: string;
+    appointmentDate?: string; // ✅ single date
+    appointmentDateFrom?: string; // ✅ date range
+    appointmentDateTo?: string;
     page?: number;
     limit?: number;
-
   }) {
     const result = await this.ManageAppointment.searchAppointments(params);
 
     return {
       message: 'Appointments fetched successfully',
       data: result,
+    };
+  }
+
+  async upsertVitals(dto: VitalsDto, CreatedBy: number) {
+    if (CreatedBy === undefined) {
+      throw new Error('CreatedBy is required');
+    }
+    const result = await this.ConsultationService.upsertVitals(dto, CreatedBy);
+    return {
+      message: 'Vitals have been added or updated',
+      return: result,
+    };
+  }
+
+  async getVitalsWithHistory(appointmentId: number) {
+    const result =
+      await this.ConsultationService.getVitalsWithHistory(appointmentId);
+
+    return {
+      message: 'vitals fetched successfully',
+      data: result,
+    };
+  }
+
+  async addOrUpdateConsultation(
+    dto: CreateOrUpdateConsultationDto,
+    CreatedBy: number,
+  ) {
+    const result = await this.ConsultationService.addOrUpdateConsultation(
+      dto,
+      CreatedBy,
+    );
+
+    return {
+      message: 'Consultation created or updated successfully',
+      data: result,
+    };
+  }
+
+  async createOrFindSubtype(
+    dto: CreateInvestigationSubTypeDto,
+    CreatedBy: number,
+  ) {
+    const result = await this.ConsultationService.createOrFindSubtype(
+      dto,
+      CreatedBy,
+    );
+
+    return {
+      message: 'investigation type created successfully',
+      data: result,
+    };
+  }
+
+  async getConsultationByAppointmentId(appointmentId: number) {
+    const result =
+      await this.ConsultationService.getpatientConsultationconsultationByAppointmentId(
+        appointmentId,
+      );
+
+    return {
+      message: 'investigation type created successfully',
+      data: result,
+    };
+  }
+
+  // crate Diagnosis
+    async createDiagnosis(dto: CreateDiagnosisDto) {
+    const result =
+      await this.ConsultationService.createDiagnosis(dto);
+
+    return {
+      message: 'Diagnosis added successfully',
+      data: result,
+    };
+  }
+
+    async getAllDiagnosis() {
+    const result = await this.ConsultationService.getAllDiagnosis();
+    return {
+      message: 'All Diagnosis  data has successfully Fetch',
+      return: result,
     };
   }
 }

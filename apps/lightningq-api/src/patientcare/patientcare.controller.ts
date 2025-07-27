@@ -4,6 +4,8 @@ import {
   Controller,
   Get,
   InternalServerErrorException,
+  Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -22,7 +24,10 @@ import { CurrentUser } from 'src/auth/decorator/current-user.decorator';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { QuickAppointmentDto } from 'src/appointment/dto/create-appointment.dto';
 import { UpdateAppointmentDto } from 'src/appointment/dto/update-appointment.dto';
-
+import { VitalsDto } from 'src/consultation/dto/vitals.dto';
+import { CreateOrUpdateConsultationDto } from 'src/consultation/dto/create-update-consultation.dto';
+import { CreateInvestigationSubTypeDto } from 'src/consultation/dto/createinvestigationtype.dto';
+import { CreateDiagnosisDto } from 'src/consultation/dto/create-diagnosis.dto';
 @Controller('patientcare')
 export class PatientcareController {
   constructor(
@@ -203,7 +208,7 @@ export class PatientcareController {
     return this.patientcareService.getAllVisitType();
   }
 
-  //tagpatient 
+  //tagpatient
   @Get('getAllTagType')
   getAllTagType() {
     return this.patientcareService.getAllTagType();
@@ -233,10 +238,19 @@ export class PatientcareController {
   //searchappointment
   @Get('searchappointment')
   async searchAppointments(@Query() query: any) {
-    const { hospitalId, DoctorId, status, visitTypeId, acuity, search, appointmentDate, // ✅ single date
-  appointmentDateFrom,
-  appointmentDateTo,page = 1,
-      limit = 10, } = query;
+    const {
+      hospitalId,
+      DoctorId,
+      status,
+      visitTypeId,
+      acuity,
+      search,
+      appointmentDate, // ✅ single date
+      appointmentDateFrom,
+      appointmentDateTo,
+      page = 1,
+      limit = 10,
+    } = query;
 
     if (search && search.length < 3) {
       throw new BadRequestException(
@@ -255,7 +269,74 @@ export class PatientcareController {
       appointmentDateFrom,
       appointmentDateTo,
       page: Number(page),
-      limit: Number(limit)
+      limit: Number(limit),
     });
   }
+
+  // vitals
+  @Patch('addUpdatepatientvitals')
+  async upsertVitals(@Body() dto: VitalsDto, @CurrentUser() @Req() req: any) {
+    const CreatedBy = Number(req.user?.UserId || 1);
+    return this.patientcareService.upsertVitals(dto, CreatedBy);
+  }
+  // get all vitals
+  @Get('getvitals/:appointmentId')
+  getVitalsWithHistory(
+    @Param('appointmentId', ParseIntPipe) appointmentId: number,
+  ) {
+    return this.patientcareService.getVitalsWithHistory(appointmentId);
+  }
+
+  //add update consultation
+  @Post('addupdateconsultation')
+  async addOrUpdateConsultation(
+    @Body() dto: CreateOrUpdateConsultationDto,
+    @CurrentUser() @Req() req: any,
+  ) {
+    const CreatedBy = Number(req.user?.UserId || 1);
+
+    return this.patientcareService.addOrUpdateConsultation(dto, CreatedBy);
+  }
+
+  //add investigation
+  @Post('CreateInvestigationSubType')
+  async createSubtype(
+    @Body() dto: CreateInvestigationSubTypeDto,
+    @CurrentUser() @Req() req: any,
+  ) {
+    const CreatedBy = Number(req.user?.UserId || 1);
+
+    return this.patientcareService.createOrFindSubtype(dto, CreatedBy);
+  }
+
+  @Get('Patientappointmentcasesheet/:appointmentId')
+  async getConsultationByAppointmentId(
+    @Param('appointmentId', ParseIntPipe) appointmentId: number,
+  ) {
+    return this.patientcareService.getConsultationByAppointmentId(
+      appointmentId,
+    );
+  }
+
+  // add  all diagnosis
+  @Post('adddiagnosis')
+  async addDiagnosis(@Body() dto: CreateDiagnosisDto) {
+    return this.patientcareService.createDiagnosis(dto);
+  }
+
+  // get all diagnosis
+  @Get('getAllDiagnosis')
+  getAllDiagnosis() {
+    return this.patientcareService.getAllDiagnosis();
+  }
+
+
+  // get all diagnosis by specialization id
+  // @Get('specialization/:specializationId')
+  // async getBySpecialization(
+  //   @Param('specializationId', ParseIntPipe) specializationId: number,
+  // ) {
+  //   return this.diagnosisService.getDiagnosesBySpecialization(specializationId);
+  // }
 }
+

@@ -2010,8 +2010,8 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                           className="h-4 w-4 accent-green-600 border-gray-300 rounded focus:ring-green-300"
                         />
                         <span className="flex items-center gap-1 text-sm font-medium">
-                          <MessageCircle className="w-4 h-4" />
-                          WhatsApp
+                          <i className="pi pi-whatsapp w-4 h-4" />
+                          whatsapp
                         </span>
                       </label>
                     )}
@@ -2034,7 +2034,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                           className="h-4 w-4 accent-green-600 border-gray-300 rounded focus:ring-green-300"
                         />
                         <span className="flex items-center gap-1 text-sm font-medium">
-                          <Mail className="w-4 h-4" />
+                          <i className="pi pi-envelope w-4 h-4" />
                           Email
                         </span>
                       </label>

@@ -163,6 +163,8 @@ export default function ConsultationDrawer({
     heartRate: string;
     oxygen: string;
     height: string;
+    bloodgroup: string;
+    BMI: string;
     complaint: string;
     notes: string;
     investigations: string[];
@@ -189,6 +191,8 @@ export default function ConsultationDrawer({
     heartRate: "",
     oxygen: "",
     height: "",
+    bloodgroup: "",
+    BMI: "",
     complaint: "",
     notes: "",
     investigations: [],
@@ -268,6 +272,7 @@ export default function ConsultationDrawer({
     { label: "Imaging", value: "Imaging" },
     { label: "Others", value: "Others" },
   ];
+
   const [notes, setNotes] = useState("");
 
   interface ChiefComplaint {
@@ -290,12 +295,18 @@ export default function ConsultationDrawer({
   const handleAddCustom = () => {
     if (!customInvestigation.trim()) return;
 
+    const colorMap = {
+      Laboratory: "#7fcdff",
+      Imaging: "#ffc1ea",
+      Others: "#66bf9b",
+    };
+
     const newOption = {
       label: customInvestigation,
       value: customInvestigation.toLowerCase().replace(/\s+/g, "_"),
+      color: colorMap[customCategory] || "#ccc", // Fallback gray
     };
 
-    // Add to correct group
     const updatedOptions = investigationOptions.map((group) => {
       if (group.label === customCategory) {
         return {
@@ -455,6 +466,7 @@ export default function ConsultationDrawer({
         item.toLowerCase().includes(diagnosisInput.toLowerCase())
       )
     : [];
+  const noMatch = diagnosisInput && filteredSuggestions.length === 0;
 
   const handleAddDiagnosis = () => {
     if (diagnosisInput.trim()) {
@@ -1077,7 +1089,7 @@ export default function ConsultationDrawer({
                             />
                             <VitalCardInput
                               icon={<Activity size={18} />}
-                              label="Oxygen Saturation"
+                              label="Oxygen Saturation/SpO2"
                               value={form.oxygen}
                               name="oxygen"
                               unit="%"
@@ -1091,7 +1103,24 @@ export default function ConsultationDrawer({
                               unit="inch"
                               onChange={handleChange}
                             />
+                            <VitalCardInput
+                              icon={<Ruler size={18} />}
+                              label="Bloodgroup"
+                              value={form.bloodgroup}
+                              name="bloodgroup"
+                              unit=""
+                              onChange={handleChange}
+                            />
+                            <VitalCardInput
+                              icon={<Droplet size={18} />}
+                              label="BMI"
+                              value={form.BMI}
+                              name="bmi"
+                              unit="kg/m²"
+                              onChange={handleChange}
+                            />
                           </div>
+
                           <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -1126,7 +1155,7 @@ export default function ConsultationDrawer({
                           model={items}
                           radius={70}
                           type="semi-circle"
-                          direction="down-left"
+                          direction="left"
                           style={{
                             position: "fixed",
                             top: "50%",
@@ -1261,10 +1290,10 @@ export default function ConsultationDrawer({
                               <Label className="text-sm block mb-1">
                                 Select Investigations
                               </Label>
-                              <Select
+                              <CreatableSelect
                                 isMulti
                                 options={investigationOptions}
-                                value={form.investigations || []}
+                                value={form.investigations}
                                 onChange={(selectedOptions) =>
                                   setForm((prev) => ({
                                     ...prev,
@@ -1276,33 +1305,17 @@ export default function ConsultationDrawer({
                                 classNamePrefix="react-select"
                                 styles={customStyles}
                               />
-
-                              {/* Custom Investigation Input */}
-                              {/* <div className="flex items-center gap-2">
-                <InputText
-                  value={customInvestigation}
-                  onChange={(e) =>
-                    setCustomInvestigation(e.target.value)
-                  }
-                  placeholder="Add custom investigation..."
-                  className="text-sm w-full md:w-64"
-                />
-                <Button
-                  icon="pi pi-plus"
-                  label="Add"
-                  onClick={handleAddCustom}
-                  className="p-button-sm"
-                />
-              </div> */}
                             </div>
 
                             <div className="mt-3 flex items-center gap-2">
-                              <Select
+                              <CreatableSelect
                                 options={investigationCategories}
                                 value={investigationCategories.find(
                                   (c) => c.value === customCategory
                                 )}
-                                onChange={(e) => setCustomCategory(e.value)}
+                                onChange={(selectedOption) =>
+                                  setCustomCategory(selectedOption?.value || "")
+                                }
                                 classNamePrefix="react-select"
                                 className="text-sm w-[220px]"
                                 isSearchable={false}
@@ -1426,6 +1439,20 @@ export default function ConsultationDrawer({
                                     )}
                                   </ul>
                                 )}
+                              {noMatch && (
+                                <div className="flex items-center justify-between px-3 py-2 bg-yellow-50 text-sm text-gray-700">
+                                  <span>No match found.</span>
+                                  <button
+                                    onMouseDown={() => {
+                                      // handle your create logic here
+                                      alert(`Create "${diagnosisInput}"`);
+                                    }}
+                                    className="text-blue-600 hover:underline font-medium"
+                                  >
+                                    + Create
+                                  </button>
+                                </div>
+                              )}
                             </div>
 
                             <div className="flex justify-end mb-2">
