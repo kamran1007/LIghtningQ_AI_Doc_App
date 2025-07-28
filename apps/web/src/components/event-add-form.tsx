@@ -86,6 +86,8 @@ import toast from "react-hot-toast";
 import { Checkbox } from "./ui/checkbox";
 import { format } from "date-fns";
 import AppointmentBookingSkeleton from "./ui/skeletonloader/AppointmentBookingSkeleton";
+import { fetchAllAppointmentPatient } from "@/store/AppointmentSlice";
+import { useAppDispatch } from "@/store/hooks";
 
 const messages = [
   "Search patient by Phone No.",
@@ -593,6 +595,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
     el.addEventListener("scroll", updateScrollButtons);
     return () => el.removeEventListener("scroll", updateScrollButtons);
   }, [filteredDoctors]);
+  const dispatch = useAppDispatch();
 
   const onSubmit = async (form: quickAppointmentSchema) => {
     if (!selectedDoctorId || !selectedSlotDate || !selectedTime) {
@@ -654,6 +657,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
             reset();
             setBooked(false);
             setEventAddOpen(false);
+            dispatch(fetchAllAppointmentPatient({ page: 1, limit: 10 })); // 🟢 Fetch updated patient list
             // clear selections if needed
           }, 2000);
         }, 800);

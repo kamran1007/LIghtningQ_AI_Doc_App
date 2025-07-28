@@ -25,7 +25,7 @@ import { MultiSelect } from "primereact/multiselect";
 import { Calendar } from "primereact/calendar";
 import { FunnelIcon as FilterIcon } from "@heroicons/react/24/solid";
 import AppointmentActionsDialog from "./AppointmentActionsDialog";
-import ConsultationDrawer from "./ConsultationDrawer";
+import ConsultationDrawer from "../consultation/ConsultationDrawer";
 import { Funnel } from "lucide-react";
 import {
   Tooltip,

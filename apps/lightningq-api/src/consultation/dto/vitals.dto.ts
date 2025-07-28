@@ -27,7 +27,7 @@ export class VitalsDto {
   @IsOptional() @IsNumber()
   Height?: number;
 
-  @IsOptional() @IsEnum(BloodGroup)
+  @IsOptional()  @IsEnum(BloodGroup)
   BloodGroup?: BloodGroup;
 
   @IsOptional() @IsNumber()

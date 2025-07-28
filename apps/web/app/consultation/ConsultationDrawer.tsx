@@ -4,7 +4,7 @@ import chroma from "chroma-js";
 import { StylesConfig } from "react-select";
 import { AnimatePresence, motion } from "framer-motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useFormContext } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 
 import { SpeedDial } from "primereact/speeddial";
 import { useRouter } from "next/navigation"; // ✅ correct for app/
@@ -44,6 +44,9 @@ import {
   MicOff,
   Plus,
   Trash2,
+  Loader2Icon,
+  History,
+
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -82,6 +85,11 @@ import {
   SelectContent,
   SelectValue,
 } from "@/components/ui/select";
+import { AddUpdateVitals, getVitalsWithHistory } from "@/lib/consultation";
+import { is, tr } from "date-fns/locale";
+import VitalsSkeleton from "@/components/ui/skeletonloader/VitalsSkeleton";
+import setVitalsHistoryOpen from "./VitalsHistoryDialog";
+import VitalsHistoryDialog from "./VitalsHistoryDialog";
 export default function ConsultationDrawer({
   open,
   onClose,
@@ -157,7 +165,9 @@ export default function ConsultationDrawer({
     followUpDuration: string;
     followUpUnit: string;
     Clinicalnotes: string;
-    bloodPressure: string;
+    // bloodPressure: string;
+    systolic: string;
+    diastolic: string;
     weight: string;
     temperature: string;
     heartRate: string;
@@ -165,6 +175,7 @@ export default function ConsultationDrawer({
     height: string;
     bloodgroup: string;
     BMI: string;
+    BMIStatus: string;
     complaint: string;
     notes: string;
     investigations: string[];
@@ -185,7 +196,9 @@ export default function ConsultationDrawer({
     followUpDuration: "",
     followUpUnit: "",
     Clinicalnotes: "",
-    bloodPressure: "",
+    // bloodPressure: "",
+    systolic: "",
+    diastolic: "",
     weight: "",
     temperature: "",
     heartRate: "",
@@ -193,6 +206,7 @@ export default function ConsultationDrawer({
     height: "",
     bloodgroup: "",
     BMI: "",
+    BMIStatus: "",
     complaint: "",
     notes: "",
     investigations: [],
@@ -291,6 +305,10 @@ export default function ConsultationDrawer({
   const [diagnoses, setDiagnoses] = useState<string[]>([]);
   const [listenings, setListenings] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [vitalsLoading, setVitalsLoading] = useState(false);
+  const [vitalsHistory, setVitalsHistory] = useState<any[]>([]);
+  const [vitalsHistoryOpen, setVitalsHistoryOpen] = useState(false);
+  const [vitalsData, setVitalsData] = useState<any[]>([]);
 
   const handleAddCustom = () => {
     if (!customInvestigation.trim()) return;
@@ -675,7 +693,139 @@ export default function ConsultationDrawer({
     },
   ];
 
-  const { register, setValue: setFormValue } = useForm();
+  useEffect(() => {
+    const heightInMeters = Number(form.height) / 100;
+    const weight = Number(form.weight);
+
+    if (heightInMeters && weight) {
+      const bmi = weight / (heightInMeters * heightInMeters);
+      const roundedBmi = parseFloat(bmi.toFixed(2));
+
+      let status = "";
+
+      if (roundedBmi < 16) status = "Severely underweight";
+      else if (roundedBmi < 17) status = "Very underweight";
+      else if (roundedBmi < 18.5) status = "Underweight";
+      else if (roundedBmi < 25) status = "Normal";
+      else if (roundedBmi < 30) status = "Overweight";
+      else if (roundedBmi < 35) status = "Obese Class I";
+      else if (roundedBmi < 40) status = "Obese Class II";
+      else status = "Obese Class III";
+
+      setForm((prev) => ({
+        ...prev,
+        BMI: roundedBmi.toString(),
+        BMIStatus: status,
+      }));
+    }
+  }, [form.height, form.weight]);
+
+  const handleSaveVitals = async () => {
+    try {
+      // Step 1: Construct the payload with all fields
+      const rawPayload = {
+        AppointmentId: Number(patient?.AppointmentId),
+        Systolic: Number(form.systolic),
+        Diastolic: Number(form.diastolic),
+        Weight: Number(form.weight),
+        Temperature: Number(form.temperature),
+        HeartRate: Number(form.heartRate),
+        OxygenSaturation: Number(form.oxygen),
+        Height: Number(form.height),
+        BloodGroup: form.bloodgroup,
+        BMI: Number(form.BMI),
+      };
+
+      // Step 2: Remove all keys that are "", null, or undefined
+      const cleanedPayload = Object.fromEntries(
+        Object.entries(rawPayload).filter(
+          ([_, v]) => v !== "" && v !== null && v !== undefined
+        )
+      );
+
+      // Step 3: Make API call
+      await AddUpdateVitals(cleanedPayload);
+
+      toast.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: "Vitals saved successfully",
+        life: 4000,
+        // className: "custom-toast-container",
+      });
+    } catch (error) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to save vitals",
+        life: 4000,
+        className: "custom-toast-container",
+      });
+      console.error(error);
+    }
+  };
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    getValues,
+    reset,
+    control,
+    formState: { errors, isSubmitting },
+    watch,
+  } = useForm({
+    defaultValues: {
+      bloodgroup: undefined, // ✅ don't use ""
+    },
+  });
+
+  // useEffect(() => {
+  //   if (patient?.patient?.bloodGroup) {
+  //     setValue("bloodgroup", patient.patient.bloodGroup);
+  //   }
+  // }, [patient?.patient?.bloodGroup, setValue]);
+  const appointmentId = patient?.AppointmentId;
+  useEffect(() => {
+    const fetchVitals = async () => {
+      try {
+        setVitalsLoading(true);
+        const data = await getVitalsWithHistory(appointmentId); // pass appointmentId from props/context
+        console.log("Fetched vitals data:", data);
+        setVitalsHistory(data?.data?.history || []); // store history if needed
+        if (data?.data?.current) {
+          const current = data?.data?.current || {};
+
+          setForm((prev) => ({
+            ...prev,
+            systolic: current.Systolic || "",
+            diastolic: current.Diastolic || "",
+            weight: current.Weight || "",
+            temperature: current.Temperature || "",
+            heartRate: current.HeartRate || "",
+            oxygen: current.OxygenSaturation || "",
+            height: current.Height || "",
+            bloodgroup: current.BloodGroup || "", // match backend key
+            BMI: current.BMI || "",
+            BMIStatus: current.BMIStatus || "",
+          }));
+        }
+        setVitalsLoading(false);
+      } catch (err) {
+        console.error("Failed to fetch vitals:", err);
+      }
+    };
+
+    if (appointmentId) {
+      fetchVitals();
+    }
+  }, [appointmentId]);
+
+  useEffect(() => {
+    if (form.bloodgroup) {
+      setValue("bloodgroup", form.bloodgroup); // set react-hook-form value
+    }
+  }, [form.bloodgroup, setValue]);
 
   return (
     <AnimatePresence>
@@ -1046,96 +1196,197 @@ export default function ConsultationDrawer({
                     transition={{ duration: 0.3 }}
                   >
                     <TabsContent value="vitals">
-                      <ScrollArea className="w-full font-sans">
-                        <div
-                          className={
-                            fullScreen
-                              ? "w-full  flex flex-wrap justify-center gap-4 p-4"
-                              : "w-full"
-                          }
-                        >
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 p-4">
-                            <VitalCardInput
-                              icon={<Droplet size={18} />}
-                              label="Blood Pressure"
-                              value={form.bloodPressure}
-                              name="bloodPressure"
-                              unit="mm Hg"
-                              onChange={handleChange}
-                            />
-                            <VitalCardInput
-                              icon={<Weight size={18} />}
-                              label="Weight"
-                              value={form.weight}
-                              name="weight"
-                              unit="Kg"
-                              onChange={handleChange}
-                            />
-                            <VitalCardInput
-                              icon={<Thermometer size={18} />}
-                              label="Temperature"
-                              value={form.temperature}
-                              name="temperature"
-                              unit="°F"
-                              onChange={handleChange}
-                            />
-                            <VitalCardInput
-                              icon={<HeartPulse size={18} />}
-                              label="Heart Rate"
-                              value={form.heartRate}
-                              name="heartRate"
-                              unit="bpm"
-                              onChange={handleChange}
-                            />
-                            <VitalCardInput
-                              icon={<Activity size={18} />}
-                              label="Oxygen Saturation/SpO2"
-                              value={form.oxygen}
-                              name="oxygen"
-                              unit="%"
-                              onChange={handleChange}
-                            />
-                            <VitalCardInput
-                              icon={<Ruler size={18} />}
-                              label="Height"
-                              value={form.height}
-                              name="height"
-                              unit="inch"
-                              onChange={handleChange}
-                            />
-                            <VitalCardInput
-                              icon={<Ruler size={18} />}
-                              label="Bloodgroup"
-                              value={form.bloodgroup}
-                              name="bloodgroup"
-                              unit=""
-                              onChange={handleChange}
-                            />
-                            <VitalCardInput
-                              icon={<Droplet size={18} />}
-                              label="BMI"
-                              value={form.BMI}
-                              name="bmi"
-                              unit="kg/m²"
-                              onChange={handleChange}
-                            />
-                          </div>
+                       {vitalsLoading ? (
+                            <VitalsSkeleton />
+                          ) : (
+                      <><ScrollArea className="w-full font-sans">
+                            <div className="w-full flex justify-end pr-4 mb-2 cursor-pointer">
+                              <Button
+                                variant="outline"
+                                className="text-sm font-medium border-gray-300 rounded-2xl cursor-pointer hover:bg-teal-100 transition-colors "
+                                onClick={() => {
+                                  setVitalsData(vitalsHistory); // Set vitals data
+                                  setVitalsHistoryOpen(true); // Open dialog
+                                } }
+                              >     <History className="w-4 h-4"/>
 
-                          <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3, ease: "easeOut" }}
-                            className="w-full flex justify-center mt-6"
-                          >
-                            <Button
-                              type="submit"
-                              className="px-6 py-2 text-base font-semibold rounded-2xl shadow-md  hover:bg-[#22E0D4] transition-colors duration-200 bg-[#6ce9e3] text-white"
+                                Vitals History
+                              </Button>
+                            </div>
+                            <form
+                              onSubmit={handleSubmit(handleSaveVitals)}
+                              className="w-full"
                             >
-                              Save Vitals
-                            </Button>
-                          </motion.div>
-                        </div>
-                      </ScrollArea>
+
+                              <div
+                                className={fullScreen
+                                  ? "w-full  flex flex-wrap justify-center gap-4 p-4"
+                                  : "w-full"}
+                              >
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 p-4">
+                                  <Toast ref={toast} />
+
+                                  <VitalCardInput
+                                    icon={<Droplet size={18} />}
+                                    label="Blood Pressure"
+                                    unit="mmHg"
+                                    customField={<div className="flex items-center justify-center w-full gap-1">
+                                      <input
+                                        type="text"
+                                        name="systolic"
+                                        placeholder="SBP"
+                                        value={form.systolic}
+                                        onChange={handleChange}
+                                        className="w-10 text-center border border-gray-300 rounded px-1 py-1 text-sm focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:outline-none transition-all" />
+                                      <span className="text-gray-500 text-sm">
+                                        /
+                                      </span>
+                                      <input
+                                        type="text"
+                                        name="diastolic"
+                                        placeholder="DBP"
+                                        value={form.diastolic}
+                                        onChange={handleChange}
+                                        className="w-10 text-center border border-gray-300 rounded px-1 py-1 text-sm focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:outline-none transition-all" />
+                                    </div>}
+                                    value={""}
+                                    name={""} />
+                                  <VitalCardInput
+                                    icon={<Weight size={18} />}
+                                    label="Weight"
+                                    value={form.weight}
+                                    name="weight"
+                                    unit="Kg"
+                                    onChange={handleChange} />
+                                  <VitalCardInput
+                                    icon={<Thermometer size={18} />}
+                                    label="Temperature"
+                                    value={form.temperature}
+                                    name="temperature"
+                                    unit="°F"
+                                    onChange={handleChange} />
+                                  <VitalCardInput
+                                    icon={<HeartPulse size={18} />}
+                                    label="Heart Rate"
+                                    value={form.heartRate}
+                                    name="heartRate"
+                                    unit="bpm"
+                                    onChange={handleChange} />
+                                  <VitalCardInput
+                                    icon={<Activity size={18} />}
+                                    label="SpO2"
+                                    value={form.oxygen}
+                                    name="oxygen"
+                                    unit="%"
+                                    onChange={handleChange} />
+                                  <VitalCardInput
+                                    icon={<Ruler size={18} />}
+                                    label="Height"
+                                    value={form.height}
+                                    name="height"
+                                    unit="Cm"
+                                    onChange={handleChange} />
+                                  <VitalCardInput
+                                    icon={<Ruler size={18} />}
+                                    label="Blood Group"
+                                    value={form.bloodgroup}
+                                    name="bloodgroup"
+                                    customField={<Controller
+                                      control={control}
+                                      name="bloodgroup"
+                                      render={({ field }) => (
+                                        <Select
+                                          value={form.bloodgroup}
+                                          onValueChange={(val) => setForm((prev) => ({
+                                            ...prev,
+                                            bloodgroup: val,
+                                          }))}
+                                        >
+                                          <SelectTrigger>
+                                            <SelectValue placeholder="Select" />
+                                          </SelectTrigger>
+                                          <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
+                                            {" "}
+                                            <SelectItem value="O_POS">
+                                              O+
+                                            </SelectItem>
+                                            <SelectItem value="O_NEG">
+                                              O-
+                                            </SelectItem>
+                                            <SelectItem value="A_POS">
+                                              A+
+                                            </SelectItem>
+                                            <SelectItem value="A_NEG">
+                                              A-
+                                            </SelectItem>
+                                            <SelectItem value="B_POS">
+                                              B+
+                                            </SelectItem>
+                                            <SelectItem value="B_NEG">
+                                              B-
+                                            </SelectItem>
+                                            <SelectItem value="AB_POS">
+                                              AB+
+                                            </SelectItem>
+                                            <SelectItem value="AB_NEG">
+                                              AB-
+                                            </SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                      )} />} />
+
+                                  <VitalCardInput
+                                    icon={<Droplet size={18} />}
+                                    label="BMI"
+                                    value={form.BMI}
+                                    name="bmi"
+                                    unit="kg/m²"
+                                    onChange={handleChange}
+                                    description={form.BMI ? (
+                                      <div className="flex justify-items-start mx-0 text-sm text-gray-600">
+                                        {/* <span className="font-medium ">BMI: </span>{" "}
+              {form.BMI} */}
+                                        {form.BMIStatus && (
+                                          <>
+                                            <span className="ml-4 font-medium">
+                                              Status:
+                                            </span>
+                                            <span className="text-teal-600 ml-1">
+                                              {form.BMIStatus}
+                                            </span>
+                                          </>
+                                        )}
+                                      </div>
+                                    ) : null} />
+                                </div>
+
+                                <motion.div
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ duration: 0.3, ease: "easeOut" }}
+                                  className="w-full flex justify-center mt-6"
+                                >
+                                  <Button
+                                    type="submit"
+                                    // onClick={handleSaveVitals}
+                                    className="px-6 py-2 text-base font-semibold rounded-2xl shadow-md  hover:bg-[#22E0D4] transition-colors duration-200 bg-[#6ce9e3] text-white"
+                                  >
+                                    {isSubmitting ? (
+                                      <Loader2Icon className="animate-spin" />
+                                    ) : (
+                                      "Save Vitals"
+                                    )}
+                                  </Button>
+                                </motion.div>
+                              </div>
+                              
+                            </form>
+                          </ScrollArea><VitalsHistoryDialog
+                              open={vitalsHistoryOpen}
+                              onOpenChange={setVitalsHistoryOpen}
+                              vitalsData={vitalsData} />
+                              </>
+                          )}
                     </TabsContent>
                   </motion.div>
                 )}

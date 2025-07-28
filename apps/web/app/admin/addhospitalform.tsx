@@ -470,8 +470,12 @@ const AddHospitalForm = ({
                 disabled={isSubmitting}
                 className="bg-green-400 hover:bg-green-500 text-white px-5 py-2 rounded-4xl shadow-2xl transition cursor-pointer"
               >
-{isSubmitting ? <Loader2Icon className="animate-spin" />
-                   : "Save"}              </button>
+                {isSubmitting ? (
+                  <Loader2Icon className="animate-spin" />
+                ) : (
+                  "Save"
+                )}{" "}
+              </button>
             </DialogFooter>
           </form>
         </div>

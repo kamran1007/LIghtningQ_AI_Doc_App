@@ -67,21 +67,21 @@ export class ConsultationService {
   // }
 
   async upsertVitals(dto: VitalsDto, user: number) {
+    const { AppointmentId, ...vitalsData } = dto;
+
     const existing = await this.prisma.vitals.findUnique({
-      where: { AppointmentId: dto.AppointmentId },
+      where: { AppointmentId },
     });
 
     if (existing) {
-      // Step 1: Update vitals first
       const updated = await this.prisma.vitals.update({
-        where: { AppointmentId: dto.AppointmentId },
+        where: { AppointmentId },
         data: {
-          ...dto,
+          ...vitalsData,
           createdById: existing.createdById ?? user,
         },
       });
 
-      // Step 2: Log updated values to history
       await this.prisma.vitalsHistory.create({
         data: {
           VitalsId: updated.VitalsId,
@@ -102,15 +102,14 @@ export class ConsultationService {
 
       return updated;
     } else {
-      // Step 1: Create vitals
       const created = await this.prisma.vitals.create({
         data: {
-          ...dto,
+          ...vitalsData,
+          AppointmentId, // ✅ safe to include here
           createdById: user,
         },
       });
 
-      // Step 2: Log created values to history
       await this.prisma.vitalsHistory.create({
         data: {
           VitalsId: created.VitalsId,
