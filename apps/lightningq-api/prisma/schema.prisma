@@ -694,6 +694,7 @@ model ConsultationCheifComplaint {
 model InvestigationType {
   InvestigationTypeId   Int                         @id @default(autoincrement())
   InvestigationTypeName String                      @unique
+  InvestigationTypeColorCode String? // Optional code for type
   InvestigationSubtypes InvestigationSubType[]
   investigations        ConsultationInvestigation[]
 }
@@ -708,6 +709,8 @@ model InvestigationSubType {
   @@unique([InvestigationSubTypename, InvestigationTypeId]) // Prevents duplicate subtype under same type
 }
 
+
+
 model ConsultationInvestigation {
   ConsultationInvestigationId  Int     @id @default(autoincrement())
   consultationId               Int
@@ -719,10 +722,35 @@ model ConsultationInvestigation {
   InvestigationType    InvestigationType    @relation(fields: [InvestigationTypeId], references: [InvestigationTypeId])
   InvestigationSubType InvestigationSubType @relation(fields: [InvestigationSubTypeId], references: [InvestigationSubTypeId])
 }
+model Medicine {
+  MedicineId           Int      @id @default(autoincrement())
+  MedicineName         String
+  OnlyMedicineName     String
+  Strength             String?
+  Units                String?
+  MedicineUnitId       Int?
+  ScheduleType         String?
+  MedicineTypeName     String?
+  MedicineType         Int?
+  HSNCode              String?
+  Instructions         String?
+  GenericName          String?
+  ScheduleTypeId       Int?
+  UserId               Int?
+  AvailableStock       Float    @default(0)
+  HospitalId           Int?
+  pharmacyPrice        Float?   @default(0)
+  CategoryId           Int?
+  IsFrequent           String?  @default("N")
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
+  ConsultationMedication ConsultationMedication[] // 1:N relation
+}
 model ConsultationMedication {
   ConsultationMedicationId Int     @id @default(autoincrement())
   consultationId           Int
+  medicationId             Int?
   medicationName           String
   dosage                   String
   frequency                String
@@ -730,6 +758,8 @@ model ConsultationMedication {
   remarks                  String?
 
   consultation Consultation @relation(fields: [consultationId], references: [ConsultationId])
+  medicine     Medicine?    @relation(fields: [medicationId], references: [MedicineId])
+
 }
 
 model ClinicalNote {

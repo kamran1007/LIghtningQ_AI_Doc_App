@@ -19,7 +19,7 @@ import { UpsertPatientDto } from '../manage-patient/dto/upsert-patient.dto';
 
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname, join } from 'path';
+import path, { extname, join } from 'path';
 import { CurrentUser } from 'src/auth/decorator/current-user.decorator';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { QuickAppointmentDto } from 'src/appointment/dto/create-appointment.dto';
@@ -28,6 +28,8 @@ import { VitalsDto } from 'src/consultation/dto/vitals.dto';
 import { CreateOrUpdateConsultationDto } from 'src/consultation/dto/create-update-consultation.dto';
 import { CreateInvestigationSubTypeDto } from 'src/consultation/dto/createinvestigationtype.dto';
 import { CreateDiagnosisDto } from 'src/consultation/dto/create-diagnosis.dto';
+import { CreateChiefComplaintDto } from 'src/consultation/dto/CreateCheifcomplaint.dto';
+import { CreateMedicineDto } from 'src/consultation/dto/create-medicine.dto';
 @Controller('patientcare')
 export class PatientcareController {
   constructor(
@@ -298,17 +300,6 @@ export class PatientcareController {
     return this.patientcareService.addOrUpdateConsultation(dto, CreatedBy);
   }
 
-  //add investigation
-  @Post('CreateInvestigationSubType')
-  async createSubtype(
-    @Body() dto: CreateInvestigationSubTypeDto,
-    @CurrentUser() @Req() req: any,
-  ) {
-    const CreatedBy = Number(req.user?.UserId || 1);
-
-    return this.patientcareService.createOrFindSubtype(dto, CreatedBy);
-  }
-
   @Get('Patientappointmentcasesheet/:appointmentId')
   async getConsultationByAppointmentId(
     @Param('appointmentId', ParseIntPipe) appointmentId: number,
@@ -318,11 +309,38 @@ export class PatientcareController {
     );
   }
 
-  // add  all diagnosis
-  @Post('adddiagnosis')
-  async addDiagnosis(@Body() dto: CreateDiagnosisDto) {
-    return this.patientcareService.createDiagnosis(dto);
+  // create cheif complaint
+  @Patch('addupdatechiefcomplaint')
+  async createChiefComplaint(@Body() dto: CreateChiefComplaintDto) {
+    return this.patientcareService.createChiefComplaint(dto);
   }
+
+  @Get('Getchiefcomplaint')
+  async getAllChiefComplaint() {
+    return this.patientcareService.getAllChiefComplaint();
+  }
+
+  //add investigation
+  @Patch('addupdateInvestigationSubType')
+  async addOrUpdateInvestigationSubType(
+  @Body() dto: CreateInvestigationSubTypeDto,
+  @CurrentUser() @Req() req: any,
+) {
+  const userId = Number(req.user?.UserId || 1);
+  return this.patientcareService.addOrUpdateSubtype(dto, userId);
+}
+
+  // get all investigation
+  @Get('GetInvestigationMasterData')
+  async getInvestigationMasterData() {
+    return this.patientcareService.getInvestigationMasterData();
+  }
+
+  // add  all diagnosis
+  @Patch('addupdatediagnosis')
+  async addOrUpdateDiagnosis(@Body() dto: CreateDiagnosisDto) {
+  return this.patientcareService.addOrUpdateDiagnosis(dto);
+}
 
   // get all diagnosis
   @Get('getAllDiagnosis')
@@ -330,6 +348,17 @@ export class PatientcareController {
     return this.patientcareService.getAllDiagnosis();
   }
 
+  //create medicine
+  @Patch('addupdateMedicine')
+  async addOrUpdateMedicine(@Body() dto: CreateMedicineDto) {
+  return this.patientcareService.addOrUpdateMedicine(dto);
+}
+
+  // get all medicine
+  @Get('getAllMedicine')
+  getAllMedicine() {
+    return this.patientcareService.getAllMedicine();
+  }
 
   // get all diagnosis by specialization id
   // @Get('specialization/:specializationId')
@@ -339,4 +368,3 @@ export class PatientcareController {
   //   return this.diagnosisService.getDiagnosesBySpecialization(specializationId);
   // }
 }
-

@@ -7,6 +7,8 @@ import { CreateDiagnosisDto } from './dto/create-diagnosis.dto';
 import { MailerService } from 'src/common/mailer/mailer.service';
 import { generateCaseSheetHtml } from 'src/utils/case-sheet-template';
 import { generatePdfFromHtml } from 'src/utils/pdf-generator.util';
+import { CreateChiefComplaintDto } from './dto/CreateCheifcomplaint.dto';
+import { CreateMedicineDto } from './dto/create-medicine.dto';
 
 @Injectable()
 export class ConsultationService {
@@ -604,25 +606,6 @@ export class ConsultationService {
     return consultationResult;
   }
 
-  // Create or find investigation subtype
-  async createOrFindSubtype(dto: CreateInvestigationSubTypeDto, user: number) {
-    const existing = await this.prisma.investigationSubType.findFirst({
-      where: {
-        InvestigationTypeId: dto.InvestigationTypeId,
-        InvestigationSubTypename: (dto.InvestigationSubTypename ?? '').trim(),
-      },
-    });
-
-    if (existing) return existing;
-
-    return this.prisma.investigationSubType.create({
-      data: {
-        InvestigationTypeId: dto.InvestigationTypeId,
-        InvestigationSubTypename: (dto.InvestigationSubTypename ?? '').trim(),
-      },
-    });
-  }
-
   // Get consultation by appointment ID
   async getpatientConsultationconsultationByAppointmentId(
     appointmentId: number,
@@ -659,19 +642,62 @@ export class ConsultationService {
       },
     });
   }
-  async createDiagnosis(dto: CreateDiagnosisDto) {
-    const { DiagnosisName, icdCode, specializationId } = dto;
 
-    return this.prisma.diagnosis.create({
-      data: {
-        DiagnosisName: DiagnosisName ?? '',
-        icdCode, // This is optional, can be null
-        specialization: specializationId
-          ? { connect: { SpecializationId: specializationId } }
-          : undefined,
+  //create cheif complaint
+  async addOrUpdateChiefComplaint(dto: CreateChiefComplaintDto) {
+    const { ChiefComplaintTagId, ChiefComplainTagName, specializationId } = dto;
+
+    const data = {
+      ChiefComplainTagName: ChiefComplainTagName?.trim() ?? '',
+      specialization: { connect: { SpecializationId: specializationId } },
+    };
+
+    if (ChiefComplaintTagId) {
+      return this.prisma.chiefComplaintTag.update({
+        where: { ChiefComplaintTagId },
+        data,
+      });
+    }
+
+    return this.prisma.chiefComplaintTag.create({ data });
+  }
+
+  async getAllChiefComplaint() {
+    return this.prisma.chiefComplaintTag.findMany({
+      orderBy: {
+        ChiefComplainTagName: 'asc',
+      },
+      include: {
+        specialization: true,
       },
     });
   }
+
+  // Create diagnosis
+  async addOrUpdateDiagnosis(dto: CreateDiagnosisDto) {
+    const { DiagnosisId, DiagnosisName, icdCode, specializationId } = dto;
+
+    const data = {
+      DiagnosisName: DiagnosisName?.trim() ?? '',
+      icdCode: icdCode?.trim() || null,
+      ...(specializationId && {
+        specialization: { connect: { SpecializationId: specializationId } },
+      }),
+    };
+
+    if (DiagnosisId) {
+      // 🔁 Update flow
+      return this.prisma.diagnosis.update({
+        where: { DiagnosisId },
+        data,
+      });
+    }
+
+    // 🆕 Create flow
+    return this.prisma.diagnosis.create({ data });
+  }
+
+  // Get all diagnoses
   async getAllDiagnosis() {
     return this.prisma.diagnosis.findMany({
       orderBy: {
@@ -679,6 +705,146 @@ export class ConsultationService {
       },
     });
   }
+
+  // Create or find investigation subtype
+  async addOrUpdateSubtype(dto: CreateInvestigationSubTypeDto, userId: number) {
+    const trimmedName = (dto.InvestigationSubTypename ?? '').trim();
+
+    if (dto.InvestigationSubTypeId) {
+      // 🟡 Update flow
+      return this.prisma.investigationSubType.update({
+        where: { InvestigationSubTypeId: dto.InvestigationSubTypeId },
+        data: {
+          InvestigationTypeId: dto.InvestigationTypeId,
+          InvestigationSubTypename: trimmedName,
+        },
+      });
+    }
+
+    // 🟢 Create flow with check for duplicates
+    const existing = await this.prisma.investigationSubType.findFirst({
+      where: {
+        InvestigationTypeId: dto.InvestigationTypeId,
+        InvestigationSubTypename: trimmedName,
+      },
+    });
+
+    if (existing) return existing;
+
+    return this.prisma.investigationSubType.create({
+      data: {
+        InvestigationTypeId: dto.InvestigationTypeId,
+        InvestigationSubTypename: trimmedName,
+      },
+    });
+  }
+
+  // Get investigation master data
+  async getInvestigationMasterData() {
+    const types = await this.prisma.investigationType.findMany({
+      include: {
+        InvestigationSubtypes: true,
+      },
+    });
+
+    const colorMap: Record<string, string> = {
+      // Laboratory: '#7fcdff',
+      // Imaging: '#ffc1ea',
+      Others: '#66bf9b',
+    };
+
+    const consultationInvestigation = types.map((type) => ({
+      InvestigationType: type.InvestigationTypeName,
+      InvestigationTypeId: type.InvestigationTypeId,
+      options: type.InvestigationSubtypes.map((sub) => ({
+        subInveatigationType: sub.InvestigationSubTypename,
+        value: sub.InvestigationSubTypename.toLowerCase().replace(/\s+/g, '_'),
+        // color: colorMap[type.InvestigationTypeName] || '#ccc',
+        color: type.InvestigationTypeColorCode || '#ccc',
+        InvestigationSubTypeId: sub.InvestigationSubTypeId,
+      })),
+    }));
+
+    const investigationTypeData = types.map((type) => ({
+      InvestigationTypeId: type.InvestigationTypeId,
+      InvestigationType: type.InvestigationTypeName,
+    }));
+
+    return {
+      consultationInvestigation,
+      investigationTypeData,
+    };
+  }
+
+  async addOrUpdateMedicine(dto: CreateMedicineDto) {
+    const {
+      MedicineId,
+      MedicineName,
+      OnlyMedicineName,
+      Strength,
+      Units,
+      MedicineUnitId,
+      ScheduleType,
+      MedicineTypeName,
+      MedicineType,
+      HSNCode,
+      Instructions,
+      GenericName,
+      ScheduleTypeId,
+      UserId,
+      AvailableStock,
+      HospitalId,
+      pharmacyPrice,
+      CategoryId,
+      IsFrequent,
+    } = dto;
+
+    const data = {
+      MedicineName,
+      OnlyMedicineName: OnlyMedicineName ?? '',
+      Strength: Strength ?? '',
+      Units: Units ?? '',
+      MedicineUnitId,
+      ScheduleType: ScheduleType ?? '',
+      MedicineTypeName: MedicineTypeName ?? '',
+      MedicineType,
+      HSNCode: HSNCode ?? '',
+      Instructions: Instructions ?? '',
+      GenericName: GenericName ?? '',
+      ScheduleTypeId,
+      UserId,
+      AvailableStock: AvailableStock ?? 0,
+      HospitalId,
+      pharmacyPrice: pharmacyPrice ?? 0,
+      CategoryId,
+      IsFrequent: IsFrequent ?? 'N',
+    };
+
+    if (MedicineId) {
+      // 🔁 Update existing medicine
+      return this.prisma.medicine.update({
+        where: { MedicineId },
+        data,
+      });
+    }
+
+    // 🆕 Create new medicine
+    return this.prisma.medicine.create({ data });
+  }
+
+  // Get all medicines
+  async getAllMedicine() {
+    return this.prisma.medicine.findMany({
+      orderBy: {
+        MedicineName: 'asc',
+      },
+      include: {
+        ConsultationMedication: true,
+      },
+    });
+  }
+
+  //Get all diagnosis by specialization ID
 
   // async getDiagnosesBySpecialization(specializationId: number) {
   //   return this.prisma.diagnosis.findMany({

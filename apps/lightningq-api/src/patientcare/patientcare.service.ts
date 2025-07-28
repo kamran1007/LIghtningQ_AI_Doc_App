@@ -4,7 +4,9 @@ import { QuickAppointmentDto } from 'src/appointment/dto/create-appointment.dto'
 import { UpdateAppointmentDto } from 'src/appointment/dto/update-appointment.dto';
 import { ConsultationService } from 'src/consultation/consultation.service';
 import { CreateDiagnosisDto } from 'src/consultation/dto/create-diagnosis.dto';
+import { CreateMedicineDto } from 'src/consultation/dto/create-medicine.dto';
 import { CreateOrUpdateConsultationDto } from 'src/consultation/dto/create-update-consultation.dto';
+import { CreateChiefComplaintDto } from 'src/consultation/dto/CreateCheifcomplaint.dto';
 import { CreateInvestigationSubTypeDto } from 'src/consultation/dto/createinvestigationtype.dto';
 import { VitalsDto } from 'src/consultation/dto/vitals.dto';
 import { UpsertPatientDto } from 'src/manage-patient/dto/upsert-patient.dto';
@@ -249,17 +251,28 @@ export class PatientcareService {
     };
   }
 
-  async createOrFindSubtype(
+  async addOrUpdateSubtype(
     dto: CreateInvestigationSubTypeDto,
     CreatedBy: number,
   ) {
-    const result = await this.ConsultationService.createOrFindSubtype(
+    const result = await this.ConsultationService.addOrUpdateSubtype(
       dto,
       CreatedBy,
     );
 
     return {
       message: 'investigation type created successfully',
+      data: result,
+    };
+  }
+
+  //get GetInvestigationMasterData
+
+  async getInvestigationMasterData() {
+    const result = await this.ConsultationService.getInvestigationMasterData();
+
+    return {
+      message: 'investigation master data fetched successfully',
       data: result,
     };
   }
@@ -276,10 +289,26 @@ export class PatientcareService {
     };
   }
 
+  async createChiefComplaint(dto: CreateChiefComplaintDto) {
+    const result = await this.ConsultationService.addOrUpdateChiefComplaint(dto);
+
+    return {
+      message: 'chief complaint type created successfully',
+      data: result,
+    };
+  }
+
+  async getAllChiefComplaint() {
+    const result = await this.ConsultationService.getAllChiefComplaint();
+    return {
+      message: 'All Chief Complaint data has successfully Fetch',
+      return: result,
+    };
+  }
+
   // crate Diagnosis
-    async createDiagnosis(dto: CreateDiagnosisDto) {
-    const result =
-      await this.ConsultationService.createDiagnosis(dto);
+  async addOrUpdateDiagnosis(dto: CreateDiagnosisDto) {
+    const result = await this.ConsultationService.addOrUpdateDiagnosis(dto);
 
     return {
       message: 'Diagnosis added successfully',
@@ -287,10 +316,27 @@ export class PatientcareService {
     };
   }
 
-    async getAllDiagnosis() {
+  async getAllDiagnosis() {
     const result = await this.ConsultationService.getAllDiagnosis();
     return {
       message: 'All Diagnosis  data has successfully Fetch',
+      return: result,
+    };
+  }
+
+  async addOrUpdateMedicine(dto: CreateMedicineDto) {
+    const result = await this.ConsultationService.addOrUpdateMedicine(dto);
+
+    return {
+      message: 'Medicine added successfully',
+      data: result,
+    };
+  }
+
+  async getAllMedicine() {
+    const result = await this.ConsultationService.getAllMedicine();
+    return {
+      message: 'All Medicine data has successfully Fetch',
       return: result,
     };
   }
