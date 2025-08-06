@@ -328,7 +328,9 @@ input[type="checkbox"].gradient-checkbox:checked {
 }
 
 
-
+.input-style {
+  @apply w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+}
 
 .glow-button {
   background: rgb(150, 235, 221);
@@ -483,4 +485,44 @@ input[type="checkbox"].gradient-checkbox:checked {
 
 .p-speeddial-button .p-button-icon {
   color: white !important;
+}
+
+/* :global(.p-sidebar .p-sidebar-header) {
+  display: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+} */
+
+.p-sidebar .p-sidebar-header {
+  display: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.recent-visit-wrapper {
+  position: sticky;
+  top: 80px;
+  /* Adjust based on header height */
+}
+
+
+.sticky-sidebar {
+  position: sticky;
+  top: 64px;
+  /* adjust according to your header height */
+  height: calc(100vh - 64px);
+  overflow-y: auto;
+  background-color: #fff;
+  width: 250px;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+  z-index: 100;
 }

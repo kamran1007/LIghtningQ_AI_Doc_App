@@ -100,13 +100,17 @@ export class CreateOrUpdateConsultationDto {
 
   //  @IsInt()
   // DoctorId!: number;
+  @IsOptional()
+  @IsBoolean()
+  IsconsultationCompleted?: boolean = false;
 
   @IsOptional()
   @IsBoolean()
   IsSentCaseSheet?: boolean = false;
 
+  @IsOptional()
   @IsInt()
-  ConsultationId!: number;
+  ConsultationId?: number;
 
   @IsInt()
   AppointmentId!: number;

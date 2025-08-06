@@ -64,7 +64,10 @@ export class AuthController {
         isActive: userData.isActive,
         roleId: userData.roleId,
         OrganizationId: userData.organizationId,
-        AssignHospital: userData.AdminAccess
+        AssignHospital: userData.AdminAccess,
+        SpecializationId: userData.SpecializationId ,
+        createdAt: userData.createdAt,
+        updatedAt: userData.updatedAt,
       },
     };
   }

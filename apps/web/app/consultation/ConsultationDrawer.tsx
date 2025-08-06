@@ -9,11 +9,10 @@ import { Controller, useFormContext } from "react-hook-form";
 import { SpeedDial } from "primereact/speeddial";
 import { useRouter } from "next/navigation"; // ✅ correct for app/
 import { Toast } from "primereact/toast";
+import { Tooltip } from "primereact/tooltip";
 
 import {
-  Phone,
-  Mail,
-  CalendarClock,
+ 
   Stethoscope,
   AlertTriangle,
   Thermometer,
@@ -24,29 +23,17 @@ import {
   Activity,
   AtSign,
   PhoneCall,
-  Barcode,
   ClipboardPlus,
   Languages,
   MilkOff,
   BriefcaseMedical,
   CalendarDays,
-  User,
   UserRound,
   NotebookPen,
-  StickyNote,
-  ClipboardList,
-  SearchCheck,
-  CalendarCheck,
-  Pill,
-  Microscope,
-  PlusCircle,
-  Mic,
-  MicOff,
-  Plus,
-  Trash2,
-  Loader2Icon,
   History,
-
+  Droplets,
+  Scale
+ 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,8 +47,6 @@ import Image from "next/image";
 import { Label, Separator } from "@radix-ui/react-dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VitalCardInput } from "./VitalCardInput";
-import { Card } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
 interface ConsultationDrawerProps {
   open: boolean;
   onClose: () => void;
@@ -75,7 +60,6 @@ import { useForm } from "react-hook-form";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
-import CreatableSelect from "react-select/creatable";
 import { useEffect } from "react";
 import TreatmentInstructionsCard from "./TreatmentInstructions";
 import {
@@ -85,11 +69,24 @@ import {
   SelectContent,
   SelectValue,
 } from "@/components/ui/select";
-import { AddUpdateVitals, getVitalsWithHistory } from "@/lib/consultation";
+import {
+  addupdateConsultation,
+  AddUpdateVitals,
+  getVitalsWithHistory,
+} from "@/lib/consultation";
 import { is, tr } from "date-fns/locale";
 import VitalsSkeleton from "@/components/ui/skeletonloader/VitalsSkeleton";
 import setVitalsHistoryOpen from "./VitalsHistoryDialog";
 import VitalsHistoryDialog from "./VitalsHistoryDialog";
+import { ChiefComplaintCard } from "./ChiefComplaintCard";
+import InvestigationCard from "./InvestigationCard";
+import DiagnosisInputCard from "./DiagnosisInputCard";
+import ClinicalNotesCard from "./ClinicalNotesCard";
+import MedicationCard from "./MedicationCard";
+import FollowUpPlanCard from "./FollowUpPlanCard";
+import { useAppDispatch } from "@/store/hooks";
+import { fetchAllAppointmentPatient } from "@/store/AppointmentSlice";
+import { title } from "process";
 export default function ConsultationDrawer({
   open,
   onClose,
@@ -164,7 +161,7 @@ export default function ConsultationDrawer({
     // followUp: "",
     followUpDuration: string;
     followUpUnit: string;
-    Clinicalnotes: string;
+    clinicalnotesText: string;
     // bloodPressure: string;
     systolic: string;
     diastolic: string;
@@ -179,7 +176,7 @@ export default function ConsultationDrawer({
     complaint: string;
     notes: string;
     investigations: string[];
-    investigationRemarks: string;
+    investigationRemarks: Record<string, string>;
     diagnosis: string;
     treatment: string;
     followUp: string;
@@ -195,7 +192,7 @@ export default function ConsultationDrawer({
     // followUp: "",
     followUpDuration: "",
     followUpUnit: "",
-    Clinicalnotes: "",
+    clinicalnotesText: "",
     // bloodPressure: "",
     systolic: "",
     diastolic: "",
@@ -210,7 +207,7 @@ export default function ConsultationDrawer({
     complaint: "",
     notes: "",
     investigations: [],
-    investigationRemarks: "",
+    investigationRemarks: {},
     diagnosis: "",
     treatment: "",
     followUp: "",
@@ -253,39 +250,6 @@ export default function ConsultationDrawer({
     }));
   };
   const [selectedTab, setSelectedTab] = useState("vitals");
-  const investigationOptions = [
-    {
-      label: "Laboratory",
-      options: [
-        { label: "CBC", value: "cbc", color: "#7fcdff" }, // light blue
-        { label: "LFT", value: "lft", color: "#7fcdff" },
-        { label: "RFT", value: "rft", color: "#7fcdff" },
-        { label: "Blood Sugar", value: "blood_sugar", color: "#7fcdff" },
-        { label: "Thyroid Profile", value: "thyroid", color: "#7fcdff" },
-      ],
-    },
-    {
-      label: "Imaging",
-      options: [
-        { label: "Chest X-Ray", value: "xray_chest", color: "#ffc1ea" }, // light pink
-        { label: "Ultrasound Abdomen", value: "usg_abdomen", color: "#ffc1ea" },
-        { label: "CT Scan Brain", value: "ct_brain", color: "#ffc1ea" },
-        { label: "MRI Spine", value: "mri_spine", color: "#ffc1ea" },
-      ],
-    },
-    {
-      label: "Others",
-      options: [
-        { label: "ECG", value: "ecg", color: "#66bf9b" }, // light green
-        { label: "Echo", value: "echo", color: "#66bf9b" },
-      ],
-    },
-  ];
-  const investigationCategories = [
-    { label: "Laboratory", value: "Laboratory" },
-    { label: "Imaging", value: "Imaging" },
-    { label: "Others", value: "Others" },
-  ];
 
   const [notes, setNotes] = useState("");
 
@@ -296,11 +260,17 @@ export default function ConsultationDrawer({
     freeText: string | null;
     createdAt: Date;
   }
-  const [customInvestigation, setCustomInvestigation] = useState("");
+  interface Diagnosis {
+    DiagnosisId: number;
+    DiagnosisName: string;
+  }
+
   const [customCategory, setCustomCategory] = useState("Others"); // default
   const [chiefComplaints, setChiefComplaints] = useState<string[]>([]); // for tags
   const [complaintText, setComplaintText] = useState<string>(""); // for speech
-  const [clinicalnotesText, setClinicalnotesText] = useState<string>(""); // for clinical notes
+  const [clinicalnotesText, setClinicalnotesText] = useState<string>(
+    form.clinicalnotesText || ""
+  );
   const [diagnosisInput, setDiagnosisInput] = useState("");
   const [diagnoses, setDiagnoses] = useState<string[]>([]);
   const [listenings, setListenings] = useState(false);
@@ -309,73 +279,26 @@ export default function ConsultationDrawer({
   const [vitalsHistory, setVitalsHistory] = useState<any[]>([]);
   const [vitalsHistoryOpen, setVitalsHistoryOpen] = useState(false);
   const [vitalsData, setVitalsData] = useState<any[]>([]);
+  const [selectedChiefComplaints, setSelectedChiefComplaints] = useState([]);
+  const [investigationCategories, setInvestigationCategories] = useState([]);
+  const [InvestigationSubTypename, setCustomInvestigation] =
+    useState<string>("");
 
-  const handleAddCustom = () => {
-    if (!customInvestigation.trim()) return;
+  const [listeningClinicalNote, setListeningClinicalNote] = useState(false);
+  const [listeningInvestigation, setListeningInvestigation] = useState(false);
+  const [listeningDiagnosis, setListeningDiagnosis] = useState<string | null>(
+    null
+  ); // for per-diagnosis key
+  const [listeningTreatment, setListeningTreatment] = useState(false);
+  const [listeningChiefComplaint, setListeningChiefComplaint] = useState(false);
+  const [selectedInvestigationKey, setSelectedInvestigationKey] = useState<
+    string | null
+  >(null);
+  // const [remarkMap, setRemarkMap] = useState<Record<string, string>>({});
+  const [remarkMap, setRemarkMap] = useState<{ [key: string]: string }>({});
 
-    const colorMap = {
-      Laboratory: "#7fcdff",
-      Imaging: "#ffc1ea",
-      Others: "#66bf9b",
-    };
-
-    const newOption = {
-      label: customInvestigation,
-      value: customInvestigation.toLowerCase().replace(/\s+/g, "_"),
-      color: colorMap[customCategory] || "#ccc", // Fallback gray
-    };
-
-    const updatedOptions = investigationOptions.map((group) => {
-      if (group.label === customCategory) {
-        return {
-          ...group,
-          options: [...group.options, newOption],
-        };
-      }
-      return group;
-    });
-
-    setInvestigationOptions(updatedOptions);
-    setForm((prev) => ({
-      ...prev,
-      investigations: [...(prev.investigations || []), newOption],
-    }));
-    setCustomInvestigation("");
-  };
-
-  // const handleAddCustom = () => {
-  //   if (customInvestigation.trim() === "") return;
-  //   setForm((prev) => ({
-  //     ...prev,
-  //     investigations: [...(prev.investigations || []), customInvestigation],
-  //   }));
-  //   setCustomInvestigation("");
-  // };
-
-  const groupStyles = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-  };
-  const groupBadgeStyles: CSSProperties = {
-    backgroundColor: "#c0f9f6",
-    borderRadius: "2em",
-    color: "#172B4D",
-    display: "inline-block",
-    fontSize: 12,
-    fontWeight: "normal",
-    lineHeight: "1",
-    minWidth: 1,
-    padding: "0.16666666666667em 0.5em",
-    textAlign: "center",
-  };
-
-  const formatGroupLabel = (data: any) => (
-    <div style={groupStyles}>
-      <span>{data.label}</span>
-      <span style={groupBadgeStyles}>{data.options.length}</span>
-    </div>
-  );
+  // console.log("Selected Chief Complaints:", selectedChiefComplaints);
+  const dispatch = useAppDispatch();
 
   const customStyles: StylesConfig<any, true> = {
     option: (styles, { data, isFocused, isSelected }) => {
@@ -411,23 +334,8 @@ export default function ConsultationDrawer({
     }),
   };
 
-  const commonComplaints = [
-    { value: "Fever", label: "Fever" },
-    { value: "Cough", label: "Cough" },
-    { value: "Headache", label: "Headache" },
-    { value: "Chest pain", label: "Chest pain" },
-    { value: "Abdominal pain", label: "Abdominal pain" },
-  ];
   const [inputValue, setInputValue] = useState("");
 
-  // const [complaintText, setComplaintText] = useState("");
-  const handleMicClick = () => {
-    if (listening) {
-      SpeechRecognition.stopListening();
-    } else {
-      SpeechRecognition.startListening({ continuous: false });
-    }
-  };
   const {
     transcript,
     listening,
@@ -437,118 +345,141 @@ export default function ConsultationDrawer({
 
   // On stop listening, update input
   useEffect(() => {
-    if (!listening && transcript) {
+    if (!listeningChiefComplaint && transcript) {
       setComplaintText((prev) =>
         prev ? `${prev}, ${transcript}` : transcript
       );
       resetTranscript();
     }
-  }, [listening]);
+  }, [listeningChiefComplaint]);
 
   if (!browserSupportsSpeechRecognition) {
     return <p>Your browser does not support speech recognition.</p>;
   }
 
-  const handleClinicalNoteMicClick = () => {
-    if (listening) {
-      SpeechRecognition.stopListening();
-    } else {
-      SpeechRecognition.startListening({ continuous: true });
-    }
-  };
-
   useEffect(() => {
-    if (!listening && transcript) {
+    if (!listeningClinicalNote && transcript) {
       setClinicalnotesText((prev) =>
         prev ? `${prev}, ${transcript}` : transcript
       );
       resetTranscript();
     }
-  }, [listening]);
+  }, [listeningClinicalNote]);
 
-  const icdSuggestions = [
-    "Acute Pharyngitis",
-    "Fever NOS",
-    "COVID-19",
-    "Migraine",
-    "Type 2 Diabetes",
-    "Chronic Obstructive Pulmonary Disease",
-    "Hypertension",
-    "Gastritis",
-    "UTI",
-    "Asthma",
-  ];
-
-  const filteredSuggestions = diagnosisInput
-    ? icdSuggestions.filter((item) =>
-        item.toLowerCase().includes(diagnosisInput.toLowerCase())
-      )
-    : [];
-  const noMatch = diagnosisInput && filteredSuggestions.length === 0;
-
-  const handleAddDiagnosis = () => {
-    if (diagnosisInput.trim()) {
-      setDiagnoses([...diagnoses, diagnosisInput.trim()]);
-      setDiagnosisInput("");
-      setShowSuggestions(false);
+  useEffect(() => {
+    if (!listeningTreatment && transcript) {
+      setForm((prev: any) => ({
+        ...prev,
+        treatment: prev.treatment
+          ? prev.treatment + " " + transcript
+          : transcript,
+      }));
+      resetTranscript();
     }
-  };
+  }, [listeningTreatment]);
 
-  const handleSelectSuggestion = (value: string) => {
-    setDiagnosisInput(value);
-    setShowSuggestions(false);
-  };
+  if (!browserSupportsSpeechRecognition) {
+    return <p>Your browser does not support speech recognition.</p>;
+  }
 
-  const handleRemoveDiagnosis = (index: number) => {
-    setDiagnoses(diagnoses.filter((_, i) => i !== index));
-  };
+  useEffect(() => {
+    if (!listening && listeningInvestigation && transcript) {
+      setForm((prev) => ({
+        ...prev,
+        investigationRemarks: {
+          ...prev.investigationRemarks,
+          [selectedInvestigationKey]: prev.investigationRemarks?.[
+            selectedInvestigationKey
+          ]
+            ? prev.investigationRemarks[selectedInvestigationKey] +
+              " " +
+              transcript
+            : transcript,
+        },
+      }));
+      resetTranscript();
+      setListeningInvestigation(false);
+    }
+  }, [listening, transcript, listeningInvestigation]);
+
+  if (!browserSupportsSpeechRecognition) {
+    return <p>Your browser does not support speech recognition.</p>;
+  }
 
   // Optional: voice recognition
-  const handleDiagnosisMicClick = () => {
-    if (
-      !("webkitSpeechRecognition" in window || "SpeechRecognition" in window)
-    ) {
-      alert("Your browser does not support Speech Recognition.");
-      return;
+
+  const stopAllListening = () => {
+    SpeechRecognition.stopListening();
+    setListeningClinicalNote(false);
+    setListeningInvestigation(false);
+    setListeningDiagnosis(null);
+    setListeningTreatment(false);
+    setListeningChiefComplaint(false);
+  };
+  const handleChiefComplaintMicClick = () => {
+    if (listeningChiefComplaint) {
+      SpeechRecognition.stopListening();
+      setListeningChiefComplaint(false);
+    } else {
+      stopAllListening();
+      setListeningChiefComplaint(true);
+      SpeechRecognition.startListening({
+        continuous: false,
+        language: "en-IN",
+      });
     }
-
-    const SpeechRecognition =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition;
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = "en-IN"; // Better for Indian English
-    recognition.continuous = false;
-    recognition.interimResults = false;
-
-    recognition.onstart = () => setListenings(true);
-    recognition.onerror = (event: any) => {
-      console.error("Speech recognition error:", event.error);
-      setListenings(false);
-    };
-    recognition.onend = () => setListenings(false);
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setDiagnosisInput((prev) => `${prev} ${transcript}`.trim());
-    };
-
-    recognition.start();
+  };
+  const handleClinicalNoteMicClick = () => {
+    if (listeningClinicalNote) {
+      SpeechRecognition.stopListening();
+      setListeningClinicalNote(false);
+    } else {
+      stopAllListening();
+      setListeningClinicalNote(true);
+      SpeechRecognition.startListening({
+        continuous: false,
+        language: "en-IN",
+      });
+    }
   };
 
-  const handleCheifComplaintChange = (selectedOptions) => {
-    setForm((prev) => ({
-      ...prev,
-      complaints: selectedOptions,
-    }));
+  // const handleInvestigationMicClick = (key: string) => {
+  //   if (!browserSupportsSpeechRecognition) {
+  //     alert("Your browser does not support speech recognition.");
+  //     return;
+  //   }
+
+  //   if (listeningInvestigation) {
+  //     SpeechRecognition.stopListening();
+  //     setListeningInvestigation(false);
+  //     setSelectedInvestigationKey(null);
+  //   } else {
+  //     stopAllListening();
+  //     resetTranscript();
+  //     setSelectedInvestigationKey(key); // capture which field to update
+  //     setListeningInvestigation(true);
+  //     SpeechRecognition.startListening({
+  //       continuous: false,
+  //       language: "en-IN",
+  //     });
+  //   }
+  // };
+
+  const handleTreatmentMicClick = () => {
+    if (listeningTreatment) {
+      SpeechRecognition.stopListening();
+      setListeningTreatment(false);
+    } else {
+      stopAllListening();
+      setListeningTreatment(true);
+      resetTranscript();
+      SpeechRecognition.startListening({
+        continuous: false,
+        language: "en-IN",
+      });
+    }
   };
 
-  const chiefComplaintOptions = [
-    { label: "Fever", value: "fever" },
-    { label: "Cough", value: "cough" },
-    { label: "Headache", value: "headache" },
-    { label: "Stomach Pain", value: "stomach_pain" },
-    // Add more common complaints
-  ];
   const customsStyles: StylesConfig<any, true> = {
     control: (base) => ({
       ...base,
@@ -573,55 +504,11 @@ export default function ConsultationDrawer({
     }),
   };
 
-  const handleTreatmentMicClick = () => {
-    if (listening) {
-      SpeechRecognition.stopListening();
-    } else {
-      resetTranscript(); // Start fresh each time
-      SpeechRecognition.startListening({
-        continuous: false,
-        language: "en-IN",
-      });
-    }
-  };
-
-  useEffect(() => {
-    if (!listening && transcript) {
-      setForm((prev: any) => ({
-        ...prev,
-        treatment: prev.treatment
-          ? prev.treatment + " " + transcript
-          : transcript,
-      }));
-      resetTranscript();
-    }
-  }, [listening]);
-
-  if (!browserSupportsSpeechRecognition) {
-    return <p>Your browser does not support speech recognition.</p>;
-  }
-
   const handleRemoveMedication = (index: number) => {
     setForm((prev) => ({
       ...prev,
       medications: prev.medications.filter((_, i) => i !== index),
     }));
-  };
-  const handleFollowUpMicClick = () => {
-    const recognition = new window.webkitSpeechRecognition();
-    recognition.lang = "en-IN";
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    recognition.onresult = (event) => {
-      const speechResult = event.results[0][0].transcript;
-      setForm((prev) => ({
-        ...prev,
-        followUp: prev.followUp + " " + speechResult,
-      }));
-    };
-
-    recognition.start();
   };
 
   const handleFollowUpShortcut = (code: string) => {
@@ -654,32 +541,40 @@ export default function ConsultationDrawer({
     {
       label: "Add",
       icon: "pi pi-pencil",
-      command: () =>
+      command: () => {
         toast.current?.show({
           severity: "info",
           summary: "Add",
           detail: "Data Added",
-        }),
+        });
+      },
     },
     {
-      label: "Update",
-      icon: "pi pi-refresh",
-      command: () =>
-        toast.current?.show({
-          severity: "success",
-          summary: "Update",
-          detail: "Data Updated",
-        }),
+      label: "Complete Consultation",
+      icon: "pi pi-file-check",
+      title: "Complete Consultation",
+      template: (item, options) => (
+      <div {...options} title="Complete Consultation" >
+        <i className={item.icon} />
+        {/* <span>{item.label}</span> */}
+      </div>),
+      command: () => {
+        handleSaveConsultation("Complete");
+        
+      },
     },
     {
       label: "Save",
       icon: "pi pi-save",
-      command: () =>
-        toast.current?.show({
-          severity: "success",
-          summary: "Save",
-          detail: "Data Save",
-        }),
+      template: (item, options) => (
+      <div {...options} title="Save">
+        <i className={item.icon} />
+        {/* <span>{item.label}</span> */}
+      </div>
+    ),
+      command: () => {
+        handleSaveConsultation("save");
+      },
     },
     {
       label: "Upload",
@@ -690,6 +585,8 @@ export default function ConsultationDrawer({
       label: "React Website",
       icon: "pi pi-external-link",
       command: () => (window.location.href = "https://react.dev/"),
+      
+       
     },
   ];
 
@@ -826,6 +723,225 @@ export default function ConsultationDrawer({
       setValue("bloodgroup", form.bloodgroup); // set react-hook-form value
     }
   }, [form.bloodgroup, setValue]);
+
+  const handleSaveConsultation = async (type: string) => {
+    try {
+      const isComplete = type?.toLowerCase() === "complete"; // case-insensitive check
+
+      const payload = {
+        ConsultationId: patient?.consultationId || 0,
+        AppointmentId: appointmentId, // Replace with your source
+        consultationDatTime: new Date().toISOString(),
+        consultationEndDateTime: new Date().toISOString(),
+        CheifcomplaintNotes: form?.notes || complaintText,
+        IsSentCaseSheet: isComplete,
+        IsconsultationCompleted: isComplete,
+        ConsultationCheifComplaint: (selectedChiefComplaints || []).map(
+          (item) => ({
+            ChiefComplaintTagId: item?.ChiefComplaintTagId || 0,
+          })
+        ),
+
+        ConsultationInvestigation: (form.investigations || []).map((inv) => ({
+          InvestigationTypeId: inv?.InvestigationTypeId,
+          InvestigationSubTypeId: inv?.InvestigationSubTypeId,
+          ConsultationInvestigatRemark:
+            form.investigationRemarks?.[inv.value] || "",
+        })),
+
+        ConsultationMedication: (form.medications || []).map((med) => ({
+          medicationName: med.drug,
+          dosage: med.dosage,
+          frequency: med.frequency,
+          duration: med.duration,
+          remarks: med.notes,
+        })),
+
+        ConsultationclinicalNotes: clinicalnotesText
+          ? [{ content: clinicalnotesText }]
+          : [],
+
+        ConsultationDiagnosis: (diagnoses || []).map((diag) => ({
+          diagnosisId: Number(diag?.DiagnosisId),
+          DiagnosisName: diag?.label,
+          DiagnosisRemark: remarkMap?.[diag?.DiagnosisId] || "",
+        })),
+
+        ConsultationTreatment: [
+          {
+            treatmentText: form.treatment,
+            source: "TYPED", // Or DICTATED/SNIPPET if needed
+          },
+        ],
+
+        ConsultationFollowUpPlan: {
+          followUpText: form.followUp || "",
+          duration: parseInt(form.followUpDuration, 10) || undefined,
+          unit: form.followUpUnit || undefined,
+          nextDate: calculateFollowUpDate(
+            form.followUpDuration,
+            form.followUpUnit
+          ),
+        },
+
+        followUpDate: calculateFollowUpDate(
+          form.followUpDuration,
+          form.followUpUnit
+        ),
+      };
+
+      console.log("Submitting payload: ", payload);
+
+      await addupdateConsultation(payload);
+
+      toast.current?.show({
+        severity: "success",
+        summary: "Saved",
+        detail: "Consultation successfully saved.",
+      });
+      setTimeout(() => {
+        onClose(); // ✅ Correctly calling the onClose function
+        dispatch(fetchAllAppointmentPatient({ page: 1, limit: 10 }));
+      }, 800);
+    } catch (error) {
+      console.error("❌ Error saving consultation", error);
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to save consultation.",
+      });
+    }
+  };
+
+  const calculateFollowUpDate = (duration: string, unit: string) => {
+    if (!duration || isNaN(Number(duration))) return null;
+
+    const date = new Date();
+    const intDuration = parseInt(duration, 10);
+
+    switch (unit) {
+      case "Days":
+        date.setDate(date.getDate() + intDuration);
+        break;
+      case "Weeks":
+        date.setDate(date.getDate() + intDuration * 7);
+        break;
+      case "Months":
+        date.setMonth(date.getMonth() + intDuration);
+        break;
+      case "Years":
+        date.setFullYear(date.getFullYear() + intDuration);
+        break;
+      default:
+        return null;
+    }
+    return date.toISOString();
+  };
+  //binding consultation data
+  useEffect(() => {
+    if (patient?.consultation) {
+      const consultation = patient.consultation;
+
+      // Chief Complaints
+      const chiefComplaintsFromDB =
+        consultation.ConsultationCheifComplaint?.map((c: any) => ({
+          label: c?.chiefComplaint?.ChiefComplainTagName,
+          value: c?.chiefComplaint?.ChiefComplainTagName,
+          ChiefComplaintTagId: c?.chiefComplaint?.ChiefComplaintTagId,
+        })) || [];
+      setSelectedChiefComplaints(chiefComplaintsFromDB);
+      setComplaintText(consultation.CheifcomplaintNotes);
+      // setChiefComplaintOptions
+      // Clinical Notes
+      const clinicalNotesFromDB =
+        consultation.ConsultationclinicalNotes?.[0]?.content || "";
+      setClinicalnotesText(clinicalNotesFromDB);
+
+      // Diagnosis
+      const diagnosisList =
+        consultation.ConsultationDiagnosis?.map((d: any) => ({
+          label: d?.diagnosis?.DiagnosisName || "",
+          DiagnosisId: d?.diagnosis?.DiagnosisId?.toString() || "",
+        })) || [];
+
+      const diagnosisRemarkMap: Record<string, string> = {};
+      consultation.ConsultationDiagnosis?.forEach((d: any) => {
+        if (d?.diagnosisId) {
+          diagnosisRemarkMap[d.diagnosisId.toString()] =
+            d?.DiagnosisRemark || "";
+        }
+      });
+
+      setDiagnoses(diagnosisList);
+      setRemarkMap(diagnosisRemarkMap);
+
+      // Investigations
+      const investigationValues =
+        consultation.ConsultationInvestigation?.map((i: any) => ({
+          label: i?.InvestigationSubType?.InvestigationSubTypename,
+          value: i?.InvestigationSubTypeId,
+          InvestigationTypeId: i?.InvestigationTypeId,
+          InvestigationSubTypeId: i?.InvestigationSubTypeId,
+          InvestigationType: i?.InvestigationType?.InvestigationTypeName,
+          color: i?.InvestigationType?.InvestigationTypeColorCode,
+        })) || [];
+
+      const investigationRemarks =
+        consultation.ConsultationInvestigation?.reduce(
+          (acc: Record<string, string>, i: any) => {
+            acc[i?.InvestigationSubTypeId] =
+              i?.ConsultationInvestigatRemark || "";
+            return acc;
+          },
+          {}
+        ) || {};
+      console.log("INVESTIGATION REMARK ", investigationRemarks);
+      setForm((prev: any) => ({
+        ...prev,
+        investigations: investigationValues,
+        investigationRemarks,
+      }));
+      console.log("Rendering remarks for:", form.investigations);
+      console.log("Remarks:", form.investigationRemarks);
+
+      // Treatment Instructions
+      const treatmentText =
+        consultation.ConsultationTreatment?.[0]?.treatmentText || "";
+      setForm((prev: any) => ({
+        ...prev,
+        treatment: treatmentText,
+      }));
+
+      // Follow-up
+      const followUpData = consultation.ConsultationFollowUpPlan[0];
+
+      const formattedDate = followUpData.nextDate
+        ? new Date(followUpData.nextDate).toISOString().slice(0, 10)
+        : "";
+
+      setForm((prev: any) => ({
+        ...prev,
+        followUp: followUpData.followUpText || "",
+        followUpDuration: followUpData.duration?.toString() || "",
+        followUpUnit: followUpData.unit || "Days", // Default unit
+      }));
+
+      // Medications
+      const meds =
+        consultation.ConsultationMedication?.map((m: any) => ({
+          drug: m?.medicationName || "",
+          dosage: m?.dosage || "",
+          frequency: m?.frequency || "",
+          duration: m?.duration || "",
+          notes: m?.remarks || "",
+        })) || [];
+      console.log("medicine", meds);
+      setForm((prev: any) => ({
+        ...prev,
+        medications: meds.length > 0 ? meds : prev.medications,
+      }));
+    }
+  }, [patient]);
 
   return (
     <AnimatePresence>
@@ -1196,10 +1312,11 @@ export default function ConsultationDrawer({
                     transition={{ duration: 0.3 }}
                   >
                     <TabsContent value="vitals">
-                       {vitalsLoading ? (
-                            <VitalsSkeleton />
-                          ) : (
-                      <><ScrollArea className="w-full font-sans">
+                      {vitalsLoading ? (
+                        <VitalsSkeleton />
+                      ) : (
+                        <>
+                          <ScrollArea className="w-full font-sans">
                             <div className="w-full flex justify-end pr-4 mb-2 cursor-pointer">
                               <Button
                                 variant="outline"
@@ -1207,9 +1324,10 @@ export default function ConsultationDrawer({
                                 onClick={() => {
                                   setVitalsData(vitalsHistory); // Set vitals data
                                   setVitalsHistoryOpen(true); // Open dialog
-                                } }
-                              >     <History className="w-4 h-4"/>
-
+                                }}
+                              >
+                                {" "}
+                                <History className="w-4 h-4" />
                                 Vitals History
                               </Button>
                             </div>
@@ -1217,11 +1335,12 @@ export default function ConsultationDrawer({
                               onSubmit={handleSubmit(handleSaveVitals)}
                               className="w-full"
                             >
-
                               <div
-                                className={fullScreen
-                                  ? "w-full  flex flex-wrap justify-center gap-4 p-4"
-                                  : "w-full"}
+                                className={
+                                  fullScreen
+                                    ? "w-full  flex flex-wrap justify-center gap-4 p-4"
+                                    : "w-full"
+                                }
                               >
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 p-4">
                                   <Toast ref={toast} />
@@ -1230,140 +1349,164 @@ export default function ConsultationDrawer({
                                     icon={<Droplet size={18} />}
                                     label="Blood Pressure"
                                     unit="mmHg"
-                                    customField={<div className="flex items-center justify-center w-full gap-1">
-                                      <input
-                                        type="text"
-                                        name="systolic"
-                                        placeholder="SBP"
-                                        value={form.systolic}
-                                        onChange={handleChange}
-                                        className="w-10 text-center border border-gray-300 rounded px-1 py-1 text-sm focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:outline-none transition-all" />
-                                      <span className="text-gray-500 text-sm">
-                                        /
-                                      </span>
-                                      <input
-                                        type="text"
-                                        name="diastolic"
-                                        placeholder="DBP"
-                                        value={form.diastolic}
-                                        onChange={handleChange}
-                                        className="w-10 text-center border border-gray-300 rounded px-1 py-1 text-sm focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:outline-none transition-all" />
-                                    </div>}
+                                    customField={
+                                      <div className="flex items-center justify-center w-full gap-1">
+                                        <input
+                                          type="text"
+                                          maxLength={3}
+                                          name="systolic"
+                                          placeholder="SBP"
+                                          value={form.systolic}
+                                          onChange={handleChange}
+                                          className="w-10 text-center border border-gray-300 rounded px-1 py-1 text-sm focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:outline-none transition-all"
+                                        />
+                                        <span className="text-gray-500 text-sm">
+                                          /
+                                        </span>
+                                        <input
+                                          type="text"
+                                          maxLength={3}
+                                          name="diastolic"
+                                          placeholder="DBP"
+                                          value={form.diastolic}
+                                          onChange={handleChange}
+                                          className="w-10 text-center border border-gray-300 rounded px-1 py-1 text-sm focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:outline-none transition-all"
+                                        />
+                                      </div>
+                                    }
                                     value={""}
-                                    name={""} />
+                                    name={""}
+                                  />
                                   <VitalCardInput
                                     icon={<Weight size={18} />}
                                     label="Weight"
                                     value={form.weight}
                                     name="weight"
                                     unit="Kg"
-                                    onChange={handleChange} />
+                                    onChange={handleChange}
+                                  />
                                   <VitalCardInput
                                     icon={<Thermometer size={18} />}
                                     label="Temperature"
                                     value={form.temperature}
                                     name="temperature"
                                     unit="°F"
-                                    onChange={handleChange} />
+                                    onChange={handleChange}
+                                  />
                                   <VitalCardInput
                                     icon={<HeartPulse size={18} />}
                                     label="Heart Rate"
                                     value={form.heartRate}
                                     name="heartRate"
                                     unit="bpm"
-                                    onChange={handleChange} />
+                                    onChange={handleChange}
+                                  />
                                   <VitalCardInput
                                     icon={<Activity size={18} />}
                                     label="SpO2"
                                     value={form.oxygen}
                                     name="oxygen"
                                     unit="%"
-                                    onChange={handleChange} />
+                                    onChange={handleChange}
+                                  />
                                   <VitalCardInput
                                     icon={<Ruler size={18} />}
                                     label="Height"
                                     value={form.height}
                                     name="height"
                                     unit="Cm"
-                                    onChange={handleChange} />
+                                    onChange={handleChange}
+                                  />
                                   <VitalCardInput
-                                    icon={<Ruler size={18} />}
+                                    icon={<Droplets size={18} />}
                                     label="Blood Group"
                                     value={form.bloodgroup}
                                     name="bloodgroup"
-                                    customField={<Controller
-                                      control={control}
-                                      name="bloodgroup"
-                                      render={({ field }) => (
-                                        <Select
-                                          value={form.bloodgroup}
-                                          onValueChange={(val) => setForm((prev) => ({
-                                            ...prev,
-                                            bloodgroup: val,
-                                          }))}
-                                        >
-                                          <SelectTrigger>
-                                            <SelectValue placeholder="Select" />
-                                          </SelectTrigger>
-                                          <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
-                                            {" "}
-                                            <SelectItem value="O_POS">
-                                              O+
-                                            </SelectItem>
-                                            <SelectItem value="O_NEG">
-                                              O-
-                                            </SelectItem>
-                                            <SelectItem value="A_POS">
-                                              A+
-                                            </SelectItem>
-                                            <SelectItem value="A_NEG">
-                                              A-
-                                            </SelectItem>
-                                            <SelectItem value="B_POS">
-                                              B+
-                                            </SelectItem>
-                                            <SelectItem value="B_NEG">
-                                              B-
-                                            </SelectItem>
-                                            <SelectItem value="AB_POS">
-                                              AB+
-                                            </SelectItem>
-                                            <SelectItem value="AB_NEG">
-                                              AB-
-                                            </SelectItem>
-                                          </SelectContent>
-                                        </Select>
-                                      )} />} />
+                                    customField={
+                                      <Controller
+                                        control={control}
+                                        name="bloodgroup"
+                                        render={({ field }) => (
+                                          <Select
+                                            value={form.bloodgroup}
+                                            onValueChange={(val) =>
+                                              setForm((prev) => ({
+                                                ...prev,
+                                                bloodgroup: val,
+                                              }))
+                                            }
+                                          >
+                                            <SelectTrigger>
+                                              <SelectValue placeholder="Select" />
+                                            </SelectTrigger>
+                                            <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
+                                              {" "}
+                                              <SelectItem value="O_POS">
+                                                O+
+                                              </SelectItem>
+                                              <SelectItem value="O_NEG">
+                                                O-
+                                              </SelectItem>
+                                              <SelectItem value="A_POS">
+                                                A+
+                                              </SelectItem>
+                                              <SelectItem value="A_NEG">
+                                                A-
+                                              </SelectItem>
+                                              <SelectItem value="B_POS">
+                                                B+
+                                              </SelectItem>
+                                              <SelectItem value="B_NEG">
+                                                B-
+                                              </SelectItem>
+                                              <SelectItem value="AB_POS">
+                                                AB+
+                                              </SelectItem>
+                                              <SelectItem value="AB_NEG">
+                                                AB-
+                                              </SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        )}
+                                      />
+                                    }
+                                  />
 
                                   <VitalCardInput
-                                    icon={<Droplet size={18} />}
+                                    icon={<Scale  size={18} />}
                                     label="BMI"
                                     value={form.BMI}
                                     name="bmi"
                                     unit="kg/m²"
                                     onChange={handleChange}
-                                    description={form.BMI ? (
-                                      <div className="flex justify-items-start mx-0 text-sm text-gray-600">
-                                        {/* <span className="font-medium ">BMI: </span>{" "}
+                                    description={
+                                      form.BMI ? (
+                                        <div className="flex justify-items-start mx-0 text-sm text-gray-600">
+                                          {/* <span className="font-medium ">BMI: </span>{" "}
               {form.BMI} */}
-                                        {form.BMIStatus && (
-                                          <>
-                                            <span className="ml-4 font-medium">
-                                              Status:
-                                            </span>
-                                            <span className="text-teal-600 ml-1">
-                                              {form.BMIStatus}
-                                            </span>
-                                          </>
-                                        )}
-                                      </div>
-                                    ) : null} />
+                                          {form.BMIStatus && (
+                                            <>
+                                              <span className="ml-4 font-medium">
+                                                Status:
+                                              </span>
+                                              <span className="text-teal-600 ml-1">
+                                                {form.BMIStatus}
+                                              </span>
+                                            </>
+                                          )}
+                                        </div>
+                                      ) : null
+                                    }
+                                  />
                                 </div>
 
                                 <motion.div
                                   initial={{ opacity: 0, y: 10 }}
                                   animate={{ opacity: 1, y: 0 }}
-                                  transition={{ duration: 0.3, ease: "easeOut" }}
+                                  transition={{
+                                    duration: 0.3,
+                                    ease: "easeOut",
+                                  }}
                                   className="w-full flex justify-center mt-6"
                                 >
                                   <Button
@@ -1379,14 +1522,15 @@ export default function ConsultationDrawer({
                                   </Button>
                                 </motion.div>
                               </div>
-                              
                             </form>
-                          </ScrollArea><VitalsHistoryDialog
-                              open={vitalsHistoryOpen}
-                              onOpenChange={setVitalsHistoryOpen}
-                              vitalsData={vitalsData} />
-                              </>
-                          )}
+                          </ScrollArea>
+                          <VitalsHistoryDialog
+                            open={vitalsHistoryOpen}
+                            onOpenChange={setVitalsHistoryOpen}
+                            vitalsData={vitalsData}
+                          />
+                        </>
+                      )}
                     </TabsContent>
                   </motion.div>
                 )}
@@ -1425,606 +1569,76 @@ export default function ConsultationDrawer({
                               : "w-full"
                           }
                         >
-                          <Card className="p-4 rounded-xl shadow-sm border bg-white border-gray-300 hover:shadow-xl hover:border-blue-300">
-                            <div className="flex items-center gap-2 mb-2 font-semibold text-gray-800">
-                              <Stethoscope
-                                size={18}
-                                className="text-blue-500"
-                              />
-                              Chief Complaint
-                            </div>
-                            <CreatableSelect
-                              isMulti
-                              options={chiefComplaintOptions}
-                              styles={customsStyles}
-                              value={chiefComplaints.map((c) => ({
-                                label: c,
-                                value: c,
-                              }))}
-                              onChange={(selected) =>
-                                setChiefComplaints(selected.map((s) => s.value))
-                              }
-                              inputValue={inputValue}
-                              onInputChange={(val) => setInputValue(val)}
-                              placeholder="Type or select chief complaint..."
-                              classNamePrefix="react-select"
-                            />
-                            <div className="relative flex items-center gap-2 py-1 mt-2 ">
-                              <textarea
-                                value={complaintText}
-                                onChange={(e) =>
-                                  setComplaintText(e.target.value)
-                                }
-                                placeholder="Enter or speak your complaint..."
-                                className="text-sm px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300 pr-10"
-                                name="notes"
-                                rows={6}
-                              />
-                              <button
-                                type="button"
-                                onClick={handleMicClick}
-                                className={`absolute right-2 bottom-4 p-2 rounded-full transition ${
-                                  listening
-                                    ? "bg-red-100 hover:bg-red-200"
-                                    : "bg-blue-100 hover:bg-blue-200"
-                                }`}
-                              >
-                                {listening ? (
-                                  <MicOff className="w-5 h-5 text-red-600 animate-pulse" />
-                                ) : (
-                                  <Mic className="w-5 h-5 text-[#22E0D4]" />
-                                )}
-                              </button>
-                            </div>
-                            <p className="text-xs text-gray-500">
-                              {listening
-                                ? "Listening..."
-                                : "Click the mic to speak"}
-                            </p>
-                          </Card>
-
-                          <Card className="p-4 rounded-xl shadow-sm border bg-white hover:shadow-xl hover:border-purple-300">
-                            {/* Header */}
-                            <div className="flex items-center gap-2 font-semibold text-gray-800 mb-2">
-                              <StickyNote
-                                size={18}
-                                className="text-purple-500"
-                              />
-                              Clinical Notes
-                            </div>
-
-                            {/* Textarea with Mic */}
-                            <div className="relative w-full">
-                              <textarea
-                                value={clinicalnotesText}
-                                onChange={(e) =>
-                                  setClinicalnotesText(e.target.value)
-                                }
-                                placeholder="Enter or speak your clinical notes..."
-                                rows={8}
-                                className="text-sm px-3 py-2 w-full rounded-md border border-gray-300 pr-10 focus:outline-none focus:ring-2 focus:ring-purple-300"
-                              />
-                              <button
-                                type="button"
-                                onClick={handleClinicalNoteMicClick}
-                                className={`absolute right-2 bottom-4 p-2 rounded-full transition ${
-                                  listening
-                                    ? "bg-red-100 hover:bg-red-200"
-                                    : "bg-blue-100 hover:bg-blue-200"
-                                }`}
-                              >
-                                {listening ? (
-                                  <MicOff className="w-5 h-5 text-red-600 animate-pulse" />
-                                ) : (
-                                  <Mic className="w-5 h-5 text-[#22E0D4]" />
-                                )}
-                              </button>
-                            </div>
-
-                            {/* Status Message */}
-                            <p className="text-xs text-gray-500 mt-1">
-                              {listening
-                                ? "Listening..."
-                                : "Click the mic to speak"}
-                            </p>
-                          </Card>
-
-                          {/* <ClinicalNotesEditor value={notes} onChange={setNotes} /> */}
-
-                          <Card className="p-4 rounded-xl shadow-sm border bg-white w-full hover:shadow-xl hover:border-pink-300">
-                            <div className="flex items-center gap-2 mb-2 font-semibold text-gray-800">
-                              <Microscope size={18} className="text-pink-600" />
-                              Investigations
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label className="text-sm block mb-1">
-                                Select Investigations
-                              </Label>
-                              <CreatableSelect
-                                isMulti
-                                options={investigationOptions}
-                                value={form.investigations}
-                                onChange={(selectedOptions) =>
-                                  setForm((prev) => ({
-                                    ...prev,
-                                    investigations: selectedOptions,
-                                  }))
-                                }
-                                placeholder="Select or search investigations..."
-                                className="text-sm w-full no-underline no-scrollbar"
-                                classNamePrefix="react-select"
-                                styles={customStyles}
-                              />
-                            </div>
-
-                            <div className="mt-3 flex items-center gap-2">
-                              <CreatableSelect
-                                options={investigationCategories}
-                                value={investigationCategories.find(
-                                  (c) => c.value === customCategory
-                                )}
-                                onChange={(selectedOption) =>
-                                  setCustomCategory(selectedOption?.value || "")
-                                }
-                                classNamePrefix="react-select"
-                                className="text-sm w-[220px]"
-                                isSearchable={false}
-                                menuPortalTarget={document.body}
-                                menuPosition="fixed"
-                                styles={{
-                                  menuPortal: (base) => ({
-                                    ...base,
-                                    zIndex: 9999,
-                                  }),
-                                  menu: (base) => ({
-                                    ...base,
-                                    zIndex: 9999,
-                                    position: "absolute",
-                                  }),
-                                  menuList: (base) => ({
-                                    ...base,
-                                    maxHeight: "200px",
-                                    overflowY: "auto",
-                                  }),
-                                }}
-                              />
-
-                              <Input
-                                placeholder="Add custom investigation..."
-                                value={customInvestigation}
-                                onChange={(e) =>
-                                  setCustomInvestigation(e.target.value)
-                                }
-                                className="text-sm"
-                              />
-                              <Button
-                                type="button"
-                                onClick={handleAddCustom}
-                                size="icon"
-                              >
-                                <PlusCircle className="w-5 h-5" />
-                              </Button>
-                            </div>
-
-                            <div className="mt-4">
-                              <Label className="text-sm mb-1 block">
-                                Notes / Remarks
-                              </Label>
-                              <Textarea
-                                placeholder="Enter remarks, urgency or clinical justification..."
-                                value={form.investigationRemarks}
-                                name="investigationRemarks"
-                                onChange={(e) =>
-                                  setForm((prev) => ({
-                                    ...prev,
-                                    investigationRemarks: e.target.value,
-                                  }))
-                                }
-                                className="text-sm"
-                              />
-                            </div>
-                          </Card>
-
-                          <Card className="p-4 rounded-xl shadow-sm border bg-white relative hover:shadow-xl hover:border-green-300">
-                            <div className="flex items-center gap-2 mb-3 font-semibold text-gray-800">
-                              <SearchCheck
-                                size={18}
-                                className="text-green-600"
-                              />
-                              Diagnosis
-                            </div>
-
-                            <div className="relative mb-2">
-                              <Input
-                                placeholder="e.g. Acute Pharyngitis, ICD Code..."
-                                value={diagnosisInput}
-                                onChange={(e) => {
-                                  setDiagnosisInput(e.target.value);
-                                  setShowSuggestions(true);
-                                }}
-                                onFocus={() => setShowSuggestions(true)}
-                                onBlur={() =>
-                                  setTimeout(
-                                    () => setShowSuggestions(false),
-                                    150
-                                  )
-                                }
-                                className="text-sm pr-10"
-                              />
-
-                              {/* 🎤 Mic Button */}
-                              <button
-                                type="button"
-                                onClick={handleDiagnosisMicClick}
-                                className="absolute right-2 top-2 text-gray-500 hover:text-purple-600"
-                              >
-                                {listenings ? (
-                                  <MicOff className="w-4 h-4" />
-                                ) : (
-                                  <Mic className="w-4 h-4" />
-                                )}
-                              </button>
-                              <p className="text-xs text-gray-500 mt-1 mb-2">
-                                {listenings
-                                  ? "Listening..."
-                                  : "Click the mic to dictate"}
-                              </p>
-
-                              {showSuggestions &&
-                                filteredSuggestions.length > 0 && (
-                                  <ul className="absolute z-10 bg-white  border-gray-300 w-full max-h-48 overflow-y-auto rounded shadow-md mt-1 text-sm">
-                                    {filteredSuggestions.map(
-                                      (suggestion, index) => (
-                                        <li
-                                          key={index}
-                                          onClick={() => {
-                                            setDiagnosisInput(suggestion);
-                                            setShowSuggestions(false);
-                                          }}
-                                          className="px-3 py-2 cursor-pointer hover:bg-gray-100"
-                                        >
-                                          {suggestion}
-                                        </li>
-                                      )
-                                    )}
-                                  </ul>
-                                )}
-                              {noMatch && (
-                                <div className="flex items-center justify-between px-3 py-2 bg-yellow-50 text-sm text-gray-700">
-                                  <span>No match found.</span>
-                                  <button
-                                    onMouseDown={() => {
-                                      // handle your create logic here
-                                      alert(`Create "${diagnosisInput}"`);
-                                    }}
-                                    className="text-blue-600 hover:underline font-medium"
-                                  >
-                                    + Create
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-
-                            <div className="flex justify-end mb-2">
-                              <Button
-                                size="sm"
-                                onClick={handleAddDiagnosis}
-                                className="text-xs px-3"
-                              >
-                                <Plus className="w-4 h-4 mr-1" /> Add
-                              </Button>
-                            </div>
-
-                            {diagnoses.length > 0 && (
-                              <ul className="space-y-2">
-                                {diagnoses.map((item, index) => (
-                                  <li
-                                    key={index}
-                                    className="flex items-center justify-between border-gray-300 bg-gray-50 p-2 rounded border text-sm"
-                                  >
-                                    <span>{item}</span>
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        setDiagnoses(
-                                          diagnoses.filter(
-                                            (_, i) => i !== index
-                                          )
-                                        )
-                                      }
-                                      className="text-red-500 hover:text-red-700"
-                                    >
-                                      <Trash2 className="w-4 h-4" />
-                                    </button>
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
-                          </Card>
-
-                          {/* <Card className="p-4 rounded-xl shadow-sm border bg-white">
-                <div className="flex items-center gap-2 mb-2 font-semibold text-gray-800">
-                  <ClipboardList size={18} className="text-yellow-600" />
-                  Treatment & Instructions
-                </div>
-                <Textarea
-                  placeholder="Enter treatment plan or advice to patient..."
-                  value={form.treatment}
-                  name="treatment"
-                  onChange={handleChange}
-                  className="text-sm"
-                />
-              </Card> */}
+                          <ChiefComplaintCard
+                            selectedChiefComplaints={selectedChiefComplaints}
+                            setSelectedChiefComplaints={
+                              setSelectedChiefComplaints
+                            }
+                            inputValue={inputValue}
+                            setInputValue={setInputValue}
+                            complaintText={complaintText}
+                            setComplaintText={setComplaintText}
+                            handleChiefComplaintMicClick={
+                              handleChiefComplaintMicClick
+                            }
+                            listening={listeningChiefComplaint}
+                            customsStyles={customsStyles}
+                          />
+                          <ClinicalNotesCard
+                            clinicalnotesText={clinicalnotesText}
+                            setClinicalnotesText={setClinicalnotesText}
+                            handleClinicalNoteMicClick={
+                              handleClinicalNoteMicClick
+                            }
+                            listening={listeningClinicalNote}
+                          />
+                          <InvestigationCard
+                            investigationCategories={investigationCategories}
+                            setInvestigationCategories={
+                              setInvestigationCategories
+                            }
+                            setCustomCategory={setCustomCategory}
+                            customCategory={customCategory}
+                            setCustomInvestigation={setCustomInvestigation}
+                            InvestigationSubTypename={InvestigationSubTypename} // ✅ CORRECT
+                            form={form}
+                            setForm={setForm}
+                            customStyles={customStyles}
+                            // handleInvestigationMicClick={
+                            //   handleInvestigationMicClick
+                            // }
+                            listening={listeningInvestigation} // ✅ FIXED HERE
+                          />
+                          <DiagnosisInputCard
+                            diagnoses={diagnoses}
+                            setDiagnoses={setDiagnoses}
+                            // handleDiagnosisMicClick={handleDiagnosisMicClick}
+                            inputValue={inputValue}
+                            setInputValue={setInputValue}
+                            remarkMap={remarkMap}
+                            setRemarkMap={setRemarkMap}
+                            // listenings={listeningDiagnosis}
+                          />
                           <TreatmentInstructionsCard
                             form={form}
                             setForm={setForm}
                             handleTreatmentMicClick={handleTreatmentMicClick}
-                            isListening={listening}
+                            isListening={listeningTreatment}
                           />
-                          <Card className="p-4 rounded-xl shadow-sm border bg-white md:col-span-2 hover:shadow-xl hover:border-indigo-300">
-                            <div className="flex items-center gap-2 mb-4 font-semibold text-gray-800">
-                              <Pill size={18} className="text-indigo-600" />
-                              Prescription & Medication
-                            </div>
-
-                            {form.medications.map((med, index) => (
-                              <div
-                                key={index}
-                                className="relative grid grid-cols-6 gap-2 mb-2 p-4 rounded-lg border border-gray-200 bg-gray-50"
-                              >
-                                <Input
-                                  placeholder="Drug Name"
-                                  value={med.drug}
-                                  onChange={(e) =>
-                                    handleMedicationChange(
-                                      index,
-                                      "drug",
-                                      e.target.value
-                                    )
-                                  }
-                                  className="col-span-1"
-                                />
-
-                                <Select
-                                  value={med.dosage}
-                                  onValueChange={(value) =>
-                                    handleMedicationChange(
-                                      index,
-                                      "dosage",
-                                      value
-                                    )
-                                  }
-                                >
-                                  <SelectTrigger className="col-span-1">
-                                    <SelectValue placeholder="Dosage" />
-                                  </SelectTrigger>
-                                  <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
-                                    <SelectItem value="0.5">0.5</SelectItem>
-                                    <SelectItem value="1">1</SelectItem>
-                                    <SelectItem value="2">2</SelectItem>
-                                    <SelectItem value="5">5</SelectItem>
-                                  </SelectContent>
-                                </Select>
-
-                                <Select
-                                  value={med.frequency}
-                                  onValueChange={(value) =>
-                                    handleMedicationChange(
-                                      index,
-                                      "frequency",
-                                      value
-                                    )
-                                  }
-                                >
-                                  <SelectTrigger className="col-span-1">
-                                    <SelectValue placeholder="Frequency" />
-                                  </SelectTrigger>
-                                  <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
-                                    <SelectItem value="Once a day">
-                                      Once a day
-                                    </SelectItem>
-                                    <SelectItem value="Twice a day">
-                                      Twice a day
-                                    </SelectItem>
-                                    <SelectItem value="Three times a day">
-                                      Three times a day
-                                    </SelectItem>
-                                    <SelectItem value="0-1-0">0-1-0</SelectItem>
-                                    <SelectItem value="1-0-1">1-0-1</SelectItem>
-                                    <SelectItem value="1-1-1">1-1-1</SelectItem>
-                                    <SelectItem value="At Night">
-                                      At Night
-                                    </SelectItem>
-                                    <SelectItem value="SOS">SOS</SelectItem>
-                                  </SelectContent>
-                                </Select>
-
-                                <div className="flex gap-2 col-span-2">
-                                  <div className="!w-60">
-                                    <Input
-                                      type="number"
-                                      placeholder="Duration"
-                                      value={med.duration}
-                                      onChange={(e) =>
-                                        handleMedicationChange(
-                                          index,
-                                          "duration",
-                                          e.target.value
-                                        )
-                                      }
-                                    />
-                                  </div>
-
-                                  <Select
-                                    value={med.durationUnit || "Days"}
-                                    onValueChange={(value) =>
-                                      handleMedicationChange(
-                                        index,
-                                        "durationUnit",
-                                        value
-                                      )
-                                    }
-                                  >
-                                    <SelectTrigger className="min-w-[80px]">
-                                      <SelectValue placeholder="Unit" />
-                                    </SelectTrigger>
-                                    <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
-                                      <SelectItem value="Days">Days</SelectItem>
-                                      <SelectItem value="Weeks">
-                                        Weeks
-                                      </SelectItem>
-                                      <SelectItem value="Months">
-                                        Months
-                                      </SelectItem>
-                                      <SelectItem value="Years">
-                                        Years
-                                      </SelectItem>
-                                      <SelectItem value="Life Time">
-                                        Life Time
-                                      </SelectItem>
-                                      <SelectItem value="To Be Continued">
-                                        To Be Continued
-                                      </SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-
-                                <Input
-                                  placeholder="Notes"
-                                  value={med.notes}
-                                  onChange={(e) =>
-                                    handleMedicationChange(
-                                      index,
-                                      "notes",
-                                      e.target.value
-                                    )
-                                  }
-                                  className="col-span-1"
-                                />
-
-                                <button
-                                  type="button"
-                                  onClick={() => handleRemoveMedication(index)}
-                                  className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-                                >
-                                  <X className="w-4 h-4" />
-                                </button>
-                              </div>
-                            ))}
-
-                            <div className="flex justify-end">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={handleAddMedication}
-                                className="border-[#22E0D4] text-gray-700 hover:bg-gray-100"
-                              >
-                                + Add Medication
-                              </Button>
-                            </div>
-                          </Card>
-
-                          <Card className="p-4 rounded-xl shadow-sm border bg-white md:col-span-2 hover:shadow-xl hover:border-red-300">
-                            <div className="flex items-center gap-2 mb-2 font-semibold text-gray-800">
-                              <CalendarCheck
-                                size={18}
-                                className="text-red-500"
-                              />
-                              Follow-up Plan
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              {/* Textarea with mic */}
-                              <div className="relative">
-                                <Textarea
-                                  placeholder="e.g. Review in 7 days, next appointment date..."
-                                  value={form.followUp}
-                                  name="followUp"
-                                  onChange={handleChange}
-                                  className="text-sm pr-10"
-                                />
-                                <button
-                                  type="button"
-                                  onClick={handleFollowUpMicClick}
-                                  className="absolute top-2 right-2 text-gray-500 hover:text-red-500"
-                                >
-                                  <Mic size={18} />
-                                </button>
-                              </div>
-
-                              {/* Duration Picker */}
-                              <div className="flex gap-2">
-                                <Input
-                                  type="number"
-                                  placeholder="0"
-                                  value={form.followUpDuration}
-                                  onChange={(e) =>
-                                    setForm((prev) => ({
-                                      ...prev,
-                                      followUpDuration: e.target.value,
-                                    }))
-                                  }
-                                  className="w-1/2"
-                                />
-
-                                <Select
-                                  value={form.followUpUnit}
-                                  onValueChange={(val) =>
-                                    setForm((prev) => ({
-                                      ...prev,
-                                      followUpUnit: val,
-                                    }))
-                                  }
-                                >
-                                  <SelectTrigger className="w-1/2">
-                                    <SelectValue placeholder="Day(s)" />
-                                  </SelectTrigger>
-                                  <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
-                                    {" "}
-                                    <SelectItem value="Days">Day(s)</SelectItem>
-                                    <SelectItem value="Weeks">
-                                      Week(s)
-                                    </SelectItem>
-                                    <SelectItem value="Months">
-                                      Month(s)
-                                    </SelectItem>
-                                    <SelectItem value="Years">
-                                      Year(s)
-                                    </SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-
-                              {/* Optional Shortcut Presets */}
-                              <div className="md:col-span-2 flex flex-wrap gap-2 mt-2">
-                                {[
-                                  "1D",
-                                  "2D",
-                                  "3D",
-                                  "4D",
-                                  "5D",
-                                  "1W",
-                                  "2W",
-                                  "3W",
-                                  "6W",
-                                  "1M",
-                                  "2M",
-                                  "3M",
-                                  "6M",
-                                  "1Y",
-                                ].map((item) => (
-                                  <button
-                                    key={item}
-                                    onClick={() => handleFollowUpShortcut(item)}
-                                    className="text-xs px-3 py-1 rounded-md bg-yellow-100 hover:bg-yellow-200"
-                                  >
-                                    {item}
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                          </Card>
+                          <MedicationCard
+                            medications={form.medications}
+                            handleMedicationChange={handleMedicationChange}
+                            handleAddMedication={handleAddMedication}
+                            handleRemoveMedication={handleRemoveMedication}
+                          />
+                          <FollowUpPlanCard
+                            form={form}
+                            setForm={setForm}
+                            handleChange={handleChange}
+                            // handleFollowUpMicClick={handleFollowUpMicClick}
+                            handleFollowUpShortcut={handleFollowUpShortcut}
+                          />
+                          ;
                         </div>
                       </ScrollArea>
                     </TabsContent>

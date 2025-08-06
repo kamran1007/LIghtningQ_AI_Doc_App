@@ -647,7 +647,15 @@ export class AppointmentService {
         take: limit,
         orderBy: { appointmentDate: 'asc' },
         include: {
-          patient: true,
+          patient: {
+            include:{
+              allergies: true,
+              languages: true,
+              medicalHistory: true,
+              TagPatient: true,
+            }
+
+          },
           doctor: {
             include: {
               Specialization: true,
@@ -659,6 +667,27 @@ export class AppointmentService {
           visitType: true,
           hospital: true,
           TagPatient: true,
+          Vitals: true,
+          consultation: {
+            include: {
+              ConsultationCheifComplaint: {
+                include: { chiefComplaint: true },
+              },
+              ConsultationDiagnosis: {
+                include: { diagnosis: true },
+              },
+              ConsultationMedication: true,
+              ConsultationInvestigation: {
+                include: {
+                  InvestigationType: true,
+                  InvestigationSubType: true,
+                },
+              },
+              ConsultationTreatment: true,
+              ConsultationFollowUpPlan: true,
+              ConsultationclinicalNotes: true,
+            },
+          },
         },
       }),
       this.prisma.appointment.count({ where: whereClause }),

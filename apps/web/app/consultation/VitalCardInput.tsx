@@ -26,29 +26,31 @@ export const VitalCardInput = ({
       </div>
 
       <div className="flex flex-col w-full">
-        <label className="text-sm text-gray-600 mb-1 font-medium">{label}</label>
+        <label className="text-sm text-gray-600 mb-1 font-medium">
+          {label}
+        </label>
 
         {customField ? (
-  <div className="flex items-center gap-2 w-full">
-    {customField}
-    {unit && (
-      <span className="text-sm text-gray-500 font-medium">{unit}</span>
-    )}
-  </div>
-) : (
-  <div className="flex items-center gap-2 w-full">
-    <Input
-      name={name}
-      value={value}
-      onChange={onChange}
-      placeholder="Enter value"
-      className="w-full h-10 rounded-md border border-gray-300 px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:outline-none transition-all"
-    />
-    {unit && (
-      <span className="text-sm text-gray-500 font-medium">{unit}</span>
-    )}
-  </div>
-)}
+          <div className="flex items-center gap-2 w-full">
+            {customField}
+            {unit && (
+              <span className="text-sm text-gray-500 font-medium">{unit}</span>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 w-full">
+            <Input
+              name={name}
+              value={value}
+              onChange={onChange}
+              placeholder="Enter value"
+              className="w-full h-10 rounded-md border border-gray-300 px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:outline-none transition-all"
+            />
+            {unit && (
+              <span className="text-sm text-gray-500 font-medium">{unit}</span>
+            )}
+          </div>
+        )}
 
         {/* 👉 Add BMI Status or any description below */}
         {description && (

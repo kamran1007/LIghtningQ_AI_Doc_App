@@ -8,18 +8,21 @@ export function generateCaseSheetHtml(
 ) {
   const { hospital, patient, doctor, Vitals } = appointmentDetails;
 
-  const vitalsBlock = Vitals
+  const vital = Array.isArray(Vitals) && Vitals.length > 0 ? Vitals[0] : null;
+
+  const vitalsBlock = vital
     ? `
-    ${Vitals[0].Systolic ? `<tr><td>Blood Pressure</td><td>${Vitals[0].Systolic}/${Vitals[0].Diastolic} mmHg</td></tr>` : ''}
-    ${Vitals[0].Temperature ? `<tr><td>Temperature</td><td>${Vitals[0].Temperature} °F</td></tr>` : ''}
-    ${Vitals[0].HeartRate ? `<tr><td>Heart Rate</td><td>${Vitals[0].HeartRate} bpm</td></tr>` : ''}
-    ${Vitals[0].OxygenSaturation ? `<tr><td>Oxygen Saturation</td><td>${Vitals[0].OxygenSaturation}%</td></tr>` : ''}
-    ${Vitals[0].Weight ? `<tr><td>Weight</td><td>${Vitals[0].Weight} kg</td></tr>` : ''}
-    ${Vitals[0].Height ? `<tr><td>Height</td><td>${Vitals[0].Height} cm</td></tr>` : ''}
-    ${Vitals[0].BMI ? `<tr><td>BMI</td><td>${Vitals[0].BMI}</td></tr>` : ''}
-    ${Vitals[0].BloodGroup ? `<tr><td>Blood Group</td><td>${Vitals[0].BloodGroup.replace('_', '+')}</td></tr>` : ''}
+    ${vital.Systolic ? `<tr><td>Blood Pressure</td><td>${vital.Systolic}/${vital.Diastolic} mmHg</td></tr>` : ''}
+    ${vital.Temperature ? `<tr><td>Temperature</td><td>${vital.Temperature} °F</td></tr>` : ''}
+    ${vital.HeartRate ? `<tr><td>Heart Rate</td><td>${vital.HeartRate} bpm</td></tr>` : ''}
+    ${vital.OxygenSaturation ? `<tr><td>Oxygen Saturation</td><td>${vital.OxygenSaturation}%</td></tr>` : ''}
+    ${vital.Weight ? `<tr><td>Weight</td><td>${vital.Weight} kg</td></tr>` : ''}
+    ${vital.Height ? `<tr><td>Height</td><td>${vital.Height} cm</td></tr>` : ''}
+    ${vital.BMI ? `<tr><td>BMI</td><td>${vital.BMI}</td></tr>` : ''}
+    ${vital.BloodGroup ? `<tr><td>Blood Group</td><td>${vital.BloodGroup.replace('_', '+')}</td></tr>` : ''}
   `
     : '';
+
   const calculateAge = (dobString) => {
     if (!dobString) return '-';
     const dob = new Date(dobString);

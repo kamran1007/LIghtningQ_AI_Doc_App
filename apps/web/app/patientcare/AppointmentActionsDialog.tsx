@@ -12,12 +12,14 @@ import {
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { Toast } from "primereact/toast";
+import { Sidebar } from "primereact/sidebar";
+import PatientCaseHistory from "app/patientvisithistory/CaseHistory";
 
 interface AppointmentActionsDialogProps {
   patient: any;
   onCancel: () => void;
   onReschedule: () => void;
-  onViewCaseHistory: () => void;
+  onViewCaseHistory: (patient: any) => void; // Keep if you still want to trigger callback
   onStartConsultation: () => void;
 }
 
@@ -29,11 +31,12 @@ export default function AppointmentActionsDialog({
   onStartConsultation,
 }: AppointmentActionsDialogProps) {
   const [open, setOpen] = useState(false);
+  const [isCaseHistoryOpen, setIsCaseHistoryOpen] = useState(false);
   const toast = useRef<Toast>(null);
 
   const isPastDate = (dateStr: string) => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // set to midnight for comparison
+    today.setHours(0, 0, 0, 0);
 
     const appointmentDate = new Date(dateStr);
     appointmentDate.setHours(0, 0, 0, 0);
@@ -44,6 +47,13 @@ export default function AppointmentActionsDialog({
   return (
     <>
       <Toast ref={toast} />
+
+      {/* Case History Sidebar */}
+      <PatientCaseHistory
+        visible={isCaseHistoryOpen}
+        onHide={() => setIsCaseHistoryOpen(false)}
+        patient={patient}
+      />
 
       <Dialog.Root open={open} onOpenChange={setOpen}>
         <Dialog.Trigger asChild>
@@ -56,7 +66,6 @@ export default function AppointmentActionsDialog({
         <AnimatePresence>
           {open && (
             <>
-              {/* Backdrop with blur */}
               <Dialog.Overlay asChild forceMount>
                 <motion.div
                   className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm"
@@ -72,7 +81,6 @@ export default function AppointmentActionsDialog({
                 />
               </Dialog.Overlay>
 
-              {/* Dialog content */}
               <Dialog.Content asChild forceMount>
                 <motion.div
                   initial={{ y: -100, opacity: 0 }}
@@ -87,8 +95,9 @@ export default function AppointmentActionsDialog({
                   className="fixed z-50 top-1/2 left-1/2 w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-xl"
                 >
                   <h2 className="text-lg font-medium text-center mb-4 text-[#22E0D4] font-mono">
-                    Appointment Actions Pannel
+                    Appointment Actions Panel
                   </h2>
+
                   <div className="flex flex-col gap-3">
                     <Button
                       variant="ghost"
@@ -100,9 +109,7 @@ export default function AppointmentActionsDialog({
                             summary: "Error",
                             detail: "You can't reschedule a past appointment.",
                             life: 4000,
-                            className: "", // 👈 this attaches the blur effect
                           });
-                          //   alert("❌ ");
                           return;
                         }
                         onReschedule(patient);
@@ -123,7 +130,6 @@ export default function AppointmentActionsDialog({
                             summary: "Error",
                             detail: "You can't cancel a past appointment.",
                             life: 4000,
-                            className: "", // 👈 this attaches the blur effect
                           });
                           return;
                         }
@@ -146,9 +152,7 @@ export default function AppointmentActionsDialog({
                             detail:
                               "You can't start consultation for a past appointment.",
                             life: 4000,
-                            className: "", // 👈 this attaches the blur effect
                           });
-
                           return;
                         }
                         onStartConsultation(patient);
@@ -163,8 +167,7 @@ export default function AppointmentActionsDialog({
                       variant="ghost"
                       className="justify-start gap-3"
                       onClick={() => {
-                        onViewCaseHistory(patient); // Always allowed
-                        setOpen(false);
+                        setIsCaseHistoryOpen(true);
                       }}
                     >
                       <ClipboardList className="w-5 h-5 text-green-500" />

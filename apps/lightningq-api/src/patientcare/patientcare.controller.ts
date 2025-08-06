@@ -323,12 +323,12 @@ export class PatientcareController {
   //add investigation
   @Patch('addupdateInvestigationSubType')
   async addOrUpdateInvestigationSubType(
-  @Body() dto: CreateInvestigationSubTypeDto,
-  @CurrentUser() @Req() req: any,
-) {
-  const userId = Number(req.user?.UserId || 1);
-  return this.patientcareService.addOrUpdateSubtype(dto, userId);
-}
+    @Body() dto: CreateInvestigationSubTypeDto,
+    @CurrentUser() @Req() req: any,
+  ) {
+    const userId = Number(req.user?.UserId || 1);
+    return this.patientcareService.addOrUpdateSubtype(dto, userId);
+  }
 
   // get all investigation
   @Get('GetInvestigationMasterData')
@@ -339,8 +339,10 @@ export class PatientcareController {
   // add  all diagnosis
   @Patch('addupdatediagnosis')
   async addOrUpdateDiagnosis(@Body() dto: CreateDiagnosisDto) {
-  return this.patientcareService.addOrUpdateDiagnosis(dto);
-}
+    console.log('Received DTO:', dto); // 👈 Add this line
+
+    return this.patientcareService.addOrUpdateDiagnosis(dto);
+  }
 
   // get all diagnosis
   @Get('getAllDiagnosis')
@@ -351,13 +353,19 @@ export class PatientcareController {
   //create medicine
   @Patch('addupdateMedicine')
   async addOrUpdateMedicine(@Body() dto: CreateMedicineDto) {
-  return this.patientcareService.addOrUpdateMedicine(dto);
-}
+    return this.patientcareService.addOrUpdateMedicine(dto);
+  }
 
   // get all medicine
   @Get('getAllMedicine')
   getAllMedicine() {
     return this.patientcareService.getAllMedicine();
+  }
+
+  //Get All Patient Appointment
+  @Get('getPatientAppointment/:patientId')
+  async getAppointmentsForPatient(@Param('patientId', ParseIntPipe) patientId: number) {
+    return this.patientcareService.getPatientAppointment(patientId);
   }
 
   // get all diagnosis by specialization id

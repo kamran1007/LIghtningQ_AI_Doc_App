@@ -16,6 +16,7 @@ import { ManagePatientService } from 'src/manage-patient/manage-patient.service'
 export class PatientcareService {
 
 
+
   constructor(
     private readonly ManagePatientService: ManagePatientService,
     private ManageAppointment: AppointmentService,
@@ -284,7 +285,7 @@ export class PatientcareService {
       );
 
     return {
-      message: 'investigation type created successfully',
+      message: 'consultation Data successfully fetch',
       data: result,
     };
   }
@@ -337,6 +338,14 @@ export class PatientcareService {
     const result = await this.ConsultationService.getAllMedicine();
     return {
       message: 'All Medicine data has successfully Fetch',
+      return: result,
+    };
+  }
+
+    async getPatientAppointment(patientId) {
+    const result = await this.ConsultationService.getPatientAppointment(patientId);
+    return {
+      message: 'All Patient consultation  data has successfully Fetch',
       return: result,
     };
   }

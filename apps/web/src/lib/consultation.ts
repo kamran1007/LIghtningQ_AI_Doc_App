@@ -55,37 +55,202 @@ export const getVitalsWithHistory = async (appointmentId: number) => {
 //consultation API integration
 // Add or update chief complaint
 // This function sends a PATCH request to update or add a chief complaint for a patient.  
-export const AddUpdatechiefComplaint = async (payload: any) => {
+export const AddUpdatechiefComplaint = async (data: {
+  ChiefComplainTagName: string;
+  specializationId: number;
+}) => {
   const session = await getSession();
 
-  try {
-    console.log("Sending vitals  data:", payload);
-    const res = await axios.patch(
-      `${BACKEND_URL}/patientcare/addupdatechiefcomplaint`,
-      payload, // this is the actual body
-      {
-        headers: {
-          // "Content-Type": 'multipart/form-data',
-          Authorization: `Bearer ${session?.accessToken}`,
-        },
-      }
-    );
-    return res.data;
-  } catch (error: any) {
-    const message = error.response?.data?.message || error.message;
-    console.error("❌ API Error:", message);
-    throw new Error(message); // important: propagate to caller
+  if (!session?.accessToken) {
+    throw new Error("Unauthorized: Access token not found.");
   }
+
+  console.log("📤 Sending to backend:", data); // <- check this
+
+  const res = await axios.patch(`${BACKEND_URL}/patientcare/addupdatechiefcomplaint`, data, {
+    headers: {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${session?.accessToken}`,
+    },
+  });
+
+  return res.data;
 };
 
 //GET chief complaint
-export const FetchDoctorRole = async () => {
+export const FetchChiefComplaint = async () => {
   const session = await getSession();
   if (!session?.accessToken) {
     throw new Error("Unauthorized: Access token not found.");
   }
 
   const res = await axios.get(`${BACKEND_URL}/patientcare/Getchiefcomplaint`, {
+    headers: {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${session?.accessToken}`,
+    },
+  });
+  return res.data;
+};
+
+
+// Add or update investigations
+export const AddUpdateInvestigation = async (data: {
+  InvestigationSubTypename: string;
+  InvestigationTypeId: number;
+}) => {
+  const session = await getSession();
+
+  if (!session?.accessToken) {
+    throw new Error("Unauthorized: Access token not found.");
+  }
+
+  console.log("📤 Sending to backend:", data); // <- check this
+
+  const res = await axios.patch(`${BACKEND_URL}/patientcare/addupdateInvestigationSubType`, data, {
+    headers: {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${session?.accessToken}`,
+    },
+  });
+
+  return res.data;
+};
+// GET investigations
+export const FetchInvestigation = async () => {
+  const session = await getSession();
+  if (!session?.accessToken) {
+    throw new Error("Unauthorized: Access token not found.");
+  }
+
+  const res = await axios.get(`${BACKEND_URL}/patientcare/GetInvestigationMasterData`, {
+    headers: {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${session?.accessToken}`,
+    },
+  });
+  return res.data;
+};
+
+// Add or update diagnosis
+export const AddUpdateDiagnosis = async (data: {
+  DiagnosisName: string;
+  specializationId: number;
+  icdCode?: string; // Optional field
+}) => {
+  const session = await getSession();
+
+  if (!session?.accessToken) {
+    throw new Error("Unauthorized: Access token not found.");
+  }
+
+  console.log("📤 Sending to backend:", data); // <- check this
+
+  const res = await axios.patch(`${BACKEND_URL}/patientcare/addupdatediagnosis`, data, {
+    headers: {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${session?.accessToken}`,
+    },
+  });
+
+  return res.data;
+};
+
+// GET diagnosis
+
+export const FetchDiagnosis = async () => {
+  const session = await getSession();
+  if (!session?.accessToken) {
+    throw new Error("Unauthorized: Access token not found.");
+  }
+
+  const res = await axios.get(`${BACKEND_URL}/patientcare/getAllDiagnosis`, {
+    headers: {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${session?.accessToken}`,
+    },
+  });
+  return res.data;
+};
+
+// Add or update medication
+export const addupdateMedicine = async (data: any) => {
+  const session = await getSession();
+
+  if (!session?.accessToken) {
+    throw new Error("Unauthorized: Access token not found.");
+  }
+
+  console.log("📤 Sending to backend:", data); // <- check this
+
+  const res = await axios.patch(`${BACKEND_URL}/patientcare/addupdateMedicine`, data, {
+    headers: {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${session?.accessToken}`,
+    },
+  });
+
+  return res.data;
+};
+
+// Fetch all medications
+export const FetchMedication = async () => {
+  const session = await getSession();
+  if (!session?.accessToken) {
+    throw new Error("Unauthorized: Access token not found.");
+  }
+
+  const res = await axios.get(`${BACKEND_URL}/patientcare/getAllMedicine`, {
+    headers: {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${session?.accessToken}`,
+    },
+  });
+  return res.data;
+};
+
+export const addupdateConsultation  = async (data: any) => {
+  const session = await getSession();
+
+  if (!session?.accessToken) {
+    throw new Error("Unauthorized: Access token not found.");
+  }
+
+  console.log("📤 Sending to backend:", data); // <- check this
+
+  const res = await axios.post(`${BACKEND_URL}/patientcare/addupdateconsultation`, data, {
+    headers: {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${session?.accessToken}`,
+    },
+  });
+
+  return res.data;
+};
+
+// Fetch all medications
+export const FetchPatientAppointment = async (patientId: number) => {
+  const session = await getSession();
+  if (!session?.accessToken) {
+    throw new Error("Unauthorized: Access token not found.");
+  }
+
+  const res = await axios.get(`${BACKEND_URL}/patientcare/getPatientAppointment/${patientId}`, {
+    headers: {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${session?.accessToken}`,
+    },
+  });
+  return res.data;
+};
+
+export const Patientappointmentcasesheet = async (appointmentId: number) => {
+  const session = await getSession();
+  if (!session?.accessToken) {
+    throw new Error("Unauthorized: Access token not found.");
+  }
+
+  const res = await axios.get(`${BACKEND_URL}/patientcare/Patientappointmentcasesheet/${appointmentId}`, {
     headers: {
       "Content-Type": "application/json",
       authorization: `Bearer ${session?.accessToken}`,
