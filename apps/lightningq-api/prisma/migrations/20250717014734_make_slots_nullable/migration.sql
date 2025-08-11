@@ -1,4 +1,0 @@
--- AlterTable
-ALTER TABLE "DoctorSlot" ALTER COLUMN "slotDate" DROP NOT NULL,
-ALTER COLUMN "slotTime" DROP NOT NULL,
-ALTER COLUMN "dayOfWeek" DROP NOT NULL;

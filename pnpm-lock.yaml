@@ -400,6 +400,9 @@ importers:
       react-colorful:
         specifier: ^5.6.1
         version: 5.6.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react-custom-scrollbars-2:
+        specifier: ^4.5.0
+        version: 4.5.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react-day-picker:
         specifier: ^9.7.0
         version: 9.7.0(react@19.1.0)
@@ -3198,6 +3201,9 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
+  add-px-to-style@1.0.0:
+    resolution: {integrity: sha512-YMyxSlXpPjD8uWekCQGuN40lV4bnZagUwqa2m/uFv1z/tNImSk9fnXVMUI5qwME/zzI3MMQRvjZ+69zyfSSyew==}
+
   agent-base@7.1.4:
     resolution: {integrity: sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ==}
     engines: {node: '>= 14'}
@@ -3897,6 +3903,9 @@ packages:
   doctrine@2.1.0:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
     engines: {node: '>=0.10.0'}
+
+  dom-css@2.1.0:
+    resolution: {integrity: sha512-w9kU7FAbaSh3QKijL6n59ofAhkkmMJ31GclJIz/vyQdjogfyxcB6Zf8CZyibOERI5o0Hxz30VmJS7+7r5fEj2Q==}
 
   dom-helpers@5.2.1:
     resolution: {integrity: sha512-nRCa7CK3VTrM2NmGkIy4cbK7IZlgBE/PYMn55rrXefr5xXDP0LdtfPnblFDoVdcAfslJ7or6iqAUnx0CCGIWQA==}
@@ -5668,6 +5677,9 @@ packages:
   preact@10.12.1:
     resolution: {integrity: sha512-l8386ixSsBdbreOAkqtrwqHwdvR35ID8c3rKPa8lCWuO86dBi32QWHV4vfsZK1utLLFMvw+Z5Ad4XLkZzchscg==}
 
+  prefix-style@2.0.1:
+    resolution: {integrity: sha512-gdr1MBNVT0drzTq95CbSNdsrBDoHGlb2aDJP/FoY+1e+jSDPOb1Cv554gH2MGiSr2WTcXi/zu+NaFzfcHQkfBQ==}
+
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
@@ -5877,6 +5889,12 @@ packages:
     peerDependencies:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
+
+  react-custom-scrollbars-2@4.5.0:
+    resolution: {integrity: sha512-/z0nWAeXfMDr4+OXReTpYd1Atq9kkn4oI3qxq3iMXGQx1EEfwETSqB8HTAvg1X7dEqcCachbny1DRNGlqX5bDQ==}
+    peerDependencies:
+      react: ^0.14.0 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^0.14.0 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
 
   react-day-picker@9.7.0:
     resolution: {integrity: sha512-urlK4C9XJZVpQ81tmVgd2O7lZ0VQldZeHzNejbwLWZSkzHH498KnArT0EHNfKBOWwKc935iMLGZdxXPRISzUxQ==}
@@ -6513,9 +6531,18 @@ packages:
   tmpl@1.0.5:
     resolution: {integrity: sha512-3f0uOEAQwIqGuWW2MVzYg8fV/QNnc/IpuJNG837rLuczAaLVHslWHZQj4IGiEl5Hs3kkbhwL9Ab7Hrsmuj+Smw==}
 
+  to-camel-case@1.0.0:
+    resolution: {integrity: sha512-nD8pQi5H34kyu1QDMFjzEIYqk0xa9Alt6ZfrdEMuHCFOfTLhDG5pgTu/aAM9Wt9lXILwlXmWP43b8sav0GNE8Q==}
+
+  to-no-case@1.0.2:
+    resolution: {integrity: sha512-Z3g735FxuZY8rodxV4gH7LxClE4H0hTIyHNIHdk+vpQxjLm0cwnKXq/OFVZ76SOQmto7txVcwSCwkU5kqp+FKg==}
+
   to-regex-range@5.0.1:
     resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
     engines: {node: '>=8.0'}
+
+  to-space-case@1.0.0:
+    resolution: {integrity: sha512-rLdvwXZ39VOn1IxGL3V6ZstoTbwLRckQmn/U8ZDLuWwIXNpuZDhQ3AiRUlhTbOXFVE9C+dR51wM0CBDhk31VcA==}
 
   toidentifier@1.0.1:
     resolution: {integrity: sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==}
@@ -9837,6 +9864,8 @@ snapshots:
 
   acorn@8.14.1: {}
 
+  add-px-to-style@1.0.0: {}
+
   agent-base@7.1.4: {}
 
   ajv-formats@2.1.1(ajv@8.17.1):
@@ -10556,6 +10585,12 @@ snapshots:
   doctrine@2.1.0:
     dependencies:
       esutils: 2.0.3
+
+  dom-css@2.1.0:
+    dependencies:
+      add-px-to-style: 1.0.0
+      prefix-style: 2.0.1
+      to-camel-case: 1.0.0
 
   dom-helpers@5.2.1:
     dependencies:
@@ -12563,8 +12598,7 @@ snapshots:
 
   pend@1.2.0: {}
 
-  performance-now@2.1.0:
-    optional: true
+  performance-now@2.1.0: {}
 
   picocolors@1.1.1: {}
 
@@ -12601,6 +12635,8 @@ snapshots:
       source-map-js: 1.2.1
 
   preact@10.12.1: {}
+
+  prefix-style@2.0.1: {}
 
   prelude-ls@1.2.1: {}
 
@@ -12825,7 +12861,6 @@ snapshots:
   raf@3.4.1:
     dependencies:
       performance-now: 2.1.0
-    optional: true
 
   randombytes@2.1.0:
     dependencies:
@@ -12873,6 +12908,14 @@ snapshots:
 
   react-colorful@5.6.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+
+  react-custom-scrollbars-2@4.5.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+    dependencies:
+      dom-css: 2.1.0
+      prop-types: 15.8.1
+      raf: 3.4.1
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
@@ -13617,9 +13660,19 @@ snapshots:
 
   tmpl@1.0.5: {}
 
+  to-camel-case@1.0.0:
+    dependencies:
+      to-space-case: 1.0.0
+
+  to-no-case@1.0.2: {}
+
   to-regex-range@5.0.1:
     dependencies:
       is-number: 7.0.0
+
+  to-space-case@1.0.0:
+    dependencies:
+      to-no-case: 1.0.2
 
   toidentifier@1.0.1: {}
 

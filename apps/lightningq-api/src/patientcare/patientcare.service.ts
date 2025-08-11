@@ -8,15 +8,13 @@ import { CreateMedicineDto } from 'src/consultation/dto/create-medicine.dto';
 import { CreateOrUpdateConsultationDto } from 'src/consultation/dto/create-update-consultation.dto';
 import { CreateChiefComplaintDto } from 'src/consultation/dto/CreateCheifcomplaint.dto';
 import { CreateInvestigationSubTypeDto } from 'src/consultation/dto/createinvestigationtype.dto';
+import { ConsultationProcedureDto } from 'src/consultation/dto/CreateOrUpdateConsultationDto';
 import { VitalsDto } from 'src/consultation/dto/vitals.dto';
 import { UpsertPatientDto } from 'src/manage-patient/dto/upsert-patient.dto';
 import { ManagePatientService } from 'src/manage-patient/manage-patient.service';
 
 @Injectable()
 export class PatientcareService {
-
-
-
   constructor(
     private readonly ManagePatientService: ManagePatientService,
     private ManageAppointment: AppointmentService,
@@ -266,7 +264,20 @@ export class PatientcareService {
       data: result,
     };
   }
+  async addupdatemedicalhistory(
+    medicalhistory: string,
+    MedicalhistoryId?: number,
+  ) {
+    const result = await this.ConsultationService.addupdatemedicalhistory(
+      medicalhistory,
+      MedicalhistoryId,
+    );
 
+    return {
+      message: 'investigation type created successfully',
+      data: result,
+    };
+  }
   //get GetInvestigationMasterData
 
   async getInvestigationMasterData() {
@@ -291,7 +302,8 @@ export class PatientcareService {
   }
 
   async createChiefComplaint(dto: CreateChiefComplaintDto) {
-    const result = await this.ConsultationService.addOrUpdateChiefComplaint(dto);
+    const result =
+      await this.ConsultationService.addOrUpdateChiefComplaint(dto);
 
     return {
       message: 'chief complaint type created successfully',
@@ -310,7 +322,6 @@ export class PatientcareService {
   // crate Diagnosis
   async addOrUpdateDiagnosis(dto: CreateDiagnosisDto) {
     const result = await this.ConsultationService.addOrUpdateDiagnosis(dto);
-
     return {
       message: 'Diagnosis added successfully',
       data: result,
@@ -342,10 +353,102 @@ export class PatientcareService {
     };
   }
 
-    async getPatientAppointment(patientId) {
-    const result = await this.ConsultationService.getPatientAppointment(patientId);
+  async getPatientAppointment(patientId) {
+    const result =
+      await this.ConsultationService.getPatientAppointment(patientId);
     return {
       message: 'All Patient consultation  data has successfully Fetch',
+      return: result,
+    };
+  }
+
+  //
+  async addOrUpdateProcedure(dto: ConsultationProcedureDto, createdby) {
+    const result = await this.ConsultationService.addOrUpdateProcedure(
+      dto,
+      createdby,
+    );
+
+    return {
+      message: 'Medicine added successfully',
+      data: result,
+    };
+  }
+
+  async getAllConsultationProcedures() {
+    const result =
+      await this.ConsultationService.getAllConsultationProcedures();
+    return {
+      message: 'All Procedures consultation  data has successfully Fetch',
+      return: result,
+    };
+  }
+
+  async getmedicalhistory() {
+    const result = await this.ConsultationService.getmedicalhistory();
+    return {
+      message: 'All medical history  data has successfully Fetch',
+      return: result,
+    };
+  }
+
+  async getInvestigationType() {
+    const result = await this.ConsultationService.getInvestigationType();
+    return {
+      message: 'All InvestigationType  data has successfully Fetch',
+      return: result,
+    };
+  }
+
+  //Detele End point
+  async deleteMedicine(MedicineId: number) {
+    const result = await this.ConsultationService.deleteMedicine(MedicineId);
+    return {
+      message: 'Medicine have been successfully deleted',
+      return: result,
+    };
+  }
+
+  async deleteChiefComplaint(ChiefComplaintTagId: number) {
+    const result =
+      await this.ConsultationService.deleteChiefComplaint(ChiefComplaintTagId);
+    return {
+      message: 'ChiefComplaintTag have been successfully deleted',
+      return: result,
+    };
+  }
+
+  async deleteInvestigation(InvestigationsubTypeId: number) {
+    const result = await this.ConsultationService.deleteInvestigation(
+      InvestigationsubTypeId,
+    );
+    return {
+      message: 'InvestigationsubType have been successfully deleted',
+      return: result,
+    };
+  }
+
+  async deleteDiagonasis(DiagnosisId: number) {
+    const result = await this.ConsultationService.deleteDiagonasis(DiagnosisId);
+    return {
+      message: 'Diagonasis have been successfully deleted',
+      return: result,
+    };
+  }
+
+  async deleteProcedure(ProcedureId: number) {
+    const result = await this.ConsultationService.deleteProcedure(ProcedureId);
+    return {
+      message: 'Procedure have been successfully deleted',
+      return: result,
+    };
+  }
+
+  async deletemedicalhistory(MedicalHistoryId: number) {
+    const result =
+      await this.ConsultationService.deleteMedicalHistory(MedicalHistoryId);
+    return {
+      message: 'Procedure have been successfully deleted',
       return: result,
     };
   }

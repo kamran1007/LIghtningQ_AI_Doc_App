@@ -1,4 +1,11 @@
-import { IsString, IsInt, IsOptional, IsNumber } from 'class-validator';
+import {
+  IsString,
+  IsInt,
+  IsOptional,
+  IsNumber,
+  IsDateString,
+  IsArray,
+} from 'class-validator';
 
 export class CreateMedicineDto {
   @IsOptional()
@@ -73,4 +80,16 @@ export class CreateMedicineDto {
   @IsOptional()
   @IsString()
   IsFrequent?: string;
+
+  @IsOptional()
+  @IsDateString()
+  updatedAt?: number;
+
+  @IsOptional()
+  @IsDateString()
+  createdAt?: number;
+
+    @IsOptional()
+  @IsArray()
+  ConsultationMedication?: any[] = [];
 }

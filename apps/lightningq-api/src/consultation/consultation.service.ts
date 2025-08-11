@@ -9,9 +9,43 @@ import { generateCaseSheetHtml } from 'src/utils/case-sheet-template';
 import { generatePdfFromHtml } from 'src/utils/pdf-generator.util';
 import { CreateChiefComplaintDto } from './dto/CreateCheifcomplaint.dto';
 import { CreateMedicineDto } from './dto/create-medicine.dto';
+import { ConsultationProcedureDto } from './dto/CreateOrUpdateConsultationDto';
 
 @Injectable()
 export class ConsultationService {
+  //             dosage: med.dosage ?? '',
+  //             frequency: med.frequency ?? '',
+  //             duration: med.duration ?? '',
+  //             remarks: med.remarks ?? '',
+  //           })) || [],
+  //       },
+  //       ConsultationTreatment: {
+  //         create:
+  //           ConsultationTreatment?.map((treat) => ({
+  //             source: treat.source ?? 'TYPED', // Default value fallback
+  //             treatmentText: treat.treatmentText ?? '',
+  //           })) || [],
+  //       },
+  //       ConsultationFollowUpPlan: ConsultationFollowUpPlan
+  //         ? {
+  //             create: {
+  //               followUpText: ConsultationFollowUpPlan.followUpText,
+  //               duration: ConsultationFollowUpPlan.duration,
+  //               unit: ConsultationFollowUpPlan.unit,
+  //               nextDate: ConsultationFollowUpPlan.nextDate,
+  //             },
+  //           }
+  //         : undefined,
+  //       ConsultationclinicalNotes: {
+  //         create:
+  //           ConsultationclinicalNotes?.map((note) => ({
+  //             content: note.content ?? '',
+  //           })) || [],
+  //       },
+  //     },
+  //   });
+  // }
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
@@ -351,6 +385,7 @@ export class ConsultationService {
       ConsultationInvestigation,
       ConsultationTreatment,
       ConsultationFollowUpPlan,
+      ConsultationProcedure,
       IsconsultationCompleted,
     } = dto;
 
@@ -449,6 +484,15 @@ export class ConsultationService {
                 content: note.content ?? '',
               })) || [],
           },
+          ConsultationProcedure: {
+            deleteMany: {},
+            create: (ConsultationProcedure || []).map((p) => ({
+              procedure: {
+                connect: { ProcedureId: p.ProcedureId },
+              },
+              Description: p.Description,
+            })),
+          },
         },
       });
     } else {
@@ -522,6 +566,14 @@ export class ConsultationService {
                 ConsultationclinicalNotes?.map((note) => ({
                   content: note.content ?? '',
                 })) || [],
+            },
+            ConsultationProcedure: {
+              create: (ConsultationProcedure || []).map((p) => ({
+                procedure: {
+                  connect: { ProcedureId: p.ProcedureId },
+                },
+                Description: p.Description,
+              })),
             },
           },
         });
@@ -643,26 +695,27 @@ export class ConsultationService {
             InvestigationSubType: true,
           },
         },
+        ConsultationProcedure: true,
         ConsultationTreatment: true,
         ConsultationFollowUpPlan: true,
         appointment: {
           include: {
             patient: {
-              include :{
+              include: {
                 allergies: true,
                 medicalHistory: true,
                 languages: true,
-                TagPatient: true
-              }
+                TagPatient: true,
+              },
             },
             doctor: {
-              include:{
-                Specialization: true
-              }
+              include: {
+                Specialization: true,
+              },
             },
             Vitals: true,
             visitType: true,
-            hospital: true
+            hospital: true,
           },
         },
       },
@@ -671,11 +724,11 @@ export class ConsultationService {
 
   //create cheif complaint
   async addOrUpdateChiefComplaint(dto: CreateChiefComplaintDto) {
-    const { ChiefComplaintTagId, ChiefComplainTagName, specializationId } = dto;
+    const { ChiefComplaintTagId, ChiefComplainTagName, SpecializationId } = dto;
 
     const data = {
       ChiefComplainTagName: ChiefComplainTagName?.trim() ?? '',
-      specialization: { connect: { SpecializationId: specializationId } },
+      specialization: { connect: { SpecializationId: SpecializationId } },
     };
 
     if (ChiefComplaintTagId) {
@@ -728,6 +781,9 @@ export class ConsultationService {
     return this.prisma.diagnosis.findMany({
       orderBy: {
         DiagnosisName: 'asc',
+      },
+      include: {
+        specialization: true,
       },
     });
   }
@@ -788,6 +844,7 @@ export class ConsultationService {
         // color: colorMap[type.InvestigationTypeName] || '#ccc',
         color: type.InvestigationTypeColorCode || '#ccc',
         InvestigationSubTypeId: sub.InvestigationSubTypeId,
+        IsDeleted: sub.IsDeleted,
       })),
     }));
 
@@ -870,6 +927,50 @@ export class ConsultationService {
     });
   }
 
+  async addOrUpdateProcedure(dto: ConsultationProcedureDto, createdBy: number) {
+    if (dto.ProcedureId) {
+      // 🔁 Update flow
+      return this.prisma.procedure.update({
+        where: { ProcedureId: dto.ProcedureId },
+        data: {
+          ProcedureName: dto.ProcedureName,
+          ProcedureCode: dto.ProcedureCode,
+          specializationId: dto.specializationId,
+          createdBy: createdBy,
+        },
+      });
+    } else {
+      // ➕ Create flow
+      return this.prisma.procedure.create({
+        data: {
+          ProcedureName: dto.ProcedureName,
+          ProcedureCode: dto.ProcedureCode,
+          specializationId: dto.specializationId,
+          createdBy,
+        },
+      });
+    }
+  }
+
+  async getAllConsultationProcedures() {
+    return this.prisma.procedure.findMany({
+      orderBy: {
+        ProcedureId: 'asc',
+      },
+      include: {
+        specialization: true,
+      },
+    });
+  }
+
+  async getInvestigationType() {
+    return this.prisma.investigationType.findMany({
+      orderBy: {
+        InvestigationTypeId: 'asc',
+      },
+    });
+  }
+
   async getPatientAppointment(patientId: number) {
     return this.prisma.appointment.findMany({
       where: {
@@ -910,6 +1011,123 @@ export class ConsultationService {
     });
   }
 
+  async addupdatemedicalhistory(
+    medicalhistory: string,
+    MedicalhistoryId?: number,
+  ) {
+    if (MedicalhistoryId) {
+      return this.prisma.medicalHistory.update({
+        where: { MedicalHistoryId: MedicalhistoryId },
+        data: { MedicalHistoryName: medicalhistory },
+      });
+    }
+
+    return this.prisma.medicalHistory.create({
+      data: { MedicalHistoryName: medicalhistory },
+    });
+  }
+
+  async getmedicalhistory() {
+    return this.prisma.medicalHistory.findMany({
+      orderBy: {
+        MedicalHistoryId: 'asc',
+      },
+    });
+  }
+  //Delete end point
+  async deleteMedicine(medicineId: number) {
+    // Check if medicine exists before deleting
+    const existing = await this.prisma.medicine.findUnique({
+      where: { MedicineId: medicineId },
+    });
+
+    if (!existing) {
+      throw new Error(`Medicine with ID ${medicineId} not found`);
+    }
+
+    return this.prisma.medicine.update({
+      where: { MedicineId: medicineId },
+      data: { IsDeleted: true },
+    });
+  }
+
+  //Delete cheif complaint
+  async deleteChiefComplaint(ChiefComplaintTagId: number) {
+    const existing = await this.prisma.chiefComplaintTag.findUnique({
+      where: { ChiefComplaintTagId: ChiefComplaintTagId },
+    });
+
+    if (!existing) {
+      throw new Error(`Medicine with ID ${ChiefComplaintTagId} not found`);
+    }
+
+    return this.prisma.chiefComplaintTag.update({
+      where: { ChiefComplaintTagId: ChiefComplaintTagId },
+      data: { IsDeleted: true },
+    });
+  }
+
+  async deleteInvestigation(InvestigationsubTypeId: number) {
+    const existing = await this.prisma.investigationSubType.findUnique({
+      where: { InvestigationSubTypeId: InvestigationsubTypeId },
+    });
+
+    if (!existing) {
+      throw new Error(
+        `InvestigationsubType with ID ${InvestigationsubTypeId} not found`,
+      );
+    }
+
+    return this.prisma.investigationSubType.update({
+      where: { InvestigationSubTypeId: InvestigationsubTypeId },
+      data: { IsDeleted: true },
+    });
+  }
+
+  async deleteDiagonasis(DiagnosisId: number) {
+    const existing = await this.prisma.diagnosis.findUnique({
+      where: { DiagnosisId: DiagnosisId },
+    });
+
+    if (!existing) {
+      throw new Error(`Medicine with ID ${DiagnosisId} not found`);
+    }
+
+    return this.prisma.diagnosis.update({
+      where: { DiagnosisId: DiagnosisId },
+      data: { IsDeleted: true },
+    });
+  }
+
+  async deleteProcedure(ProcedureId: number) {
+    const existing = await this.prisma.procedure.findUnique({
+      where: { ProcedureId: ProcedureId },
+    });
+
+    if (!existing) {
+      throw new Error(`Medicine with ID ${ProcedureId} not found`);
+    }
+
+    return this.prisma.procedure.update({
+      where: { ProcedureId: ProcedureId },
+      data: { IsDeleted: true },
+    });
+  }
+
+  async deleteMedicalHistory(MedicalHistoryId: number) {
+    const existing = await this.prisma.medicalHistory.findUnique({
+      where: { MedicalHistoryId: MedicalHistoryId },
+    });
+
+    if (!existing) {
+      throw new Error(`Medicine with ID ${MedicalHistoryId} not found`);
+    }
+
+    return this.prisma.medicalHistory.update({
+      where: { MedicalHistoryId: MedicalHistoryId },
+      data: { IsDeleted: true },
+    });
+  }
   //Get all diagnosis by specialization ID
 
   // async getDiagnosesBySpecialization(specializationId: number) {

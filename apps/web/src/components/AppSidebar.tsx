@@ -38,7 +38,7 @@ export function AppSidebar() {
         />
       )}
       <aside
-        className={`h-full shadow-md flex flex-col transition-all duration-300 bg-white ${
+        className={`h-full shadow-md flex bg-gradient-to-b from-teal-50 to-teal-100 flex-col transition-all duration-300 bg-white ${
           isExpanded ? "w-64" : "w-20"
         }`}
         onMouseLeave={() => setIsExpanded(false)}
@@ -58,16 +58,16 @@ export function AppSidebar() {
                     ${
                       isExpanded
                         ? isActive
-                          ? "bg-blue-100 text-blue-900"
-                          : "hover:bg-gray-100 text-blue-800"
+                          ? "bg-teal-100 text-teal-700"
+                          : "hover:bg-gray-100 text-teal-600"
                         : isActive
-                        ? "bg-blue-100"
-                        : "text-blue-800"
+                        ? "bg-teal-100"
+                        : "text-teal-600"
                     }
                     shadow hover:shadow-2xl transition-shadow duration-300 ease-in-out`}
                 >
                   <Icon
-                    className={`min-w-[20px] transition-all transform duration-300 group-hover:scale-110 group-hover:text-blue-600 ${
+                    className={`min-w-[20px] transition-all transform duration-300 group-hover:scale-110 group-hover:text-teal-400 ${
                       isExpanded ? "mr-3" : "mx-auto"
                     }`}
                   />
@@ -80,7 +80,7 @@ export function AppSidebar() {
                   </span>
                 </button>
                 {!isExpanded && (
-                  <span className="absolute left-full top-1/2 -translate-y-1/2 ml-2 z-50 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 px-3 py-1 bg-gray-800 text-white text-xs rounded-md shadow-lg whitespace-nowrap transition-all duration-300 ease-in-out">
+                  <span className="absolute left-full top-1/2 -translate-y-1/2 ml-2 z-50 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 px-3 py-1 bg-teal-400 text-white text-xs rounded-md shadow-lg whitespace-nowrap transition-all duration-300 ease-in-out">
                     {item.name}
                   </span>
                 )}

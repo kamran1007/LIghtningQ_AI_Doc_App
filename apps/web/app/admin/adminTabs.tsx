@@ -10,6 +10,7 @@ import { getOrganizationByUser } from "@/lib/admin";
 import Hospitaluserlist from "./hospitaluserlist";
 import Link from "next/link";
 import Image from "next/image";
+import { text } from "stream/consumers";
 
 const AdminTabs = () => {
   type OrganizationType = {
@@ -64,13 +65,13 @@ const AdminTabs = () => {
       <TabsList className="mb-4 w-full flex gap-2 sticky top-0 z-40 bg-white shadow-lg px-2 py-2 rounded-xl">
         <TabsTrigger
           value="hospital"
-          className="px-4 py-2 text-sm font-medium border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 cursor-pointer"
+          className="px-4 py-2 text-sm font-medium border-b-2 border-transparent data-[state=active]:border-teal-400 data-[state=active]:text-teal-400 cursor-pointer"
         >
           Manage Hospital
         </TabsTrigger>
         <TabsTrigger
           value="user"
-          className="px-4 py-2 text-sm font-medium border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 cursor-pointer"
+          className="px-4 py-2 text-sm font-medium border-b-2 border-transparent data-[state=active]:border-teal-400 data-[state=active]:text-teal-400 cursor-pointer"
         >
           Manage User
         </TabsTrigger>
@@ -79,14 +80,15 @@ const AdminTabs = () => {
       {/* Manage Hospital Tab */}
       <TabsContent value="hospital">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="flex items-center gap-2 text-2xl font-bold text-black-600">
+          <h2 className="flex items-center gap-2 text-2xl font-bold text-gray-500">
             <Image
               src="/hospital.png"
               alt="User avatar"
               width={30}
               height={30}
+  className="object-contain"
             />
-            <span className="font-sans font-display text-[22px] sm:text-[24px] leading-snug">
+            <span className="font-sans font-display text-[22px] sm:text-[22px] leading-snug">
               Hospital List
             </span>
           </h2>{" "}

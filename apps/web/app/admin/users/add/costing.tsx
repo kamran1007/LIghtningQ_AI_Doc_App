@@ -166,7 +166,7 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
 
           <DialogClose asChild>
             <button
-              className="text-blue-600 hover:bg-blue-100 p-2 rounded-full transition cursor-pointer"
+              className="text-teal-600 hover:bg-teal-100 p-2 rounded-full transition cursor-pointer"
               title="Close"
             >
               <X className="w-6 h-6" />
@@ -215,7 +215,7 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
                   setValue("hospitalId", selectedId);
                 }}
               >
-                <SelectTrigger className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <SelectTrigger className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500">
                   <SelectValue placeholder="Select Hospital" />
                 </SelectTrigger>
                 <SelectContent className="border-white shadow-2xl rounded-2xl data-[state=checked]:bg-white data-[highlighted]:bg-white">

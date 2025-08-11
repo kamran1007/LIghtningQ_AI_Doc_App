@@ -177,7 +177,7 @@ const UserList = () => {
       Cell: ({ row }: { row: { original: User } }) => (
         <DropdownMenu>
           <DropdownMenuTrigger className="focus:outline-none">
-            <MoreHorizontal className="w-5 h-5 text-blue-500 cursor-pointer" />
+            <MoreHorizontal className="w-5 h-5 text-teal-500 cursor-pointer" />
           </DropdownMenuTrigger>
 
           <DropdownMenuContent
@@ -188,7 +188,7 @@ const UserList = () => {
               onClick={() => handleEdit(row.original)}
               className="flex items-center gap-1 px-2 py-1 text-sm text-gray-700 hover:bg-blue-50 cursor-pointer"
             >
-              <Edit className="w-4 h-4 text-blue-500" />
+              <Edit className="w-4 h-4 text-teal-500" />
               Edit
             </DropdownMenuItem>
           </DropdownMenuContent>

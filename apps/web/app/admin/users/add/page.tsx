@@ -504,7 +504,7 @@ export default function AddUserPage() {
       {/* Main Form */}
       <main className="flex-1 p-6 overflow-auto">
         <div className="flex items-center gap-x-4 mb-4">
-          <UserCheck className="w-5 h-5 text-blue-500" />
+          <UserCheck className="w-5 h-5 text-teal-500" />
           <h2 className="text-lg font-semibold text-gray-800">
             {user?.UserId ? "Edit User" : "Add User"}
           </h2>
@@ -807,7 +807,7 @@ export default function AddUserPage() {
           {/* Credentials */}
           <div className="space-y-8">
             <div className="flex items-center gap-x-4 mb-4">
-              <LockKeyholeOpen className="w-5 h-5 text-blue-500" />
+              <LockKeyholeOpen className="w-5 h-5 text-teal-500" />
               <h2 className="text-lg font-semibold text-gray-800">
                 Credentials
               </h2>
@@ -870,11 +870,11 @@ export default function AddUserPage() {
                   <button
                     type="button"
                     onClick={handleResetPasswordToggle}
-                    className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 underline transition duration-200 cursor-pointer"
+                    className="flex items-center gap-2 text-sm text-teal-600 hover:text-teal-800 underline transition duration-200 cursor-pointer"
                   >
                     <div className="flex items-center gap-x-4 mb-2">
-                      <RotateCcwKey className="w-5 h-5 text-blue-500" />
-                      <h2 className="text-md font-semibold text-blue-500">
+                      <RotateCcwKey className="w-5 h-5 text-teal-500" />
+                      <h2 className="text-md font-semibold text-teal-500">
                         Reset Password?
                       </h2>
                     </div>
@@ -916,7 +916,7 @@ export default function AddUserPage() {
             {/* === User Signature Section === */}
             <div className="p-0">
               <div className="flex items-center gap-x-4 mb-4">
-                <Signature className="w-5 h-5 text-blue-500" />
+                <Signature className="w-5 h-5 text-teal-500" />
                 <h2 className="text-lg font-semibold text-gray-800">
                   User Signature
                 </h2>
@@ -1006,14 +1006,14 @@ export default function AddUserPage() {
                         <button
                           type="button"
                           onClick={handleClearSignature}
-                          className="text-sm text-blue-600 hover:underline"
+                          className="text-sm text-teal-600 hover:underline"
                         >
                           Clear
                         </button>
                         <button
                           type="button"
                           onClick={() => sigRef.current?.undo()}
-                          className="text-sm text-blue-600 hover:underline"
+                          className="text-sm text-teal-600 hover:underline"
                         >
                           Undo
                         </button>
@@ -1072,7 +1072,7 @@ export default function AddUserPage() {
           </div> */}
           <div>
             <div className="flex items-center gap-x-4 mb-4">
-              <Hospital className="w-5 h-5 text-blue-500" />
+              <Hospital className="w-5 h-5 text-teal-500" />
               <h2 className="text-lg font-semibold text-gray-800">
                 Assign Hospital
               </h2>

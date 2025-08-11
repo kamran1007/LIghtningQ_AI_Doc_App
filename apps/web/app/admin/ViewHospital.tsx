@@ -55,7 +55,7 @@ const ViewHospitalModal = ({ isOpen, onOpenChange, hospital }: Props) => {
             </DialogDescription>
           </DialogHeader>
           <DialogClose asChild>
-            <button className="text-blue-600 hover:bg-blue-50 p-2 rounded-full transition cursor-pointer">
+            <button className="text-teal-600 hover:bg-blue-50 p-2 rounded-full transition cursor-pointer">
               <X className="w-6 h-6" />
             </button>
           </DialogClose>

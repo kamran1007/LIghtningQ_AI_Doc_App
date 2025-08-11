@@ -24,16 +24,16 @@ const Aside: React.FC<AsideProps> = ({ user }) => {
   const navItems = [
     {
       label: "Access Rights",
-      icon: <ShieldCheck className="w-4 h-4 text-blue-600" />,
+      icon: <ShieldCheck className="w-4 h-4 text-teal-400" />,
     },
     {
       label: "Time Slots",
-      icon: <Clock className="w-4 h-4 text-blue-600" />,
+      icon: <Clock className="w-4 h-4 text-teal-400" />,
       onClick: () => setIsTimeSlotDialogOpen(), // Open dialog
     },
     {
       label: "Costing",
-      icon: <DollarSign className="w-4 h-4 text-blue-600" />,
+      icon: <DollarSign className="w-4 h-4 text-teal-400" />,
       onClick: () => setIsCostingDialogOpen(),
     },
   ];
@@ -83,7 +83,7 @@ const Aside: React.FC<AsideProps> = ({ user }) => {
           <h2 className="text-lg font-semibold text-gray-800 mb-1 flex items-center">
             User Settings
           </h2>
-          <div className="h-1 w-40 bg-blue-500 rounded-full flex items-center" />
+          <div className="h-1 w-40 bg-teal-500 rounded-full flex items-center" />
         </div>
 
         {/* Navigation List */}
@@ -92,10 +92,10 @@ const Aside: React.FC<AsideProps> = ({ user }) => {
             <li
               key={idx}
               onClick={item.onClick} // ✅ Hook up the click handler here
-              className="flex items-center gap-2 px-3 py-2 rounded-md bg-white hover:bg-blue-50 transition-colors cursor-pointer group"
+              className="flex items-center gap-2 px-3 py-2 rounded-md bg-white hover:bg-teal-50 transition-colors cursor-pointer group"
             >
               {item.icon}
-              <span className="font-medium text-gray-700 group-hover:text-blue-600">
+              <span className="font-medium text-gray-700 group-hover:text-teal-400">
                 {item.label}
               </span>
             </li>

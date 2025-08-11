@@ -1,4 +1,4 @@
-// Updated InvestigationCard with per-field mic control
+// Updated InvestigationCard with correct hook usage
 
 "use client";
 
@@ -30,11 +30,34 @@ const InvestigationCard = ({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [userprofiledata, setUserprofiledata] = useState<any>(null);
   const [inputValue, setInputValue] = useState("");
-  const [listeningField, setListeningField] = useState<string | null>(null);
+
+  const [activeField, setActiveField] = useState<string | null>(null);
+  const {
+    transcript,
+    listening,
+    startListening,
+    stopListening,
+    resetTranscript,
+  } = useFieldSpeechRecognition(activeField);
 
   useEffect(() => {
     fetchOptions();
   }, []);
+
+  useEffect(() => {
+    if (transcript && activeField) {
+      setForm((prev: any) => {
+        const existingRemark = prev.investigationRemarks?.[activeField] || "";
+        return {
+          ...prev,
+          investigationRemarks: {
+            ...prev.investigationRemarks,
+            [activeField]: `${existingRemark} ${transcript}`.trim(),
+          },
+        };
+      });
+    }
+  }, [transcript]);
 
   const fetchOptions = async () => {
     try {
@@ -122,9 +145,7 @@ const InvestigationCard = ({
               overflowY: "auto",
             }),
           }}
-          menuPortalTarget={
-            typeof window !== "undefined" ? document.body : null
-          }
+          menuPortalTarget={typeof window !== "undefined" ? document.body : null}
           noOptionsMessage={() =>
             inputValue && !showCreateForm ? (
               <div className="flex justify-between items-center text-sm px-2 py-1">
@@ -158,9 +179,7 @@ const InvestigationCard = ({
             className="text-sm w-[220px]"
             isSearchable={false}
             placeholder="Select category"
-            menuPortalTarget={
-              typeof window !== "undefined" ? document.body : null
-            }
+            menuPortalTarget={typeof window !== "undefined" ? document.body : null}
             menuPosition="fixed"
             styles={{
               menuPortal: (base) => ({ ...base, zIndex: 9999 }),
@@ -187,29 +206,6 @@ const InvestigationCard = ({
 
       {form.investigations?.map((inv: any) => {
         const remark = form.investigationRemarks?.[inv.value] || "";
-        const {
-          transcript,
-          listening,
-          startListening,
-          stopListening,
-          resetTranscript,
-        } = useFieldSpeechRecognition(inv.value);
-
-        useEffect(() => {
-          if (transcript) {
-            setForm((prev: any) => {
-              const existingRemark =
-                prev.investigationRemarks?.[inv.value] || "";
-              return {
-                ...prev,
-                investigationRemarks: {
-                  ...prev.investigationRemarks,
-                  [inv.value]: `${existingRemark} ${transcript}`.trim(),
-                },
-              };
-            });
-          }
-        }, [transcript]);
 
         return (
           <div key={inv.value} className="mt-2">
@@ -251,14 +247,22 @@ const InvestigationCard = ({
               />
               <button
                 type="button"
-                onClick={() => (listening ? stopListening() : startListening())}
+                onClick={() => {
+                  if (listening && activeField === inv.value) {
+                    stopListening();
+                    setActiveField(null);
+                  } else {
+                    setActiveField(inv.value);
+                    startListening();
+                  }
+                }}
                 className={`absolute right-2 bottom-4 p-0.5 rounded-full transition ${
-                  listening
+                  listening && activeField === inv.value
                     ? "bg-red-100 hover:bg-red-200"
                     : "bg-blue-100 hover:bg-blue-200"
                 }`}
               >
-                {listening ? (
+                {listening && activeField === inv.value ? (
                   <MicOff className="w-5 h-5 text-red-600 animate-pulse" />
                 ) : (
                   <Mic className="w-5 h-5 text-[#22E0D4]" />

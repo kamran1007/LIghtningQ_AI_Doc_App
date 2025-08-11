@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   InternalServerErrorException,
   Param,
@@ -30,6 +31,7 @@ import { CreateInvestigationSubTypeDto } from 'src/consultation/dto/createinvest
 import { CreateDiagnosisDto } from 'src/consultation/dto/create-diagnosis.dto';
 import { CreateChiefComplaintDto } from 'src/consultation/dto/CreateCheifcomplaint.dto';
 import { CreateMedicineDto } from 'src/consultation/dto/create-medicine.dto';
+import { ConsultationProcedureDto } from 'src/consultation/dto/CreateOrUpdateConsultationDto';
 @Controller('patientcare')
 export class PatientcareController {
   constructor(
@@ -364,9 +366,50 @@ export class PatientcareController {
 
   //Get All Patient Appointment
   @Get('getPatientAppointment/:patientId')
-  async getAppointmentsForPatient(@Param('patientId', ParseIntPipe) patientId: number) {
+  async getAppointmentsForPatient(
+    @Param('patientId', ParseIntPipe) patientId: number,
+  ) {
     return this.patientcareService.getPatientAppointment(patientId);
   }
+
+  //add procedure
+  @Patch('addupdateprocedure')
+  async addOrUpdateProcedure(
+    @Body() dto: ConsultationProcedureDto,
+    @CurrentUser() @Req() req: any,
+  ) {
+    const userId = Number(req.user?.UserId || 1);
+    console.log('Received Body:', dto);
+
+    return this.patientcareService.addOrUpdateProcedure(dto, userId);
+  }
+  @Get('getmedicalhistory')
+  getmedicalhistory() {
+    return this.patientcareService.getmedicalhistory();
+  }
+  //get procedure
+  @Get('getprocedure')
+  async getProcedures() {
+    return this.patientcareService.getAllConsultationProcedures();
+  }
+
+  @Get('getInvestigationType')
+  async getInvestigationType() {
+    return this.patientcareService.getInvestigationType();
+  }
+
+@Patch('addupdatemedicalhistory')
+async addupdatemedicalhistory(
+  @Body() body: { MedicalHistoryName: string },
+  @Query('MedicalhistoryId') MedicalhistoryId?: number // Or however you're passing it
+) {
+  console.log('Received Body:', body);
+  return this.patientcareService.addupdatemedicalhistory(
+    body.MedicalHistoryName,
+    MedicalhistoryId
+  );
+}
+
 
   // get all diagnosis by specialization id
   // @Get('specialization/:specializationId')
@@ -375,4 +418,53 @@ export class PatientcareController {
   // ) {
   //   return this.diagnosisService.getDiagnosesBySpecialization(specializationId);
   // }
+
+  //Delete End point
+  //Medication
+  @Patch('deleteMedicine/:MedicineId')
+  async deleteMedicine(@Param('MedicineId') MedicineId: number) {
+    return this.patientcareService.deleteMedicine(Number(MedicineId));
+  }
+
+  // cheif complaint
+  @Patch('deleteChiefComplaintTag/:ChiefComplaintTagId')
+  async deleteChiefComplaint(
+    @Param('ChiefComplaintTagId') ChiefComplaintTagId: number,
+  ) {
+    return this.patientcareService.deleteChiefComplaint(
+      Number(ChiefComplaintTagId),
+    );
+  }
+
+  //Investigation
+  @Patch('deleteInvestigationsubType/:InvestigationsubTypeId')
+  async deleteInvestigation(
+    @Param('InvestigationsubTypeId') InvestigationsubTypeId: number,
+  ) {
+    return this.patientcareService.deleteInvestigation(
+      Number(InvestigationsubTypeId),
+    );
+  }
+
+  //Diagonasis
+  @Patch('deleteDiagonasis/:DiagnosisId')
+  async deleteDiagonasis(@Param('DiagnosisId') DiagnosisId: number) {
+    return this.patientcareService.deleteDiagonasis(Number(DiagnosisId));
+  }
+
+  //PROCEDURE
+  @Patch('deleteprocedure/:ProcedureId')
+  async deleteProcedure(@Param('ProcedureId') ProcedureId: number) {
+    return this.patientcareService.deleteProcedure(Number(ProcedureId));
+  }
+
+  //deletemedical history
+  @Patch('deleteMedicalHistory/:MedicalHistoryId')
+  async deletemedicalhistory(
+    @Param('MedicalHistoryId') MedicalHistoryId: number,
+  ) {
+    return this.patientcareService.deletemedicalhistory(
+      Number(MedicalHistoryId),
+    );
+  }
 }

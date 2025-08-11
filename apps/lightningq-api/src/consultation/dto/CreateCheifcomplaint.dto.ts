@@ -10,5 +10,5 @@ export class CreateChiefComplaintDto {
 
   @IsOptional()
   @IsInt()
-  specializationId!: number;
+  SpecializationId!: number;
 }

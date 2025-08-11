@@ -7,6 +7,7 @@ import {
   IsBoolean,
   ValidateNested,
   IsArray,
+  IsNumber,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -91,10 +92,25 @@ class FollowUpPlanDto {
   nextDate?: string;
 }
 
+class ConsultationProcedureDto {
 
+  
+
+  @IsOptional()
+  @IsString()
+  ProcedureName?: string;
+
+  @IsOptional()
+  @IsInt()
+  ProcedureId?: number;
+
+  @IsOptional()
+  @IsString()
+  Description?: string;
+
+}
 
 export class CreateOrUpdateConsultationDto {
-
   // @IsInt()
   // PatientId!: number;
 
@@ -170,4 +186,10 @@ export class CreateOrUpdateConsultationDto {
   @Type(() => FollowUpPlanDto)
   @IsOptional()
   ConsultationFollowUpPlan?: FollowUpPlanDto;
+
+  @IsArray()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => ConsultationProcedureDto)
+  ConsultationProcedure?: ConsultationProcedureDto[];
 }

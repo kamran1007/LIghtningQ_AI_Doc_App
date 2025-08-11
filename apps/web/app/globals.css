@@ -526,3 +526,28 @@ input[type="checkbox"].gradient-checkbox:checked {
   box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
   z-index: 100;
 }
+
+/* Modern scrollbar styling */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #2dd4bf transparent;
+  /* teal-400 thumb */
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #2dd4bf;
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #14b8a6;
+  /* darker teal */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}

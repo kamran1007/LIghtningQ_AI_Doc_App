@@ -676,6 +676,9 @@ export class AppointmentService {
               ConsultationDiagnosis: {
                 include: { diagnosis: true },
               },
+              ConsultationProcedure:{
+                include: {procedure: true},
+              },
               ConsultationMedication: true,
               ConsultationInvestigation: {
                 include: {

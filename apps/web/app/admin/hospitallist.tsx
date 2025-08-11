@@ -139,29 +139,29 @@ const HospitalList = () => {
       Cell: ({ row }: { row: { original: any } }) => (
         <DropdownMenu>
           <DropdownMenuTrigger className="focus:outline-none">
-            <MoreHorizontal className="w-5 h-5 cursor-pointer text-blue-500" />{" "}
+            <MoreHorizontal className="w-5 h-5 cursor-pointer text-teal-500" />{" "}
             {/* Blue color */}
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="!w-20 !min-w-[10rem] p-1">
             <DropdownMenuItem
               onClick={() => handleView(row.original)}
-              className="flex items-center gap-2 hover:bg-blue-50 rounded-md cursor-pointer"
+              className="flex items-center gap-2 hover:bg-teal-50 rounded-md cursor-pointer"
             >
-              <Eye className="w-4 h-4 text-blue-500" />
+              <Eye className="w-4 h-4 text-teal-500" />
               View
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => handleEdit(row.original)}
-              className="flex items-center gap-2 hover:bg-blue-50 rounded-md cursor-pointer"
+              className="flex items-center gap-2 hover:bg-teal-50 rounded-md cursor-pointer"
             >
-              <Edit className="w-4 h-4 text-blue-500" />
+              <Edit className="w-4 h-4 text-teal-500" />
               Edit
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => handleAddNew()}
-              className="flex items-center gap-2 hover:bg-blue-50 rounded-md cursor-pointer"
+              className="flex items-center gap-2 hover:bg-teal-50 rounded-md cursor-pointer"
             >
-              <Plus className="w-4 h-4 text-blue-500" />
+              <Plus className="w-4 h-4 text-teal-500" />
               Add New
             </DropdownMenuItem>
           </DropdownMenuContent>

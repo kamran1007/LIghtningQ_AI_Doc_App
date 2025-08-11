@@ -58,7 +58,7 @@ export default function AppointmentActionsDialog({
       <Dialog.Root open={open} onOpenChange={setOpen}>
         <Dialog.Trigger asChild>
           <MoreHorizontal
-            className="w-6 h-6 text-blue-600 cursor-pointer"
+            className="w-6 h-6 text-teal-400 cursor-pointer"
             onClick={() => setOpen(true)}
           />
         </Dialog.Trigger>
@@ -145,16 +145,16 @@ export default function AppointmentActionsDialog({
                       variant="ghost"
                       className="justify-start gap-3"
                       onClick={() => {
-                        if (isPastDate(patient.appointmentDate)) {
-                          toast.current?.show({
-                            severity: "error",
-                            summary: "Error",
-                            detail:
-                              "You can't start consultation for a past appointment.",
-                            life: 4000,
-                          });
-                          return;
-                        }
+                        // if (isPastDate(patient.appointmentDate)) {
+                        //   toast.current?.show({
+                        //     severity: "error",
+                        //     summary: "Error",
+                        //     detail:
+                        //       "You can't start consultation for a past appointment.",
+                        //     life: 4000,
+                        //   });
+                        //   return;
+                        // }
                         onStartConsultation(patient);
                         setOpen(false);
                       }}

@@ -12,7 +12,6 @@ import { Toast } from "primereact/toast";
 import { Tooltip } from "primereact/tooltip";
 
 import {
- 
   Stethoscope,
   AlertTriangle,
   Thermometer,
@@ -32,8 +31,7 @@ import {
   NotebookPen,
   History,
   Droplets,
-  Scale
- 
+  Scale,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -87,6 +85,7 @@ import FollowUpPlanCard from "./FollowUpPlanCard";
 import { useAppDispatch } from "@/store/hooks";
 import { fetchAllAppointmentPatient } from "@/store/AppointmentSlice";
 import { title } from "process";
+import ProcedureInputCard from "./procedureCard";
 export default function ConsultationDrawer({
   open,
   onClose,
@@ -296,6 +295,11 @@ export default function ConsultationDrawer({
   >(null);
   // const [remarkMap, setRemarkMap] = useState<Record<string, string>>({});
   const [remarkMap, setRemarkMap] = useState<{ [key: string]: string }>({});
+
+  const [procedureremarkMap, setProcedureremarkMap] = useState<{
+    [key: string]: string;
+  }>({});
+  const [procedures, setProcedures] = useState([]);
 
   // console.log("Selected Chief Complaints:", selectedChiefComplaints);
   const dispatch = useAppDispatch();
@@ -554,24 +558,24 @@ export default function ConsultationDrawer({
       icon: "pi pi-file-check",
       title: "Complete Consultation",
       template: (item, options) => (
-      <div {...options} title="Complete Consultation" >
-        <i className={item.icon} />
-        {/* <span>{item.label}</span> */}
-      </div>),
+        <div {...options} title="Complete Consultation">
+          <i className={item.icon} />
+          {/* <span>{item.label}</span> */}
+        </div>
+      ),
       command: () => {
         handleSaveConsultation("Complete");
-        
       },
     },
     {
       label: "Save",
       icon: "pi pi-save",
       template: (item, options) => (
-      <div {...options} title="Save">
-        <i className={item.icon} />
-        {/* <span>{item.label}</span> */}
-      </div>
-    ),
+        <div {...options} title="Save">
+          <i className={item.icon} />
+          {/* <span>{item.label}</span> */}
+        </div>
+      ),
       command: () => {
         handleSaveConsultation("save");
       },
@@ -585,8 +589,6 @@ export default function ConsultationDrawer({
       label: "React Website",
       icon: "pi pi-external-link",
       command: () => (window.location.href = "https://react.dev/"),
-      
-       
     },
   ];
 
@@ -788,6 +790,16 @@ export default function ConsultationDrawer({
           form.followUpDuration,
           form.followUpUnit
         ),
+
+        ConsultationProcedure: (procedures || [])
+          .filter(
+            (proc) => proc?.ProcedureId && !isNaN(Number(proc.ProcedureId))
+          )
+          .map((proc) => ({
+            ProcedureName: proc.label || "",
+            ProcedureId: Number(proc.ProcedureId),
+            Description: procedureremarkMap?.[proc.ProcedureId] || "",
+          })),
       };
 
       console.log("Submitting payload: ", payload);
@@ -940,6 +952,23 @@ export default function ConsultationDrawer({
         ...prev,
         medications: meds.length > 0 ? meds : prev.medications,
       }));
+
+      // Procedures
+      const procedureList =
+        consultation.ConsultationProcedure?.map((p: any) => ({
+          label: p?.procedure?.ProcedureName || "",
+          ProcedureId: p?.procedure?.ProcedureId?.toString() || "",
+        })) || [];
+
+      const procedureremarkMap: Record<string, string> = {};
+      consultation.ConsultationProcedure?.forEach((p: any) => {
+        if (p?.ProcedureId) {
+          procedureremarkMap[p.ProcedureId.toString()] = p?.Description || "";
+        }
+      });
+
+      setProcedures(procedureList); // <-- setSelectedProcedures or whatever state you're using
+      setProcedureremarkMap(procedureremarkMap);
     }
   }, [patient]);
 
@@ -997,7 +1026,7 @@ export default function ConsultationDrawer({
                 </Avatar>
 
                 {/* Patient Details */}
-                <div className="flex flex-col w-full text-sm text-gray-700 font-mono">
+                <div className="flex flex-col w-full text-sm text-gray-700 font-sans">
                   {fullScreen ? (
                     <div className="grid grid-cols-5 gap-x-2 gap-y-1 w-full -mx-4 font-sans text-[13px]">
                       {/* Row 1 */}
@@ -1025,7 +1054,7 @@ export default function ConsultationDrawer({
                         <span className="text-[12px] text-shadow-muted-foreground">
                           Allergy:
                         </span>
-                        {patient?.patient?.allergies || "None"}
+                        {/* {patient?.patient?.allergies || "None"} */}
                       </div>
                       <div className="flex items-center col-span-1 gap-0.5">
                         <Languages className="w-4 h-4 text-[#22E0D4]" />
@@ -1051,7 +1080,7 @@ export default function ConsultationDrawer({
                         <span className="text-[12px] text-shadow-muted-foreground">
                           Past Medical Record:
                         </span>
-                        {patient?.patient?.medicalHistory || "N/A"}
+                        {/* {patient?.patient?.medicalHistory || "N/A"} */}
                       </div>
                     </div>
                   ) : (
@@ -1473,7 +1502,7 @@ export default function ConsultationDrawer({
                                   />
 
                                   <VitalCardInput
-                                    icon={<Scale  size={18} />}
+                                    icon={<Scale size={18} />}
                                     label="BMI"
                                     value={form.BMI}
                                     name="bmi"
@@ -1618,6 +1647,14 @@ export default function ConsultationDrawer({
                             remarkMap={remarkMap}
                             setRemarkMap={setRemarkMap}
                             // listenings={listeningDiagnosis}
+                          />
+                          <ProcedureInputCard
+                            procedures={procedures}
+                            setProcedures={setProcedures}
+                            inputValue={inputValue}
+                            setInputValue={setInputValue}
+                            procedureremarkMap={procedureremarkMap}
+                            setProcedureremarkMap={setProcedureremarkMap}
                           />
                           <TreatmentInstructionsCard
                             form={form}

@@ -16,7 +16,7 @@ const AppBar = async () => {
   
 
   return (
-    <div className="navbar flex items-center justify-between px-4 py-4 h-14 relative bg-gray-800">
+    <div className="bg-gradient-to-tr from-teal-400 to-teal-600 flex items-center justify-between px-4 py-4 h-14 relative ">
       
       {/* Left-side logo (no padding) */}
       <div className="absolute left-0 top-0 h-14 flex items-center z-50">
@@ -38,7 +38,7 @@ const AppBar = async () => {
       {/* Right-side user info and dropdown */}
       <div className="absolute right-4 top-0 h-14 flex items-center gap-2 z-50">
         {UserProfile?.user ? (
-          <p className="font-houschka text-1xl text-white whitespace-nowrap">
+          <p className="font-sans text-1xl text-white whitespace-nowrap">
             {FullName} ({roleLabel})
           </p>
         ) : (
