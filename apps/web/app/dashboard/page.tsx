@@ -1,22 +1,48 @@
-import { getProfile } from "@/lib/action";
-import { getSession } from "@/lib/session";
-import { redirect } from "next/navigation";
-import React from "react";
+"use client";
 
-const page = async () => {
-  const session = await getSession();
-  const res = await getProfile();
+import React, { useState } from "react";
+import Dashboard from "./Dashboardreporting";
+import Advancereporting from "./Advancereporting";
 
-  // if (!session?.user) {
-  //   redirect("/auth/login");
-  // }
-  console.log("session", session);
+export default function Page() {
+  const [activeTab, setActiveTab] = useState<"dashboard" | "advanced">(
+    "dashboard"
+  );
+
   return (
-    <div className="json-output">
-      <pre>{JSON.stringify(res, null, 2)}</pre>
-      <p>hello this is dashboard</p>
+    <div className="p-4">
+      {/* Tabs */}
+      <div className="flex justify-center space-x-5 mb-2">
+        <button
+          className={`pb-2 transition-colors ${
+            activeTab === "dashboard"
+              ? "border-b-2 border-[#22E0D4] font-semibold text-black"
+              : "text-gray-500 hover:text-black"
+          }`}
+          onClick={() => setActiveTab("dashboard")}
+        >
+          Dashboard Reporting
+        </button>
+        <button
+          className={`pb-2 transition-colors ${
+            activeTab === "advanced"
+              ? "border-b-2 border-[#22E0D4] font-semibold text-black"
+              : "text-gray-500 hover:text-black"
+          }`}
+          onClick={() => setActiveTab("advanced")}
+        >
+          Advanced Reporting
+        </button>
+      </div>
+
+      {/* Tab content */}
+      <div>
+        {activeTab === "dashboard" ? (
+          <Dashboard initialFilter={null} />
+        ) : (
+          <Advancereporting />
+        )}
+      </div>
     </div>
   );
-};
-
-export default page;
+}

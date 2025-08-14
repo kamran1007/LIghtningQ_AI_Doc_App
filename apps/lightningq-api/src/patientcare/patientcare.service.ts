@@ -451,5 +451,6 @@ export class PatientcareService {
       message: 'Procedure have been successfully deleted',
       return: result,
     };
-  }
+  }  
+
 }

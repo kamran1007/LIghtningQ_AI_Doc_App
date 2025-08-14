@@ -23,126 +23,105 @@ export class AppointmentService {
   async BookAppointment(dto: QuickAppointmentDto, CreatedBy: number) {
     let patient;
 
-    if (dto.PatientId) {
-      // 🟢 Existing patient
-      patient = await this.prisma.patient.findUnique({
-        where: { PatientId: dto.PatientId },
-      });
+    return await this.prisma.$transaction(async (tx) => {
+      // 🟢 1. Find or create patient
+      if (dto.PatientId) {
+        patient = await tx.patient.findUnique({
+          where: { PatientId: dto.PatientId },
+        });
 
-      if (!patient) {
-        throw new Error('Patient not found with provided PatientId');
-      }
-    } else {
-      // 🆕 New patient: generate MRN
-      const hospitalCode = dto.hospitalId
-        ? `H${String(dto.hospitalId).padStart(3, '0')}`
-        : 'H001';
+        if (!patient) {
+          throw new Error('Patient not found with provided PatientId');
+        }
+      } else {
+        const hospitalCode = dto.hospitalId
+          ? `H${String(dto.hospitalId).padStart(3, '0')}`
+          : 'H001';
 
-      const lastPatient = await this.prisma.patient.findFirst({
-        where: {
-          Patient_Medical_Record_No: {
-            startsWith: hospitalCode,
+        const lastPatient = await tx.patient.findFirst({
+          where: {
+            Patient_Medical_Record_No: {
+              startsWith: hospitalCode,
+            },
           },
+          orderBy: { PatientId: 'desc' },
+        });
+
+        const nextNumber = lastPatient?.Patient_Medical_Record_No
+          ? parseInt(
+              lastPatient.Patient_Medical_Record_No.replace(hospitalCode, ''),
+            ) + 1
+          : 1;
+
+        const paddedNumber = String(nextNumber).padStart(6, '0');
+        const generatedMRN = `${hospitalCode}${paddedNumber}`;
+
+        if (generatedMRN.length !== 10) {
+          throw new Error(
+            'Generated Patient_Medical_Record_No must be 10 digits',
+          );
+        }
+
+        patient = await tx.patient.create({
+          data: {
+            Prefix: dto.Prefix ?? 'Mr',
+            firstName: dto.firstName ?? '',
+            lastName: dto.lastName ?? '',
+            dateOfBirth: new Date(dto.dateOfBirth ?? ''),
+            gender: (dto.gender as GenderType) ?? 'OTHER',
+            mobile: dto.mobile ?? '',
+            email: dto.email ?? '',
+            addressLine1: dto.addressLine1,
+            isQuickRegistered: true,
+            HospitalId: dto.hospitalId,
+            OrganizationId: 1,
+            city: '',
+            state: '',
+            postalCode: 0,
+            country: 'India',
+            CreatedBy: String(CreatedBy),
+            bloodGroup: (dto.bloodGroup as BloodGroup) ?? null,
+            Patient_Medical_Record_No: generatedMRN,
+          },
+        });
+      }
+
+      // 🛑 2. Prevent duplicate scheduled appointment
+      const existingAppointment = await tx.appointment.findFirst({
+        where: {
+          PatientId: patient.PatientId,
+          DoctorId: dto.DoctorId,
+          appointmentDate: {
+            gte: new Date(dto.appointmentDate + 'T00:00:00'),
+            lt: new Date(dto.appointmentDate + 'T23:59:59'),
+          },
+          status: 'SCHEDULED',
         },
-        orderBy: { PatientId: 'desc' },
       });
 
-      const nextNumber = lastPatient?.Patient_Medical_Record_No
-        ? parseInt(
-            lastPatient.Patient_Medical_Record_No.replace(hospitalCode, ''),
-          ) + 1
-        : 1;
-
-      const paddedNumber = String(nextNumber).padStart(6, '0');
-      const generatedMRN = `${hospitalCode}${paddedNumber}`;
-
-      if (generatedMRN.length !== 10) {
-        throw new Error(
-          'Generated Patient_Medical_Record_No must be 10 digits',
+      if (existingAppointment) {
+        throw new HttpException(
+          {
+            status: 'failure',
+            message:
+              'Appointment already exists for this patient with this doctor. Please reschedule instead.',
+          },
+          HttpStatus.BAD_REQUEST,
         );
       }
 
-      // 🏥 Create new patient with MRN
-      patient = await this.prisma.patient.create({
-        data: {
-          Prefix: dto.Prefix ?? 'Mr',
-          firstName: dto.firstName ?? '',
-          lastName: dto.lastName ?? '',
-          dateOfBirth: new Date(dto.dateOfBirth ?? ''),
-          gender: (dto.gender as GenderType) ?? 'OTHER',
-          mobile: dto.mobile ?? '',
-          email: dto.email ?? '',
-          addressLine1: dto.addressLine1,
-          isQuickRegistered: true,
-          HospitalId: dto.hospitalId,
-          OrganizationId: 1,
-          city: '',
-          state: '',
-          postalCode: 0,
-          country: 'India',
-          CreatedBy: String(CreatedBy),
-          bloodGroup: (dto.bloodGroup as BloodGroup) ?? null,
-          Patient_Medical_Record_No: generatedMRN,
-        },
-      });
-    }
-
-    // Combine date + time
-    const appointmentDate = new Date(
-      `${dto.appointmentDate}T${dto.appointmentTime}:00`,
-    );
-
-    if (
-      dto.DoctorId === undefined ||
-      dto.visitTypeId === undefined ||
-      dto.paymentTypeId === undefined
-    ) {
-      throw new Error('DoctorId, visitTypeId, and paymentTypeId are required.');
-    }
-
-    const paymentHistory = await this.prisma.paymentHistory.create({
-      data: {
-        TransactionId: Date.now(), // or use a proper transaction service
-        Transaction_DateTime: new Date(),
-        paymentTypePaymentTypeId: dto.paymentTypeId, // ensure this exists
-        AppointmentChargesPaid: parseFloat(dto.AppointmentCharges || '0'),
-        isAmountPaid: dto.isAmountPaid ?? true,
-      },
-    });
-
-    // 🛑 Prevent duplicate scheduled appointment
-    const existingAppointment = await this.prisma.appointment.findFirst({
-      where: {
-        PatientId: patient.PatientId,
-        DoctorId: dto.DoctorId,
-        appointmentDate: {
-          gte: new Date(dto.appointmentDate + 'T00:00:00'),
-          lt: new Date(dto.appointmentDate + 'T23:59:59'),
-        },
-        status: 'SCHEDULED',
-      },
-    });
-
-    if (existingAppointment) {
-      throw new HttpException(
-        {
-          status: 'failure',
-          message:
-            ' Appointment already exists for this patient with this doctor. Please reschedule instead.',
-        },
-        HttpStatus.BAD_REQUEST,
+      // 🟢 3. Create appointment first
+      const appointmentDate = new Date(
+        `${dto.appointmentDate}T${dto.appointmentTime}:00`,
       );
-    }
-    let appointment;
-    try {
-      appointment = await this.prisma.appointment.create({
+
+      const appointment = await tx.appointment.create({
         data: {
           PatientId: patient.PatientId,
-          DoctorId: dto.DoctorId,
+          DoctorId: dto.DoctorId!,
           hospitalId: dto.hospitalId,
-          visitTypeId: dto.visitTypeId,
-          paymentTypeId: dto.paymentTypeId,
-          paymentHistoryId: paymentHistory.PaymentHistoryId,
+          visitTypeId: dto.visitTypeId!,
+          paymentTypeId: dto.paymentTypeId!,
           TagPatientId: dto.TagPatientId,
           appointmentDate,
           reason: dto.reason,
@@ -154,81 +133,86 @@ export class AppointmentService {
           acuity: (dto.acuity as AcuityLevel) ?? 'MODERATE',
         },
       });
-    } catch (err) {
-      console.error('🔥 Prisma Appointment Creation Error:', err);
-      throw new Error('Failed to create appointment in DB');
-    }
 
-    // ✅ Fetch appointment with relations: doctor and hospital
-    const appointmentWithDetails = await this.prisma.appointment.findUnique({
-      where: {
-        AppointmentId: appointment.AppointmentId,
-      },
-      include: {
-        doctor: true,
-        hospital: true,
-        visitType: true,
-      },
+      // 🟢 4. Create payment history linked to appointment
+      const paymentHistory = await tx.paymentHistory.create({
+        data: {
+          TransactionId: Date.now(),
+          Transaction_DateTime: new Date(),
+          paymentTypePaymentTypeId: dto.paymentTypeId!,
+          AppointmentChargesPaid: parseFloat(dto.AppointmentCharges || '0'),
+          isAmountPaid: dto.isAmountPaid ?? true,
+          appointments: {
+            connect: { AppointmentId: appointment.AppointmentId },
+          },
+        },
+      });
+
+      // Link paymentHistoryId to appointment
+      await tx.appointment.update({
+        where: { AppointmentId: appointment.AppointmentId },
+        data: { paymentHistoryId: paymentHistory.PaymentHistoryId },
+      });
+
+      // 🟢 5. Get doctor time slot
+      const slotDate = new Date(dto.appointmentDate ?? '');
+      const slotDayOfWeek = slotDate
+        .toLocaleString('en-US', { weekday: 'long' })
+        .toUpperCase();
+
+      const doctorTimeSlot = await tx.doctorTimeSlot.findFirst({
+        where: {
+          DoctorId: dto.DoctorId,
+          HospitalId: dto.hospitalId,
+          DoctorTimeSlotId: dto.DoctorTimeSlotId,
+        },
+      });
+
+      if (!doctorTimeSlot) {
+        throw new Error(`No time slot found for doctor on ${slotDayOfWeek}`);
+      }
+
+      // 🟢 6. Create doctor slot
+      await tx.doctorSlot.create({
+        data: {
+          doctorId: dto.DoctorId!,
+          hospitalId: dto.hospitalId,
+          DoctorTimeSlotId: doctorTimeSlot.DoctorTimeSlotId,
+          slotDate,
+          slotTime: dto.appointmentTime!,
+          dayOfWeek: slotDayOfWeek,
+          isBooked: true,
+          appointmentId: appointment.AppointmentId,
+        },
+      });
+
+      // 🟢 7. Fetch appointment with details
+      const appointmentWithDetails = await tx.appointment.findUnique({
+        where: { AppointmentId: appointment.AppointmentId },
+        include: { doctor: true, hospital: true, visitType: true },
+      });
+
+      // 🟢 8. Send notifications
+      await this.sendAllNotificationsForAppointment(
+        appointment.AppointmentId,
+        patient.email,
+        appointment,
+        patient,
+        appointmentWithDetails!,
+        appointment.sendEmailMessage,
+        appointment.sendSmsMessage,
+        appointment.sendWhatsappMessage,
+      );
+
+      return {
+        message: 'Quick appointment booked successfully',
+        appointment,
+        patient,
+        STATUS_CODES: 200,
+      };
     });
-
-    if (!dto.appointmentDate) {
-      throw new Error('appointmentDay is required to create a DoctorSlot.');
-    }
-
-    const slotDate = new Date(dto.appointmentDate ?? ''); // ✅ "2025-07-17"
-
-    const slotDayOfWeek = slotDate
-      .toLocaleString('en-US', { weekday: 'long' })
-      .toUpperCase(); // "THURSDAY"
-
-    const doctorTimeSlot = await this.prisma.doctorTimeSlot.findFirst({
-      where: {
-        DoctorId: dto.DoctorId,
-        HospitalId: dto.hospitalId,
-        DoctorTimeSlotId: dto.DoctorTimeSlotId,
-        // DayOfWeek: {
-        //   equals: slotDayOfWeek, // matches exact day name: "THURSDAY"
-        //   mode: 'insensitive',
-        // },
-      },
-    });
-
-    if (!doctorTimeSlot) {
-      throw new Error(`No time slot found for doctor on ${slotDayOfWeek}`);
-    }
-
-    // 🟢 Create DoctorSlot
-    await this.prisma.doctorSlot.create({
-      data: {
-        doctorId: dto.DoctorId!,
-        hospitalId: dto.hospitalId,
-        DoctorTimeSlotId: doctorTimeSlot.DoctorTimeSlotId,
-        slotDate,
-        slotTime: dto.appointmentTime!, // ensure not undefined
-        dayOfWeek: slotDayOfWeek,
-        isBooked: true,
-        appointmentId: appointment.AppointmentId,
-      },
-    });
-
-    await this.sendAllNotificationsForAppointment(
-      appointment.AppointmentId,
-      patient.email,
-      appointment,
-      patient,
-      appointmentWithDetails,
-      appointment.sendEmailMessage,
-      appointment.sendSmsMessage,
-      appointment.sendWhatsappMessage,
-    );
-
-    return {
-      message: 'Quick appointment booked successfully',
-      appointment,
-      patient,
-      STATUS_CODES: 200,
-    };
   }
+
   async sendAllNotificationsForAppointment(
     AppointmentId: number,
     toEmail: string,
@@ -648,13 +632,12 @@ export class AppointmentService {
         orderBy: { appointmentDate: 'asc' },
         include: {
           patient: {
-            include:{
+            include: {
               allergies: true,
               languages: true,
               medicalHistory: true,
               TagPatient: true,
-            }
-
+            },
           },
           doctor: {
             include: {
@@ -676,8 +659,8 @@ export class AppointmentService {
               ConsultationDiagnosis: {
                 include: { diagnosis: true },
               },
-              ConsultationProcedure:{
-                include: {procedure: true},
+              ConsultationProcedure: {
+                include: { procedure: true },
               },
               ConsultationMedication: true,
               ConsultationInvestigation: {

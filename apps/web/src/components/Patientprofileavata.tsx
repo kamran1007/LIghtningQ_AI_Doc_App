@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { BACKEND_URL } from "@/lib/constants";
 import { useState } from "react";
 
 const PatientAvatar = ({ profileImageUrl, firstName, lastName }: any) => {

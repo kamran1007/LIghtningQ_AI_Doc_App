@@ -14,6 +14,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { PatientcareModule } from './patientcare/patientcare.module';
 import { AppointmentModule } from './appointment/appointment.module';
 import { ConsultationModule } from './consultation/consultation.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { ConsultationModule } from './consultation/consultation.module';
     PatientcareModule,
     AppointmentModule,
     ConsultationModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

@@ -13,94 +13,14 @@ import { ConsultationProcedureDto } from './dto/CreateOrUpdateConsultationDto';
 
 @Injectable()
 export class ConsultationService {
-  //             dosage: med.dosage ?? '',
-  //             frequency: med.frequency ?? '',
-  //             duration: med.duration ?? '',
-  //             remarks: med.remarks ?? '',
-  //           })) || [],
-  //       },
-  //       ConsultationTreatment: {
-  //         create:
-  //           ConsultationTreatment?.map((treat) => ({
-  //             source: treat.source ?? 'TYPED', // Default value fallback
-  //             treatmentText: treat.treatmentText ?? '',
-  //           })) || [],
-  //       },
-  //       ConsultationFollowUpPlan: ConsultationFollowUpPlan
-  //         ? {
-  //             create: {
-  //               followUpText: ConsultationFollowUpPlan.followUpText,
-  //               duration: ConsultationFollowUpPlan.duration,
-  //               unit: ConsultationFollowUpPlan.unit,
-  //               nextDate: ConsultationFollowUpPlan.nextDate,
-  //             },
-  //           }
-  //         : undefined,
-  //       ConsultationclinicalNotes: {
-  //         create:
-  //           ConsultationclinicalNotes?.map((note) => ({
-  //             content: note.content ?? '',
-  //           })) || [],
-  //       },
-  //     },
-  //   });
-  // }
+
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
   ) {}
 
-  // async upsertVitals(dto: VitalsDto, user: number) {
-  //   const existing = await this.prisma.vitals.findUnique({
-  //     where: { AppointmentId: dto.AppointmentId },
-  //   });
 
-  //   if (existing) {
-  //     // Log to history
-  //     // await this.prisma.vitalsHistory.create({
-  //     //   data: {
-  //     //     VitalsId: existing.VitalsId,
-  //     //     AppointmentId: existing.AppointmentId,
-  //     //     Systolic: existing.Systolic,
-  //     //     Diastolic: existing.Diastolic,
-  //     //     Weight: existing.Weight,
-  //     //     Temperature: existing.Temperature,
-  //     //     HeartRate: existing.HeartRate,
-  //     //     OxygenSaturation: existing.OxygenSaturation,
-  //     //     Height: existing.Height,
-  //     //     BloodGroup: existing.BloodGroup,
-  //     //     BMI: existing.BMI,
-  //     //     updatedById: user,
-  //     //   },
-  //     // });
-
-  //     await this.prisma.vitalsHistory.create({
-  //       data: {
-  //         ...existing,
-  //         updatedById: user,
-  //         updatedAt: new Date(),
-  //       },
-  //     });
-
-  //     // Update
-  //     return this.prisma.vitals.update({
-  //       where: { AppointmentId: dto.AppointmentId },
-  //       data: {
-  //         ...dto,
-  //         createdById: existing.createdById ?? user, // preserve or fallback
-  //       },
-  //     });
-  //   } else {
-  //     // Create
-  //     return this.prisma.vitals.create({
-  //       data: {
-  //         ...dto,
-  //         createdById: user,
-  //       },
-  //     });
-  //   }
-  // }
 
   async upsertVitals(dto: VitalsDto, user: number) {
     const { AppointmentId, ...vitalsData } = dto;

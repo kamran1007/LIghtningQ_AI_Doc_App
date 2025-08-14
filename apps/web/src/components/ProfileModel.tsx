@@ -216,7 +216,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
             </DialogDescription>
           </DialogHeader>
           <DialogClose asChild>
-            <button className="text-blue-600 hover:bg-blue-50 p-2 rounded-full transition">
+            <button className="text-teal-300 hover:bg-blue-50 p-2 rounded-full transition">
               <X className="w-6 h-6" />
             </button>
           </DialogClose>
@@ -226,13 +226,13 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
           <TabsList className="mb-2 border-b w-full flex gap-2">
             <TabsTrigger
               value="profile"
-              className="px-4 py-2 text-sm font-medium border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 cursor-pointer"
+              className="px-4 py-2 text-sm font-medium border-b-2 border-transparent data-[state=active]:border-teal-300 data-[state=active]:text-teal-300 cursor-pointer"
             >
               Profile Info
             </TabsTrigger>
             <TabsTrigger
               value="credentials"
-              className="px-4 py-2 text-sm font-medium border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 cursor-pointer"
+              className="px-4 py-2 text-sm font-medium border-b-2 border-transparent data-[state=active]:border-teal-300 data-[state=active]:text-teal-300 cursor-pointer"
             >
               Credentials
             </TabsTrigger>
@@ -258,7 +258,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
                           className="object-cover h-full w-full"
                         />
                       ) : (
-                        <div className="flex items-center justify-center h-full w-full bg-blue-500 text-white text-xl font-bold">
+                        <div className="flex items-center justify-center h-full w-full bg-gradient-to-r from-cyan-500 to-teal-500  text-left text-white text-2xl font-bold">
                           {initials}
                         </div>
                       )}

@@ -10,12 +10,13 @@ import {
   Sliders,
   UserCog,
   Stethoscope,
+  LayoutDashboard,
 } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 const navItems = [
-  { name: "Dashboard", icon: Home, path: "/dashboard" },
+  { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
   { name: "Patient Care", icon: Stethoscope, path: "/patientcare" },
   { name: "Appointments", icon: CalendarClock, path: "/appointment" },
   { name: "Display Boards", icon: MonitorSmartphone, path: "/displays" },
@@ -39,7 +40,7 @@ export function AppSidebar() {
       )}
       <aside
         className={`h-full shadow-md flex bg-gradient-to-b from-teal-50 to-teal-100 flex-col transition-all duration-300 bg-white ${
-          isExpanded ? "w-64" : "w-20"
+          isExpanded ? "w-60" : "w-20"
         }`}
         onMouseLeave={() => setIsExpanded(false)}
       >

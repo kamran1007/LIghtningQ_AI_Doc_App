@@ -22,30 +22,7 @@ import { AddUpdateTimeSlotDto } from './dto/AddUpdateTimeSlot.dto';
 export class ManageHospitalService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // async CreateHospital(dto: CreateHospitalDto, userId: number) {
-  //   // 1. Fetch organization
-  //   const organization = await this.prisma.organization.findUnique({
-  //     where: { id: dto.organizationId },
-  //   });
 
-  //   if (!organization) {
-  //     throw new Error('Organization not found');
-  //   }
-  //   const hospitalcode = await this.prisma.hospital.findUnique({
-  //     where: { hospitalCode: dto.hospitalCode },
-  //   });
-  //   if(hospitalcode){
-  //     throw new Error('Hospital code Must be unique')
-  //   }
-  //   const hospital = await this.prisma.hospital.create({
-  //     data: {
-  //       ...dto,
-  //       Organizationcode: organization.Organizationcode, // Set manually
-  //       createdById: userId,
-  //     },
-  //   });
-  //   return hospital;
-  // }
   async CreateHospital(dto: CreateHospitalDto, userId: number) {
     // 1. Fetch organization
     const organization = await this.prisma.organization.findUnique({

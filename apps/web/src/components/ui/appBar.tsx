@@ -16,7 +16,9 @@ const AppBar = async () => {
   
 
   return (
-    <div className="bg-gradient-to-tr from-teal-400 to-teal-600 flex items-center justify-between px-4 py-4 h-14 relative ">
+        <div className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-left flex items-center justify-between px-4 py-4 h-14 relative ">
+
+    {/* <div className="bg-gradient-to-tr from-teal-400 to-teal-600 flex items-center justify-between px-4 py-4 h-14 relative "> */}
       
       {/* Left-side logo (no padding) */}
       <div className="absolute left-0 top-0 h-14 flex items-center z-50">

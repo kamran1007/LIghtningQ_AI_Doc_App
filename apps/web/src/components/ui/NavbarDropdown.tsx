@@ -57,15 +57,15 @@ function NavbarDropdown() {
   <DropdownMenuSeparator />
 
   <DropdownMenuItem onClick={() => setProfileOpen(true)} className="hover:bg-blue-50">
-  <div className="flex items-center w-full text-gray-700 hover:bg-blue-50 rounded-md cursor-pointer">
-    <User className="mr-2 h-4 w-4 text-blue-500" />
+  <div className="flex items-center w-full text-gray-700 hover:bg-teal-50 rounded-md cursor-pointer">
+    <User className="mr-2 h-4 w-4 text-teal-500" />
     Profile
   </div>
 </DropdownMenuItem>
 
-<DropdownMenuItem className="hover:bg-blue-50">
-  <div className="flex items-center w-full text-gray-700 hover:bg-blue-50  rounded-md cursor-pointer">
-    <BadgeCheck className="mr-2 h-4 w-4 text-blue-500" />
+<DropdownMenuItem className="hover:bg-teal-50">
+  <div className="flex items-center w-full text-gray-700 hover:bg-teal-50  rounded-md cursor-pointer">
+    <BadgeCheck className="mr-2 h-4 w-4 text-teal-500" />
     Subscription
   </div>
 </DropdownMenuItem>

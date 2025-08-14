@@ -97,6 +97,8 @@ model User {
   ConsultationCreatedBy Consultation[] @relation("ConsultationCreatedBy")
 
   ConsultationUpdatedBy Consultation[] @relation("ConsultationUpdatedBy")
+
+  ScheduledReport ScheduledReport[]
 }
 
 // Organization (Top-most head entity created by you or BA)
@@ -188,6 +190,8 @@ model Hospital {
   Patient Patient[]
 
   DoctorSlot DoctorSlot[]
+
+  ScheduledReport ScheduledReport[]
 }
 
 // User ↔ Hospital mapping model
@@ -880,6 +884,20 @@ model PaymentType {
   PaymentTypeName String           @unique
   Appointment     Appointment[]
   PaymentHistory  PaymentHistory[]
+}
+
+model ScheduledReport {
+  ScheduledReportId Int       @id @default(autoincrement())
+  adminId           Int
+  HospitalId        Int?
+  frequency         String // "Weekly" or "Monthly"
+  reportTypes       String[] // Array of selected reports
+  nextRunAt         DateTime // When the next report should run
+  lastRunAt         DateTime? // Last time it ran
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  Hospital Hospital? @relation(fields: [HospitalId], references: [HospitalId])
+  Admin User @relation(fields: [adminId], references: [UserId])
 }
 
 // model Surgery {
