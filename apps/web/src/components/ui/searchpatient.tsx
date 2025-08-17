@@ -8,9 +8,9 @@ const SearchBar = () => {
       <Input
         type="search"
         placeholder="Search patient..."
-        className="pl-10 bg-white text-black rounded-full shadow-[0_20px_35px_rgba(0,0,0,0.2)] 
-             border border-b-white placeholder:italic placeholder:text-gray-400 
-             placeholder:font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="pl-10 bg-white text-black rounded-full shadow] 
+             border border-b-white placeholder placeholder:text-gray-400 
+             placeholder:font-medium focus:outline-teal-300 focus:ring-2 focus:ring-teal-500"
       />
     </div>
   );

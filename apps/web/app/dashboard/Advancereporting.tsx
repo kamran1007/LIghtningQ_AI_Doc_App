@@ -28,6 +28,7 @@ import { FetchDoctorRole } from "@/lib/bookappointment";
 import { FetchAdvancedReport, FetchHospital } from "@/lib/dashboard";
 import toast from "react-hot-toast";
 import ReportExport from "./ReportExport";
+import AdvanceDashboard from "@/components/ui/skeletonloader/AdvanceDashboard";
 
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
@@ -243,44 +244,50 @@ export default function Advancereporting() {
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <header className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-2xl font-semibold text-slate-800">Reporting</h2>
-          {/* <p className="text-sm text-slate-500">Dashboard / Reports</p> */}
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="hidden sm:flex flex-col text-right">
-            {/* <span className="text-sm font-medium">Welcome back</span>
+    <>
+      {loading ? (
+        <AdvanceDashboard />
+      ) : (
+        <div className="p-6 bg-gray-50 min-h-screen">
+          <header className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-semibold text-slate-800">
+                Reporting
+              </h2>
+              {/* <p className="text-sm text-slate-500">Dashboard / Reports</p> */}
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="hidden sm:flex flex-col text-right">
+                {/* <span className="text-sm font-medium">Welcome back</span>
               <span className="text-xs text-slate-500">Kamran</span> */}
-          </div>
-          <div className="relative inline-block">
-            {/* Calendar Icon */}
-            <CalendarSearch
-              className="w-6 h-6 text-teal-300 cursor-pointer"
-              onClick={() => setShowPicker((prev) => !prev)}
-            />
-
-            {/* Date Range Picker aligned LEFT of the icon */}
-            {showPicker && (
-              <div className="absolute z-50 mt-2 shadow-lg bg-white rounded-lg p-2 right-full mr-2">
-                <DateRangePicker
-                  ranges={dateRange}
-                  onChange={(item) => setDateRange([item.selection])}
-                  rangeColors={["#22E0D4"]}
-                />
               </div>
-            )}
-          </div>
-        </div>
-      </header>
-      {/* Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 font-mono hover:border-[#22E0D4]">
-        {dashboardCards.map((card) => (
-          <div
-            key={card.id}
-            onClick={() => handleCardClick(card, reportData)} // 🔹 now passes API data
-            className="  bg-white 
+              <div className="relative inline-block">
+                {/* Calendar Icon */}
+                <CalendarSearch
+                  className="w-6 h-6 text-teal-300 cursor-pointer"
+                  onClick={() => setShowPicker((prev) => !prev)}
+                />
+
+                {/* Date Range Picker aligned LEFT of the icon */}
+                {showPicker && (
+                  <div className="absolute z-50 mt-2 shadow-lg bg-white rounded-lg p-2 right-full mr-2">
+                    <DateRangePicker
+                      ranges={dateRange}
+                      onChange={(item) => setDateRange([item.selection])}
+                      rangeColors={["#22E0D4"]}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          </header>
+          {/* Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 font-mono hover:border-[#22E0D4]">
+            {dashboardCards.map((card) => (
+              <div
+                key={card.id}
+                onClick={() => handleCardClick(card, reportData)} // 🔹 now passes API data
+                className="  bg-white 
   rounded-2xl 
   p-5 
   border 
@@ -293,298 +300,313 @@ export default function Advancereporting() {
   ease-in-out
   text-left 
   w-full"
-          >
-            <h2 className="text-gray-500 text-sm">{card.title}</h2>
-            <p className="text-2xl font-semibold mt-2">{card.value}</p>
-          </div>
-        ))}
-      </div>
-      {/* Advanced Reporting Modal */}
-      <Dialog
-        open={!!selectedCard}
-        onClose={() => setSelectedCard(null)}
-        className="relative z-50"
-      >
-        <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
-        <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="bg-white rounded-xl p-6 w-full max-w-3xl shadow-lg max-h-screen overflow-y-auto no-scrollbar">
-            {/* Header */}
-            <div className="flex justify-between items-center mb-4 sticky top-0 bg-white z-10 pb-2 border-b">
-              <Dialog.Title className="text-xl font-sans">
-                Advanced Reporting - {selectedCard?.title}
-              </Dialog.Title>
-              <button
-                className="text-teal-600 hover:bg-teal-100 p-2 rounded-full transition cursor-pointer"
-                title="Close"
-                onClick={() => setSelectedCard(null)}
               >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-4 w-full">
-              {/* Filters */}
-              <div className="flex flex-wrap gap-4">
-                {/* Doctor Filter */}
-                <Select
-                  value={selectedDoctor}
-                  onValueChange={setSelectedDoctor}
-                >
-                  <SelectTrigger className="w-56 border border-gray-300 rounded-lg shadow-sm focus:border-[#22E0D4] focus:ring-2 focus:ring-[#22E0D4] transition flex items-center gap-2">
-                    <Stethoscope className="w-4 h-4 text-gray-500" />
-                    <SelectValue placeholder="Select Doctor" />
-                  </SelectTrigger>
-                  <SelectContent className="border-gray-300 shadow-2xl rounded-2xl">
-                    <SelectItem value="all-doctors">All Doctors</SelectItem>
-                    {doctors.map((doc) => (
-                      <SelectItem key={doc.UserId} value={String(doc.UserId)}>
-                        Dr. {doc.firstName} {doc.lastName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {/* Specialization Filter */}
-                <Select
-                  value={selectedSpecialization}
-                  onValueChange={setSelectedSpecialization}
-                >
-                  <SelectTrigger className="w-56 border border-gray-300 rounded-lg shadow-sm focus:border-[#22E0D4] focus:ring-2 focus:ring-[#22E0D4] transition flex items-center gap-2">
-                    <FlaskConical className="w-4 h-4 text-gray-500" />
-                    <SelectValue placeholder="Select Specialization" />
-                  </SelectTrigger>
-                  <SelectContent className="border-gray-300 shadow-2xl rounded-2xl">
-                    <SelectItem value="all-specializations">
-                      All Specializations
-                    </SelectItem>
-                    {specializations.map((spec) => (
-                      <SelectItem
-                        key={spec.SpecializationId}
-                        value={String(spec.SpecializationId)}
-                      >
-                        {spec.SpecializationName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {/* Hospital Filter */}
-                <Select
-                  value={selectedHospital}
-                  onValueChange={setSelectedHospital}
-                >
-                  <SelectTrigger className="w-56 border border-gray-300 rounded-lg shadow-sm focus:border-[#22E0D4] focus:ring-2 focus:ring-[#22E0D4] transition flex items-center gap-2">
-                    <Hospital className="w-4 h-4 text-gray-500" />
-                    <SelectValue placeholder="Select Hospital" />
-                  </SelectTrigger>
-                  <SelectContent className="border-gray-300 shadow-2xl rounded-2xl">
-                    <SelectItem value="all-hospitals">All Hospitals</SelectItem>
-                    {hospitalData.map((hospital) => (
-                      <SelectItem
-                        key={hospital.HospitalId}
-                        value={String(hospital.HospitalId)}
-                      >
-                        {hospital.HospitalName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <h2 className="text-gray-500 text-sm">{card.title}</h2>
+                <p className="text-2xl font-semibold mt-2">{card.value}</p>
               </div>
+            ))}
+          </div>
+          {/* Advanced Reporting Modal */}
+          <Dialog
+            open={!!selectedCard}
+            onClose={() => setSelectedCard(null)}
+            className="relative z-50"
+          >
+            <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
+            <div className="fixed inset-0 flex items-center justify-center p-4">
+              <Dialog.Panel className="bg-white rounded-xl p-6 w-full max-w-3xl shadow-lg max-h-screen overflow-y-auto no-scrollbar">
+                {/* Header */}
+                <div className="flex justify-between items-center mb-4 sticky top-0 bg-white z-10 pb-2 border-b">
+                  <Dialog.Title className="text-xl font-sans">
+                    Advanced Reporting - {selectedCard?.title}
+                  </Dialog.Title>
+                  <button
+                    className="text-teal-600 hover:bg-teal-100 p-2 rounded-full transition cursor-pointer"
+                    title="Close"
+                    onClick={() => setSelectedCard(null)}
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
 
-              {/* Date Range Picker */}
-              <div className="ml-8 mt-6 justify-center-safe">
-                <DateRangePicker
-                  ranges={dateRange}
-                  onChange={(item: any) => setDateRange([item.selection])}
-                  rangeColors={["#22E0D4"]}
+                <div className="flex flex-wrap items-center gap-4 w-full">
+                  {/* Filters */}
+                  <div className="flex flex-wrap gap-4">
+                    {/* Doctor Filter */}
+                    <Select
+                      value={selectedDoctor}
+                      onValueChange={setSelectedDoctor}
+                    >
+                      <SelectTrigger className="w-56 border border-gray-300 rounded-lg shadow-sm focus:border-[#22E0D4] focus:ring-2 focus:ring-[#22E0D4] transition flex items-center gap-2">
+                        <Stethoscope className="w-4 h-4 text-gray-500" />
+                        <SelectValue placeholder="Select Doctor" />
+                      </SelectTrigger>
+                      <SelectContent className="border-gray-300 shadow-2xl rounded-2xl">
+                        <SelectItem value="all-doctors">All Doctors</SelectItem>
+                        {doctors.map((doc) => (
+                          <SelectItem
+                            key={doc.UserId}
+                            value={String(doc.UserId)}
+                          >
+                            Dr. {doc.firstName} {doc.lastName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    {/* Specialization Filter */}
+                    <Select
+                      value={selectedSpecialization}
+                      onValueChange={setSelectedSpecialization}
+                    >
+                      <SelectTrigger className="w-56 border border-gray-300 rounded-lg shadow-sm focus:border-[#22E0D4] focus:ring-2 focus:ring-[#22E0D4] transition flex items-center gap-2">
+                        <FlaskConical className="w-4 h-4 text-gray-500" />
+                        <SelectValue placeholder="Select Specialization" />
+                      </SelectTrigger>
+                      <SelectContent className="border-gray-300 shadow-2xl rounded-2xl">
+                        <SelectItem value="all-specializations">
+                          All Specializations
+                        </SelectItem>
+                        {specializations.map((spec) => (
+                          <SelectItem
+                            key={spec.SpecializationId}
+                            value={String(spec.SpecializationId)}
+                          >
+                            {spec.SpecializationName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    {/* Hospital Filter */}
+                    <Select
+                      value={selectedHospital}
+                      onValueChange={setSelectedHospital}
+                    >
+                      <SelectTrigger className="w-56 border border-gray-300 rounded-lg shadow-sm focus:border-[#22E0D4] focus:ring-2 focus:ring-[#22E0D4] transition flex items-center gap-2">
+                        <Hospital className="w-4 h-4 text-gray-500" />
+                        <SelectValue placeholder="Select Hospital" />
+                      </SelectTrigger>
+                      <SelectContent className="border-gray-300 shadow-2xl rounded-2xl">
+                        <SelectItem value="all-hospitals">
+                          All Hospitals
+                        </SelectItem>
+                        {hospitalData.map((hospital) => (
+                          <SelectItem
+                            key={hospital.HospitalId}
+                            value={String(hospital.HospitalId)}
+                          >
+                            {hospital.HospitalName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Date Range Picker */}
+                  <div className="ml-8 mt-6 justify-center-safe">
+                    <DateRangePicker
+                      ranges={dateRange}
+                      onChange={(item: any) => setDateRange([item.selection])}
+                      rangeColors={["#22E0D4"]}
+                    />
+                  </div>
+                </div>
+
+                {/* Chart */}
+                <div className="mt-6">
+                  <ApexChart
+                    options={{
+                      ...chartOptions,
+                      colors: ["#22E0D4"], // ✅ set chart color here
+                    }}
+                    series={chartSeries}
+                    type={selectedCard?.id === "doctors" ? "bar" : "line"} // bar for doctors, line for others
+                    height={300}
+                  />
+                </div>
+
+                {/* Appointment Trend Table */}
+                {reportData?.appointmentTrend?.length > 0 && (
+                  <div className="mt-6 overflow-x-auto">
+                    <h2 className="text-lg font-semibold mb-2">
+                      Appointment Trend
+                    </h2>
+                    <table className="min-w-full bg-white shadow-lg rounded-xl overflow-hidden">
+                      <thead>
+                        <tr className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-left">
+                          <th className="p-4 text-sm font-semibold">Date</th>
+                          <th className="p-4 text-sm font-semibold">
+                            No. of Appointments
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {reportData.appointmentTrend.map(
+                          (t: any, idx: number) => (
+                            <tr
+                              key={idx}
+                              className="border-b hover:bg-gray-50 transition-colors"
+                            >
+                              <td className="p-4 text-gray-700">{t.time}</td>
+                              <td className="p-4 font-semibold text-cyan-600">
+                                {t.appointments}
+                              </td>
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* -------------------- Revenue Trend Table -------------------- */}
+                {reportData?.revenueTrend?.length > 0 && (
+                  <div className="mt-6 overflow-x-auto">
+                    <h2 className="text-lg font-semibold mb-2">
+                      Revenue Trend
+                    </h2>
+                    <table className="min-w-full bg-white shadow-lg rounded-xl overflow-hidden">
+                      <thead>
+                        <tr className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-left">
+                          <th className="p-4 text-sm font-semibold">Date</th>
+                          <th className="p-4 text-sm font-semibold">Month</th>
+                          <th className="p-4 text-sm font-semibold">
+                            Amount (INR)
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {reportData.revenueTrend?.map((t: any, idx: number) => (
+                          <tr
+                            key={idx}
+                            className="border-b hover:bg-gray-50 transition-colors"
+                          >
+                            <td className="p-4 text-gray-700">{t.time}</td>
+                            <td className="p-4 text-gray-700">{t.month}</td>
+                            <td className="p-4 font-semibold text-green-600">
+                              {t.revenue}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* -------------------- Doctor Performance Table -------------------- */}
+                {reportData?.doctorPerformance?.length > 0 && (
+                  <div className="mt-6 overflow-x-auto">
+                    <h2 className="text-lg font-semibold mb-2">
+                      Doctor Performance
+                    </h2>
+                    <table className="min-w-full bg-white shadow-lg rounded-xl overflow-hidden">
+                      <thead>
+                        <tr className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-left">
+                          <th className="p-4 text-sm font-semibold">Date</th>
+                          <th className="p-4 text-sm font-semibold">
+                            Doctor Name
+                          </th>
+                          <th className="p-4 text-sm font-semibold">
+                            No. of Appointments
+                          </th>
+                          <th className="p-4 text-sm font-semibold">
+                            Revenue (INR)
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {reportData.doctorPerformance?.map(
+                          (d: any, idx: number) => (
+                            <tr
+                              key={idx}
+                              className="border-b hover:bg-gray-50 transition-colors"
+                            >
+                              <td className="p-4 text-gray-700">{d.date}</td>
+                              <td className="p-4 font-medium text-gray-900">
+                                {d.doctorName}
+                              </td>
+                              <td className="p-4 font-semibold text-cyan-600">
+                                {d.appointments}
+                              </td>
+                              <td className="p-4 font-semibold text-green-600">
+                                {d.revenue}
+                              </td>
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* -------------------- Specialization Performance Table -------------------- */}
+                {reportData?.appointmentTrend?.length > 0 && (
+                  <div className="mt-6 overflow-x-auto">
+                    <h2 className="text-lg font-semibold mb-2">
+                      Specialization Performance
+                    </h2>
+                    <table className="min-w-full bg-white shadow-lg rounded-xl overflow-hidden">
+                      <thead>
+                        <tr className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-left">
+                          <th className="p-4 text-sm font-semibold">Date</th>
+                          <th className="p-4 text-sm font-semibold">
+                            Specialist
+                          </th>
+                          <th className="p-4 text-sm font-semibold">
+                            No. of Appointments
+                          </th>
+                          <th className="p-4 text-sm font-semibold">
+                            Revenue (INR)
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {reportData.specializationPerformance?.map(
+                          (s: any, idx: number) => (
+                            <tr
+                              key={idx}
+                              className="border-b hover:bg-gray-50 transition-colors"
+                            >
+                              <td className="p-4 text-gray-700">{s.date}</td>
+                              <td className="p-4 font-medium text-gray-900">
+                                {s.specializationName}
+                              </td>
+                              <td className="p-4 font-semibold text-cyan-600">
+                                {s.appointments}
+                              </td>
+                              <td className="p-4 font-semibold text-green-600">
+                                {s.revenue}
+                              </td>
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* Export Buttons */}
+                <ReportExport
+                  reportData={reportData}
+                  hospitalInfo={{
+                    name: hospitalData[0]?.HospitalName || "City Hospital",
+                    address: hospitalData[0]?.address,
+                    code: hospitalData[0]?.HospitalCode,
+                    email: hospitalData[0]?.email,
+                    contact: hospitalData[0]?.contactNumber,
+                  }}
                 />
-              </div>
+              </Dialog.Panel>
             </div>
-
-            {/* Chart */}
-            <div className="mt-6">
-              <ApexChart
-                options={{
-                  ...chartOptions,
-                  colors: ["#22E0D4"], // ✅ set chart color here
-                }}
-                series={chartSeries}
-                type={selectedCard?.id === "doctors" ? "bar" : "line"} // bar for doctors, line for others
-                height={300}
-              />
-            </div>
-
-            {/* Appointment Trend Table */}
-            {reportData?.appointmentTrend?.length > 0 && (
-              <div className="mt-6 overflow-x-auto">
-                <h2 className="text-lg font-semibold mb-2">
-                  Appointment Trend
-                </h2>
-                <table className="min-w-full bg-white shadow-lg rounded-xl overflow-hidden">
-                  <thead>
-                    <tr className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-left">
-                      <th className="p-4 text-sm font-semibold">Date</th>
-                      <th className="p-4 text-sm font-semibold">
-                        No. of Appointments
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {reportData.appointmentTrend.map((t: any, idx: number) => (
-                      <tr
-                        key={idx}
-                        className="border-b hover:bg-gray-50 transition-colors"
-                      >
-                        <td className="p-4 text-gray-700">{t.time}</td>
-                        <td className="p-4 font-semibold text-cyan-600">
-                          {t.appointments}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {/* -------------------- Revenue Trend Table -------------------- */}
-            {reportData?.revenueTrend?.length > 0 && (
-              <div className="mt-6 overflow-x-auto">
-                <h2 className="text-lg font-semibold mb-2">Revenue Trend</h2>
-                <table className="min-w-full bg-white shadow-lg rounded-xl overflow-hidden">
-                  <thead>
-                    <tr className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-left">
-                      <th className="p-4 text-sm font-semibold">Date</th>
-                      <th className="p-4 text-sm font-semibold">Month</th>
-                      <th className="p-4 text-sm font-semibold">
-                        Amount (INR)
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {reportData.revenueTrend?.map((t: any, idx: number) => (
-                      <tr
-                        key={idx}
-                        className="border-b hover:bg-gray-50 transition-colors"
-                      >
-                        <td className="p-4 text-gray-700">{t.time}</td>
-                        <td className="p-4 text-gray-700">{t.month}</td>
-                        <td className="p-4 font-semibold text-green-600">
-                          {t.revenue}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {/* -------------------- Doctor Performance Table -------------------- */}
-            {reportData?.doctorPerformance?.length > 0 && (
-              <div className="mt-6 overflow-x-auto">
-                <h2 className="text-lg font-semibold mb-2">
-                  Doctor Performance
-                </h2>
-                <table className="min-w-full bg-white shadow-lg rounded-xl overflow-hidden">
-                  <thead>
-                    <tr className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-left">
-                      <th className="p-4 text-sm font-semibold">Date</th>
-                      <th className="p-4 text-sm font-semibold">Doctor Name</th>
-                      <th className="p-4 text-sm font-semibold">
-                        No. of Appointments
-                      </th>
-                      <th className="p-4 text-sm font-semibold">
-                        Revenue (INR)
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {reportData.doctorPerformance?.map(
-                      (d: any, idx: number) => (
-                        <tr
-                          key={idx}
-                          className="border-b hover:bg-gray-50 transition-colors"
-                        >
-                          <td className="p-4 text-gray-700">{d.date}</td>
-                          <td className="p-4 font-medium text-gray-900">
-                            {d.doctorName}
-                          </td>
-                          <td className="p-4 font-semibold text-cyan-600">
-                            {d.appointments}
-                          </td>
-                          <td className="p-4 font-semibold text-green-600">
-                            {d.revenue}
-                          </td>
-                        </tr>
-                      )
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {/* -------------------- Specialization Performance Table -------------------- */}
-            {reportData?.appointmentTrend?.length > 0 && (
-              <div className="mt-6 overflow-x-auto">
-                <h2 className="text-lg font-semibold mb-2">
-                  Specialization Performance
-                </h2>
-                <table className="min-w-full bg-white shadow-lg rounded-xl overflow-hidden">
-                  <thead>
-                    <tr className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-left">
-                      <th className="p-4 text-sm font-semibold">Date</th>
-                      <th className="p-4 text-sm font-semibold">Specialist</th>
-                      <th className="p-4 text-sm font-semibold">
-                        No. of Appointments
-                      </th>
-                      <th className="p-4 text-sm font-semibold">
-                        Revenue (INR)
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {reportData.specializationPerformance?.map(
-                      (s: any, idx: number) => (
-                        <tr
-                          key={idx}
-                          className="border-b hover:bg-gray-50 transition-colors"
-                        >
-                          <td className="p-4 text-gray-700">{s.date}</td>
-                          <td className="p-4 font-medium text-gray-900">
-                            {s.specializationName}
-                          </td>
-                          <td className="p-4 font-semibold text-cyan-600">
-                            {s.appointments}
-                          </td>
-                          <td className="p-4 font-semibold text-green-600">
-                            {s.revenue}
-                          </td>
-                        </tr>
-                      )
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {/* Export Buttons */}
-            <ReportExport
-              reportData={reportData}
-              hospitalInfo={{
-                name: hospitalData[0]?.HospitalName || "City Hospital",
-                address: hospitalData[0]?.address,
-                code: hospitalData[0]?.HospitalCode,
-                email: hospitalData[0]?.email,
-                contact: hospitalData[0]?.contactNumber
-              }}
-            />
-          </Dialog.Panel>
+          </Dialog>
+          <AnalyticalHistoricalReports
+            revenueTrend={revenueTrend}
+            doctorPerformance={doctorPerformance}
+          />{" "}
+          <ScheduledReports />
         </div>
-      </Dialog>
-      <AnalyticalHistoricalReports
-        revenueTrend={revenueTrend}
-        doctorPerformance={doctorPerformance}
-      />{" "}
-      <ScheduledReports />
-    </div>
+      )}
+    </>
   );
 }

@@ -48,7 +48,7 @@ const AnalyticalHistoricalReports = ({
       <div className="p-[1px] rounded-2xl bg-transparent hover:bg-gradient-to-r from-cyan-500 to-teal-500 transition-all">
         <div className="bg-white rounded-2xl p-4 shadow-sm">
           <h2 className="text-lg font-mono mb-3">
-            Monthly Revenue Trend (6 months)
+            Monthly Revenue Trend
           </h2>
           <Chart
             options={revenueTrendOptions}
@@ -63,7 +63,7 @@ const AnalyticalHistoricalReports = ({
       <div className="p-[1px] rounded-2xl bg-transparent hover:bg-gradient-to-r from-cyan-500 to-teal-500 transition-all">
         <div className="bg-white rounded-2xl p-4 shadow-sm">
           <h2 className="text-lg font-mono mb-3">
-            Doctor Performance (6 months)
+            Doctor Performance
           </h2>
           <Chart
             options={doctorPerformanceOptions}

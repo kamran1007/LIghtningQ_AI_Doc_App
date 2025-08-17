@@ -39,7 +39,7 @@ export function AppSidebar() {
         />
       )}
       <aside
-        className={`h-full shadow-md flex bg-gradient-to-b from-teal-50 to-teal-100 flex-col transition-all duration-300 bg-white ${
+        className={`h-full shadow-md flex bg-gradient-to-b from-cyan-100 to-teal-200 flex-col transition-all duration-300 bg-white ${
           isExpanded ? "w-60" : "w-20"
         }`}
         onMouseLeave={() => setIsExpanded(false)}
@@ -59,10 +59,10 @@ export function AppSidebar() {
                     ${
                       isExpanded
                         ? isActive
-                          ? "bg-teal-100 text-teal-700"
-                          : "hover:bg-gray-100 text-teal-600"
+                          ? "bg-teal-100 text-teal-400"
+                          : "hover:bg-gray-100 text-teal-500"
                         : isActive
-                        ? "bg-teal-100"
+                        ? "bg-teal-300"
                         : "text-teal-600"
                     }
                     shadow hover:shadow-2xl transition-shadow duration-300 ease-in-out`}

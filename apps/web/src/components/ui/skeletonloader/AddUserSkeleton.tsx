@@ -18,7 +18,7 @@ export default function AddUserSkeleton() {
         {/* Section Title */}
         <div className="px-2 flex flex-col items-center mt-6 mb-4">
           <div className={`${shimmer} h-5 w-32 mb-2`} />
-          <div className="h-1 w-40 bg-blue-100 rounded-full" />
+          <div className="h-1 w-40 bg-teal-100 rounded-full" />
         </div>
 
         {/* Navigation Items */}
@@ -39,7 +39,7 @@ export default function AddUserSkeleton() {
       {/* Main Content */}
       <main className="flex-1 p-6 overflow-auto">
         <div className="flex items-center gap-x-4 mb-4">
-          <UserCheck className="w-5 h-5 text-blue-500" />
+          <UserCheck className="w-5 h-5 text-teal-300" />
           <div className={`w-36 h-6 rounded ${shimmer}`} />
         </div>
 
@@ -62,7 +62,7 @@ export default function AddUserSkeleton() {
         {/* Credentials */}
         <div className="space-y-6 mb-8">
           <div className="flex items-center gap-x-4 mb-2">
-            <LockKeyholeOpen className="w-5 h-5 text-blue-500" />
+            <LockKeyholeOpen className="w-5 h-5 text-teal-300" />
             <div className={`w-32 h-6 rounded ${shimmer}`} />
           </div>
 
@@ -78,7 +78,7 @@ export default function AddUserSkeleton() {
         {/* Signature Section */}
         <div className="space-y-6 mb-10">
           <div className="flex items-center gap-x-4">
-            <Signature className="w-5 h-5 text-blue-500" />
+            <Signature className="w-5 h-5 text-teal-300" />
             <div className={`w-36 h-6 rounded ${shimmer}`} />
           </div>
 
@@ -91,7 +91,7 @@ export default function AddUserSkeleton() {
         {/* Hospital Assignment */}
         <div className="space-y-4 mb-10">
           <div className="flex items-center gap-x-4 mb-2">
-            <Hospital className="w-5 h-5 text-blue-500" />
+            <Hospital className="w-5 h-5 text-teal-300" />
             <div className={`w-36 h-6 rounded ${shimmer}`} />
           </div>
 

@@ -51,6 +51,7 @@ import { getOrganizationByUser, getUserSpecialization } from "@/lib/admin";
 import { DateRangePicker } from "react-date-range";
 import { FetchDoctorRole } from "@/lib/bookappointment";
 import toast from "react-hot-toast";
+import CombinedSkeleton from "@/components/ui/skeletonloader/DashboardSkeleton";
 /*
   AIHealthDashboard.tsx
 
@@ -358,33 +359,40 @@ export default function Dashboard({
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        <header className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-semibold text-slate-800">Dashboard</h2>
-            {/* <p className="text-sm text-slate-500">Dashboard / Reports</p> */}
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:flex flex-col text-right">
-              {/* <span className="text-sm font-medium">Welcome back</span>
-              <span className="text-xs text-slate-500">Kamran</span> */}
+      <>
+        {loading ? (
+          <CombinedSkeleton/>
+        ) : (
+          <div className="max-w-7xl mx-auto">
+          <header className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-semibold text-slate-800">
+                Dashboard
+              </h2>
+              {/* <p className="text-sm text-slate-500">Dashboard / Reports</p> */}
             </div>
-            <FunnelPlus
-              className="w-6 h-6 text-teal-300 cursor-pointer"
-              onClick={() => setIsDialogOpen(true)}
-            />
-          </div>
-        </header>
+            <div className="flex items-center gap-4">
+              <div className="hidden sm:flex flex-col text-right">
+                {/* <span className="text-sm font-medium">Welcome back</span>
+              <span className="text-xs text-slate-500">Kamran</span> */}
+              </div>
+              <FunnelPlus
+                className="w-6 h-6 text-teal-300 cursor-pointer"
+                onClick={() => setIsDialogOpen(true)}
+              />
+            </div>
+          </header>
 
-        {/* KPI Row */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          {summaryCards.map((k) => (
-            <motion.button
-              key={k?.id}
-              onClick={() => handleCardClick(k?.id)}
-              whileHover={{ y: -4 }}
-              whileTap={{ scale: 0.98 }}
-              className="
+          {/* KPI Row */}
+
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            {summaryCards.map((k) => (
+              <motion.button
+                key={k?.id}
+                onClick={() => handleCardClick(k?.id)}
+                whileHover={{ y: -4 }}
+                whileTap={{ scale: 0.98 }}
+                className="
   bg-white 
   rounded-2xl 
   p-5 
@@ -399,225 +407,234 @@ export default function Dashboard({
   text-left 
   w-full
 "
-              aria-label={`Open report for ${k.title}`}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-medium text-slate-600">
-                    {k.title}
-                  </h3>
-                  <div className="mt-2 text-2xl font-bold text-slate-900">
-                    {k.value}
+                aria-label={`Open report for ${k.title}`}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-medium text-slate-600">
+                      {k.title}
+                    </h3>
+                    <div className="mt-2 text-2xl font-bold text-slate-900">
+                      {k.value}
+                    </div>
+                    <div className="text-xs text-slate-400 mt-1">
+                      {k.subtitle}
+                    </div>
                   </div>
-                  <div className="text-xs text-slate-400 mt-1">
-                    {k.subtitle}
-                  </div>
-                </div>
-                <div className="w-20 h-12 flex items-center justify-center opacity-60">
-                  {/* small sparkline using SVG */}
-                  <svg
-                    width="60"
-                    height="36"
-                    viewBox="0 0 60 36"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M2 28 L12 20 L22 22 L32 12 L42 14 L52 8 L58 6"
-                      stroke="#22E0D4"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                  <div className="w-20 h-12 flex items-center justify-center opacity-60">
+                    {/* small sparkline using SVG */}
+                    <svg
+                      width="60"
+                      height="36"
+                      viewBox="0 0 60 36"
                       fill="none"
-                    />
-                  </svg>
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M2 28 L12 20 L22 22 L32 12 L42 14 L52 8 L58 6"
+                        stroke="#22E0D4"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        fill="none"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </motion.button>
+            ))}
+          </section>
+
+          {/* Controls + charts */}
+          <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div className="lg:col-span-2 bg-white border-gray-300 rounded-2xl p-4 shadow-sm border">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-lg font-medium">Appointment Trends</h4>
+
+                <div className="flex items-center gap-2">
+                  <Controller
+                    control={control}
+                    name="Title"
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className="h-9">
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
+                          {" "}
+                          <SelectItem value="low">Lower Volume</SelectItem>
+                          <SelectItem value="high">Higher Volume</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+
+                  <button
+                    onClick={() => {
+                      // quick export hook example
+                      const csv = filteredLineData
+                        .map((d) => `${d.day},${d.appointments}`)
+                        .join("\n");
+                      const blob = new Blob(["day,appointments\n" + csv], {
+                        type: "text/csv",
+                      });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = "appointments.csv";
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    }}
+                    className="text-sm px-3 py-1 border rounded border-gray-300"
+                  >
+                    Export
+                  </button>
                 </div>
               </div>
-            </motion.button>
-          ))}
-        </section>
 
-        {/* Controls + charts */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <div className="lg:col-span-2 bg-white border-gray-300 rounded-2xl p-4 shadow-sm border">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="text-lg font-medium">Appointment Trends</h4>
+              <div style={{ height: 260 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={filteredLineData}>
+                    <XAxis dataKey="day" tick={{ fontSize: 12 }} />
+                    <YAxis />
+                    <Tooltip />
+                    <Line
+                      type="monotone"
+                      dataKey="appointments"
+                      stroke="#22E0D4"
+                      strokeWidth={3}
+                      dot={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
 
-              <div className="flex items-center gap-2">
-                <Controller
-                  control={control}
-                  name="Title"
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="h-9">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
-                        {" "}
-                        <SelectItem value="low">Lower Volume</SelectItem>
-                        <SelectItem value="high">Higher Volume</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
+              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-white rounded-lg p-3 border shadow-sm border-gray-300">
+                  <h5 className="text-sm font-medium text-slate-700">
+                    Top Specializations
+                  </h5>
+                  <div className="mt-3 space-y-3">
+                    {topSpecializations.map((s, i) => (
+                      <div key={s.name} className="flex items-center gap-3">
+                        <div
+                          className="w-2.5 h-8 rounded-full"
+                          style={{ background: colors[i % colors.length] }}
+                        />
+                        <div className="flex-1">
+                          <div className="flex justify-between text-sm">
+                            <span>{s.name}</span>
+                            <span className="font-medium">{s.count}%</span>
+                          </div>
+                          <div className="h-2 bg-slate-100 rounded mt-2 overflow-hidden">
+                            <div
+                              style={{ width: `${s.count}%` }}
+                              className="h-2 rounded bg-gradient-to-r from-sky-500 to-emerald-400"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
-                <button
-                  onClick={() => {
-                    // quick export hook example
-                    const csv = filteredLineData
-                      .map((d) => `${d.day},${d.appointments}`)
-                      .join("\n");
-                    const blob = new Blob(["day,appointments\n" + csv], {
-                      type: "text/csv",
-                    });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = "appointments.csv";
-                    a.click();
-                    URL.revokeObjectURL(url);
-                  }}
-                  className="text-sm px-3 py-1 border rounded border-gray-300"
-                >
-                  Export
-                </button>
+                <div className="bg-white rounded-lg p-3 border shadow-sm border-gray-300">
+                  <h5 className="text-sm font-medium text-slate-700">
+                    Revenue Breakdown
+                  </h5>
+                  <div className="mt-2 flex items-center gap-4">
+                    <div style={{ width: 140, height: 120 }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={pieData}
+                            dataKey="value"
+                            innerRadius={24}
+                            outerRadius={36}
+                          >
+                            {pieData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    <div className="text-sm">
+                      {pieData.map((item, index) => (
+                        <div
+                          className="flex items-center gap-2 mt-2"
+                          key={index}
+                        >
+                          <div
+                            className="w-2 h-2 rounded"
+                            style={{ backgroundColor: item.color }}
+                          />
+                          <span>
+                            {item.name} - {item.value}%
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div style={{ height: 260 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={filteredLineData}>
-                  <XAxis dataKey="day" tick={{ fontSize: 12 }} />
-                  <YAxis />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="appointments"
-                    stroke="#22E0D4"
-                    strokeWidth={3}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-white rounded-lg p-3 border shadow-sm border-gray-300">
-                <h5 className="text-sm font-medium text-slate-700">
-                  Top Specializations
-                </h5>
-                <div className="mt-3 space-y-3">
-                  {topSpecializations.map((s, i) => (
-                    <div key={s.name} className="flex items-center gap-3">
-                      <div
-                        className="w-2.5 h-8 rounded-full"
-                        style={{ background: colors[i % colors.length] }}
-                      />
-                      <div className="flex-1">
-                        <div className="flex justify-between text-sm">
-                          <span>{s.name}</span>
-                          <span className="font-medium">{s.count}%</span>
+            <aside className="space-y-4">
+              <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-300">
+                <h4 className="text-lg font-medium">Doctor Performance</h4>
+                <div className="mt-3 divide-y">
+                  {topDoctor.map((d) => (
+                    <div
+                      key={d.name}
+                      className="py-3 flex items-center justify-between"
+                    >
+                      <div>
+                        <div className="font-medium">Dr. {d.name}</div>
+                        <div className="text-xs text-slate-400">
+                          Avg {d.avgMin} min
                         </div>
-                        <div className="h-2 bg-slate-100 rounded mt-2 overflow-hidden">
-                          <div
-                            style={{ width: `${s.count}%` }}
-                            className="h-2 rounded bg-gradient-to-r from-sky-500 to-emerald-400"
-                          />
-                        </div>
+                      </div>
+                      <div className="text-right ">
+                        <div className="font-semibold">{d.completed}</div>
+                        <div className="text-xs text-slate-400">Completed</div>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg p-3 border shadow-sm border-gray-300">
-                <h5 className="text-sm font-medium text-slate-700">
-                  Revenue Breakdown
-                </h5>
-                <div className="mt-2 flex items-center gap-4">
-                  <div style={{ width: 140, height: 120 }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={pieData}
-                          dataKey="value"
-                          innerRadius={24}
-                          outerRadius={36}
-                        >
-                          {pieData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-
-                  <div className="text-sm">
-                    {pieData.map((item, index) => (
-                      <div className="flex items-center gap-2 mt-2" key={index}>
-                        <div
-                          className="w-2 h-2 rounded"
-                          style={{ backgroundColor: item.color }}
-                        />
-                        <span>
-                          {item.name} - {item.value}%
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+              <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-300">
+                <h4 className="text-lg font-medium">Quick Actions</h4>
+                <div className="mt-3 grid grid-cols-2 gap-2 border-gray-300">
+                  <button className="px-3 py-2 rounded text-sm border border-gray-300">
+                    New Appointment
+                  </button>
+                  <button className="px-3 py-2 rounded text-sm border border-gray-300">
+                    Export
+                  </button>
+                  <button className="px-3 py-2 rounded text-sm border border-gray-300">
+                    Reports
+                  </button>
+                  <button className="px-3 py-2 rounded text-sm border border-gray-300">
+                    Settings
+                  </button>
                 </div>
               </div>
-            </div>
-          </div>
+            </aside>
+          </section>
 
-          <aside className="space-y-4">
-            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-300">
-              <h4 className="text-lg font-medium">Doctor Performance</h4>
-              <div className="mt-3 divide-y">
-                {topDoctor.map((d) => (
-                  <div
-                    key={d.name}
-                    className="py-3 flex items-center justify-between"
-                  >
-                    <div>
-                      <div className="font-medium">Dr. {d.name}</div>
-                      <div className="text-xs text-slate-400">
-                        Avg {d.avgMin} min
-                      </div>
-                    </div>
-                    <div className="text-right ">
-                      <div className="font-semibold">{d.completed}</div>
-                      <div className="text-xs text-slate-400">Completed</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+          {/* {Patient demography} */}
 
-            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-300">
-              <h4 className="text-lg font-medium">Quick Actions</h4>
-              <div className="mt-3 grid grid-cols-2 gap-2 border-gray-300">
-                <button className="px-3 py-2 rounded text-sm border border-gray-300">
-                  New Appointment
-                </button>
-                <button className="px-3 py-2 rounded text-sm border border-gray-300">
-                  Export
-                </button>
-                <button className="px-3 py-2 rounded text-sm border border-gray-300">
-                  Reports
-                </button>
-                <button className="px-3 py-2 rounded text-sm border border-gray-300">
-                  Settings
-                </button>
-              </div>
-            </div>
-          </aside>
-        </section>
-
-        {/* {Patient demography} */}
-
-        <PatientDemographics data={patientData} />        
-      </div>
+          <PatientDemographics data={patientData} />
+        </div>
+        )}  
+        
+      </>
 
       {/* Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
