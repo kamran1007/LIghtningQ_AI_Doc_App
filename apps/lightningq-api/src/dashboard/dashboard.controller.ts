@@ -1,8 +1,19 @@
 // apps/api/src/dashboard/dashboard.controller.ts
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  Query,
+  Patch,
+} from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateScheduledReportDto } from './dto/CreateSchedule.dto';
+import { calculateNextRun } from 'src/utils/scheduler.util';
+import { UpdateScheduledReportDto } from './dto/UpdateScheduled.dto';
 
 @Controller('dashboard')
 export class DashboardController {
@@ -11,7 +22,7 @@ export class DashboardController {
     private readonly prisma: PrismaService,
   ) {}
 
-  @Get('summary')
+  @Get('Dashboardsummary')
   async getDashboardSummary(
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
@@ -41,7 +52,7 @@ export class DashboardController {
     });
   }
 
-  @Get('advanced-report')
+  @Get('AdvancedReport')
   async getAdvancedReport(
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
@@ -71,18 +82,56 @@ export class DashboardController {
         reportTypes: dto.reportTypes,
         nextRunAt: dto.nextRunAt
           ? new Date(dto.nextRunAt)
-          : this.calculateNextRun(dto.frequency),
+          : calculateNextRun(dto.frequency),
+      },
+    });
+  }
+  
+  @Patch('UpdateReportSchedular/:ScheduledReportId')
+  async updateScheduledReport(
+    @Param('ScheduledReportId') ScheduledReportId: number,
+    @Body() dto: UpdateScheduledReportDto,
+  ) {
+    const scheduled = await this.prisma.scheduledReport.findUnique({
+      where: { ScheduledReportId: Number(ScheduledReportId) },
+    });
+
+    if (!scheduled) {
+      throw new NotFoundException('Scheduled report not found');
+    }
+
+    return this.prisma.scheduledReport.update({
+      where: { ScheduledReportId: Number(ScheduledReportId) },
+      data: {
+        frequency: dto.frequency ?? scheduled.frequency,
+        reportTypes: dto.reportTypes ?? scheduled.reportTypes,
+        nextRunAt: dto.nextRunAt
+          ? new Date(dto.nextRunAt)
+          : scheduled.nextRunAt,
       },
     });
   }
 
-  private calculateNextRun(frequency: string): Date {
-    const now = new Date();
-    if (frequency === 'Weekly') {
-      now.setDate(now.getDate() + (7 - now.getDay())); // next Monday
-    } else {
-      now.setMonth(now.getMonth() + 1, 1); // first day of next month
-    }
-    return now;
+  @Get('getReportsSchedular')
+  async getReports(
+    @Query('adminId') adminId: string,
+    @Query('hospitalId') hospitalId: string,
+  ) {
+    const reports = await this.dashboardService.getReportsSchedularByAdminHospital(
+      Number(adminId),
+      Number(hospitalId),
+    );
+
+    return {
+      reports,
+    };
+  }
+
+
+
+
+  @Get('getAllHospital')
+  async getAllHospital() {
+    return this.dashboardService.getAllHospital();
   }
 }

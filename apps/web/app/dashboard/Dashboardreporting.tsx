@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 // Charts: install recharts (npm i recharts) or replace with your chart lib of choice
 import {
@@ -23,9 +23,34 @@ import {
   SelectContent,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Controller, useForm } from "react-hook-form";
 import DashboardPage from "./Advancereporting";
 import PatientDemographics from "./PatientDemographics";
+import {
+  FetchDashboardsummary,
+  FetchHospital,
+  FetchPatientDemographics,
+} from "@/lib/dashboard";
+import {
+  FlaskConical,
+  FunnelPlus,
+  Hospital,
+  Stethoscope,
+  X,
+} from "lucide-react";
+import { getOrganizationByUser, getUserSpecialization } from "@/lib/admin";
+import { DateRangePicker } from "react-date-range";
+import { FetchDoctorRole } from "@/lib/bookappointment";
+import toast from "react-hot-toast";
 /*
   AIHealthDashboard.tsx
 
@@ -76,26 +101,6 @@ const kpiMock = [
   },
 ];
 
-const lineData = Array.from({ length: 14 }).map((_, i) => ({
-  day: `D${i + 1}`,
-  appointments: Math.round(40 + Math.sin(i / 2) * 10 + Math.random() * 8),
-}));
-
-const topSpecs = [
-  { name: "Cardiology", value: 27 },
-  { name: "Orthopedics", value: 14 },
-  { name: "Neurology", value: 12 },
-  { name: "General Medicine", value: 12 },
-  { name: "Dermatology", value: 9 },
-];
-
-const doctors = [
-  { name: "Dr. James Smith", completed: 150, avgMin: 20 },
-  { name: "Dr. Emily Johnson", completed: 130, avgMin: 19 },
-  { name: "Dr. Michael Brown", completed: 125, avgMin: 22 },
-  { name: "Dr. Sarah Wilson", completed: 115, avgMin: 19 },
-];
-
 const colors = ["#2563eb", "#06b6d4", "#10b981", "#f59e0b", "#ef4444"];
 
 // ----- Dashboard component -----
@@ -107,60 +112,276 @@ export default function Dashboard({
   const [selectedKpi, setSelectedKpi] = useState<string | null>(null);
   const [filter, setFilter] = useState<string | null>(initialFilter);
   const [modalOpen, setModalOpen] = useState(false);
+  const [summaryCards, setSummaryCards] = useState([]);
+  const [appointmentTrends, setAppointmentTrends] = useState([]);
+  const [topSpecializations, setTopSpecializations] = useState([]);
+  const [topDoctor, setTopDoctor] = useState([]);
+  const [revenueBreakdown, setRevenueBreakdown] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [patientData, setPatientData] = useState({
+    male: 0,
+    female: 0,
+    other: 0,
+    fastTrack: 0,
+    highAcuity: 0,
+    newPatients: 0,
+    newAppointments: 0,
+  });
+  // dropdown values
 
   // derived filtered data example
+  const lineData = useMemo(() => {
+    return appointmentTrends.map((item) => ({
+      day: new Date(item.date).toLocaleDateString("en-GB"), // "dd/MM/yyyy"
+      appointments: item.count,
+    }));
+  }, [appointmentTrends]);
+
+  const [doctors, setDoctors] = useState([]);
+  const [specializations, setSpecializations] = useState([]);
+  const [hospitalData, setHospitalData] = useState([]);
+
+  const [selectedHospital, setSelectedHospital] = useState("");
+  const [selectedDoctor, setSelectedDoctor] = useState("");
+  const [selectedSpecialization, setSelectedSpecialization] = useState("");
+
   const filteredLineData = useMemo(() => {
     if (!filter) return lineData;
-    // fake filter: reduce values when 'low' filter set
-    if (filter === "low")
+    if (filter === "low") {
       return lineData.map((d) => ({
         ...d,
         appointments: Math.round(d.appointments * 0.7),
       }));
+    }
     return lineData.map((d) => ({
       ...d,
       appointments: Math.round(d.appointments * 1.1),
     }));
-  }, [filter]);
+  }, [filter, lineData]);
+
+  const paymentTypeMap = {
+    1: { name: "Cash", color: "#a78bfa" },
+    2: { name: "Online", color: "#34d399" },
+    3: { name: "Card", color: "#60a5fa" },
+  };
+
+  const pieData = useMemo(() => {
+    const total = revenueBreakdown.reduce(
+      (sum, item) => sum + (item._sum?.AppointmentChargesPaid || 0),
+      0
+    );
+
+    return revenueBreakdown.map((item) => {
+      const typeInfo = paymentTypeMap[item.paymentTypePaymentTypeId];
+      const value = item._sum?.AppointmentChargesPaid || 0;
+      const percentage = total ? ((value / total) * 100).toFixed(0) : 0;
+
+      return {
+        name: typeInfo?.name || "Unknown",
+        value: Number(percentage),
+        color: typeInfo?.color || "#ccc",
+      };
+    });
+  }, [revenueBreakdown]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoading(true);
+        const startDate = dateRange[0]?.startDate
+          ? dateRange[0].startDate.toISOString().split("T")[0]
+          : undefined;
+
+        const endDate = dateRange[0]?.endDate
+          ? dateRange[0].endDate.toISOString().split("T")[0]
+          : undefined;
+        const data = await FetchDashboardsummary(
+          startDate,
+          endDate,
+          selectedDoctor || "",
+          selectedHospital || "", // hospitalId can be added if needed  '',
+          selectedSpecialization || ""
+        );
+
+        setSummaryCards(data.summaryCards || []);
+        setAppointmentTrends(data.appointmentTrends || []);
+        setTopSpecializations(data.topSpecializations || []);
+        setRevenueBreakdown(data.revenueBreakdown || []);
+        setTopDoctor(data.DoctorPerformance || []);
+      } catch (err) {
+        console.error("Error fetching dashboard summary", err);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+
+      const startDate = dateRange[0]?.startDate
+        ? dateRange[0].startDate.toISOString().split("T")[0]
+        : undefined;
+
+      const endDate = dateRange[0]?.endDate
+        ? dateRange[0].endDate.toISOString().split("T")[0]
+        : undefined;
+
+      const data = await FetchDashboardsummary(
+        startDate,
+        endDate,
+        selectedDoctor || "",
+        selectedHospital || "", // hospitalId placeholder
+        selectedSpecialization || ""
+      );
+
+      setSummaryCards(data.summaryCards || []);
+      setAppointmentTrends(data.appointmentTrends || []);
+      setTopSpecializations(data.topSpecializations || []);
+      setRevenueBreakdown(data.revenueBreakdown || []);
+      setTopDoctor(data.DoctorPerformance || []);
+    } catch (err) {
+      console.error("Error fetching dashboard summary", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
 
   function handleCardClick(kpiId: string) {
     setSelectedKpi(kpiId);
     setModalOpen(true);
   }
-
+  const [dateRange, setDateRange] = useState([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: "selection",
+    },
+  ]);
   const {
     control,
     formState: { errors, isSubmitting },
     watch,
   } = useForm({});
 
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        setIsLoading(true);
+
+        const [specRes, docRes, hosRes] = await Promise.all([
+          getUserSpecialization(),
+          FetchDoctorRole(),
+          FetchHospital(),
+        ]);
+
+        setSpecializations(specRes?.return?.data ?? []);
+        setDoctors(docRes?.return ?? []);
+        setHospitalData(hosRes ?? []);
+      } catch (error) {
+        console.error("Failed to fetch data", error);
+        toast.error("Failed to fetch initial data");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchInitialData();
+  }, []);
+  const fetchDashboardDemographyData = async () => {
+    try {
+      const startDate = dateRange[0]?.startDate
+        ? dateRange[0].startDate.toISOString().split("T")[0]
+        : undefined;
+
+      const endDate = dateRange[0]?.endDate
+        ? dateRange[0].endDate.toISOString().split("T")[0]
+        : undefined;
+      const res = await FetchPatientDemographics(
+        startDate,
+        endDate,
+        selectedDoctor || "",
+        "", // hospitalId placeholder
+        selectedSpecialization || ""
+      );
+
+      setPatientData({
+        male: res.genderStats.find((g: any) => g.label === "Male")?.value || 0,
+        female:
+          res.genderStats.find((g: any) => g.label === "Female")?.value || 0,
+        other:
+          res.genderStats.find(
+            (g: any) => g.label !== "Male" && g.label !== "Female"
+          )?.value || 0,
+        fastTrack: res.summary.fastTrack || 0,
+        highAcuity: res.summary.highAcuity || 0,
+        newPatients: res.summary.newPatients || 0,
+        newAppointments: res.summary.newAppointments || 0,
+      });
+      console.log("Patient data:", res);
+      console.log("Processed patient data:", patientData);
+      setLoading(true);
+    } catch (err) {
+      console.error("Error fetching dashboard summary", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardDemographyData();
+  }, []);
+
+  // useEffect(() => {
+  //   const fetchHospitals = async () => {
+  //     try {
+  //       const response = await getOrganizationByUser();
+  //       const data = response?.return?.data?.[0];
+
+  //       console.log("API response:", response);
+  //       console.log("Setting hospital data:", data);
+
+  //       setHospitalData(data);
+  //     } catch (error) {
+  //       console.error("Failed to fetch hospitals:", error);
+  //     }
+  //   };
+
+  //   fetchHospitals();
+  // }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         <header className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-2xl font-semibold text-slate-800">
-              Dashboard
-            </h2>
+            <h2 className="text-2xl font-semibold text-slate-800">Dashboard</h2>
             {/* <p className="text-sm text-slate-500">Dashboard / Reports</p> */}
           </div>
           <div className="flex items-center gap-4">
             <div className="hidden sm:flex flex-col text-right">
-              <span className="text-sm font-medium">Welcome back</span>
-              <span className="text-xs text-slate-500">Kamran</span>
+              {/* <span className="text-sm font-medium">Welcome back</span>
+              <span className="text-xs text-slate-500">Kamran</span> */}
             </div>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-sky-500 to-emerald-400 flex items-center justify-center text-white font-semibold">
-              KQ
-            </div>
+            <FunnelPlus
+              className="w-6 h-6 text-teal-300 cursor-pointer"
+              onClick={() => setIsDialogOpen(true)}
+            />
           </div>
         </header>
 
         {/* KPI Row */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          {kpiMock.map((k) => (
+          {summaryCards.map((k) => (
             <motion.button
-              key={k.id}
-              onClick={() => handleCardClick(k.id)}
+              key={k?.id}
+              onClick={() => handleCardClick(k?.id)}
               whileHover={{ y: -4 }}
               whileTap={{ scale: 0.98 }}
               className="
@@ -286,7 +507,7 @@ export default function Dashboard({
                   Top Specializations
                 </h5>
                 <div className="mt-3 space-y-3">
-                  {topSpecs.map((s, i) => (
+                  {topSpecializations.map((s, i) => (
                     <div key={s.name} className="flex items-center gap-3">
                       <div
                         className="w-2.5 h-8 rounded-full"
@@ -295,11 +516,11 @@ export default function Dashboard({
                       <div className="flex-1">
                         <div className="flex justify-between text-sm">
                           <span>{s.name}</span>
-                          <span className="font-medium">{s.value}%</span>
+                          <span className="font-medium">{s.count}%</span>
                         </div>
                         <div className="h-2 bg-slate-100 rounded mt-2 overflow-hidden">
                           <div
-                            style={{ width: `${s.value}%` }}
+                            style={{ width: `${s.count}%` }}
                             className="h-2 rounded bg-gradient-to-r from-sky-500 to-emerald-400"
                           />
                         </div>
@@ -318,36 +539,31 @@ export default function Dashboard({
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
-                          data={[
-                            { name: "Cash", value: 40 },
-                            { name: "Card", value: 30 },
-                            { name: "Online", value: 30 },
-                          ]}
+                          data={pieData}
                           dataKey="value"
                           innerRadius={24}
                           outerRadius={36}
                         >
-                          <Cell fill="#a78bfa" />
-                          <Cell fill="#60a5fa" />
-                          <Cell fill="#34d399" />
+                          {pieData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
                         </Pie>
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
 
                   <div className="text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-purple-300 rounded" />{" "}
-                      <span>Cash - 40%</span>
-                    </div>
-                    <div className="flex items-center gap-2 mt-2">
-                      <div className="w-2 h-2 bg-sky-300 rounded" />{" "}
-                      <span>Card - 30%</span>
-                    </div>
-                    <div className="flex items-center gap-2 mt-2">
-                      <div className="w-2 h-2 bg-emerald-300 rounded" />{" "}
-                      <span>Online - 30%</span>
-                    </div>
+                    {pieData.map((item, index) => (
+                      <div className="flex items-center gap-2 mt-2" key={index}>
+                        <div
+                          className="w-2 h-2 rounded"
+                          style={{ backgroundColor: item.color }}
+                        />
+                        <span>
+                          {item.name} - {item.value}%
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -358,13 +574,13 @@ export default function Dashboard({
             <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-300">
               <h4 className="text-lg font-medium">Doctor Performance</h4>
               <div className="mt-3 divide-y">
-                {doctors.map((d) => (
+                {topDoctor.map((d) => (
                   <div
                     key={d.name}
                     className="py-3 flex items-center justify-between"
                   >
                     <div>
-                      <div className="font-medium">{d.name}</div>
+                      <div className="font-medium">Dr. {d.name}</div>
                       <div className="text-xs text-slate-400">
                         Avg {d.avgMin} min
                       </div>
@@ -400,32 +616,120 @@ export default function Dashboard({
 
         {/* {Patient demography} */}
 
-        <PatientDemographics data={{
-          male: 50,
-          female: 35,
-          other: 4,
-          fastTrack: 20,
-          highAcuity: 2,
-          newPatients: 4,
-          newAppointments: 2
-        }}/>
-
-        {/* Footer / small report summary */}
-        <section className="bg-white p-4 rounded-2xl border shadow-sm border-gray-300 mt-2">
-          <h4 className="text-sm font-medium">Latest Reports</h4>
-          <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3 border-gray-300">
-            <div className="p-3 border rounded-lg border-gray-300">
-              Monthly Summary · July 2025
-            </div>
-            <div className="p-3 border rounded-lg border-gray-300">
-              Top Doctors · Last 30 days
-            </div>
-            <div className="p-3 border rounded-lg border-gray-300">
-              No-show Risk · AI Predictions
-            </div>
-          </div>
-        </section>
+        <PatientDemographics data={patientData} />        
       </div>
+
+      {/* Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-h-[95vh] overflow-y-auto p-6 max-w-2xl rounded-xl no-scrollbar">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="font-sans">Filter</DialogTitle>
+
+              <DialogClose asChild>
+                <button
+                  className="text-teal-600 hover:bg-teal-100 p-2 rounded-full transition cursor-pointer"
+                  title="Close"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </DialogClose>
+            </div>
+          </DialogHeader>
+
+          {/* Date Picker */}
+          <div className="mb-4">
+            <DateRangePicker
+              ranges={dateRange}
+              onChange={(item) => setDateRange([item.selection])}
+              rangeColors={["#22E0D4"]}
+            />
+          </div>
+
+          {/* Doctor & Specialization Row */}
+          <div className="flex flex-wrap gap-4">
+            {/* Doctor Filter */}
+            <Select value={selectedDoctor} onValueChange={setSelectedDoctor}>
+              <SelectTrigger className="w-50 border border-gray-300 rounded-lg shadow-sm focus:border-[#22E0D4] focus:ring-2 focus:ring-[#22E0D4] transition flex items-center gap-2">
+                <Stethoscope className="w-4 h-4 text-gray-500" />
+                <SelectValue placeholder="Select Doctor" />
+              </SelectTrigger>
+              <SelectContent className="border-gray-300 shadow-2xl rounded-2xl">
+                <SelectItem value="all-doctors">All Doctors</SelectItem>
+                {doctors.map((doc) => (
+                  <SelectItem key={doc.UserId} value={String(doc.UserId)}>
+                    Dr. {doc.firstName} {doc.lastName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Specialization Filter */}
+            <Select
+              value={selectedSpecialization}
+              onValueChange={setSelectedSpecialization}
+            >
+              <SelectTrigger className="w-52 border border-gray-300 rounded-lg shadow-sm focus:border-[#22E0D4] focus:ring-2 focus:ring-[#22E0D4] transition flex items-center gap-2">
+                <FlaskConical className="w-4 h-4 text-gray-500" />
+                <SelectValue placeholder="Select Specialization" />
+              </SelectTrigger>
+              <SelectContent className="border-gray-300 shadow-2xl rounded-2xl">
+                <SelectItem value="all-specializations">
+                  All Specializations
+                </SelectItem>
+                {specializations.map((spec) => (
+                  <SelectItem
+                    key={spec.SpecializationId}
+                    value={String(spec.SpecializationId)}
+                  >
+                    {spec.SpecializationName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Hospital Filter */}
+            <Select
+              value={selectedHospital}
+              onValueChange={setSelectedHospital}
+            >
+              <SelectTrigger className="w-52 border border-gray-300 rounded-lg shadow-sm focus:border-[#22E0D4] focus:ring-2 focus:ring-[#22E0D4] transition flex items-center gap-2">
+                <Hospital className="w-4 h-4 text-gray-500" />
+                <SelectValue placeholder="Select Hospital" />
+              </SelectTrigger>
+              <SelectContent className="border-gray-300 shadow-2xl rounded-2xl">
+                <SelectItem value="all-hospitals">All Hospitals</SelectItem>
+                {hospitalData.map((hospital) => (
+                  <SelectItem
+                    key={hospital.HospitalId}
+                    value={String(hospital.HospitalId)}
+                  >
+                    {hospital.HospitalName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Apply Button */}
+          <button
+            className="bg-teal-300 hover:bg-teal-400 text-white px-4 py-2 rounded"
+            onClick={() => {
+              console.log({
+                startDate: dateRange[0].startDate,
+                endDate: dateRange[0].endDate,
+                doctor: selectedDoctor,
+                specialization: selectedSpecialization,
+              });
+              fetchDashboardData(); // ✅ Manually trigger
+              fetchDashboardDemographyData();
+              setIsDialogOpen(false);
+            }}
+          >
+            Apply Filters
+          </button>
+        </DialogContent>
+      </Dialog>
 
       {/* Modal: Drilldown Report when KPI card clicked */}
       <AnimatePresence>

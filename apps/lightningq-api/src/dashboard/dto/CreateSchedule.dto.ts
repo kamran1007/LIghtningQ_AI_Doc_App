@@ -1,4 +1,4 @@
-import { IsInt, IsString, IsArray, IsIn, IsDateString } from 'class-validator';
+import { IsInt, IsString, IsArray, IsIn, IsDateString, IsOptional } from 'class-validator';
 
 export class CreateScheduledReportDto {
   @IsInt()
@@ -14,6 +14,7 @@ export class CreateScheduledReportDto {
   @IsString({ each: true })
   reportTypes?: string[];
 
+  @IsOptional()
   @IsDateString()
   nextRunAt?: string; // optional, otherwise calculated
 }

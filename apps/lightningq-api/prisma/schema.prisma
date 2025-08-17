@@ -550,6 +550,8 @@ model Appointment {
   acuity             AcuityLevel
   AssignedProviderId Int?
   SpecializationId   Int?
+  // specialization   Specialization? @relation(fields: [SpecializationId], references: [SpecializationId])
+
 
   appointmentDate    DateTime
   reason             String?
