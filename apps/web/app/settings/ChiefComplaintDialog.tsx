@@ -231,9 +231,10 @@ const ChiefComplaintModal: React.FC<ChiefComplaintModalProps> = ({
               </DialogTitle>
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 text-teal-600 hover:text-teal-500 transition cursor-pointer"
+                className="text-teal-300 hover:bg-teal-400 p-2 rounded-full transition cursor-pointer absolute top-4 right-3"
+                title="Close"
               >
-                <X className="w-5 h-5" />
+                <X className="w-6 h-6" />
               </button>
             </DialogHeader>
 

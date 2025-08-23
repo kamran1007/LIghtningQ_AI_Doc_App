@@ -4,6 +4,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { ok } from 'assert';
+import { AddUpdateAccessRightDto } from 'src/manage_hospital/dto/AddUpdateAccessRight.dto';
 import { AddUpdateTimeSlotDto } from 'src/manage_hospital/dto/AddUpdateTimeSlot.dto';
 import { BulkUpdateDoctorSlotDto } from 'src/manage_hospital/dto/BulkUpdateDoctorSlotDto';
 import { CancelSlotDto } from 'src/manage_hospital/dto/CancelSlotDto';
@@ -160,11 +161,10 @@ export class AdminService {
   async addUpdateTimeSlot(dto: AddUpdateTimeSlotDto, createdById: any) {
     const addUpdateTimeSlot =
       await this.ManageHospitalService.addUpdateTimeSlot(dto, createdById);
-      return {
-      message: 'Time slot has been added/updated',  
+    return {
+      message: 'Time slot has been added/updated',
       return: addUpdateTimeSlot,
     };
-  
   }
 
   async createDoctorSlots(dto: CreateDoctorSlotDto, createdById: any) {
@@ -246,6 +246,41 @@ export class AdminService {
     return {
       message: 'Doctor costing fetched successfully',
       return: doctorCosting,
+    };
+  }
+  async AddUpdateAccessRight(dto: AddUpdateAccessRightDto) {
+    const SaveAccessRight =
+      await this.ManageHospitalService.AddUpdateAccessRight(dto);
+    return {
+      message: 'Doctor costing fetched successfully',
+      return: SaveAccessRight,
+    };
+  }
+
+  async getPermissions(getaccessrightdetail: {
+    roleId: number;
+    userId: number;
+    hospitalId: number;
+    organizationId: number;
+  }) {
+    const GetAccessRight =
+      await this.ManageHospitalService.getAccessRights({
+        RoleId: getaccessrightdetail.roleId,
+        UserId: getaccessrightdetail.userId,
+        HospitalId: getaccessrightdetail.hospitalId,
+        OrganizationId: getaccessrightdetail.organizationId,
+      });
+    return {
+      message: 'Permissions fetched successfully',
+      return: GetAccessRight,
+    };
+  }
+
+  async getAllModules() {
+    const GetAllModules = await this.ManageHospitalService.getAllModules();
+    return {
+      message: 'Modules fetched successfully',
+      return: GetAllModules,
     };
   }
 }

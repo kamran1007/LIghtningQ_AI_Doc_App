@@ -131,6 +131,8 @@ model Organization {
   updatedAt DateTime @default(now())
 
   Patient Patient[]
+
+  UserHospitalAccess UserHospitalAccess[]
 }
 
 // Hospital entity (can be super/child/sub-child)
@@ -207,13 +209,16 @@ model UserHospitalAccess {
   roleId Int
   role   Role @relation(fields: [roleId], references: [RoleId])
 
+  OrganizationId Int?
+  Organization   Organization? @relation(fields: [OrganizationId], references: [OrganizationId])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
   createdById Int?
   createdBy   User? @relation("CreatedUserHospitalAccess", fields: [createdById], references: [UserId])
 
-  @@unique([UserId, hospitalId]) // Prevent duplicate mappings
+  @@unique([UserId, hospitalId, roleId]) // Prevent duplicate mappings
 }
 
 model DoctorTimeSlotHistory {
@@ -391,42 +396,6 @@ model LoginSession {
   user User @relation(fields: [UserId], references: [UserId])
 }
 
-// [User] has [roleId]
-// [Role] has many [RolePermissions]
-// Each [RolePermission] links a [Role] to a [Permission]
-
-model Role {
-  RoleId             Int                  @id @default(autoincrement())
-  Rolename           String               @unique
-  Description        String
-  IsActive           Boolean              @default(true)
-  Users              User[]
-  UserHospitalAccess UserHospitalAccess[]
-  permissions        RolePermission[] // <== Links to RolePermission
-}
-
-model RolePermission {
-  RolePermissionId Int @id @default(autoincrement())
-  RoleId           Int
-  permissionId     Int
-
-  // Relationships
-  // There will be 5 entries in RolePermission with the same roleId but different permissionIds.
-  Role       Role       @relation(fields: [RoleId], references: [RoleId])
-  permission Permission @relation(fields: [permissionId], references: [PermissionId])
-
-  @@unique([RoleId, permissionId])
-}
-
-model Permission {
-  PermissionId Int              @id @default(autoincrement())
-  Name         String           @unique // e.g., "Dashboard_Summary_TotalRevenueReport"
-  DisplayName  String // e.g., "Total Revenue Report"
-  Category     String // e.g., "Dashboard - Summary"
-  Description  String?
-  Roles        RolePermission[] // <== Links to RolePermission
-}
-
 model Specialization {
   SpecializationId   Int    @id @default(autoincrement())
   SpecializationName String @unique
@@ -551,7 +520,6 @@ model Appointment {
   AssignedProviderId Int?
   SpecializationId   Int?
   // specialization   Specialization? @relation(fields: [SpecializationId], references: [SpecializationId])
-
 
   appointmentDate    DateTime
   reason             String?
@@ -898,8 +866,74 @@ model ScheduledReport {
   lastRunAt         DateTime? // Last time it ran
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
-  Hospital Hospital? @relation(fields: [HospitalId], references: [HospitalId])
-  Admin User @relation(fields: [adminId], references: [UserId])
+  Hospital          Hospital? @relation(fields: [HospitalId], references: [HospitalId])
+  Admin             User      @relation(fields: [adminId], references: [UserId])
+}
+
+//Access Rights
+
+model Module {
+  ModuleId    Int         @id @default(autoincrement())
+  ModuleName  String // e.g. "Dashboard"
+  Description String?
+  IsActive    Boolean     @default(true) // enable/disable entire module
+  SubModules  SubModule[]
+}
+
+model SubModule {
+  SubModuleId   Int          @id @default(autoincrement())
+  ModuleId      Int
+  Module        Module       @relation(fields: [ModuleId], references: [ModuleId])
+  SubModuleName String // e.g. "Patient Category"
+  Description   String?
+  IsActive      Boolean      @default(true) // enable/disable submodule (independent toggle)
+  Permissions   Permission[]
+}
+
+// [User] has [roleId]
+// [Role] has many [RolePermissions]
+// Each [RolePermission] links a [Role] to a [Permission]
+
+model Role {
+  RoleId             Int                  @id @default(autoincrement())
+  Rolename           String               @unique
+  Description        String
+  IsActive           Boolean              @default(true)
+  Users              User[]
+  UserHospitalAccess UserHospitalAccess[]
+  permissions        RolePermission[] // <== Links to RolePermission
+}
+
+model Permission {
+  PermissionId Int       @id @default(autoincrement())
+  SubModuleId  Int
+  SubModule    SubModule @relation(fields: [SubModuleId], references: [SubModuleId])
+
+  CanView      Boolean  @default(true)
+  CanCreate    Boolean  @default(true)
+  CanUpdate    Boolean  @default(true)
+  CanDelete    Boolean  @default(true)
+  CanExport    Boolean? @default(true)
+  CanAI_Assist Boolean? @default(false)
+
+  IsActive        Boolean          @default(true)
+  RolePermissions RolePermission[]
+}
+
+model RolePermission {
+  RolePermissionId Int        @id @default(autoincrement())
+  RoleId           Int
+  PermissionId     Int
+  Role             Role       @relation(fields: [RoleId], references: [RoleId])
+  Permission       Permission @relation(fields: [PermissionId], references: [PermissionId])
+
+  // Scope (where this permission applies)
+  HospitalId     Int
+  OrganizationId Int
+  UserId         Int
+
+  // @@unique([RoleId, PermissionId, UserId, HospitalId, OrganizationId ])
+
 }
 
 // model Surgery {

@@ -17,11 +17,11 @@ import { UpdateDoctorSlotDto } from './dto/update-doctor-slot.dto';
 import { BulkUpdateDoctorSlotDto } from './dto/BulkUpdateDoctorSlotDto';
 import { CreateDoctorCostingDto } from './dto/create-doctor-costing.dto';
 import { AddUpdateTimeSlotDto } from './dto/AddUpdateTimeSlot.dto';
+import { AddUpdateAccessRightDto } from './dto/AddUpdateAccessRight.dto';
 
 @Injectable()
 export class ManageHospitalService {
   constructor(private readonly prisma: PrismaService) {}
-
 
   async CreateHospital(dto: CreateHospitalDto, userId: number) {
     // 1. Fetch organization
@@ -858,7 +858,7 @@ export class ManageHospitalService {
     day?: string;
   }) {
     const whereClause: any = {
-  DoctorId: userId,  // ✅ this matches your model
+      DoctorId: userId, // ✅ this matches your model
       isDeleted: false,
     };
 
@@ -1099,5 +1099,228 @@ export class ManageHospitalService {
     });
 
     return { doctorId, costings: data };
+  }
+
+  // admin.service.ts
+  async AddUpdateAccessRight(dto: AddUpdateAccessRightDto) {
+    if (!dto.Modules?.length) {
+      throw new Error('Modules cannot be empty');
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      for (const module of dto.Modules) {
+        // --- Upsert Module ---
+        const upsertedModule = await tx.module.upsert({
+          where: { ModuleId: module.ModuleId || -1 },
+          update: {
+            ModuleName: module.ModuleName ?? '',
+            IsActive: module.IsActive ?? true,
+          },
+          create: {
+            ModuleName: module.ModuleName ?? '',
+            IsActive: module.IsActive ?? true,
+          },
+        });
+
+        for (const sub of module.SubModules ?? []) {
+          // --- Upsert SubModule ---
+          const upsertedSubModule = await tx.subModule.upsert({
+            where: { SubModuleId: sub.SubModuleId || -1 },
+            update: {
+              SubModuleName: sub.SubModuleName ?? '',
+              IsActive: sub.IsActive ?? true,
+              ModuleId: upsertedModule.ModuleId,
+            },
+            create: {
+              SubModuleName: sub.SubModuleName ?? '',
+              IsActive: sub.IsActive ?? true,
+              ModuleId: upsertedModule.ModuleId,
+            },
+          });
+
+          for (const perm of sub.Permissions ?? []) {
+            let permission;
+
+            if (!perm.PermissionId || perm.PermissionId === 0) {
+              // --- Create new Permission ---
+              permission = await tx.permission.create({
+                data: {
+                  SubModuleId: upsertedSubModule.SubModuleId,
+                  CanView: perm.CanView ?? false,
+                  CanCreate: perm.CanCreate ?? false,
+                  CanUpdate: perm.CanUpdate ?? false,
+                  CanDelete: perm.CanDelete ?? false,
+                  CanAI_Assist: perm.CanAI_Assist ?? false,
+                  IsActive: perm.IsActive ?? true,
+                },
+              });
+            } else {
+              // --- Update existing Permission ---
+              permission = await tx.permission.update({
+                where: { PermissionId: perm.PermissionId },
+                data: {
+                  CanView: perm.CanView ?? false,
+                  CanCreate: perm.CanCreate ?? false,
+                  CanUpdate: perm.CanUpdate ?? false,
+                  CanDelete: perm.CanDelete ?? false,
+                  CanAI_Assist: perm.CanAI_Assist ?? false,
+                  IsActive: perm.IsActive ?? true,
+                },
+              });
+            }
+
+            // --- Handle RolePermissions ---
+            for (const rp of perm.RolePermissions ?? []) {
+              if (!rp.RolePermissionId || rp.RolePermissionId === 0) {
+                // Create new RolePermission
+                await tx.rolePermission.create({
+                  data: {
+                    RoleId: rp.RoleId,
+                    UserId: rp.UserId,
+                    HospitalId: rp.HospitalId,
+                    OrganizationId: rp.OrganizationId,
+                    PermissionId: permission.PermissionId,
+                  },
+                });
+              } else {
+                // Update existing RolePermission
+                await tx.rolePermission.update({
+                  where: { RolePermissionId: rp.RolePermissionId },
+                  data: {
+                    RoleId: rp.RoleId,
+                    UserId: rp.UserId,
+                    HospitalId: rp.HospitalId,
+                    OrganizationId: rp.OrganizationId,
+                    PermissionId: permission.PermissionId,
+                  },
+                });
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // admin.service.ts
+  async getAccessRights(filters: {
+    RoleId: number;
+    UserId: number;
+    HospitalId: number;
+    OrganizationId: number;
+  }) {
+    const { RoleId, UserId, HospitalId, OrganizationId } = filters;
+
+    // 1. Fetch role/user/org/hospital-specific permissions
+    const rolePerms = await this.prisma.rolePermission.findMany({
+      where: {
+        RoleId,
+        UserId,
+        HospitalId,
+        OrganizationId,
+      },
+      include: {
+        Permission: {
+          include: {
+            SubModule: {
+              include: {
+                Module: true,
+              },
+            },
+            RolePermissions: true, // ✅ correctly included
+          },
+        },
+      },
+    });
+
+    if (rolePerms.length === 0) {
+      return [];
+    }
+
+    // 2. Group by Module → SubModule → Permissions
+    const moduleMap = new Map<number, any>();
+
+    for (const rp of rolePerms) {
+      const perm = rp.Permission;
+      if (!perm?.SubModule) continue;
+
+      const sub = perm.SubModule;
+      const mod = sub.Module;
+
+      if (!moduleMap.has(mod.ModuleId)) {
+        moduleMap.set(mod.ModuleId, {
+          ModuleId: mod.ModuleId,
+          ModuleName: mod.ModuleName,
+          enabled: true,
+          Submodules: [],
+        });
+      }
+
+      const moduleEntry = moduleMap.get(mod.ModuleId);
+
+      moduleEntry.Submodules.push({
+        SubModuleId: sub.SubModuleId,
+        SubModuleName: sub.SubModuleName,
+        enabled:
+          perm.CanView ||
+          perm.CanCreate ||
+          perm.CanUpdate ||
+          perm.CanDelete ||
+          perm.CanAI_Assist,
+        Permissions: {
+          PermissionId: perm.PermissionId,
+          CanView: !!perm.CanView,
+          CanCreate: !!perm.CanCreate,
+          CanUpdate: !!perm.CanUpdate,
+          CanDelete: !!perm.CanDelete,
+          CanAI_Assist: !!perm.CanAI_Assist,
+          RolePermissions: perm.RolePermissions.map((rp) => ({
+            RolePermissionId: rp.RolePermissionId,
+            RoleId: rp.RoleId,
+            UserId: rp.UserId,
+            HospitalId: rp.HospitalId,
+            OrganizationId: rp.OrganizationId,
+          })),
+        },
+      });
+    }
+
+    // 3. Return only modules that had rolePerms
+    return Array.from(moduleMap.values());
+  }
+
+  async getAllModules() {
+    const modules = await this.prisma.module.findMany({
+      // where: { IsActive: true },
+      include: {
+        SubModules: {
+          // where: { IsActive: true },
+          // No need to include Permissions anymore since you don't want real ones
+        },
+      },
+    });
+
+    const defaultPermission = {
+      PermissionId: 0,
+      CanView: false,
+      CanCreate: false,
+      CanUpdate: false,
+      CanDelete: false,
+      CanAI_Assist: false,
+    };
+
+    const normalizedModules = modules.map((mod) => ({
+      ModuleId: mod.ModuleId,
+      ModuleName: mod.ModuleName,
+      enabled: mod.IsActive, // initialize
+      SubModules: mod.SubModules.map((sub) => ({
+        SubModuleId: sub.SubModuleId,
+        SubModuleName: sub.SubModuleName,
+        enabled: sub.IsActive, // initialize
+        Permissions: [defaultPermission], // always initialize with this
+      })),
+    }));
+
+    return normalizedModules;
   }
 }

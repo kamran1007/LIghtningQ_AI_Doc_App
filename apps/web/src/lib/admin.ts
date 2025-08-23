@@ -278,6 +278,7 @@ export const Updateuserinfo = async (id: number, payload: any) => {
   }
 };
 
+//Timeslot
 //addupdate timeslot
 export const AddUpdateDoctorTimeSlot = async (payload: any) => {
   const session = await getSession();
@@ -301,7 +302,6 @@ export const AddUpdateDoctorTimeSlot = async (payload: any) => {
     console.error("Error updating doctor TimeSlot:", message);
   }
 };
-
 
 export const CreateTimeSlot = async (data: any) => {
   const session = await getSession();
@@ -405,12 +405,91 @@ export const fetchDoctorCosting = async (doctorId: number) => {
     throw new Error("Unauthorized: Access token not found.");
   }
 
-  const res = await axios.get(`${BACKEND_URL}/admin/GetDoctorCosting/${doctorId}`, {
-    params: { doctorId },
+  const res = await axios.get(
+    `${BACKEND_URL}/admin/GetDoctorCosting/${doctorId}`,
+    {
+      params: { doctorId },
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${session?.accessToken}`,
+      },
+    }
+  );
+  return res.data;
+};
+
+//access rights
+export const getRolePermissions = async (
+  roleId?: number,
+  userId?: number,
+  hospitalId?: number,
+  organizationId?: number
+) => {
+  if (
+    roleId === undefined ||
+    userId === undefined ||
+    hospitalId === undefined ||
+    organizationId === undefined
+  ) {
+    throw new Error("Missing required parameters for getRolePermissions");
+  }
+
+  const session = await getSession();
+
+  const url = new URL(`${BACKEND_URL}/admin/getRolePermissions`);
+  url.searchParams.append("roleId", roleId.toString());
+  url.searchParams.append("userId", userId.toString());
+  url.searchParams.append("hospitalId", hospitalId.toString());
+  url.searchParams.append("organizationId", organizationId.toString());
+
+  const response = await fetch(url.toString(), {
     headers: {
       "Content-Type": "application/json",
       authorization: `Bearer ${session?.accessToken}`,
     },
   });
+
+  if (!response.ok) throw new Error("Failed to fetch access rights");
+  return response.json();
+};
+
+export const addUpdateAccessRight = async (payload: any) => {
+  const session = await getSession();
+
+  try {
+    console.log("Sending access rights data:", payload);
+    const res = await axios.post(
+      `${BACKEND_URL}/admin/AddUpdateAccessRight`,
+      payload, // this is the actual body
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.accessToken}`,
+        },
+      }
+    );
+    return res.data;
+  } catch (error: any) {
+    const message = error.response?.data?.message || error.message;
+    console.error("Error updating access rights:", message);
+  }
+};
+
+export const fetchAllAccessRightModulesSubmodules = async () => {
+  const session = await getSession();
+  if (!session?.accessToken) {
+    throw new Error("Unauthorized: Access token not found.");
+  }
+
+  const res = await axios.get(
+    `${BACKEND_URL}/admin/getAllAccessRightModulesSubModules`,
+    {
+
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${session?.accessToken}`,
+      },
+    }
+  );
   return res.data;
-}
+};

@@ -14,6 +14,7 @@ import {
   Request,
   UploadedFiles,
   UseInterceptors,
+  ValidationPipe,
 } from '@nestjs/common';
 import { CreateHospitalDto } from 'src/manage_hospital/dto/create_hospital.dto';
 import { AdminService } from './admin.service';
@@ -35,6 +36,7 @@ import { BulkUpdateDoctorSlotDto } from 'src/manage_hospital/dto/BulkUpdateDocto
 import { CreateDoctorCostingDto } from 'src/manage_hospital/dto/create-doctor-costing.dto';
 import { AddUpdateTimeSlotDto } from 'src/manage_hospital/dto/AddUpdateTimeSlot.dto';
 import * as fs from 'fs';
+import { AddUpdateAccessRightDto } from 'src/manage_hospital/dto/AddUpdateAccessRight.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -134,30 +136,30 @@ export class AdminController {
 
   @Post('AddUser')
   @UseInterceptors(
-  AnyFilesInterceptor({
-    storage: diskStorage({
-      destination: (req, file, cb) => {
-        const uploadPath = join(process.cwd(), 'uploads', 'users');
+    AnyFilesInterceptor({
+      storage: diskStorage({
+        destination: (req, file, cb) => {
+          const uploadPath = join(process.cwd(), 'uploads', 'users');
 
-        if (!fs.existsSync(uploadPath)) {
-          fs.mkdirSync(uploadPath, { recursive: true });
-        }
+          if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+          }
 
-        cb(null, uploadPath);
-      },
-      filename: (req, file, cb) => {
-        const uniqueSuffix =
-          Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const userName = req.body.firstName?.replace(/\s+/g, '_') || 'user';
-        const cleanedFieldName = file.fieldname.replace(/\s+/g, '_');
-        const ext = extname(file.originalname);
+          cb(null, uploadPath);
+        },
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const userName = req.body.firstName?.replace(/\s+/g, '_') || 'user';
+          const cleanedFieldName = file.fieldname.replace(/\s+/g, '_');
+          const ext = extname(file.originalname);
 
-        const newFileName = `${cleanedFieldName}-${userName}-${uniqueSuffix}${ext}`;
-        cb(null, newFileName);
-      },
+          const newFileName = `${cleanedFieldName}-${userName}-${uniqueSuffix}${ext}`;
+          cb(null, newFileName);
+        },
+      }),
     }),
-  }),
-)
+  )
   async addUser(
     @Request() req,
     @UploadedFiles() files: Array<Express.Multer.File>,
@@ -206,8 +208,11 @@ export class AdminController {
     const profileImage = files?.find((f) => f.fieldname === 'imageUrl');
     const signature = files?.find((f) => f.fieldname === 'SignatureOfUser');
     if (signature) {
-  console.log('Signature file saved at:', join(process.cwd(), 'uploads', 'users', signature.filename));
-}
+      console.log(
+        'Signature file saved at:',
+        join(process.cwd(), 'uploads', 'users', signature.filename),
+      );
+    }
     console.log(
       'Received files:',
       files.map((f) => ({ name: f.originalname, field: f.fieldname })),
@@ -437,5 +442,41 @@ export class AdminController {
   @Get('GetDoctorCosting/:doctorId')
   async getCosting(@Param('doctorId', ParseIntPipe) doctorId: number) {
     return this.adminservice.getByDoctorId(doctorId);
+  }
+
+  //Add or Update Access Rights
+  @Post('AddUpdateAccessRight')
+  async AddUpdateAccessRight(
+    @Body(new ValidationPipe({ whitelist: true, transform: true }))
+    dto: AddUpdateAccessRightDto,
+  ) {
+    try {
+      this.adminservice.AddUpdateAccessRight(dto);
+      return { success: true, message: 'Access rights updated' };
+    } catch (err: any) {
+      throw new BadRequestException(
+        err.message || 'Failed to update access rights',
+      );
+    }
+  }
+
+  @Get('getRolePermissions')
+  async getRolePermissions(
+    @Query('roleId') roleId: number,
+    @Query('userId') userId: number,
+    @Query('hospitalId') hospitalId: number,
+    @Query('organizationId') organizationId: number,
+  ) {
+    return this.adminservice.getPermissions({
+      roleId: Number(roleId),
+      userId: Number(userId),
+      hospitalId: Number(hospitalId),
+      organizationId: Number(organizationId),
+    });
+  }
+
+  @Get('getAllAccessRightModulesSubModules')
+  async getAllModules() {
+    return this.adminservice.getAllModules();
   }
 }

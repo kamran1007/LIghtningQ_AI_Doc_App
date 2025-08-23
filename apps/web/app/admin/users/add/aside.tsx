@@ -12,12 +12,14 @@ import { User } from "app/admin/hospitaluserlist";
 import Costing from "./costing";
 import { set } from "zod";
 import toast from "react-hot-toast";
+import AccessRight from "./accessright";
 
 interface AsideProps {
   user: User | null;
 }
 
 const Aside: React.FC<AsideProps> = ({ user }) => {
+  const [openAccessRightDialog, setOpenAccessRightDialog] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [openCostingModal, setOpenCostingModal] = useState(false);
 
@@ -25,6 +27,7 @@ const Aside: React.FC<AsideProps> = ({ user }) => {
     {
       label: "Access Rights",
       icon: <ShieldCheck className="w-4 h-4 text-teal-400" />,
+      onClick: () => setIsAccessRightDialogOpen(), // Open dialog
     },
     {
       label: "Time Slots",
@@ -37,6 +40,17 @@ const Aside: React.FC<AsideProps> = ({ user }) => {
       onClick: () => setIsCostingDialogOpen(),
     },
   ];
+
+  const setIsAccessRightDialogOpen = () => {
+    if (!user) {
+      setOpenAccessRightDialog(false);
+      toast.error("User has Not Added!  Add user first.");
+    } else {
+      console.log("Opening Access right dialog");
+      setOpenAccessRightDialog(true);
+    }
+  };
+
   const setIsTimeSlotDialogOpen = () => {
     if (!user) {
       setOpenModal(false);
@@ -106,6 +120,10 @@ const Aside: React.FC<AsideProps> = ({ user }) => {
       <Costing
         open={openCostingModal}
         onOpenChange={setOpenCostingModal}
+        user={user}
+      />
+      <AccessRight open={openAccessRightDialog}
+       onOpenChange={setOpenAccessRightDialog}
         user={user}
       />
     </>
