@@ -5,12 +5,16 @@ import LoginInForm from "./Loginform";
 import Image from "next/image";
 import RedirectWithLoader from "@/components/RedirectWithLoader";
 
-
 export default async function SignInPage() {
   const session = await getSession();
+  console.log("Session in login page:", session);
+  // if (session?.user) {
+  //   return <RedirectWithLoader to="/dashboard" />;
+  // }
 
-  if (session?.user) {
-    return <RedirectWithLoader to="/dashboard" />;
+
+  if (session?.user && session?.selectedHospital) {
+    redirect("/dashboard");
   }
 
   return (

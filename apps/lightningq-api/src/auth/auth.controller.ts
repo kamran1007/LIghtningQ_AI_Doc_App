@@ -8,7 +8,7 @@ import {
   Patch,
   Body,
   UploadedFile,
-  UseInterceptors
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
@@ -22,7 +22,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { extname } from 'path';
 import { diskStorage } from 'multer';
 import type { Express } from 'express'; // ✅ Add this
-
 
 @Controller('auth')
 export class AuthController {
@@ -40,7 +39,7 @@ export class AuthController {
       req.user.firstName,
       req.user.lastName,
       req.user.RoleId, // Assuming Role is part of the user object
-      req.user.organizationId
+      req.user.organizationId,
     );
     console.log('AuthController: resopnse =', resopnse);
     return resopnse;
@@ -49,11 +48,24 @@ export class AuthController {
   @Get('protected')
   getAll(@Request() req) {
     const userData = req.user;
+
+    // find the matching access record
+    const matchingAccess =
+      Array.isArray(userData?.AdminAccess) && userData.AdminAccess.length > 0
+        ? userData.AdminAccess.find(
+            (access) => access.roleId === userData.roleId,
+          )
+        : null;
+
+    // fallback role name
+    const roleName =
+      matchingAccess?.role?.Rolename || (userData.role?.[0]?.RoleName ?? null);
+
     return {
       message: 'This is a protected route',
       user: {
         UserId: userData.UserId,
-        title: userData.title,
+        title: userData.Prefix,
         imageUrl: userData.imageUrl,
         firstName: userData.firstName,
         lastName: userData.lastName,
@@ -63,9 +75,10 @@ export class AuthController {
         gender: userData.gender,
         isActive: userData.isActive,
         roleId: userData.roleId,
+        RoleName: roleName, // ✅ dynamically picked from AdminAccess
         OrganizationId: userData.organizationId,
         AssignHospital: userData.AdminAccess,
-        SpecializationId: userData.SpecializationId ,
+        SpecializationId: userData.SpecializationId,
         createdAt: userData.createdAt,
         updatedAt: userData.updatedAt,
       },
@@ -77,19 +90,22 @@ export class AuthController {
   @Post('refresh')
   refreshToken(@Request() req) {
     const { UserId, email, organizationId, roleId } = req.user;
-  return this.authService.refreshToken(UserId, email, organizationId, roleId);
+    return this.authService.refreshToken(UserId, email, organizationId, roleId);
   }
   //update profile
   @Patch('Updateprofile')
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: './uploads', // Make sure this folder exists
-      filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
-      },
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads', // Make sure this folder exists
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
+        },
+      }),
     }),
-  }))
+  )
   updateProfile(
     @CurrentUser() user: any,
     @UploadedFile() file: Express.Multer.File,
@@ -102,10 +118,7 @@ export class AuthController {
   }
   //change password
   @Patch('changepassword')
-  changePassword(
-    @CurrentUser() user: any,
-    @Body() dto: ChangePasswordDto,
-  ) {
+  changePassword(@CurrentUser() user: any, @Body() dto: ChangePasswordDto) {
     return this.authService.changePassword(
       user.UserId,
       dto.currentPassword,
@@ -120,5 +133,3 @@ export class AuthController {
     return this.authService.logout(req.user.UserId);
   }
 }
-
-

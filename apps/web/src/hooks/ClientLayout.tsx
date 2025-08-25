@@ -1,4 +1,4 @@
-// components/ClientLayout.tsx
+// hook/ClientLayout.tsx
 "use client";
 
 import GlobalLoader from "@/hooks/GlobalLoader";

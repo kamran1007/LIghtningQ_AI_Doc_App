@@ -16,11 +16,15 @@ export type Session = {
   };
   accessToken: string;
   refreshToken: string;
+  selectedHospital?: {
+    HospitalId: number;
+    hospitalName: string;
+  };
 };
 
 // eslint-disable-next-line turbo/no-undeclared-env-vars
 const secretKey = process.env.SESSION_SECRET_KEY!;
-console.log("session secrete key", secretKey)
+console.log("session secrete key", secretKey);
 const encodedKey = new TextEncoder().encode(secretKey);
 
 export async function createSession(payload: Session) {
@@ -86,4 +90,34 @@ export async function updateTokens({
   };
 
   await createSession(newPayload);
+}
+
+
+export async function commitSession(session: Session, res?: any) {
+  const expiredAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+  const jwt = await new SignJWT(session)
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("7d")
+    .sign(encodedKey);
+
+  if (res) {
+    res.cookies.set("session", jwt, {
+      httpOnly: true,
+      secure: true,
+      expires: expiredAt,
+      sameSite: "lax",
+      path: "/",
+    });
+    return res;
+  }
+
+  (await cookies()).set("session", jwt, {
+    httpOnly: true,
+    secure: true,
+    expires: expiredAt,
+    sameSite: "lax",
+    path: "/",
+  });
 }

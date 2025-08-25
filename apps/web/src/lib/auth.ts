@@ -44,18 +44,20 @@ export async function login(
   if (response.ok) {
     const result = await response.json();
     // TODO: Create The Session For Authenticated User.
+    console.log("Login successful:", result);
 
     await createSession({
       user: {
         id: result.id,
-        email: result.Email,
-        name: result.Name,
+        email: result.email,
+        name: result.firstName + " " + result.lastName,
+        // organizationId: result.organizationId,
         RoleId: result.roleId, // Default to 2 if roleId is not provided
       },
       accessToken: result.accessToken,
       refreshToken: result.refreshToken,
     });
-    redirect("/dashboard");
+    // redirect("/dashboard");
   } else {
     return {
       message:

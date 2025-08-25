@@ -30,6 +30,8 @@ import { Label } from "@/components/ui/label";
 interface ProfileModalProps {
   open: boolean;
   setOpen: (value: boolean) => void;
+  className?: string; // ✅ allow className
+
 }
 
 const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {

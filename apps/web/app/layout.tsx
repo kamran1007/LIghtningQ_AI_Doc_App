@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import AppBar from "@/components/ui/appBar";
 import { getSession } from "@/lib/session";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ReactQueryProvider } from "@/components/ReactQueryProvider";
 import { Toaster } from "react-hot-toast";
 import { headers } from "next/headers";
 import ClientLayoutWrapper from "@/hooks/ClientLayoutWrapper";
+import ClientAppBarWrapper from "@/hooks/ClientAppBarWrapper"; // ⬅️ Import new wrapper
 import { Orbitron } from "next/font/google";
-import { TooltipProvider } from "@radix-ui/react-tooltip";
 
 // ⬇️ Load Orbitron font
 const orbitron = Orbitron({
@@ -39,19 +38,18 @@ export default async function RootLayout({
   return (
     <html lang="en" className={orbitron.className}>
       <body className="h-screen flex flex-col">
-
         <ReactQueryProvider>
           <Toaster position="top-center" reverseOrder={false} />
           <ClientLayoutWrapper>
-            {!isAuthPage && session?.user && <AppBar />}
+            {!isAuthPage && (
+              <ClientAppBarWrapper session={session}/> 
+            )}
             <div className="flex flex-1 overflow-hidden">
               {!isAuthPage && session?.user && <AppSidebar />}
               <main className="flex-1 overflow-y-auto p-4">{children}</main>
             </div>
           </ClientLayoutWrapper>
-          
         </ReactQueryProvider>
-
       </body>
     </html>
   );

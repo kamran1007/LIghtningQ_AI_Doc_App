@@ -7,6 +7,10 @@ import hospitalUsersReducer from "./hospitalusersSlice"; // ✅ Add this line
 import userReducer  from "./edituserSlice";
 import patientuserReducer from "./PatientSlice"; // ✅ This is missing!
 import AppointmentReducer from "./AppointmentSlice"; // ✅ Must match actual file
+import authReducer from "./authSlice";
+import hospitalSelectionReducer from "./HospitalBranchSelectionSlice";
+
+
 
 
 export const store = configureStore({
@@ -16,7 +20,10 @@ export const store = configureStore({
     hospitalUsers: hospitalUsersReducer,
     user: userReducer,
     patientData: patientuserReducer,
-    AppointmentData: AppointmentReducer
+    AppointmentData: AppointmentReducer,
+    auth: authReducer,
+    hospitalSelection: hospitalSelectionReducer,
+
 
   },
 });

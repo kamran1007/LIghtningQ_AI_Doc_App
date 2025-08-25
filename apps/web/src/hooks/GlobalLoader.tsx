@@ -53,8 +53,8 @@ export default function GlobalLoader() {
   if (!loading) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-blue-500/30">
-      <div className="animate-spin rounded-full h-14 w-14 border-8 border-t-transparent border-blue-50" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-teal-400/30">
+      <div className="animate-spin rounded-full h-14 w-14 border-8 border-t-transparent border-teal-50" />
     </div>
   );
 }
