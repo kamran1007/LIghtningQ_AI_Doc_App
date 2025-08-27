@@ -345,13 +345,17 @@ export class AdminController {
     @Query('page') page = 1,
     @Query('limit') limit = 10,
     @Query('search') search?: string,
+    @Query('hospitalId') hospitalId?: number,
+    @Query('roleId') roleId?: number,
     @Query('organizationId') organizationId?: number,
   ) {
     return this.adminservice.getAllUsers({
       page: Number(page),
       limit: Number(limit),
       search,
-      organizationId: organizationId ? Number(organizationId) : undefined,
+      hospitalId: hospitalId ? Number(hospitalId) : undefined,
+      roleId: Number(roleId),
+      organizationId: Number(organizationId),
     });
   }
 

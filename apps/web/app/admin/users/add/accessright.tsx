@@ -36,6 +36,10 @@ import {
 import { getProfile } from "@/lib/action";
 import { FetchHospital } from "@/lib/dashboard";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
+import AccessRightSkeleton from "@/components/ui/skeletonloader/AccessRightSkeleton";
+import { fetchAccessRight } from "@/store/LoginAccessRightSlice";
+import { useAppDispatch } from "@/store/hooks";
 
 // ---- Helpers ----
 const PERM_KEYS = [
@@ -68,8 +72,9 @@ const AccessRight: React.FC<AccessRightProps> = ({
   const [userprofile, setUserprofile] = useState<any>([]);
 
   const [hospitalData, setHospitalData] = useState<any[]>([]);
-  const [userProfileData, setUserProfileData] = useState<UserType | null>(null);
-
+  const [userHospital, setUserHospital] = useState<any>(null);
+    const dispatch = useAppDispatch();
+  
   const {
     handleSubmit,
     setValue,
@@ -277,6 +282,7 @@ const AccessRight: React.FC<AccessRightProps> = ({
 
       if (res?.status === 200 || res?.success) {
         toast.success("Access rights updated successfully");
+        dispatch(fetchAccessRight());  // refresh access rights in redux
         onOpenChange(false);
       } else {
         toast.error("Failed to update access rights");
@@ -318,6 +324,15 @@ const AccessRight: React.FC<AccessRightProps> = ({
       setLoading(false);
     }
   };
+  const hospitalSelection = useSelector(
+    (state: any) => state.hospitalSelection?.selectedHospital
+  );
+  useEffect(() => {
+    if (hospitalSelection) {
+      setUserHospital(hospitalSelection);
+    }
+  }, [hospitalSelection]);
+  // console.log("User in AccessRight:", userHospital);
 
   const fetchInitialData = async () => {
     if (!user) return;
@@ -331,10 +346,8 @@ const AccessRight: React.FC<AccessRightProps> = ({
 
     setHospitalData(hosRes ?? []);
 
-    const hospitalId =
-      user.AdminAccess?.[0]?.hospitalId || hosRes?.[0]?.HospitalId;
-
     const allModules = allModulesResp?.return ?? [];
+    console.log("All Modules from backend:", allModules);
 
     // let mergedWithPermissions = allModules;
 
@@ -353,11 +366,11 @@ const AccessRight: React.FC<AccessRightProps> = ({
     // }
     let mergedWithPermissions: any[] = [];
 
-    if (user?.UserId && hospitalId) {
+    if (user?.UserId && userHospital) {
       const rolePermResp = await fetchPermissions(
         user.roleId,
         user.UserId,
-        hospitalId,
+        userHospital?.hospitalId || selectedHospitalId,
         user.organizationId
       );
 
@@ -373,7 +386,7 @@ const AccessRight: React.FC<AccessRightProps> = ({
       ];
 
       mergedWithPermissions = mergeModulesWithPermissions(
-        orderedCombinedModules,
+        allModules,
         rolePermResp?.return ?? []
       );
     } else {
@@ -387,7 +400,7 @@ const AccessRight: React.FC<AccessRightProps> = ({
 
   useEffect(() => {
     fetchInitialData();
-  }, [user]);
+  }, [user, selectedHospitalId]);
   useEffect(() => {
     console.log("Modules updated:", modules);
   }, [modules]);
@@ -459,60 +472,79 @@ const AccessRight: React.FC<AccessRightProps> = ({
   // }
 
   function mergeModulesWithPermissions(
-    allModules: any[],
-    rolePermModules: any[]
-  ): Module[] {
-    return allModules.map((mod) => {
-      const roleModule = rolePermModules.find(
-        (rm) => rm.ModuleId === mod.ModuleId
+  allModules: any[],
+  rolePermModules: any[]
+): Module[] {
+  const merged = allModules.map((mod) => {
+    const roleModule = rolePermModules.find(
+      (rm) => rm.ModuleId === mod.ModuleId
+    );
+
+    const allSubModules = mod.SubModules ?? mod.Submodules ?? [];
+    const roleSubModules = roleModule?.SubModules ?? roleModule?.Submodules ?? [];
+
+    // 🟢 Union of submodules
+    const combinedSubModules = [
+      ...allSubModules,
+      ...roleSubModules.filter(
+        (rs: any) =>
+          !allSubModules.some((s: any) => s.SubModuleId === rs.SubModuleId)
+      ),
+    ];
+
+    // 🟢 Merge permissions
+    const mergedSubModules = combinedSubModules.map((sub: any) => {
+      const roleSub = roleSubModules.find(
+        (rs: any) => rs.SubModuleId === sub.SubModuleId
       );
 
-      const allSubModules = mod.SubModules ?? mod.Submodules ?? [];
-      const roleSubModules =
-        roleModule?.SubModules ?? roleModule?.Submodules ?? [];
-
-      const mergedSubModules = allSubModules.map((sub: any) => {
-        const roleSub = roleSubModules.find(
-          (rs: any) => rs.SubModuleId === sub.SubModuleId
-        );
-        const perms = roleSub
-          ? Array.isArray(roleSub.Permissions)
-            ? roleSub.Permissions[0]
-            : roleSub.Permissions
-          : Array.isArray(sub.Permissions)
-            ? sub.Permissions[0]
-            : (sub.Permissions ?? {});
-
-        return {
-          ...sub,
-          ...roleSub, // ✅ overlay role info if exists
-          Permissions: {
-            PermissionId: perms?.PermissionId ?? 0,
-            CanView: perms?.CanView ?? false,
-            CanCreate: perms?.CanCreate ?? false,
-            CanUpdate: perms?.CanUpdate ?? false,
-            CanDelete: perms?.CanDelete ?? false,
-            CanAI_Assist: perms?.CanAI_Assist ?? false,
-            RolePermissions:
-              perms?.RolePermissions?.map((rp: any) => ({
-                RolePermissionId: rp.RolePermissionId ?? 0,
-                RoleId: rp.RoleId,
-                UserId: rp.UserId,
-                HospitalId: rp.HospitalId,
-                OrganizationId: rp.OrganizationId,
-              })) ?? [],
-          },
-        };
-      });
+      const perms = roleSub
+        ? Array.isArray(roleSub.Permissions)
+          ? roleSub.Permissions[0]
+          : roleSub.Permissions
+        : Array.isArray(sub.Permissions)
+        ? sub.Permissions[0]
+        : (sub.Permissions ?? {});
 
       return {
-        ModuleId: mod.ModuleId,
-        ModuleName: mod.ModuleName,
-        enabled: roleModule?.enabled ?? mod.enabled ?? false, // default false if not found
-        SubModules: mergedSubModules,
+        ...sub,
+        ...roleSub,
+        Permissions: {
+          PermissionId: perms?.PermissionId ?? 0,
+          CanView: perms?.CanView ?? false,
+          CanCreate: perms?.CanCreate ?? false,
+          CanUpdate: perms?.CanUpdate ?? false,
+          CanDelete: perms?.CanDelete ?? false,
+          CanAI_Assist: perms?.CanAI_Assist ?? false,
+          RolePermissions:
+            perms?.RolePermissions?.map((rp: any) => ({
+              RolePermissionId: rp.RolePermissionId ?? 0,
+              RoleId: rp.RoleId,
+              UserId: rp.UserId,
+              HospitalId: rp.HospitalId,
+              OrganizationId: rp.OrganizationId,
+            })) ?? [],
+        },
       };
     });
-  }
+
+    // 🟢 Sort submodules by SubModuleId
+    mergedSubModules.sort((a: any, b: any) => a.SubModuleId - b.SubModuleId);
+
+    return {
+      ModuleId: mod.ModuleId,
+      ModuleName: mod.ModuleName,
+      enabled: roleModule?.enabled ?? mod.enabled ?? false,
+      SubModules: mergedSubModules,
+    };
+  });
+
+  // 🟢 Sort modules by ModuleId
+  merged.sort((a: any, b: any) => a.ModuleId - b.ModuleId);
+
+  return merged;
+}
+
 
   type Permission = {
     PermissionId: number;
@@ -653,114 +685,118 @@ const AccessRight: React.FC<AccessRightProps> = ({
             </TooltipProvider>
           </div>
           {/* Modules & Submodules */}
-          <div className={`grid gap-2 grid-cols-1 sm:grid-cols-${gridSize}`}>
-            {modules?.map((module) => {
-              const isAnyEnabled = moduleAnyEnabled(module);
-              const isAllEnabled = moduleAllEnabled(module);
-              const partial = isAnyEnabled && !isAllEnabled;
-              const isExpanded = expanded.includes(module.ModuleId);
+          {loading ? (
+            <AccessRightSkeleton />
+          ) : (
+            <div className={`grid gap-2 grid-cols-1 sm:grid-cols-${gridSize}`}>
+              {modules?.map((module) => {
+                const isAnyEnabled = moduleAnyEnabled(module);
+                const isAllEnabled = moduleAllEnabled(module);
+                const partial = isAnyEnabled && !isAllEnabled;
+                const isExpanded = expanded.includes(module.ModuleId);
 
-              return (
-                <Card
-                  key={module.ModuleId}
-                  className="shadow hover:shadow-lg hover:border-teal-300 border border-transparent transition-all duration-200 p-0 rounded-2xl"
-                >
-                  <CardContent className="p-2">
-                    {/* Module Header */}
-                    <div className="flex items-center justify-between">
-                      <div
-                        className="flex items-center gap-2 cursor-pointer select-none border-b border-teal-200 pb-1"
-                        onClick={() => toggleExpanded(module.ModuleId)}
-                      >
-                        {isExpanded ? <ChevronDown /> : <ChevronRight />}
-                        <h2 className="text-lg font-sans font-semibold">
-                          {module.ModuleName}
-                        </h2>
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        {partial && (
-                          <span className="text-xs px-2 py-1 rounded bg-amber-100 text-amber-700">
-                            Partial
-                          </span>
-                        )}
-                        <span className="text-sm text-gray-600">
-                          Enable Module
-                        </span>
-                        <Switch
-                          checked={isAnyEnabled}
-                          onCheckedChange={(checked) =>
-                            setModuleEnabled(module.ModuleId, checked)
-                          }
-                          className="data-[state=checked]:bg-teal-400"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Submodules & Permissions */}
-                    {isExpanded && (
-                      <div className="mt-4 space-y-3">
-                        <div className="grid grid-cols-7 gap-2 text-xs font-medium text-gray-600 px-2">
-                          <div className="col-span-2">Submodule</div>
-                          {PERM_KEYS.map((k) => (
-                            <div key={k} className="text-center">
-                              {k.replace("Can", "")}
-                            </div>
-                          ))}
+                return (
+                  <Card
+                    key={module.ModuleId}
+                    className="shadow hover:shadow-lg hover:border-teal-300 border border-transparent transition-all duration-200 p-0 rounded-2xl"
+                  >
+                    <CardContent className="p-2">
+                      {/* Module Header */}
+                      <div className="flex items-center justify-between">
+                        <div
+                          className="flex items-center gap-2 cursor-pointer select-none border-b border-teal-200 pb-1"
+                          onClick={() => toggleExpanded(module.ModuleId)}
+                        >
+                          {isExpanded ? <ChevronDown /> : <ChevronRight />}
+                          <h2 className="text-lg font-sans font-semibold">
+                            {module.ModuleName}
+                          </h2>
                         </div>
 
-                        {module.SubModules?.map((sub: any) => (
-                          <div
-                            key={sub.SubModuleId}
-                            className="grid grid-cols-7 gap-2 items-center border-t border-teal-200 py-2 px-2"
-                          >
-                            <div className="col-span-2 flex items-center justify-between pr-3">
-                              <span className="text-sm font-medium">
-                                {sub.SubModuleName}
-                              </span>
-                              <div className="flex items-center gap-2">
-                                <Switch
-                                  checked={sub.enabled}
-                                  onCheckedChange={(checked) =>
-                                    setSubmoduleEnabled(
-                                      module.ModuleId,
-                                      sub.SubModuleId,
-                                      checked
-                                    )
-                                  }
-                                  className="data-[state=checked]:bg-teal-300"
-                                />
-                              </div>
-                            </div>
+                        <div className="flex items-center gap-3">
+                          {partial && (
+                            <span className="text-xs px-2 py-1 rounded bg-amber-100 text-amber-700">
+                              Partial
+                            </span>
+                          )}
+                          <span className="text-sm text-gray-600">
+                            Enable Module
+                          </span>
+                          <Switch
+                            checked={isAnyEnabled}
+                            onCheckedChange={(checked) =>
+                              setModuleEnabled(module.ModuleId, checked)
+                            }
+                            className="data-[state=checked]:bg-teal-400"
+                          />
+                        </div>
+                      </div>
 
+                      {/* Submodules & Permissions */}
+                      {isExpanded && (
+                        <div className="mt-4 space-y-3">
+                          <div className="grid grid-cols-7 gap-2 text-xs font-medium text-gray-600 px-2">
+                            <div className="col-span-2">Submodule</div>
                             {PERM_KEYS.map((k) => (
-                              <div
-                                key={k}
-                                className="flex items-center justify-center"
-                              >
-                                <Switch
-                                  checked={sub.Permissions[k]}
-                                  onCheckedChange={(checked) =>
-                                    setPermission(
-                                      module.ModuleId,
-                                      sub.SubModuleId,
-                                      k,
-                                      checked
-                                    )
-                                  }
-                                  className="data-[state=checked]:bg-teal-300"
-                                />
+                              <div key={k} className="text-center">
+                                {k.replace("Can", "")}
                               </div>
                             ))}
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+
+                          {module.SubModules?.map((sub: any) => (
+                            <div
+                              key={sub.SubModuleId}
+                              className="grid grid-cols-7 gap-2 items-center border-t border-teal-200 py-2 px-2"
+                            >
+                              <div className="col-span-2 flex items-center justify-between pr-3">
+                                <span className="text-sm font-medium">
+                                  {sub.SubModuleName}
+                                </span>
+                                <div className="flex items-center gap-2">
+                                  <Switch
+                                    checked={sub.enabled}
+                                    onCheckedChange={(checked) =>
+                                      setSubmoduleEnabled(
+                                        module.ModuleId,
+                                        sub.SubModuleId,
+                                        checked
+                                      )
+                                    }
+                                    className="data-[state=checked]:bg-teal-300"
+                                  />
+                                </div>
+                              </div>
+
+                              {PERM_KEYS.map((k) => (
+                                <div
+                                  key={k}
+                                  className="flex items-center justify-center"
+                                >
+                                  <Switch
+                                    checked={sub.Permissions[k]}
+                                    onCheckedChange={(checked) =>
+                                      setPermission(
+                                        module.ModuleId,
+                                        sub.SubModuleId,
+                                        k,
+                                        checked
+                                      )
+                                    }
+                                    className="data-[state=checked]:bg-teal-300"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
 
           {/* Footer */}
           <DialogFooter className="w-full flex flex-col sm:flex-row justify-end items-center gap-4 mt-6">
@@ -785,3 +821,5 @@ const AccessRight: React.FC<AccessRightProps> = ({
 };
 
 export default AccessRight;
+
+

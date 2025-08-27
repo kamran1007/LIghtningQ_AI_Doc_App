@@ -22,6 +22,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { extname } from 'path';
 import { diskStorage } from 'multer';
 import type { Express } from 'express'; // ✅ Add this
+import { ro } from 'date-fns/locale';
 
 @Controller('auth')
 export class AuthController {
@@ -75,13 +76,19 @@ export class AuthController {
         gender: userData.gender,
         isActive: userData.isActive,
         roleId: userData.roleId,
-        RoleName: roleName, // ✅ dynamically picked from AdminAccess
+        RoleName: userData.role.Rolename || null, 
         OrganizationId: userData.organizationId,
         AssignHospital: userData.AdminAccess,
+        role: roleName|| null, // ✅ dynamically picked from AdminAccess
+
         SpecializationId: userData.SpecializationId,
         createdAt: userData.createdAt,
         updatedAt: userData.updatedAt,
       },
+      include:{
+        role: userData.role,
+        AdminAccess: userData.AdminAccess,
+      }
     };
   }
 

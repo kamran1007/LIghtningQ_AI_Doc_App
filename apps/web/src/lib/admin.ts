@@ -112,11 +112,29 @@ export const updatehospitaldetail = async (id: number, payload: any) => {
 
 // lib/admin.ts
 
-export const getallusers = async (page: number = 1, limit: number = 10) => {
+export const getallusers = async (
+  page: number = 1,
+  limit: number = 10,
+  search?: string,
+  hospitalId?: number | "all",
+  roleId?: number | "all",
+  organizationId?: number
+) => {
   const session = await getSession();
 
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+    organizationId: String(organizationId ?? ""),
+  });
+
+  if (search) params.append("search", search);
+  if (hospitalId && hospitalId !== "all")
+    params.append("hospitalId", String(hospitalId));
+  if (roleId && roleId !== "all") params.append("roleId", String(roleId));
+
   const response = await fetch(
-    `${BACKEND_URL}/admin/AllUsers?page=${page}&limit=${limit}`,
+    `${BACKEND_URL}/admin/AllUsers?${params.toString()}`,
     {
       headers: {
         "Content-Type": "application/json",
@@ -131,11 +149,7 @@ export const getallusers = async (page: number = 1, limit: number = 10) => {
   }
 
   const result = await response.json();
-  console.log("Fetched users:", result?.return); // ✅ Shows actual users
-
   return result?.return;
-
-  //   return result?.return;
 };
 
 // lib/admin.tsx
@@ -484,7 +498,6 @@ export const fetchAllAccessRightModulesSubmodules = async () => {
   const res = await axios.get(
     `${BACKEND_URL}/admin/getAllAccessRightModulesSubModules`,
     {
-
       headers: {
         "Content-Type": "application/json",
         authorization: `Bearer ${session?.accessToken}`,

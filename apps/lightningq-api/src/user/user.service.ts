@@ -27,6 +27,7 @@ export class UserService {
             role: true,
           },
         },
+        role: true,
       },
     });
     return updatedUser;

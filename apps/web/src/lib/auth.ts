@@ -53,6 +53,7 @@ export async function login(
         name: result.firstName + " " + result.lastName,
         // organizationId: result.organizationId,
         RoleId: result.roleId, // Default to 2 if roleId is not provided
+        OrganizationId: result.organizationId,
       },
       accessToken: result.accessToken,
       refreshToken: result.refreshToken,

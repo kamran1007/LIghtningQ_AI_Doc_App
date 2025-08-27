@@ -18,9 +18,9 @@ export default function ClientAppBarWrapper({ session }: { session: any }) {
     }
   }, [session, user, dispatch]);
 
-  console.log("Redux Auth User:", user);
-  console.log("Redux Selected Hospital:", selectedHospital);
-  console.log("Session loading:", isLoading);
+  // console.log("Redux Auth User:", user);
+  // console.log("Redux Selected Hospital:", selectedHospital);
+  // console.log("Session loading:", isLoading);
 
   // 🔑 Normalize user object so casing doesn’t matter
   const finalUser = useMemo(() => {
@@ -32,7 +32,7 @@ export default function ClientAppBarWrapper({ session }: { session: any }) {
     };
   }, [user, session]);
 
-  console.log("Final Normalized User:", finalUser);
+  // console.log("Final Normalized User:", finalUser);
 
   return (
     <>

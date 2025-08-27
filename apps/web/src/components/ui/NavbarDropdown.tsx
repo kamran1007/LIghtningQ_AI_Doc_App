@@ -24,8 +24,9 @@ import { Toaster } from "react-hot-toast";
 import { useAppDispatch } from "@/store/hooks";
 import { startLoading } from "@/store/globalLoaderSlice";
 import { clearUser } from "@/store/authSlice";
-import { clearHospital } from "@/store/HospitalBranchSelectionSlice";
+import { clearSelectedHospital } from "@/store/HospitalBranchSelectionSlice";
 import { useSelector } from "react-redux";
+import { persistor } from "@/store";
 
 type ProfileProps = {
   profile: {
@@ -41,14 +42,16 @@ type ProfileProps = {
 };
 
 function NavbarDropdown({ profile }: ProfileProps) {
+  const userProfile = profile?.user ?? {}; // 🟢 unwrap here
+
   const [userHospital, setUserHospital] = useState<any>(null);
   const selectedHospital = useSelector(
     (state: any) => state.hospitalSelection?.selectedHospital
   );
   const [profileOpen, setProfileOpen] = useState(false);
   const dispatch = useAppDispatch();
-  console.log("Profile in NavbarDropdown:", profile);
-  console.log("Selected Hospital in NavbarDropdown:", selectedHospital);
+  // console.log("Profile in NavbarDropdown:", profile);
+  // console.log("Selected Hospital in NavbarDropdown:", selectedHospital);
 
   useEffect(() => {
     if (selectedHospital) {
@@ -58,14 +61,23 @@ function NavbarDropdown({ profile }: ProfileProps) {
   const handleLogout = () => {
     console.log("Logout clicked");
     dispatch(startLoading());
-    //  dispatch(clearHospital());
-    dispatch(clearUser());
 
-    // Add a short delay to show the loader
-    setTimeout(() => {
-      window.location.href = "/api/auth/logout";
-    }, 300);
-    // window.location.href = "/api/auth/logout";
+    // Clear redux state
+    dispatch(clearUser());
+    dispatch(clearSelectedHospital());
+
+    // 🔑 Clear ALL persisted redux slices
+    persistor.purge().then(() => {
+      console.log("✅ Redux Persist cleared");
+      // Also clear localStorage/sessionStorage completely if needed
+      localStorage.clear();
+      sessionStorage.clear();
+
+      // Redirect
+      setTimeout(() => {
+        window.location.href = "/api/auth/logout";
+      }, 300);
+    });
   };
   if (!profile) return null; // ⛔️ avoid accessing null
 
@@ -88,9 +100,10 @@ function NavbarDropdown({ profile }: ProfileProps) {
           <DropdownMenuLabel>
             <div className="text-base text-gray-800 space-y-1 font-sans">
               <p className="font-semibold text-lg text-gray-900">
-                {profile.title}. {profile.firstName} {profile.lastName}
+                {userProfile.title}. {userProfile.firstName}{" "}
+                {userProfile.lastName}
                 <span className="ml-1 text-gray-500 font-medium">
-                  ({profile.RoleName || "User"})
+                  ({userProfile.RoleName || "User"})
                 </span>
               </p>
 
@@ -98,20 +111,17 @@ function NavbarDropdown({ profile }: ProfileProps) {
                 {userHospital?.hospital?.HospitalName}{" "}
                 <span className="text-gray-500 font-medium">
                   ({userHospital?.hospital?.HospitalCode}) |
-                </span>
-                {" "}
+                </span>{" "}
                 <span className="capitalize">
                   {userHospital?.hospital?.city},{" "}
                   {userHospital?.hospital?.state}
                 </span>
               </p>
 
-              <p className="flex items-center gap-2 text-gray-600 font-medium tracking-wide">
-                <PhoneCall className="w-4 h-4 text-teal-300" />
-                {profile.mobile}
-                
+              <p className="flex items-center gap-2 text-gray-700 font-medium tracking-wide">
+                <PhoneCall className="w-4 h-4 text-black-300" />
+                {userProfile.mobile}
               </p>
-              
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />

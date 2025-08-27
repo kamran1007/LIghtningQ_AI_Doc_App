@@ -2,11 +2,17 @@
 
 import React, { useEffect, useState } from "react";
 import { MaterialReactTable } from "material-react-table";
-import { Edit, MoreHorizontal } from "lucide-react";
+import {
+  Edit,
+  Hospital,
+  MoreHorizontal,
+  Search,
+  UserRound,
+} from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/store";
 import { fetchHospitalUsers } from "@/store/hospitalusersSlice";
-import { toggleStatus as toggleUserStatus } from "@/lib/admin"; // alias to avoid name clash
+import { getUserRole, toggleStatus as toggleUserStatus } from "@/lib/admin"; // alias to avoid name clash
 import { toast } from "react-hot-toast";
 
 import {
@@ -19,6 +25,19 @@ import { Switch } from "@/components/ui/switch";
 import { HospitalUserSkeleton } from "@/components/ui/skeletonloader/hospitalUserSkeleton";
 import AddUserPage from "./users/add/page";
 import { useRouter } from "next/navigation";
+
+import {
+  Select,
+  SelectTrigger,
+  SelectItem,
+  SelectContent,
+  SelectValue,
+} from "@/components/ui/select";
+import { FetchDoctorRole } from "@/lib/bookappointment";
+import { FetchHospital } from "@/lib/dashboard";
+import { Input } from "@/components/ui/input";
+import { fetchUserProfile } from "@/store/authSlice";
+import { getSession } from "@/lib/session";
 
 // import EditUserModal from "./EditUserModal"; // You can create this for editing users
 
@@ -54,10 +73,37 @@ const UserList = () => {
     loading,
   } = useSelector((state: RootState) => state.hospitalUsers);
   console.log("user data", users);
-  const isLoading = useSelector(
-    (state: RootState) => state.hospitalUsers.loading
-  );
+  const [isLoading, setIsLoading] = useState(false);
 
+  const [hospitalrole, setRole] = useState([]);
+  const [hospitalData, setHospitalData] = useState([]);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedHospital, setSelectedHospital] = useState<"all" | number>(
+    "all"
+  );
+  const [selectedRole, setSelectedRole] = useState<"all" | number>("all");
+  const [organizationId, setOrganizationId] = useState<number | null>(null);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const fetchSessionData = async () => {
+      try {
+        setIsLoading(true);
+        const session = await getSession();
+        const orgId = session?.user?.OrganizationId ?? null;
+        console.log("Organization ID:", orgId);
+        setOrganizationId(orgId); // ✅ store in state
+      } catch (error) {
+        console.error("Failed to fetch data", error);
+        toast.error("Failed to fetch initial data");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSessionData();
+  }, []);
   // const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [pagination, setPagination] = useState({
     pageIndex: 0, // MaterialReactTable uses 0-based indexing
@@ -70,7 +116,6 @@ const UserList = () => {
   const handleEdit = (user: User) => {
     // Store current tab in localStorage
     localStorage.setItem("adminTab", "user");
-  
     // Redirect to user edit page
     router.push(`/admin/users/add?page=edit&userId=${user.UserId}`);
   };
@@ -83,7 +128,16 @@ const UserList = () => {
           : "User Activated successfully ✅"
       );
       const { pageIndex, pageSize } = pagination;
-      dispatch(fetchHospitalUsers({ page: pageIndex + 1, limit: pageSize }));
+      dispatch(
+        fetchHospitalUsers({
+          page: pageIndex + 1,
+          limit: pageSize,
+          search: debouncedSearch,
+          hospitalId: selectedHospital,
+          roleId: selectedRole,
+          organizationId: 1,
+        })
+      );
     } else {
       toast.error("Could not update status");
     }
@@ -91,8 +145,60 @@ const UserList = () => {
 
   useEffect(() => {
     const { pageIndex, pageSize } = pagination;
-    dispatch(fetchHospitalUsers({ page: pageIndex + 1, limit: pageSize }));
-  }, [dispatch, pagination]);
+
+    dispatch(
+      fetchHospitalUsers({
+        page: pageIndex + 1,
+        limit: pageSize,
+        search: debouncedSearch,
+        hospitalId: selectedHospital,
+        roleId: selectedRole,
+        organizationId: 1,
+      })
+    );
+  }, [
+    dispatch,
+    pagination,
+    debouncedSearch,
+    selectedHospital,
+    selectedRole,
+    organizationId,
+  ]);
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        setIsLoading(true);
+
+        const [docRes, hosRes] = await Promise.all([
+          getUserRole(),
+          FetchHospital(),
+        ]);
+
+        setRole(docRes?.return?.data ?? []);
+        setHospitalData(hosRes ?? []);
+      } catch (error) {
+        console.error("Failed to fetch data", error);
+        toast.error("Failed to fetch initial data");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchInitialData();
+  }, []);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (searchQuery.length >= 3 || searchQuery.length === 0) {
+        setDebouncedSearch(searchQuery);
+      }
+    }, 500); // standard debounce time 500ms
+
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  // ✅ Whenever filters change, send it to parent
 
   const columns = [
     {
@@ -204,29 +310,23 @@ const UserList = () => {
       ) : (
         <MaterialReactTable
           columns={columns}
-          data={users}
+          data={users ?? []} // ✅ fallback to empty array
           manualPagination
-          rowCount={total}
+          rowCount={total ?? 0} // ✅ safe fallback
           state={{ pagination }}
           onPaginationChange={setPagination}
-          enableSorting
-          enablePagination
-          // isLoading={loading}
-          enableSorting={false} // ✅ disables sorting completely
-          enableColumnActions={false} // ✅ removes column action menu
-          enableColumnFilters={false} // ✅ removes filter icon & logic
-          enableGlobalFilter={false} // ✅ removes global search bar
+          enableSorting={false} // disables sorting completely
+          enableColumnActions={false} // removes column action menu
+          enableColumnFilters={false} // removes filter icon & logic
+          enableGlobalFilter={false} // removes global search bar
           muiTableHeadCellProps={{
             sx: {
               whiteSpace: "nowrap",
-              padding: "4px", // 🪶 tighter padding
+              padding: "4px",
             },
           }}
           muiTableBodyCellProps={{
-            sx: {
-              whiteSpace: "nowrap",
-              // padding: '4px',
-            },
+            sx: { whiteSpace: "nowrap" },
           }}
           muiTableBodyRowProps={{
             sx: {
@@ -238,21 +338,85 @@ const UserList = () => {
           muiTableToolbarButtonProps={{
             sx: {
               color: "lightblue",
-              "&:hover": {
-                color: "#2196f3", // slightly darker blue
-              },
+              "&:hover": { color: "#2196f3" },
             },
           }}
           muiTopToolbarProps={{
             sx: {
               "& .MuiButtonBase-root": {
-                color: "black", // default icon color
-                "&:hover": {
-                  color: "#2196f3", // hover color
-                },
+                color: "black",
+                "&:hover": { color: "#2196f3" },
               },
             },
           }}
+          // 👇 filters moved into table toolbar
+          renderTopToolbarCustomActions={() => (
+            <div className="flex items-center gap-4 w-full">
+              {/* Hospital Select */}
+              <Select
+                value={String(selectedHospital)}
+                onValueChange={(value) =>
+                  setSelectedHospital(value === "all" ? "all" : Number(value))
+                }
+              >
+                <SelectTrigger className="w-64 border border-gray-300 rounded-lg shadow-sm focus:border-[#22E0D4] focus:ring-2 focus:ring-[#22E0D4] transition flex items-center gap-2">
+                  <Hospital className="w-4 h-4 text-gray-500" />
+                  <SelectValue placeholder="All Hospitals" />
+                </SelectTrigger>
+                <SelectContent className="border-gray-300 shadow-2xl rounded-2xl">
+                  <SelectItem value="all">All Hospitals</SelectItem>
+                  {hospitalData.map((hospital) => (
+                    <SelectItem
+                      key={hospital.HospitalId}
+                      value={String(hospital.HospitalId)}
+                    >
+                      {hospital.HospitalName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Role Select */}
+              <Select
+                value={String(selectedRole)}
+                onValueChange={(value) =>
+                  setSelectedRole(value === "all" ? "all" : Number(value))
+                }
+              >
+                <SelectTrigger className="w-64 border border-gray-300 rounded-lg shadow-sm focus:border-[#22E0D4] focus:ring-2 focus:ring-[#22E0D4] transition flex items-center gap-2">
+                  <UserRound className="w-4 h-4 text-gray-500" />
+                  <SelectValue placeholder="All Roles" />
+                </SelectTrigger>
+                <SelectContent className="border-gray-300 shadow-2xl rounded-2xl">
+                  <SelectItem value="all">All Roles</SelectItem>
+                  {hospitalrole.map((role) => (
+                    <SelectItem key={role.RoleId} value={String(role.RoleId)}>
+                      {role.Rolename}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Search Input */}
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Search users, hospitals, roles..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-full rounded-xl border border-gray-200 
+            bg-white shadow-sm focus:border-pink-400 focus:ring-2 
+            focus:ring-pink-200 transition-all"
+                />
+                {searchQuery.length > 0 && searchQuery.length < 3 && (
+                  <p className="text-xs text-gray-400 mt-1 pl-2">
+                    Enter at least 3 characters
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
         />
       )}
 

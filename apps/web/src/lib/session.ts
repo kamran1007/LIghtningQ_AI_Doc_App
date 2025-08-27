@@ -13,6 +13,7 @@ export type Session = {
     email: string;
     name: string;
     RoleId: number;
+    OrganizationId: number;
   };
   accessToken: string;
   refreshToken: string;

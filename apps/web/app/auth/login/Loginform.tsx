@@ -19,6 +19,9 @@ import { useActionState } from "react"; // not react-dom
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { getSession } from "@/lib/session";
+import { fetchAccessRight } from "@/store/LoginAccessRightSlice";
+import { setProfile } from "@/store/authSlice";
+import { RootState } from "@/store";
 
 const LoginInForm = () => {
   const dispatch = useAppDispatch();
@@ -26,6 +29,7 @@ const LoginInForm = () => {
   const selectedHospital = useSelector(
     (state: any) => state.hospital.selectedHospital
   );
+  const profile = useSelector((state: RootState) => state.auth.profile);
 
   const [hospitals, setHospitals] = React.useState<any[]>([]);
 
@@ -40,6 +44,9 @@ const LoginInForm = () => {
 
         // if login successful → fetch hospitals
         const profile = await getProfile();
+        if (profile) {
+          dispatch(setProfile(profile)); // <-- You need this in authSlice
+        }
         const session = await getSession();
         console.log("Session in login page:", session);
         const UserSession = session?.user;
@@ -51,6 +58,8 @@ const LoginInForm = () => {
 
           if (list.length === 1) {
             dispatch(setSelectedHospital(list[0]));
+            dispatch(fetchAccessRight());
+
             router.push("/dashboard");
           } else {
             setStage("hospital");
@@ -69,6 +78,9 @@ const LoginInForm = () => {
     dispatch(setSelectedHospital(hospital));
     localStorage.setItem("selectedHospital", JSON.stringify(hospital));
     console.log("Hospital selected and saved:", hospital);
+
+    // 🚀 fetch access rights immediately after hospital is set
+    dispatch(fetchAccessRight());
 
     router.push("/dashboard"); // ⬅️ redirect
     // Wait until navigation is "done"
@@ -100,7 +112,7 @@ const LoginInForm = () => {
     };
 
     // Only run if no hospital is selected and stage is still login
-    if (stage === "login") {
+    if (stage === "hospital") {
       fetchHospitals();
     }
   }, [dispatch, router, stage]);
@@ -110,7 +122,11 @@ const LoginInForm = () => {
     if (stored) {
       dispatch(loadHospitalFromStorage());
     }
-  }, [dispatch]);
+    if (selectedHospital) {
+      dispatch(fetchAccessRight());
+    }
+  }, [dispatch, selectedHospital, profile]);
+
 
   return (
     <>

@@ -2,37 +2,55 @@
 "use client";
 
 import { ReactNode, useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { ReduxProvider } from "@/providers/ReduxProvider";
-import { loadHospitalFromStorage } from "@/store/HospitalBranchSelectionSlice"; 
+import { Provider, useDispatch } from "react-redux";
+import ReduxProvider from "@/providers/ReduxProvider";
+import { loadHospitalFromStorage } from "@/store/HospitalBranchSelectionSlice";
 import RouteLoader from "@/hooks/RouteLoader";
 import GlobalLoader from "@/hooks/GlobalLoader";
 import dynamic from "next/dynamic";
 import { loadAuthFromStorage } from "@/store/authSlice";
-import type { AppDispatch } from "@/store"; // ⬅️ from your store.ts
+import { persistor, store, type AppDispatch } from "@/store"; // ⬅️ from your store.ts
+import { PersistGate } from "redux-persist/integration/react";
+import { startLoading, stopLoading } from "@/store/globalLoaderSlice";
 
+interface ClientLayoutWrapperProps {
+  children: ReactNode;
+}
 
-const ClientLayout = dynamic(() => import("@/hooks/ClientLayout"), { ssr: false });
+const ClientLayout = dynamic(() => import("@/hooks/ClientLayout"), {
+  ssr: false,
+});
 
-export default function ClientLayoutWrapper({ children }: { children: ReactNode }) {
+export default function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
   return (
-    <ReduxProvider>
-      <Initializer />  {/* ⬅️ runs once after Redux mounts */}
-      <RouteLoader />
-      <GlobalLoader />
-      <ClientLayout>{children}</ClientLayout>
-    </ReduxProvider>
+    <Provider store={store}>
+      <PersistGate persistor={persistor} loading={<GlobalLoader />}>
+        <ClientLayout>
+          {children}
+        </ClientLayout>
+        {/* Always mounted global loader (overlay triggered by slice) */}
+        <GlobalLoader />
+      </PersistGate>
+    </Provider>
   );
 }
 
-function Initializer() {
-  const dispatch = useDispatch<AppDispatch>(); // ✅ correct typing
+export function Initializer() {
+  const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-    dispatch(loadHospitalFromStorage());
-    dispatch(loadAuthFromStorage());
+    const init = async () => {
+      try {
+        dispatch(startLoading()); // 🔵 Start global loader
+        // restore persisted parts of state
+        dispatch(loadAuthFromStorage());
+        dispatch(loadHospitalFromStorage());
+      } finally {
+        dispatch(stopLoading()); // 🔴 Stop global loader
+      }
+    };
+    init();
   }, [dispatch]);
 
   return null;
 }
-

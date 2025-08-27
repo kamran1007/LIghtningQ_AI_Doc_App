@@ -110,7 +110,9 @@ export class AdminService {
     page: number;
     limit: number;
     search: string | undefined;
-    organizationId: number | undefined;
+    hospitalId: number | undefined;
+    roleId: number;
+    organizationId: number;
   }) {
     const getalluser = await this.ManageHospitalService.getAllUsers(data);
     return {

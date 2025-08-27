@@ -2,11 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import {
-  Home,
-  Activity,
   CalendarClock,
-  MonitorSmartphone,
-  Shuffle,
   Sliders,
   UserCog,
   Stethoscope,
@@ -14,39 +10,65 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
-const navItems = [
-  { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-  { name: "Patient Care", icon: Stethoscope, path: "/patientcare" },
-  { name: "Appointments", icon: CalendarClock, path: "/appointment" },
-  { name: "Display Boards", icon: MonitorSmartphone, path: "/displays" },
-  { name: "Flow Optimization", icon: Shuffle, path: "/flow" },
-  { name: "Admin", icon: UserCog, path: "/admin" },
-  { name: "Settings", icon: Sliders, path: "/settings" },
-];
+// mapping ModuleName → Sidebar info
+const moduleNavMap: Record<
+  string,
+  { icon: React.ElementType; path: string }
+> = {
+  Dashboard: { icon: LayoutDashboard, path: "/dashboard" },
+  "Patient Care": { icon: Stethoscope, path: "/patientcare" },
+  Appointments: { icon: CalendarClock, path: "/appointment" },
+  Admin: { icon: UserCog, path: "/admin" },
+  Settings: { icon: Sliders, path: "/settings" },
+};
 
 export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [isExpanded, setIsExpanded] = useState(false);
 
+  type AccessRight = {
+    ModuleId: number;
+    ModuleName: string;
+    enabled: boolean;
+    Submodules?: { SubModuleName: string; [key: string]: any }[];
+  };
+
+  const accessRights = useSelector(
+    (state: RootState) => state.hospitalAccessRight.data
+  ) as AccessRight[];
+
+  console.log("Access Rights from Redux AppBar:", accessRights);
+
+  // ✅ filter only enabled modules
+  const enabledNavItems = accessRights
+    ?.filter((m) => m.enabled && moduleNavMap[m.ModuleName])
+    .map((m) => ({
+      name: m.ModuleName,
+      icon: moduleNavMap[m.ModuleName]?.icon,
+      path: moduleNavMap[m.ModuleName]?.path,
+    }));
+
   return (
     <div className="relative h-full">
       {!isExpanded && (
         <div
-          className="absolute top-0 left-0 h-full w-[20px] z-10"
+          className="absolute top-5 left-0 h-full w-[18px] z-10"
           onMouseEnter={() => setIsExpanded(true)}
         />
       )}
       <aside
-        className={`h-full shadow-md flex bg-gradient-to-b from-cyan-100 to-teal-200 flex-col transition-all duration-300 bg-white ${
-          isExpanded ? "w-60" : "w-20"
+        className={`h-full shadow-md flex bg-white flex-col transition-all duration-300 ${
+          isExpanded ? "w-60" : "w-18"
         }`}
         onMouseLeave={() => setIsExpanded(false)}
       >
-        <nav className="flex-1 p-4 space-y-2">
-          {navItems.map((item) => {
-            const isActive = pathname.startsWith(item.path); // ✅ highlight sub-routes too
+        <nav className="flex-1 p-3 space-y-5">
+          {enabledNavItems?.map((item) => {
+            const isActive = pathname.startsWith(item.path);
             const Icon = item.icon;
             return (
               <div key={item.name} className="relative group">
@@ -60,18 +82,18 @@ export function AppSidebar() {
                       isExpanded
                         ? isActive
                           ? "bg-teal-100 text-teal-400"
-                          : "hover:bg-gray-100 text-teal-500"
+                          : "hover:bg-gray-100 text-teal-400"
                         : isActive
-                        ? "bg-teal-300"
-                        : "text-teal-600"
+                        ? "bg-teal-100"
+                        : "text-teal-500"
                     }
                     shadow hover:shadow-2xl transition-shadow duration-300 ease-in-out`}
                 >
-                  <Icon
-                    className={`min-w-[20px] transition-all transform duration-300 group-hover:scale-110 group-hover:text-teal-400 ${
-                      isExpanded ? "mr-3" : "mx-auto"
-                    }`}
-                  />
+                    <Icon
+                      className={`min-w-[18px] transition-all transform duration-300 group-hover:scale-110 group-hover:text-teal-400 ${
+                        isExpanded ? "mr-3" : "mx-auto"
+                      }`}
+                    />
                   <span
                     className={`transition-opacity duration-300 ${
                       isExpanded ? "opacity-100" : "opacity-0"

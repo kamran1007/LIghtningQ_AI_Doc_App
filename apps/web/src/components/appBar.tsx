@@ -24,23 +24,23 @@ const AppBar = () => {
     }
   }, [user, profile, dispatch]);
 
-  console.log("AppBar User:", user);
-  console.log("AppBar Profile:", profile);
-  console.log("AppBar Selected Hospital:", selectedHospital);
+  // console.log("AppBar User:", user);
+  // console.log("AppBar Profile:", profile);
+  // console.log("AppBar Selected Hospital:", selectedHospital);
 
   // ⛔ Only block if user or hospital missing
   if (!user || !selectedHospital) return null;
 
   // 🟢 Prefer profile values if available
-  const firstName = profile?.firstName ?? "";
-  const lastName = profile?.lastName ?? "";
-  const fullName =
-    firstName || lastName
-      ? `${firstName} ${lastName}`
-      : "User"; // fallback if profile still loading
+const userProfile = profile?.user ?? {};
 
-  const roleId = user.roleId ?? user.RoleId ?? null;
-  const roleLabel = user?.RoleName || (roleId === 1 ? "Admin" : "User");
+const firstName = userProfile.firstName ?? "";
+const lastName = userProfile.lastName ?? "";
+const fullName =
+  firstName || lastName ? `${firstName} ${lastName}` : "User";
+
+const roleLabel =
+  userProfile.RoleName || (userProfile.RoleId ? `Role ${userProfile.RoleId}` : "No Role");
 
   // const userImage = profile?.imageUrl ?? "";
 
@@ -73,7 +73,7 @@ const AppBar = () => {
           className="rounded-full object-cover"
         /> */}
         <p className="font-sans text-1xl text-white whitespace-nowrap">
-          {fullName} ({roleLabel})
+          {userProfile?.gender === 'MALE' ? 'Mr.' : 'Mrs.'} {fullName} ({roleLabel})
         </p>
         <NavbarDropdown profile={profile} />
       </div>

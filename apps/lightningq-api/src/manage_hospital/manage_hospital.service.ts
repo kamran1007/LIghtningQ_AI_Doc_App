@@ -365,12 +365,16 @@ export class ManageHospitalService {
     page,
     limit,
     search,
-    HospitalId,
+    hospitalId,
+    roleId,
+    organizationId,
   }: {
     page: number;
     limit: number;
     search?: string;
-    HospitalId?: number;
+    hospitalId?: number; // ✅ now consistent
+    roleId?: number;
+    organizationId: number;
   }) {
     const skip = (page - 1) * limit;
 
@@ -381,10 +385,15 @@ export class ManageHospitalService {
           { lastName: { contains: search, mode: 'insensitive' } },
           { email: { contains: search, mode: 'insensitive' } },
           { mobile: { contains: search, mode: 'insensitive' } },
-          // { HospitalName: { contains: search, mode: 'insensitive' } },
         ],
       }),
-      ...(HospitalId && { HospitalId }),
+      ...(hospitalId && roleId  && {
+        AdminAccess: {
+          some: { hospitalId, roleId },
+        },
+      }),
+      ...(organizationId && { organizationId }),
+
     };
 
     const [users, total] = await this.prisma.$transaction([
@@ -395,8 +404,8 @@ export class ManageHospitalService {
         orderBy: { createdAt: 'desc' },
         include: {
           role: true,
-          // UserOrganizationArray: true,
           AdminAccess: {
+            where: hospitalId ? { hospitalId } : undefined,
             include: {
               hospital: true,
               role: true,
@@ -417,6 +426,7 @@ export class ManageHospitalService {
       },
     };
   }
+
   //Get Role
   async getUserRole(org: number) {
     const [Role] = await this.prisma.$transaction([
@@ -1114,7 +1124,7 @@ export class ManageHospitalService {
           where: { ModuleId: module.ModuleId || -1 },
           update: {
             ModuleName: module.ModuleName ?? '',
-            IsActive: module.IsActive ?? true,
+            // IsActive: module.IsActive ?? true,
           },
           create: {
             ModuleName: module.ModuleName ?? '',
@@ -1128,7 +1138,7 @@ export class ManageHospitalService {
             where: { SubModuleId: sub.SubModuleId || -1 },
             update: {
               SubModuleName: sub.SubModuleName ?? '',
-              IsActive: sub.IsActive ?? true,
+              // IsActive: sub.IsActive ?? true,
               ModuleId: upsertedModule.ModuleId,
             },
             create: {
@@ -1151,7 +1161,7 @@ export class ManageHospitalService {
                   CanUpdate: perm.CanUpdate ?? false,
                   CanDelete: perm.CanDelete ?? false,
                   CanAI_Assist: perm.CanAI_Assist ?? false,
-                  IsActive: perm.IsActive ?? true,
+                  IsActive: sub.IsActive ?? true,
                 },
               });
             } else {
@@ -1164,7 +1174,7 @@ export class ManageHospitalService {
                   CanUpdate: perm.CanUpdate ?? false,
                   CanDelete: perm.CanDelete ?? false,
                   CanAI_Assist: perm.CanAI_Assist ?? false,
-                  IsActive: perm.IsActive ?? true,
+                  IsActive: sub.IsActive ?? true,
                 },
               });
             }
@@ -1251,7 +1261,12 @@ export class ManageHospitalService {
         moduleMap.set(mod.ModuleId, {
           ModuleId: mod.ModuleId,
           ModuleName: mod.ModuleName,
-          enabled: true,
+          enabled:
+            perm.CanView ||
+            perm.CanCreate ||
+            perm.CanUpdate ||
+            perm.CanDelete ||
+            perm.CanAI_Assist,
           Submodules: [],
         });
       }
@@ -1312,11 +1327,11 @@ export class ManageHospitalService {
     const normalizedModules = modules.map((mod) => ({
       ModuleId: mod.ModuleId,
       ModuleName: mod.ModuleName,
-      enabled: mod.IsActive, // initialize
+      enabled: false, // initialize
       SubModules: mod.SubModules.map((sub) => ({
         SubModuleId: sub.SubModuleId,
         SubModuleName: sub.SubModuleName,
-        enabled: sub.IsActive, // initialize
+        enabled: false, // initialize
         Permissions: [defaultPermission], // always initialize with this
       })),
     }));

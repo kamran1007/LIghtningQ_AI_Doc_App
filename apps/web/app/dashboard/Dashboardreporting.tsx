@@ -325,8 +325,8 @@ export default function Dashboard({
         newPatients: res.summary.newPatients || 0,
         newAppointments: res.summary.newAppointments || 0,
       });
-      console.log("Patient data:", res);
-      console.log("Processed patient data:", patientData);
+      // console.log("Patient data:", res);
+      // console.log("Processed patient data:", patientData);
       setLoading(true);
     } catch (err) {
       console.error("Error fetching dashboard summary", err);
