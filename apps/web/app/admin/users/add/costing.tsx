@@ -197,7 +197,7 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
             {/* Hospital Selector */}
             <div className="mb-6 w-[40%]">
               <Label className="mb-1 block text-sm font-medium text-gray-700">
-                Select Hospital (Branch)
+                Select Hospital (Branch) <span className="text-red-500">*</span>
               </Label>
               <Select
                 value={selectedHospitalId?.toString() || ""}

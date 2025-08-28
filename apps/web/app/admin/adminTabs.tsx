@@ -80,7 +80,7 @@ const AdminTabs = () => {
       {/* Manage Hospital Tab */}
       <TabsContent value="hospital">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="flex items-center gap-2 text-2xl font-bold text-gray-500">
+          <h2 className="flex items-center gap-2 text-2xl font-bold text-gray-700">
             <Image
               src="/hospital.png"
               alt="User avatar"
@@ -88,7 +88,7 @@ const AdminTabs = () => {
               height={30}
   className="object-contain"
             />
-            <span className="font-sans font-display text-[22px] sm:text-[22px] leading-snug">
+            <span className="font-sans font-display  text-[22px] sm:text-[22px] leading-snug">
               Hospital List
             </span>
           </h2>{" "}
@@ -113,14 +113,14 @@ const AdminTabs = () => {
       {/* Manage User Tab */}
       <TabsContent value="user">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="flex items-center gap-2 text-2xl font-bold text-black-600">
+          <h2 className="flex items-center gap-2 text-2xl font-bold text-black-700">
             <Image
               src="/customer.png"
               alt="User avatar"
               width={30}
               height={30}
             />
-            <span className=" font-sans font-display text-[22px] sm:text-[24px] leading-snug">
+            <span className="font-sans font-display text-[22px] sm:text-[22px] leading-snug">
               User List
             </span>
           </h2>

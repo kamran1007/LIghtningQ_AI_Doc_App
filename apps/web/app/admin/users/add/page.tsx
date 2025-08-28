@@ -46,7 +46,18 @@ import Aside from "./aside";
 import z, { set } from "zod";
 import AddUserSkeleton from "@/components/ui/skeletonloader/AddUserSkeleton";
 export default function AddUserPage() {
+  const dispatch = useDispatch<AppDispatch>();
   const hospitals = useSelector((state: RootState) => state.hospital.data);
+  const hospitalLoading = useSelector(
+    (state: RootState) => state.hospital.loading
+  );
+
+  useEffect(() => {
+    if (!hospitals || hospitals.length === 0) {
+      dispatch(fetchHospitals());
+    }
+  }, [dispatch]);
+
   const selectedUser = useSelector(
     (state: RootState) => state.user.selectedUser
   );
@@ -54,29 +65,8 @@ export default function AddUserPage() {
   const userId = searchParams.get("userId");
   const [user, setUser] = useState<User | null>(null);
 
-  const hospitalLoading = useSelector(
-    (state: RootState) => state.hospital.loading
-  );
-
-  type UserFormFields = {
-    Prefix: string;
-    firstName: string;
-    lastName: string;
-    mobile: string;
-    email: string;
-    gender: string;
-    dateOfBirth: string;
-    passwordHash: string;
-    confirmPassword: string;
-    roleId: number;
-    SpecializationId: number;
-    Experience: string;
-    Employee_ID: string;
-    imageUrl?: File | string;
-    SignatureOfUser?: File | string;
-    // userBranchArray?: any[];
-  };
   const [showPasswordFields, setShowPasswordFields] = useState(false);
+  type UserFormSchemaType = z.infer<ReturnType<typeof userFormSchema>>;
 
   const schema = useMemo(
     () => userFormSchema(showPasswordFields),
@@ -93,7 +83,7 @@ export default function AddUserPage() {
     resetField,
     control,
     formState: { errors, isSubmitting },
-  } = useForm<z.infer<typeof schema>>({
+  } = useForm<UserFormSchemaType>({
     resolver: zodResolver(schema),
     defaultValues: {
       Prefix: "",
@@ -105,12 +95,12 @@ export default function AddUserPage() {
       dateOfBirth: "",
       passwordHash: "",
       confirmPassword: "",
-      roleId: 0,
-      SpecializationId: 0,
+      roleId: undefined,
+      SpecializationId: undefined,
       Experience: "",
       Employee_ID: "",
       imageUrl: "",
-      SignatureOfUser: "",
+      SignatureOfUser: null,
     },
   });
   const [imageUrl, setImageUrl] = useState("");
@@ -161,8 +151,11 @@ export default function AddUserPage() {
   const handleSignatureFileChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const file = e.target.files?.[0];
+    const files = e.target.files;
+    const file = files && files[0] ? files[0] : null;
     if (file) {
+      setUploadedFile(file);
+
       const signatureUrl = URL.createObjectURL(file);
       setPreviewUrl(signatureUrl);
 
@@ -170,6 +163,8 @@ export default function AddUserPage() {
       setValue("SignatureOfUser", file, { shouldValidate: true });
 
       toast.success("Signature uploaded");
+    } else {
+      setUploadedFile(null);
     }
   };
 
@@ -179,21 +174,17 @@ export default function AddUserPage() {
     toast("Signature cleared");
   };
 
-  const handleDrawEnd = () => {
-    const pad = sigRef.current;
-    if (!pad || typeof pad.isEmpty !== "function") return;
+  const handleDrawEnd = async () => {
+    if (sigRef.current) {
+      const dataUrl = sigRef.current.toDataURL("image/png");
+      setPreviewUrl(dataUrl);
 
-    if (pad.isEmpty()) return;
+      const blob = await fetch(dataUrl).then((res) => res.blob());
+      const file = new File([blob], "signature.png", { type: "image/png" });
 
-    const dataUrl = pad.toDataURL("image/png");
-    fetch(dataUrl)
-      .then((res) => res.blob())
-      .then((blob) => {
-        const file = new File([blob], "signature.png", { type: "image/png" });
-        setValue("SignatureOfUser", file);
-        setPreviewUrl(dataUrl);
-        toast.success("Signature drawn");
-      });
+      // ✅ put into react-hook-form
+      setValue("SignatureOfUser", file, { shouldValidate: true });
+    }
   };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -221,7 +212,7 @@ export default function AddUserPage() {
     RoleId: number;
     Rolename: string;
   };
-  const dispatch = useDispatch<AppDispatch>();
+  // const dispatch = useDispatch<AppDispatch>();
 
   type Organization = {
     OrganizationId: number;
@@ -233,8 +224,8 @@ export default function AddUserPage() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [specializations, setSpecializations] = useState([]);
   const [userBranchArray, setUserBranchArray] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-  
+  const [isLoading, setIsLoading] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null); // for upload
 
   const handleHospitalCheck = (checked: boolean, hospital: any) => {
     const roleId = Number(getValues("roleId")); // Ensure roleId is a number
@@ -255,11 +246,11 @@ export default function AddUserPage() {
       );
 
       if (checked && !alreadyExists) {
-        // Add hospital if not already present
+        // ✅ Use correct casing for OrganizationId
         return [
           ...prev,
           {
-            OrganizationId: hospital.organizationId,
+            OrganizationId: hospital.OrganizationId ?? hospital.organizationId,
             RoleId: roleId,
             RoleName: roleName,
             HospitalId: hospital.HospitalId,
@@ -279,6 +270,7 @@ export default function AddUserPage() {
       return prev; // no changes if redundant toggle
     });
   };
+
   const handleResetPasswordToggle = () => {
     setShowPasswordFields((prev) => {
       const newState = !prev;
@@ -309,6 +301,7 @@ export default function AddUserPage() {
       SpecializationId,
       Experience,
       roleId,
+      SignatureOfUser,
     } = formData;
 
     const UserOrganizationArray = organizations
@@ -349,8 +342,12 @@ export default function AddUserPage() {
     const imageFile = formData.imageUrl;
     if (imageFile) formPayload.append("imageUrl", imageFile);
 
-    const signatureFile = formData.SignatureOfUser;
-    if (signatureFile) formPayload.append("SignatureOfUser", signatureFile);
+    if (SignatureOfUser instanceof File) {
+      formPayload.append("SignatureOfUser", SignatureOfUser);
+      console.log("Signature file ready:", SignatureOfUser.name);
+    } else {
+      console.log("⚠️ No signature file present");
+    }
 
     let res;
 
@@ -363,15 +360,19 @@ export default function AddUserPage() {
     return res;
   };
 
-  const onSubmit = async (formData: any) => {
-    const res = await saveUser(formData);
+  const onSubmit = async (data: any) => {
+    const formData = new FormData();
+
+    console.log("Before saveUser, SignatureOfUser:", data.SignatureOfUser);
+
+    const res = await saveUser(formData); // <-- send FormData, not plain object
 
     if (res?.return?.HttpCode === 200 || res?.data?.return?.HttpCode === 200) {
       toast.success(
         `User ${user?.UserId ? "updated" : "created"} successfully!`
       );
       setTimeout(() => {
-        router.push("/admin"); // redirect only for Submit
+        router.push("/admin");
       }, 1000);
     } else {
       toast.error("Something went wrong");
@@ -382,12 +383,16 @@ export default function AddUserPage() {
   const handleSaveAndContinue = async () => {
     const formData = getValues(); // from react-hook-form
     const res = await saveUser(formData);
+
     const Userdata = res?.data?.return?.updatedUser || res?.return?.user;
-    setUser(Userdata);
-    if (res?.return?.HttpCode === 200 || res?.data?.return?.HttpCode === 200) {
-      toast.success("Changes saved. You can continue.");
+    const httpCode = res?.return?.HttpCode ?? res?.data?.return?.HttpCode;
+    const message = res?.return?.message ?? res?.data?.return?.message;
+
+    if (httpCode === 200) {
+      setUser(Userdata);
+      toast.success(message || "Changes saved. You can continue.");
     } else {
-      toast.error("Something went wrong while saving.");
+      toast.error(message || "Something went wrong while saving.");
       console.log(res);
     }
   };
@@ -417,6 +422,8 @@ export default function AddUserPage() {
             (u: { UserId: number }) => u.UserId === Number(userId)
           );
           setUser(foundUser ?? null);
+          // console.log("Found user for editing:", foundUser);
+          // console.log("Editing user:", user);
         }
       } catch (error) {
         console.error("Failed to fetch data", error);
@@ -493,191 +500,205 @@ export default function AddUserPage() {
 
   return (
     <div className="flex h-full">
-
-      {isLoading ?(
+      {isLoading ? (
         <AddUserSkeleton />
-      ):(
-      <>
-      {/* Sidebar */}
-      <Aside user={user} />
+      ) : (
+        <>
+          {/* Sidebar */}
+          <Aside user={user} />
 
-      {/* Main Form */}
-      <main className="flex-1 p-6 overflow-auto">
-        <div className="flex items-center gap-x-4 mb-4">
-          <UserCheck className="w-5 h-5 text-teal-500" />
-          <h2 className="text-lg font-semibold text-gray-800">
-            {user?.UserId ? "Edit User" : "Add User"}
-          </h2>
-        </div>
+          {/* Main Form */}
+          <main className="flex-1 p-6 overflow-auto">
+            <div className="flex items-center gap-x-4 mb-4">
+              <UserCheck className="w-5 h-5 text-teal-500" />
+              <h2 className="text-lg font-semibold text-gray-800">
+                {user?.UserId ? "Edit User" : "Add User"}
+              </h2>
+            </div>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-6"
-          encType="multipart/form-data"
-        >
-          {/* Image Upload & Prefix */}
-          <div className="flex items-center gap-4">
-            <div className="relative h-20 w-20 rounded-full overflow-hidden group cursor-pointer">
-              {imageUrl ? (
-                <Image
-                  src={imageUrl}
-                  alt="User avatar"
-                  width={80}
-                  height={80}
-                  
-                  className="object-cover h-full w-full transition-transform duration-300 group-hover:scale-105"
-                />
-              ) : (
-                <div className="flex items-center justify-center h-full w-full bg-gray-100">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-10 w-10 text-gray-400"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="space-y-6"
+              encType="multipart/form-data"
+            >
+              {/* Image Upload & Prefix */}
+              <div className="flex items-center gap-4">
+                <div className="relative h-20 w-20 rounded-full overflow-hidden group cursor-pointer">
+                  {imageUrl ? (
+                    <Image
+                      src={imageUrl}
+                      alt="User avatar"
+                      width={80}
+                      height={80}
+                      className="object-cover h-full w-full transition-transform duration-300 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full w-full bg-gray-100">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-10 w-10 text-gray-400"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path d="M12 12c2.67 0 8 1.34 8 4v2H4v-2c0-2.66 5.33-4 8-4Zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
+                      </svg>
+                    </div>
+                  )}
+
+                  <div
+                    onClick={handleImageClick}
+                    title="Edit profile image"
+                    aria-label="Edit profile image"
+                    className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
                   >
-                    <path d="M12 12c2.67 0 8 1.34 8 4v2H4v-2c0-2.66 5.33-4 8-4Zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
-                  </svg>
-                </div>
-              )}
-
-              <div
-                onClick={handleImageClick}
-                title="Edit profile image"
-                aria-label="Edit profile image"
-                className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6 text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15.232 5.232l3.536 3.536M9 11l6-6 3.536 3.536a2 2 0 010 2.828l-6 6H9v-2.828a2 2 0 01.586-1.414z"
-                  />
-                </svg>
-              </div>
-            </div>
-
-            <input
-              type="file"
-              ref={fileInputRef}
-              accept="image/*"
-              onChange={handleImageChange}
-              className="hidden"
-            />
-
-            <div className="mb-1">
-              <Controller
-                name="Prefix"
-                control={control}
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger
-                      className={`${inputbox} py-1 px-4 text-sm leading-tight h-10`}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
                     >
-                      <SelectValue placeholder="Select Prefix" />
-                    </SelectTrigger>
-                    <SelectContent  className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
-                      <SelectItem value="Mr">MR</SelectItem>
-                      <SelectItem value="Mrs">MRS</SelectItem>
-                      <SelectItem value="Miss">MISS</SelectItem>
-                      <SelectItem value="Ms">MS</SelectItem>
-                      <SelectItem value="Dr">DR</SelectItem>
-                      <SelectItem value="Prof">PROF</SelectItem>
-                      <SelectItem value="Other">OTHER</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
-          </div>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15.232 5.232l3.536 3.536M9 11l6-6 3.536 3.536a2 2 0 010 2.828l-6 6H9v-2.828a2 2 0 01.586-1.414z"
+                      />
+                    </svg>
+                  </div>
+                </div>
 
-          <div className="grid grid-cols-4 gap-4">
-            {/* First Name */}
-            <div className="flex flex-col">
-              <Label className="mb-2 block text-sm">First Name</Label>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
 
-              <Input
-                {...register("firstName")}
-                placeholder="First Name"
-                className={`${inputbox} mb-2 py-4`}
-              />
-              {errors.firstName && (
-                <p className="text-red-500 text-sm">
-                  {errors.firstName.message}
-                </p>
-              )}
-            </div>
+                <div className="mb-1">
+                  <Controller
+                    name="Prefix"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger
+                          className={`${inputbox} py-1 px-4 text-sm leading-tight h-10`}
+                        >
+                          <SelectValue placeholder="Select Prefix" />
+                          <span className="text-red-500">*</span>
+                        </SelectTrigger>
+                        <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
+                          <SelectItem value="Mr">MR</SelectItem>
+                          <SelectItem value="Mrs">MRS</SelectItem>
+                          <SelectItem value="Miss">MISS</SelectItem>
+                          <SelectItem value="Ms">MS</SelectItem>
+                          <SelectItem value="Dr">DR</SelectItem>
+                          <SelectItem value="Prof">PROF</SelectItem>
+                          <SelectItem value="Other">OTHER</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </div>
+              </div>
 
-            {/* Last Name */}
-            <div className="flex flex-col">
-              <Label className="mb-2 block text-sm">Last Name</Label>
+              <div className="grid grid-cols-4 gap-4">
+                {/* First Name */}
+                <div className="flex flex-col">
+                  <Label className="mb-2 block text-sm">
+                    First Name <span className="text-red-500">*</span>
+                  </Label>
 
-              <Input
-                {...register("lastName")}
-                placeholder="Last Name"
-                className={`${inputbox} mb-2 py-4`}
-              />
-              {errors.lastName && (
-                <p className="text-red-500 text-sm">
-                  {errors.lastName.message}
-                </p>
-              )}
-            </div>
+                  <Input
+                    {...register("firstName")}
+                    placeholder="First Name"
+                    className={`${inputbox} mb-2 py-4`}
+                  />
+                  {errors.firstName && (
+                    <p className="text-red-500 text-sm">
+                      {errors.firstName.message}
+                    </p>
+                  )}
+                </div>
 
-            {/* Employee ID */}
-            <div className="flex flex-col">
-              <Label className="mb-2 block text-sm">Employee ID</Label>
+                {/* Last Name */}
+                <div className="flex flex-col">
+                  <Label className="mb-2 block text-sm">
+                    Last Name <span className="text-red-500">*</span>
+                  </Label>
 
-              <Input
-                {...register("Employee_ID")}
-                placeholder="Employee ID"
-                className={`${inputbox} mb-2 py-4`}
-              />
-              {errors.Employee_ID && (
-                <p className="text-red-500 text-sm">
-                  {errors.Employee_ID.message}
-                </p>
-              )}
-            </div>
+                  <Input
+                    {...register("lastName")}
+                    placeholder="Last Name"
+                    className={`${inputbox} mb-2 py-4`}
+                  />
+                  {errors.lastName && (
+                    <p className="text-red-500 text-sm">
+                      {errors.lastName.message}
+                    </p>
+                  )}
+                </div>
 
-            {/* Mobile */}
-            <div className="flex flex-col">
-              <Label className="mb-2 block text-sm">Mobile</Label>
+                {/* Employee ID */}
+                <div className="flex flex-col">
+                  <Label className="mb-2 block text-sm">Employee ID </Label>
 
-              <Input
-                {...register("mobile")}
-                placeholder="Mobile"
-                maxLength={10}
-                className={`${inputbox} mb-2 py-4`}
-              />
-              {errors.mobile && (
-                <p className="text-red-500 text-sm">{errors.mobile.message}</p>
-              )}
-            </div>
-            {/* DOB */}
-            <div className="flex flex-col">
-              <Label className="mb-2 block text-sm">Date Of Birth</Label>
+                  <Input
+                    {...register("Employee_ID")}
+                    placeholder="Employee ID"
+                    className={`${inputbox} mb-2 py-4`}
+                  />
+                  {errors.Employee_ID && (
+                    <p className="text-red-500 text-sm">
+                      {errors.Employee_ID.message}
+                    </p>
+                  )}
+                </div>
 
-              <Input
-                {...register("dateOfBirth")}
-                type="date"
-                placeholder="Date of Birth"
-                className={`${inputbox} mb-2 py-4`}
-              />
-              {errors.dateOfBirth && (
-                <p className="text-red-500 text-sm">
-                  {errors.dateOfBirth.message}
-                </p>
-              )}
-            </div>
-            {/* Gender */}
-            {/* <div className="flex flex-col">
+                {/* Mobile */}
+                <div className="flex flex-col">
+                  <Label className="mb-2 block text-sm">
+                    Mobile <span className="text-red-500">*</span>
+                  </Label>
+
+                  <Input
+                    {...register("mobile")}
+                    placeholder="Mobile"
+                    maxLength={10}
+                    className={`${inputbox} mb-2 py-4`}
+                  />
+                  {errors.mobile && (
+                    <p className="text-red-500 text-sm">
+                      {errors.mobile.message}
+                    </p>
+                  )}
+                </div>
+                {/* DOB */}
+                <div className="flex flex-col">
+                  <Label className="mb-2 block text-sm">
+                    Date Of Birth <span className="text-red-500">*</span>
+                  </Label>
+
+                  <Input
+                    {...register("dateOfBirth")}
+                    type="date"
+                    placeholder="Date of Birth"
+                    className={`${inputbox} mb-2 py-4`}
+                  />
+                  {errors.dateOfBirth && (
+                    <p className="text-red-500 text-sm">
+                      {errors.dateOfBirth.message}
+                    </p>
+                  )}
+                </div>
+
+                <input type="hidden" {...register("SignatureOfUser")} />
+                {/* Gender */}
+                {/* <div className="flex flex-col">
               <Input
                 {...register("gender")}
                 placeholder="Gender"
@@ -687,133 +708,143 @@ export default function AddUserPage() {
                 <p className="text-red-500 text-sm">{errors.gender.message}</p>
               )}
             </div> */}
-            <div className="mb-1">
-              <Label className="mb-1 block text-sm">Gender</Label>
-              <Controller
-                name="gender"
-                control={control}
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger
-                      className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
-                    >
-                      <SelectValue placeholder="Select a Gender" />
-                    </SelectTrigger>
-                    <SelectContent     className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white"
-
-                    >
-                      <SelectItem value="MALE">MALE</SelectItem>
-                      <SelectItem value="FEMALE">FEMALE</SelectItem>
-                      <SelectItem value="OTHER">OTHER</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
-
-            {/* Role */}
-            <div className="mb-1">
-              <Label className="mb-1 block text-sm">Role</Label>
-
-              <Controller
-                name="roleId"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    {...register("roleId")}
-                    value={field.value?.toString() ?? ""}
-                    onValueChange={(value) => field.onChange(value)}
-                  >
-                    <SelectTrigger
-                      className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
-                    >
-                      <SelectValue placeholder="Select Role"/>
-                    </SelectTrigger>
-                    <SelectContent  className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white" >
-                      {roles.map((role: any) => (
-                        <SelectItem
-                          key={role.RoleId}
-                          value={role.RoleId.toString()}
+                <div className="mb-1">
+                  <Label className="mb-1 block text-sm">
+                    Gender <span className="text-red-500">*</span>
+                  </Label>
+                  <Controller
+                    name="gender"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger
+                          className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
                         >
-                          {role.Rolename}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
+                          <SelectValue placeholder="Select a Gender" />
+                        </SelectTrigger>
+                        <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
+                          <SelectItem value="MALE">MALE</SelectItem>
+                          <SelectItem value="FEMALE">FEMALE</SelectItem>
+                          <SelectItem value="OTHER">OTHER</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </div>
 
-              {errors.roleId && (
-                <p className="text-red-500 text-sm">{errors.roleId.message}</p>
-              )}
-            </div>
+                {/* Role */}
+                <div className="mb-1">
+                  <Label className="mb-1 block text-sm">
+                    Role <span className="text-red-500">*</span>
+                  </Label>
 
-            {/* Specialization */}
-            <div className="mb-1">
-              <Label className="mb-1 block text-sm">Specialization</Label>
-
-              <Controller
-                name="SpecializationId"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    {...register("SpecializationId")}
-                    value={field.value?.toString() ?? ""}
-                    onValueChange={(value) => field.onChange(value)}
-                  >
-                    <SelectTrigger
-                      className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
-                    >
-                      <SelectValue placeholder="Select Specialization" />
-                    </SelectTrigger>
-                    <SelectContent  className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
-                      {specializations.map((spec: any) => (
-                        <SelectItem
-                          key={spec.SpecializationId}
-                          value={spec.SpecializationId.toString()}
+                  <Controller
+                    name="roleId"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        {...register("roleId")}
+                        value={field.value?.toString() ?? ""}
+                        onValueChange={(value) => field.onChange(value)}
+                      >
+                        <SelectTrigger
+                          className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
                         >
-                          {spec.SpecializationName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
+                          <SelectValue placeholder="Select Role" />
+                        </SelectTrigger>
+                        <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
+                          {roles.map((role: any) => (
+                            <SelectItem
+                              key={role.RoleId}
+                              value={role.RoleId.toString()}
+                            >
+                              {role.Rolename}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
 
-              {errors.SpecializationId && (
-                <p className="text-red-500 text-sm">
-                  {errors.SpecializationId.message}
-                </p>
-              )}
-            </div>
+                  {errors.roleId && (
+                    <p className="text-red-500 text-sm">
+                      {errors.roleId.message}
+                    </p>
+                  )}
+                </div>
 
-            {/* Experience */}
-            <div className="flex flex-col">
-              <Label className="mb-1 block text-sm">Year Of Experiance</Label>
+                {/* Specialization */}
+                <div className="mb-1">
+                  <Label className="mb-1 block text-sm">Specialization</Label>
 
-              <Input
-                {...register("Experience")}
-                placeholder="Year Of Experience"
-                className={`${inputbox} mb-2 py-4`}
-              />
-              {errors.Experience && (
-                <p className="text-red-500 text-sm">
-                  {errors.Experience.message}
-                </p>
-              )}
-            </div>
-          </div>
+                  <Controller
+                    name="SpecializationId"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        {...register("SpecializationId")}
+                        value={field.value?.toString() ?? ""}
+                        onValueChange={(value) => field.onChange(value)}
+                      >
+                        <SelectTrigger
+                          className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
+                        >
+                          <SelectValue placeholder="Select Specialization" />
+                        </SelectTrigger>
+                        <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
+                          {specializations.map((spec: any) => (
+                            <SelectItem
+                              key={spec.SpecializationId}
+                              value={spec.SpecializationId.toString()}
+                            >
+                              {spec.SpecializationName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
 
-          {/* Credentials */}
-          <div className="space-y-8">
-            <div className="flex items-center gap-x-4 mb-4">
-              <LockKeyholeOpen className="w-5 h-5 text-teal-500" />
-              <h2 className="text-lg font-semibold text-gray-800">
-                Credentials
-              </h2>
-            </div>
-            {/* === Credentials Section === */}
-            {/* <div className="grid grid-cols-3 gap-4">
+                  {errors.SpecializationId && (
+                    <p className="text-red-500 text-sm">
+                      {errors.SpecializationId.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Experience */}
+                <div className="flex flex-col">
+                  <Label className="mb-1 block text-sm">
+                    Year Of Experiance
+                  </Label>
+
+                  <Input
+                    {...register("Experience")}
+                    type="number"
+                    placeholder="Year Of Experience"
+                    className={`${inputbox} mb-2 py-4`}
+                  />
+                  {errors.Experience && (
+                    <p className="text-red-500 text-sm">
+                      {errors.Experience.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Credentials */}
+              <div className="space-y-8">
+                <div className="flex items-center gap-x-4 mb-4">
+                  <LockKeyholeOpen className="w-5 h-5 text-teal-500" />
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    Credentials
+                  </h2>
+                </div>
+                {/* === Credentials Section === */}
+                {/* <div className="grid grid-cols-3 gap-4">
               <div className="flex flex-col">
                 <Input
                   {...register("email")}
@@ -853,109 +884,123 @@ export default function AddUserPage() {
                 )}
               </div>
             </div> */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="flex flex-col">
-                <Input
-                  {...register("email")}
-                  placeholder="Email"
-                  className={`${inputbox} mb-2 py-4`}
-                />
-                {errors.email && (
-                  <p className="text-red-500 text-sm">{errors.email.message}</p>
-                )}
-              </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="flex flex-col">
+                    <Label className="mb-1 block text-sm">Email                         <span className="text-red-500">*</span>
+</Label>
+                    <Input
+                      {...register("email")}
+                      placeholder="Email"
+                      className={`${inputbox} mb-2 py-4`}
+                    />
+                    {errors.email && (
+                      <p className="text-red-500 text-sm">
+                        {errors.email.message}
+                      </p>
+                    )}
+                  </div>
 
-              {!showPasswordFields && user?.UserId ? (
-                <div className="flex justify-end mt-4">
-                  <button
-                    type="button"
-                    onClick={handleResetPasswordToggle}
-                    className="flex items-center gap-2 text-sm text-teal-600 hover:text-teal-800 underline transition duration-200 cursor-pointer"
-                  >
-                    <div className="flex items-center gap-x-4 mb-2">
-                      <RotateCcwKey className="w-5 h-5 text-teal-500" />
-                      <h2 className="text-md font-semibold text-teal-500">
-                        Reset Password?
-                      </h2>
+                  {!showPasswordFields && user?.UserId ? (
+                    <div className="flex justify-end mt-4">
+                      <button
+                        type="button"
+                        onClick={handleResetPasswordToggle}
+                        className="flex items-center gap-2 text-sm text-teal-600 hover:text-teal-800 underline transition duration-200 cursor-pointer"
+                      >
+                        <div className="flex items-center gap-x-4 mb-2">
+                          <RotateCcwKey className="w-5 h-5 text-teal-500" />
+                          <h2 className="text-md font-semibold text-teal-500">
+                            Reset Password?
+                          </h2>
+                        </div>
+                      </button>
                     </div>
-                  </button>
+                  ) : (
+                    <>
+                      <div className="flex flex-col">
+                        <Label className="mb-1 block text-sm">Password                         <span className="text-red-500">*</span>
+</Label>
+                        <Input
+                          {...register("passwordHash")}
+                          type="password"
+                          placeholder="New Password"
+                          className={`${inputbox} mb-2 py-4`}
+                        />
+                        {errors.passwordHash && (
+                          <p className="text-red-500 text-sm">
+                            {errors.passwordHash.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex flex-col">
+                        <Label className="mb-1 block text-sm">
+                          Confirm Password
+                                                  <span className="text-red-500">*</span>
+
+                        </Label>
+
+                        <Input
+                          {...register("confirmPassword")}
+                          type="password"
+                          placeholder="Confirm New Password"
+                          className={`${inputbox} mb-2 py-4`}
+                        />
+                        {errors.confirmPassword && (
+                          <p className="text-red-500 text-sm">
+                            {errors.confirmPassword.message}
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
-              ) : (
-                <>
-                  <div className="flex flex-col">
-                    <Input
-                      {...register("passwordHash")}
-                      type="password"
-                      placeholder="New Password"
-                      className={`${inputbox} mb-2 py-4`}
-                    />
-                    {errors.passwordHash && (
-                      <p className="text-red-500 text-sm">
-                        {errors.passwordHash.message}
-                      </p>
-                    )}
+
+                {/* === User Signature Section === */}
+                <div className="p-0">
+                  <div className="flex items-center gap-x-4 mb-4">
+                    <Signature className="w-5 h-5 text-teal-500" />
+                    <h2 className="text-lg font-semibold text-gray-800">
+                      User Signature
+                    </h2>
                   </div>
 
-                  <div className="flex flex-col">
-                    <Input
-                      {...register("confirmPassword")}
-                      type="password"
-                      placeholder="Confirm New Password"
-                      className={`${inputbox} mb-2 py-4`}
-                    />
-                    {errors.confirmPassword && (
-                      <p className="text-red-500 text-sm">
-                        {errors.confirmPassword.message}
-                      </p>
-                    )}
+                  {/* Signature Input Section */}
+                  {/* Radio Selection */}
+                  <div className="flex gap-4 mb-4">
+                    <label className="flex items-center gap-2 text-sm text-gray-700">
+                      <input
+                        type="radio"
+                        name="signatureMethod"
+                        value="upload"
+                        className="w-4 h-4 accent-teal-400"
+                        checked={signatureMethod === "upload"}
+                        onChange={() => {
+                          setSignatureMethod("upload");
+                          setPreviewUrl(null);
+                          // sigRef.current?.clear();
+                        }}
+                      />
+                      Upload
+                    </label>
+                    <label className="flex items-center gap-2 text-sm text-gray-700">
+                      <input
+                        type="radio"
+                        name="signatureMethod"
+                        value="draw"
+                        className="w-4 h-4 accent-teal-400"
+                        checked={signatureMethod === "draw"}
+                        onChange={() => {
+                          setSignatureMethod("draw");
+                          setPreviewUrl(null);
+                        }}
+                      />
+                      Draw
+                    </label>
                   </div>
-                </>
-              )}
-            </div>
 
-            {/* === User Signature Section === */}
-            <div className="p-0">
-              <div className="flex items-center gap-x-4 mb-4">
-                <Signature className="w-5 h-5 text-teal-500" />
-                <h2 className="text-lg font-semibold text-gray-800">
-                  User Signature
-                </h2>
-              </div>
-
-              {/* Signature Input Section */}
-              {/* Radio Selection */}
-              <div className="flex gap-4 mb-4">
-                <label className="flex items-center gap-2 text-sm text-gray-700">
-                  <input
-                    type="radio"
-                    name="signatureMethod"
-                    value="upload"
-                    checked={signatureMethod === "upload"}
-                    onChange={() => {
-                      setSignatureMethod("upload");
-                      setPreviewUrl(null);
-                      sigRef.current?.clear();
-                    }}
-                  />
-                  Upload
-                </label>
-                <label className="flex items-center gap-2 text-sm text-gray-700">
-                  <input
-                    type="radio"
-                    name="signatureMethod"
-                    value="draw"
-                    checked={signatureMethod === "draw"}
-                    onChange={() => {
-                      setSignatureMethod("draw");
-                      setPreviewUrl(null);
-                    }}
-                  />
-                  Draw
-                </label>
-              </div>
-
-              {/* Upload Section */}
-              {/* {signatureMethod === "upload" && (
+                  {/* Upload Section */}
+                  {/* {signatureMethod === "upload" && (
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-gray-700">
                     Upload Signature
@@ -969,85 +1014,85 @@ export default function AddUserPage() {
                 </div>
               )} */}
 
-              {/* Draw Section */}
-              <div className="flex flex-col md:flex-row gap-8">
-                {/* Left Side: Upload or Draw */}
-                <div className="flex flex-col gap-2">
-                  {signatureMethod === "upload" ? (
-                    <>
-                      <label className="text-sm font-medium text-gray-700">
-                        Upload Signature
-                      </label>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleSignatureFileChange}
-                        className="border px-2 py-1 w-72"
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <label className="text-sm font-medium text-gray-700">
-                        Draw Signature
-                      </label>
-                      <div className="border border-gray-400 w-72 h-32 bg-white">
-                        <SignaturePadCanvas
-                          ref={sigRef}
-                          penColor="black"
-                          onEnd={handleDrawEnd}
-                          canvasProps={{
-                            width: 288,
-                            height: 128,
-                            className: "bg-white",
-                          }}
-                        />
-                      </div>
-                      <div className="flex gap-4 mt-2">
-                        <button
-                          type="button"
-                          onClick={handleClearSignature}
-                          className="text-sm text-teal-600 hover:underline"
-                        >
-                          Clear
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => sigRef.current?.undo()}
-                          className="text-sm text-teal-600 hover:underline"
-                        >
-                          Undo
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
+                  {/* Draw Section */}
+                  <div className="flex flex-col md:flex-row gap-8">
+                    {/* Left Side: Upload or Draw */}
+                    <div className="flex flex-col gap-2">
+                      {signatureMethod === "upload" ? (
+                        <>
+                          <label className="text-sm font-medium text-gray-700">
+                            Upload Signature
+                          </label>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleSignatureFileChange}
+                            className="border px-2 py-1 w-72"
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <label className="text-sm font-medium text-gray-700">
+                            Draw Signature
+                          </label>
+                          <div className="border border-gray-400 w-72 h-32 bg-white">
+                            <SignaturePadCanvas
+                              ref={sigRef}
+                              penColor="black"
+                              onEnd={handleDrawEnd}
+                              canvasProps={{
+                                width: 288,
+                                height: 128,
+                                className: "bg-white",
+                              }}
+                            />
+                          </div>
+                          <div className="flex gap-4 mt-2">
+                            <button
+                              type="button"
+                              onClick={handleClearSignature}
+                              className="text-sm text-teal-600 hover:underline"
+                            >
+                              Clear
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => sigRef.current?.undo()}
+                              className="text-sm text-teal-600 hover:underline"
+                            >
+                              Undo
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
 
-                {/* Right Side: Preview */}
-                <div className="flex flex-col">
-                  <label className="text-sm font-medium text-gray-700 mb-1">
-                    Preview
-                  </label>
-                  <div className="w-72 h-32 border rounded bg-gray-100 flex items-center justify-center text-gray-400">
-                    {previewUrl ? (
-                      <Image
-                        src={previewUrl}
-                        alt="Signature Preview"
-                        width={150}
-                        height={80}
-                        className="w-full h-full object-contain"
-                      />
-                    ) : (
-                      "No signature yet"
-                    )}
+                    {/* Right Side: Preview */}
+                    <div className="flex flex-col">
+                      <label className="text-sm font-medium text-gray-700 mb-1">
+                        Preview
+                      </label>
+                      <div className="w-72 h-32 border rounded bg-gray-100 flex items-center justify-center text-gray-400">
+                        {previewUrl ? (
+                          <Image
+                            src={previewUrl}
+                            alt="Signature Preview"
+                            width={150}
+                            height={80}
+                            className="w-full h-full object-contain"
+                          />
+                        ) : (
+                          "No signature yet"
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Hospital Assignment */}
-          {/* Organization Assignment */}
-          {/* <div className="mt-6">
+              {/* Hospital Assignment */}
+              {/* Organization Assignment */}
+              {/* <div className="mt-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
               Assign Organization
             </h2>
@@ -1070,77 +1115,95 @@ export default function AddUserPage() {
               )}
             </div>
           </div> */}
-          <div>
-            <div className="flex items-center gap-x-4 mb-4">
-              <Hospital className="w-5 h-5 text-teal-500" />
-              <h2 className="text-lg font-semibold text-gray-800">
-                Assign Hospital
-              </h2>
-            </div>
-            <div className="flex flex-wrap gap-4 ">
-              {hospitalLoading ? (
-                <p className="text-gray-500">Loading hospitals...</p>
-              ) : hospitals?.length > 0 ? (
-                hospitals.map((hospital: any) => {
-                  const roleId = Number(getValues("roleId"));
-                  const isChecked = userBranchArray.some(
-                    (item) =>
-                      item.HospitalId === hospital.HospitalId &&
-                      item.RoleId === roleId
-                  );
+              <div>
+                <div className="flex items-center gap-x-4 mb-4">
+                  <Hospital className="w-5 h-5 text-teal-500" />
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    Assign Hospital <span className="text-red-500">*</span>
+                  </h2>
+                </div>
 
-                  return (
-                    <label
-                      key={hospital.HospitalId}
-                      className="flex items-center gap-2"
-                    >
-                      <Checkbox
-                        checked={isChecked}
-                        onCheckedChange={(checked) => {
-                          handleHospitalCheck(Boolean(checked), hospital);
-                        }}
-                      />
-                      {hospital.HospitalName}
-                    </label>
-                  );
-                })
-              ) : (
-                <p className="text-gray-500">No hospitals found.</p>
-              )}
-            </div>
-          </div>
+                <div className="flex flex-wrap gap-4">
+                  {hospitalLoading ? (
+                    <p className="text-gray-500">Loading hospitals...</p>
+                  ) : hospitals?.length > 0 ? (
+                    hospitals.map((hospital: any) => {
+                      const roleId = Number(getValues("roleId"));
 
-          {/* Submit Button */}
-          <div className="flex justify-end mt-4">
-            <div className="flex space-x-4">
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="bg-red-400 hover:bg-red-500 text-white px-5 py-2 rounded-4xl shadow-2xl transition disabled:opacity-50 cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full shadow-2xl transition duration-200 ease-in-out cursor-pointer"
-              >
-                {isSubmitting ? <Loader2Icon className="animate-spin" /> : "Submit"}
-              </button>
-              <button
-                type="button"
-                disabled={isSubmitting}
-                onClick={handleSaveAndContinue}
-                className="bg-sky-500 hover:bg-sky-600 text-white px-6 py-2 rounded-full shadow-2xl transition duration-200 ease-in-out cursor-pointer"
-              >
-                {isSubmitting ? <Loader2Icon className="animate-spin" />
-                   : "Save and Continue"}
-              </button>
-            </div>
-          </div>
-        </form>
-      </main>
-      </>
+                      const isChecked = userBranchArray.some(
+                        (item) =>
+                          item.HospitalId === hospital.HospitalId &&
+                          item.RoleId === roleId
+                      );
+
+                      return (
+                        <label
+                          key={hospital.HospitalId}
+                          className="flex items-center gap-2 cursor-pointer"
+                        >
+                          <Checkbox
+                            checked={isChecked}
+                            onCheckedChange={(checked) =>
+                              handleHospitalCheck(Boolean(checked), hospital)
+                            }
+                            className="data-[state=checked]:bg-teal-400 data-[state=checked]:border-teal-400"
+                          />
+                          <span
+                            className={`${
+                              isChecked
+                                ? "text-gray-900 font-medium"
+                                : "text-gray-700"
+                            }`}
+                          >
+                            {hospital.HospitalName}- {hospital.city}
+                          </span>
+                        </label>
+                      );
+                    })
+                  ) : (
+                    <p className="text-gray-500">No hospitals found.</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex justify-end mt-4">
+                <div className="flex space-x-4">
+                  <button
+                    type="button"
+                    onClick={handleCancel}
+                    className="bg-red-400 hover:bg-red-500 text-white px-5 py-2 rounded-4xl shadow-2xl transition disabled:opacity-50 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full shadow-2xl transition duration-200 ease-in-out cursor-pointer"
+                  >
+                    {isSubmitting ? (
+                      <Loader2Icon className="animate-spin" />
+                    ) : (
+                      "Submit"
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isSubmitting}
+                    onClick={handleSaveAndContinue}
+                    className="bg-sky-500 hover:bg-sky-600 text-white px-6 py-2 rounded-full shadow-2xl transition duration-200 ease-in-out cursor-pointer"
+                  >
+                    {isSubmitting ? (
+                      <Loader2Icon className="animate-spin" />
+                    ) : (
+                      "Save and Continue"
+                    )}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </main>
+        </>
       )}
     </div>
   );

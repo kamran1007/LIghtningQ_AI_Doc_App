@@ -378,7 +378,7 @@ export class ManagePatientService {
   async getAlldoctoRole() {
     return this.prisma.user.findMany({
       where: {
-        roleId: Number(2),
+        roleId: { in: [2, 3] },
         isActive: true,
       },
       include: {

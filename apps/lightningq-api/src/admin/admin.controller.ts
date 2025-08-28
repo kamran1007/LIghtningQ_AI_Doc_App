@@ -21,7 +21,7 @@ import { AdminService } from './admin.service';
 import { UpdateHospitalDto } from 'src/manage_hospital/dto/update_hospital.dto';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname, join } from 'path';
+import { extname, join, resolve } from 'path';
 import {
   CreateUserDto,
   UserBranchDto,
@@ -241,7 +241,14 @@ export class AdminController {
     AnyFilesInterceptor({
       storage: diskStorage({
         destination: (req, file, cb) => {
-          const dest = join(__dirname, '..', '..', 'uploads', 'users');
+          // Always resolve to the project root /upload/user
+          const dest = resolve(__dirname, '..', '..', '..', 'uploads', 'users');
+
+          // Create folder if missing
+          if (!fs.existsSync(dest)) {
+            fs.mkdirSync(dest, { recursive: true });
+          }
+
           cb(null, dest);
         },
         filename: (req, file, cb) => {
@@ -254,13 +261,6 @@ export class AdminController {
           cb(null, newFileName);
         },
       }),
-      fileFilter: (req, file, cb) => {
-        if (!file.originalname || file.size === 0) {
-          cb(null, false); // ❌ Reject this file
-        } else {
-          cb(null, true); // ✅ Accept
-        }
-      },
     }),
   )
   async updateUser(

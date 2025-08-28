@@ -24,54 +24,35 @@ export class ManageHospitalService {
   constructor(private readonly prisma: PrismaService) {}
 
   async CreateHospital(dto: CreateHospitalDto, userId: number) {
-    // 1. Fetch organization
     const organization = await this.prisma.organization.findUnique({
       where: { OrganizationId: dto.organizationId },
     });
 
     if (!organization) {
-      // Throw custom error for client-side logging
       throw new Error('Organization not found');
     }
 
-    // Auto-generate hospitalCode if it's empty
+    // Auto-generate hospitalCode if not provided
     if (!dto.HospitalCode || dto.HospitalCode.trim() === '') {
-      const namePart = (dto.HospitalName?.slice(0, 3) || 'XXX').toUpperCase();
-      const cityPart = (dto.city?.slice(0, 3) || 'YYY').toUpperCase();
-      const contactPart = dto.contactNumber?.slice(-2) || '00';
-
-      let baseCode = `${namePart}${cityPart}${contactPart}`;
-      let uniqueCode = baseCode;
-      let counter = 1;
-
-      // Keep trying until a unique hospitalCode is found
-      while (
-        await this.prisma.hospital.findUnique({
-          where: { HospitalCode: uniqueCode },
-        })
-      ) {
-        uniqueCode = `${baseCode}${counter}`;
-        counter++;
-      }
-
-      dto.HospitalCode = uniqueCode;
+      dto.HospitalCode = await generateHospitalCode(
+        dto.HospitalName,
+        this.prisma,
+      );
     }
 
-    // 2. Check uniqueness
+    // Ensure uniqueness again (extra safety)
     const hospitalWithSameCode = await this.prisma.hospital.findUnique({
       where: { HospitalCode: dto.HospitalCode },
     });
-
     if (hospitalWithSameCode) {
       throw new Error('Hospital code must be unique');
     }
 
-    // 3. Create hospital
     const hospital = await this.prisma.hospital.create({
       data: {
         HospitalName: dto.HospitalName,
         HospitalCode: dto.HospitalCode,
-        ParentHospitalCode: dto.ParentHospitalCode ?? '', // Ensure non-undefined
+        ParentHospitalCode: dto.ParentHospitalCode ?? '',
         Organizationcode: organization.Organizationcode,
         SpecializationType: dto.SpecializationType,
         address: dto.address,
@@ -297,6 +278,23 @@ export class ManageHospitalService {
     });
     if (!user) throw new Error('User not found');
 
+    // 👇 Check if Employee_ID is already taken by another user
+    if (dto.Employee_ID) {
+      const existingEmployee = await this.prisma.user.findFirst({
+        where: {
+          Employee_ID: dto.Employee_ID,
+          NOT: { UserId: userId }, // exclude current user
+        },
+      });
+
+      if (existingEmployee) {
+        return {
+          message: 'Employee Id Already Been Assigned',
+          HttpCode: 400,
+        };
+      }
+    }
+
     await this.prisma.user.update({
       where: { UserId: userId },
       data: {
@@ -387,13 +385,20 @@ export class ManageHospitalService {
           { mobile: { contains: search, mode: 'insensitive' } },
         ],
       }),
-      ...(hospitalId && roleId  && {
-        AdminAccess: {
-          some: { hospitalId, roleId },
-        },
-      }),
       ...(organizationId && { organizationId }),
 
+      // Case 1: filter only by roleId (directly on user)
+      ...(roleId && !hospitalId && { roleId }),
+
+      // Case 2: filter by hospitalId + roleId inside AdminAccess
+      ...(hospitalId && {
+        AdminAccess: {
+          some: {
+            hospitalId,
+            ...(roleId && { roleId }),
+          },
+        },
+      }),
     };
 
     const [users, total] = await this.prisma.$transaction([
@@ -1338,4 +1343,35 @@ export class ManageHospitalService {
 
     return normalizedModules;
   }
+}
+// Helper: Generate 3-char hospital code
+async function generateHospitalCode(
+  hospitalName: string,
+  prisma: any,
+): Promise<string> {
+  const firstChar = (hospitalName?.trim()[0] || 'X').toUpperCase();
+
+  // Retry until we find a unique code
+  let uniqueCode: string = '';
+  let isUnique = false;
+
+  while (!isUnique) {
+    // Generate 2 random chars
+    const randomChars = Array.from({ length: 2 }, () =>
+      String.fromCharCode(65 + Math.floor(Math.random() * 26)),
+    ).join('');
+
+    uniqueCode = firstChar + randomChars;
+
+    // Check DB for duplicates
+    const existing = await prisma.hospital.findUnique({
+      where: { HospitalCode: uniqueCode },
+    });
+
+    if (!existing) {
+      isUnique = true;
+    }
+  }
+
+  return uniqueCode;
 }

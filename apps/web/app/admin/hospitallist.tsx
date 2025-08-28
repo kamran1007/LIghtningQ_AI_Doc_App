@@ -194,15 +194,15 @@ const HospitalList = () => {
           muiTableBodyRowProps={{
           sx: {
             '&:hover': {
-              backgroundColor: '#e3f2fd !important',
+              backgroundColor: '#8AFFFF !important',
             },
           },
         }}
         muiTableToolbarButtonProps={{
           sx: {
-            color: 'lightblue',
+            color: 'teal',
             '&:hover': {
-              color: '#2196f3', // slightly darker blue
+              color: '#2EFFFF', // slightly darker blue
             },
           },
         }}
@@ -211,7 +211,7 @@ const HospitalList = () => {
             '& .MuiButtonBase-root': {
               color: 'black', // default icon color
               '&:hover': {
-                color: '#2196f3', // hover color
+                color: '#2EFFFF', // hover color
               },
             },
           },

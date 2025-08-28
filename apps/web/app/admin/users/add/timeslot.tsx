@@ -15,7 +15,14 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Moon, Sun, X, ClockArrowUp, ClockArrowDown } from "lucide-react";
+import {
+  Moon,
+  Sun,
+  X,
+  ClockArrowUp,
+  ClockArrowDown,
+  Loader2Icon,
+} from "lucide-react";
 import { Label } from "@radix-ui/react-dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -40,9 +47,15 @@ import { User } from "app/admin/hospitaluserlist";
 import { RootState } from "@/store";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
-import { AddUpdateDoctorTimeSlot, CreateTimeSlot, fetchDoctorSlots, UpdateTimeslot } from "@/lib/admin";
+import {
+  AddUpdateDoctorTimeSlot,
+  CreateTimeSlot,
+  fetchDoctorSlots,
+  UpdateTimeslot,
+} from "@/lib/admin";
 import { DoctorSlotSkeleton } from "@/components/ui/skeletonloader/DoctorSlotSkeleton";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { fi } from "date-fns/locale";
 
 interface TimeslotProps {
   open: boolean;
@@ -73,6 +86,7 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
   const [remarkType, setRemarkType] = useState<"DND" | "CANCEL" | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isPermanentCancelled, setIsPermanentCancel] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   type TimeSlot = {
     DoctorTimeSlotId?: number;
@@ -291,39 +305,42 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
 
   const handleSave = async () => {
     if (!user) return;
-  
     try {
+      setIsSubmitting(true);
+
       const finalSlots: Omit<SlotUpdateDetails, "DoctorTimeSlotId">[] = [];
-  
+
       for (const day of selectedDays) {
         const slot = slotsByDay[day];
         const errors: string[] = [];
-  
+
         if (!slot) {
           errors.push(`${day}: Slot is not configured.`);
           continue;
         }
-  
+
         if (
           (!slot.morning?.from || !slot.morning?.to) &&
           (!slot.evening?.from || !slot.evening?.to)
         ) {
-          errors.push(`${day}: At least one complete slot (morning or evening) is required.`);
+          errors.push(
+            `${day}: At least one complete slot (morning or evening) is required.`
+          );
         }
-  
+
         if (!slot.consultTime || isNaN(parseInt(slot.consultTime))) {
           errors.push(`${day}: Consult time is missing or invalid.`);
         }
-  
+
         if (!slot.hospitalId || isNaN(Number(slot.hospitalId))) {
           errors.push(`${day}: Hospital is not selected.`);
         }
-  
+
         if (errors.length > 0) {
           toast.error(errors.join("\n"));
           return;
         }
-  
+
         finalSlots.push({
           DayOfWeek: day,
           Morning_From: slot.morning?.from || "",
@@ -343,11 +360,13 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
           isSlotChanged: Boolean(slot.DoctorTimeSlotId), // Track if this is an update
         });
       }
-  
+
       // Handle deselected days → mark as deleted
       const allSavedDays = Object.keys(slotsByDay);
-      const inactiveDays = allSavedDays.filter((day) => !selectedDays.includes(day));
-  
+      const inactiveDays = allSavedDays.filter(
+        (day) => !selectedDays.includes(day)
+      );
+
       inactiveDays.forEach((day) => {
         const slot = slotsByDay[day];
         if (slot?.DoctorTimeSlotId) {
@@ -369,7 +388,7 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
           });
         }
       });
-  
+
       // 🔁 New unified payload
       const payload = {
         userId: user.UserId,
@@ -378,7 +397,7 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
         ),
         timeSlots: finalSlots,
       };
-  
+
       const res = await AddUpdateDoctorTimeSlot(payload);
       console.log("Response from AddUpdateDoctorTimeSlot:", res);
       if (res?.return?.HttpCode === 201) {
@@ -391,6 +410,7 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
       console.error("Save error:", err);
       toast.error("Failed to save time slots.");
     }
+    finally { setIsSubmitting(false); }
   };
 
   // const hospitals = useSelector((state: RootState) => state.hospital.data);
@@ -491,8 +511,9 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
               dndRemarks: slot?.DNDremarks || "",
               isCancelled: slot?.is_SlotCancelled ?? false,
               cancellationRemarks: slot?.Slot_cancellation_remarks || "",
-              acceptAppointments:
-                Boolean(slot?.Accept_Appointment_Selected_Date),
+              acceptAppointments: Boolean(
+                slot?.Accept_Appointment_Selected_Date
+              ),
 
               isPermanentCancelled: slot?.isPermanentCancelled ?? false,
               hospitalId: slot?.HospitalId ?? undefined, // ✅ Store per-slot hospital
@@ -670,7 +691,10 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
       <div className="flex items-end gap-4">
         {/* Average Consultation Time */}
         <div className="flex-1">
-          <Label>Average Consultation Time (mins)</Label>
+          <Label>
+            Average Consultation Time (mins){" "}
+            <span className="text-red-500">*</span>
+          </Label>
           <Input
             type="number"
             value={slotsByDay[day]?.consultTime || "15"}
@@ -690,7 +714,7 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
         {/* Select Hospital */}
         <div className="flex-1">
           <Label className="mb-1 block text-sm font-medium text-gray-700">
-            Select Hospital (Branch)
+            Select Hospital (Branch) <span className="text-red-500">*</span>
           </Label>
 
           <Select
@@ -749,11 +773,11 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
         className="max-h-[95vh] overflow-y-auto p-4 max-w-3xl no-scrollbar"
       >
         <div className="flex justify-between items-center">
-          <DialogTitle className="text-xl font-semibold">
+          <DialogTitle className="text-xl font-semibold font-sans text-teal-400">
             Doctor Time Slot
           </DialogTitle>
           <DialogClose asChild>
-            <button className="text-blue-600 hover:bg-blue-50 p-2 rounded-full transition cursor-pointer">
+            <button className="text-teal-400 hover:bg-teal-50 p-2 rounded-full transition cursor-pointer">
               <X className="w-6 h-6" />
             </button>
           </DialogClose>
@@ -780,9 +804,8 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
 
                         <Button
                           variant="outline"
-                          title={day}
                           className={cn(
-                            "rounded-full h-10 w-24 cursor-pointer",
+                            "group relative rounded-full h-10 w-24 cursor-pointer", // ⬅️ added group + relative
                             isCancelled
                               ? "bg-red-500 text-white"
                               : isDND
@@ -790,13 +813,18 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
                                 : isToday && isSelected
                                   ? "bg-blue-500 hover:bg-green-500 text-white"
                                   : isToday
-                                    ? "bg-blue-400 text-white" // 💙 Today gets priority
+                                    ? "bg-blue-400 text-white"
                                     : isSelected
                                       ? "bg-green-500 text-white"
                                       : "bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-300"
                           )}
                           onClick={() => toggleDay(day)}
                         >
+                          {/* Tooltip inside button, now works */}
+                          <span className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-2 py-1 text-xs rounded-md bg-gray-800 text-white opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 whitespace-nowrap z-50">
+                            {day}
+                          </span>
+
                           <div className="flex flex-col items-center leading-tight">
                             <span className="text-sm font-semibold">
                               {day.slice(0, 3).toUpperCase()}
@@ -874,23 +902,29 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
                     <span className="text-xs text-gray-600">
                       {getDateForDay(day)}
                     </span>
-                    <Button
-                      variant="outline"
-                      title={day}
-                      className={cn(
-                        "rounded-full h-10 w-24 cursor-pointer",
-                        isToday
-                          ? "bg-blue-400 text-white"
-                          : "bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-300"
-                      )}
-                      onClick={() => toggleDay(day)}
-                    >
-                      <div className="flex flex-col items-center leading-tight">
-                        <span className="text-sm font-semibold">
-                          {day.slice(0, 3).toUpperCase()}
-                        </span>
-                      </div>
-                    </Button>
+                    <div className="relative group inline-block">
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "rounded-full h-10 w-24 cursor-pointer",
+                          isToday
+                            ? "bg-blue-400 text-white"
+                            : "bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-300"
+                        )}
+                        onClick={() => toggleDay(day)}
+                      >
+                        <div className="flex flex-col items-center leading-tight">
+                          <span className="text-sm font-semibold">
+                            {day.slice(0, 3).toUpperCase()}
+                          </span>
+                        </div>
+                      </Button>
+
+                      {/* Tooltip */}
+                      <span className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-2 py-1 text-xs rounded-md bg-gray-800 text-white opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 whitespace-nowrap z-50">
+                        {day}
+                      </span>
+                    </div>
                   </div>
                 );
               })}
@@ -916,29 +950,34 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
                 </div>
 
                 <DialogFooter className="mt-6">
-                  <div className="flex items-center gap-2 flex-1">
-                    <Switch
-                      checked={
-                        remarkDay
-                          ? (slotsByDay[remarkDay]?.isPermanentCancelled ??
-                            false)
-                          : false
-                      }
-                      onCheckedChange={(checked) => {
-                        setSlotsByDay((prev) => ({
-                          ...prev,
-                          [remarkDay ?? ""]: {
-                            ...defaultDaySlot,
-                            ...prev[remarkDay ?? ""],
-                            isPermanentCancelled: checked,
-                          },
-                        }));
-                      }}
-                    />
-                    <span className="text-sm font-medium">
-                      Cancel permanently (apply to all future {remarkDay})
-                    </span>
-                  </div>
+                  <>
+                    {remarkType === "CANCEL" && (
+                      <div className="flex items-center gap-2 flex-1">
+                        <Switch
+                          checked={
+                            remarkDay
+                              ? (slotsByDay[remarkDay]?.isPermanentCancelled ??
+                                false)
+                              : false
+                          }
+                          onCheckedChange={(checked) => {
+                            setSlotsByDay((prev) => ({
+                              ...prev,
+                              [remarkDay ?? ""]: {
+                                ...defaultDaySlot,
+                                ...prev[remarkDay ?? ""],
+                                isPermanentCancelled: checked,
+                              },
+                            }));
+                          }}
+                        />
+                        <span className="text-sm font-medium">
+                          Cancel permanently (apply to all future {remarkDay})
+                        </span>
+                      </div>
+                    )}
+                  </>
+
                   <Button
                     variant="ghost"
                     onClick={() => setShowRemarkDialog(false)}
@@ -1101,7 +1140,7 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
                       <span>{day}</span>
                       {cancelledDays.includes(day) && (
                         <span className="text-md italic text-black">
-                          {slotsByDay[day]?.cancellationRemarks}
+                          {slotsByDay[day]?.cancellationRemarks} -- {slotsByDay[day]?.isPermanentCancelled ? "Permanent" : "Temporary"}
                         </span>
                       )}
                       {dndDays.includes(day) &&
@@ -1203,7 +1242,11 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
                   className="rounded-full h-10 cursor-pointer shadow-2xl"
                   onClick={handleSave}
                 >
-                  Save
+                  {isSubmitting ? (
+                    <Loader2Icon className="animate-spin" />
+                  ) : (
+                    "Save"
+                  )}
                 </Button>
               </div>
             </DialogFooter>

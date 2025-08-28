@@ -77,6 +77,10 @@ const AddHospitalForm = ({
   const [lat, setLat] = useState(17.385044);
   const [lng, setLng] = useState(78.486671);
   const [address, setAddress] = useState("");
+  const [name, setName] = useState("");
+  const [HospitalWebsite, setHospitalWebsite] = useState("");
+  const [Hospitalphone, setHospitalPhone] = useState("");
+
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
   const [autocomplete, setAutocomplete] =
@@ -161,6 +165,8 @@ const AddHospitalForm = ({
       .then((res) => res.json())
       .then((data) => {
         const formattedAddress = data.results?.[0]?.formatted_address;
+        console.log("data for map",data);
+        console.log("Reverse geocoded address:", formattedAddress);
         if (formattedAddress) {
           setAddress(formattedAddress);
           setValue("address", formattedAddress);
@@ -186,8 +192,19 @@ const AddHospitalForm = ({
     setValue("longitude", newLng);
 
     const formattedAddress = place.formatted_address || "";
+    const HospitalName = place.name || "";
+    const HospitalWebsite = place.website || "";
+    const HosspitalContact = place.formatted_phone_number || "";
     setAddress(formattedAddress);
+    setName(HospitalName);
+    setHospitalWebsite(HospitalWebsite || "");
+    setHospitalPhone(HosspitalContact || "");
     setValue("address", formattedAddress);
+    setValue("HospitalName", HospitalName);
+    setValue("website", HospitalWebsite);
+    setValue("contactNumber", HosspitalContact?.replace(/\D/g, "").slice(-10)); // last 10 digits
+
+    console.log("Place changed:", place);
 
     // Extract pincode
     const pincodeMatch = formattedAddress.match(/\b\d{6}\b/);

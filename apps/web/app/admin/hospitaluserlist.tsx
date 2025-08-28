@@ -135,7 +135,7 @@ const UserList = () => {
           search: debouncedSearch,
           hospitalId: selectedHospital,
           roleId: selectedRole,
-          organizationId: 1,
+          organizationId: organizationId ?? 1,
         })
       );
     } else {
@@ -153,7 +153,7 @@ const UserList = () => {
         search: debouncedSearch,
         hospitalId: selectedHospital,
         roleId: selectedRole,
-        organizationId: 1,
+        organizationId: organizationId ?? 1,
       })
     );
   }, [
@@ -256,10 +256,16 @@ const UserList = () => {
       },
     },
     {
-      accessorKey: "Experience",
-      header: "Experience",
-      size: 60,
-    },
+  accessorKey: "Experience",
+  header: "Experience",
+  size: 60,
+  Cell: ({ row }) => {
+    const exp = row.getValue("Experience") as number | string | null;
+    if (!exp) return "-";
+    return `${exp} ${Number(exp) > 1 ? "years" : "year"}`;
+  },
+},
+
     {
       accessorKey: "isActive",
       header: "Status",
@@ -331,21 +337,21 @@ const UserList = () => {
           muiTableBodyRowProps={{
             sx: {
               "&:hover": {
-                backgroundColor: "#e3f2fd !important",
+                backgroundColor: "#CCFBF1 !important",
               },
             },
           }}
           muiTableToolbarButtonProps={{
             sx: {
-              color: "lightblue",
-              "&:hover": { color: "#2196f3" },
+              color: "teal",
+              "&:hover": { color: "#13D4D4" },
             },
           }}
           muiTopToolbarProps={{
             sx: {
               "& .MuiButtonBase-root": {
                 color: "black",
-                "&:hover": { color: "#2196f3" },
+                "&:hover": { color: "#13D4D4" },
               },
             },
           }}
@@ -360,7 +366,7 @@ const UserList = () => {
                 }
               >
                 <SelectTrigger className="w-64 border border-gray-300 rounded-lg shadow-sm focus:border-[#22E0D4] focus:ring-2 focus:ring-[#22E0D4] transition flex items-center gap-2">
-                  <Hospital className="w-4 h-4 text-gray-500" />
+                  <Hospital className="w-4 h-4 text-teal-400" />
                   <SelectValue placeholder="All Hospitals" />
                 </SelectTrigger>
                 <SelectContent className="border-gray-300 shadow-2xl rounded-2xl">
@@ -384,7 +390,7 @@ const UserList = () => {
                 }
               >
                 <SelectTrigger className="w-64 border border-gray-300 rounded-lg shadow-sm focus:border-[#22E0D4] focus:ring-2 focus:ring-[#22E0D4] transition flex items-center gap-2">
-                  <UserRound className="w-4 h-4 text-gray-500" />
+                  <UserRound className="w-4 h-4 text-teal-400" />
                   <SelectValue placeholder="All Roles" />
                 </SelectTrigger>
                 <SelectContent className="border-gray-300 shadow-2xl rounded-2xl">
@@ -399,7 +405,7 @@ const UserList = () => {
 
               {/* Search Input */}
               <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-teal-400" />
                 <Input
                   type="text"
                   placeholder="Search users, hospitals, roles..."

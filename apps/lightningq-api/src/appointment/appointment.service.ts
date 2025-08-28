@@ -34,10 +34,18 @@ export class AppointmentService {
           throw new Error('Patient not found with provided PatientId');
         }
       } else {
-        const hospitalCode = dto.hospitalId
-          ? `H${String(dto.hospitalId).padStart(3, '0')}`
-          : 'H001';
+        // Fetch hospital to get the real hospital code (e.g. MXJ, IZQ)
+        const hospital = await tx.hospital.findUnique({
+          where: { HospitalId: dto.hospitalId },
+        });
 
+        if (!hospital) {
+          throw new Error('Hospital not found for given hospitalId');
+        }
+
+        const hospitalCode = hospital.HospitalCode; // <-- use real hospital code
+
+        // Find last patient MRN for this hospital
         const lastPatient = await tx.patient.findFirst({
           where: {
             Patient_Medical_Record_No: {
@@ -50,15 +58,16 @@ export class AppointmentService {
         const nextNumber = lastPatient?.Patient_Medical_Record_No
           ? parseInt(
               lastPatient.Patient_Medical_Record_No.replace(hospitalCode, ''),
+              10,
             ) + 1
           : 1;
 
-        const paddedNumber = String(nextNumber).padStart(6, '0');
+        const paddedNumber = String(nextNumber).padStart(7, '0'); // 7 digits
         const generatedMRN = `${hospitalCode}${paddedNumber}`;
 
         if (generatedMRN.length !== 10) {
           throw new Error(
-            'Generated Patient_Medical_Record_No must be 10 digits',
+            `Generated Patient_Medical_Record_No must be 10 characters, got: ${generatedMRN}`,
           );
         }
 
