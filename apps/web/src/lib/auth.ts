@@ -2,10 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { BACKEND_URL } from "./constants";
-import {
-  FormState,
-  LoginFormSchema
-} from "./types";
+import { FormState, LoginFormSchema } from "./types";
 import { createSession } from "./session";
 // import { createSession, updateTokens } from "./session";
 
@@ -18,7 +15,6 @@ export async function login(
   const validatedFields = LoginFormSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
-    
   });
 
   if (!validatedFields.success) {
@@ -26,20 +22,15 @@ export async function login(
       error: validatedFields.error.flatten().fieldErrors,
     };
   }
-  console.log(BACKEND_URL)
-  const response = await fetch(
-    `${BACKEND_URL}/auth/login`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(validatedFields.data),
-    }
-  );
-
-  
+  console.log(BACKEND_URL);
+  const response = await fetch(`${BACKEND_URL}/auth/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify(validatedFields.data),
+  });
 
   if (response.ok) {
     const result = await response.json();
@@ -69,45 +60,70 @@ export async function login(
   }
 }
 
-export const refreshToken = async (
-  oldRefreshToken: string
-) => {
+// export async function login(formData: FormData) {
+//   const email = formData.get("email");
+//   const password = formData.get("password");
+
+//   if (!email || !password) {
+//     return { message: "Email and password are required" };
+//   }
+
+//   try {
+//     const response = await axiosClient.post("/auth/login", {
+//       email,
+//       password,
+//     });
+
+//     const result = response.data;
+
+//     await createSession({
+//       user: {
+//         id: result.id,
+//         email: result.email,
+//         name: result.firstName + " " + result.lastName,
+//         RoleId: result.roleId,
+//         OrganizationId: result.organizationId,
+//       },
+//       accessToken: result.accessToken,
+//       refreshToken: result.refreshToken,
+//     });
+
+//     return result;
+//   } catch (error: any) {
+//     return {
+//       message:
+//         error.response?.status === 401
+//           ? "Invalid Credentials!"
+//           : "An error occurred. Please try again.",
+//     };
+//   }
+// }
+
+export const refreshToken = async (oldRefreshToken: string) => {
   try {
-    const response = await fetch(
-      `${BACKEND_URL}/auth/refresh`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          refresh: oldRefreshToken,
-        }),
-      }
-    );
+    const response = await fetch(`${BACKEND_URL}/auth/refresh`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${oldRefreshToken}`, // 🔑 send in header
+      },
+    });
 
     if (!response.ok) {
-      throw new Error(
-        "Failed to refresh token" + response.statusText
-      );
+      throw new Error("Failed to refresh token" + response.statusText);
     }
 
-    const { accessToken, refreshToken } =
-      await response.json();
+    const { accessToken, refreshToken } = await response.json();
     // update session with new tokens
-    const updateRes = await fetch(
-      "http://localhost:3000/api/auth/update",
-      {
-        method: "POST",
-        body: JSON.stringify({
-          accessToken,
-          refreshToken,
-        }),
-      }
-    );
-    if (!updateRes.ok)
-      throw new Error("Failed to update the tokens");
-    console.log("refresh token has relesed", accessToken)
+    const updateRes = await fetch("http://localhost:3000/api/auth/update", {
+      method: "POST",
+      body: JSON.stringify({
+        accessToken,
+        refreshToken,
+      }),
+    });
+    if (!updateRes.ok) throw new Error("Failed to update the tokens");
+    console.log("refresh token has relesed", accessToken);
 
     return accessToken;
   } catch (err) {
@@ -115,4 +131,3 @@ export const refreshToken = async (
     return null;
   }
 };
-
