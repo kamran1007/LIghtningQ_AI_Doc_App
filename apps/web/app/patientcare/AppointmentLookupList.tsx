@@ -136,7 +136,7 @@ export default function AppointmentLookupList() {
     }
   }
 
-  const filteredAppointments = data.filter((a) =>
+  const filteredAppointments = data?.filter((a) =>
     filter === "all" ? true : a.status?.toLowerCase() === filter
   );
 
@@ -449,7 +449,7 @@ export default function AppointmentLookupList() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 bg-white">
-              {filteredAppointments.map((p, idx) => {
+              {filteredAppointments?.map((p, idx) => {
                 const imageUrl = p?.patient?.profileImageUrl
                   ? `${BACKEND_URL}${p?.patient?.profileImageUrl}`
                   : null;

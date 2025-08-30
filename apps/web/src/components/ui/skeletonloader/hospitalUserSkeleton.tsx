@@ -4,7 +4,7 @@ export const HospitalUserSkeleton = () => {
   const rows = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
   return (
-    <div className="rounded-xl border overflow-hidden shadow-sm animate-pulse">
+    <div className="rounded-xl border-gray-300 overflow-hidden shadow-sm animate-pulse">
       {/* Header */}
       <div className="grid grid-cols-9 gap-4 bg-gray-100 px-6 py-3 text-sm font-medium text-gray-500">
         <div>Name</div>

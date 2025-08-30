@@ -2,7 +2,7 @@ export const DoctorSlotSkeleton = () => {
     return (
       <div className="p-4 space-y-6">
         {/* Title */}
-        <div className="h-6 w-1/3 bg-gray-200 rounded-md animate-pulse" />
+        <div className="h-6 w-1/3 bg-gray-300 rounded-md animate-pulse" />
   
         {/* Day Buttons */}
         <div className="grid grid-cols-7 gap-2">

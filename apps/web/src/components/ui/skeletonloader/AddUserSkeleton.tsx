@@ -9,7 +9,7 @@ const shimmer = "animate-pulse bg-gray-200";
 export default function AddUserSkeleton() {
   return (
     <div className="flex h-full">
-      <aside className="w-full max-w-[260px] border-r border-gray-200 px-4 py-6 bg-white h-full">
+      <aside className="w-full max-w-[260px] border-r border-gray-300 px-4 py-6 bg-white h-full">
         {/* Back Button Skeleton */}
         <div className="flex mb-6">
           <div className={`${shimmer} h-8 w-24`} />

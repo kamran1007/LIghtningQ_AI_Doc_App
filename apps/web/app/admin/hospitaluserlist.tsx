@@ -256,15 +256,15 @@ const UserList = () => {
       },
     },
     {
-  accessorKey: "Experience",
-  header: "Experience",
-  size: 60,
-  Cell: ({ row }) => {
-    const exp = row.getValue("Experience") as number | string | null;
-    if (!exp) return "-";
-    return `${exp} ${Number(exp) > 1 ? "years" : "year"}`;
-  },
-},
+      accessorKey: "Experience",
+      header: "Experience",
+      size: 60,
+      Cell: ({ row }) => {
+        const exp = row.getValue("Experience") as number | string | null;
+        if (!exp) return "-";
+        return `${exp} ${Number(exp) > 1 ? "years" : "year"}`;
+      },
+    },
 
     {
       accessorKey: "isActive",
@@ -404,14 +404,14 @@ const UserList = () => {
               </Select>
 
               {/* Search Input */}
-              <div className="relative flex-1 max-w-md">
+              <div className="relative flex-1 max-w-sm">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-teal-400" />
                 <Input
                   type="text"
                   placeholder="Search users, hospitals, roles..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-full rounded-xl border border-gray-200 
+                  className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-200 
             bg-white shadow-sm focus:border-pink-400 focus:ring-2 
             focus:ring-pink-200 transition-all"
                 />
