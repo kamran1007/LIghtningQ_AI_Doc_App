@@ -10,8 +10,8 @@ const AnalyticalHistoricalReports = ({
   revenueTrend,
   doctorPerformance,
 }: AnalyticalHistoricalReportsProps) => {
-  console.log("Revenue Trend:", revenueTrend);
-  console.log("Doctor Performance:", doctorPerformance);
+  // console.log("Revenue Trend:", revenueTrend);
+  // console.log("Doctor Performance:", doctorPerformance);
 
   const revenueTrendOptions = {
     chart: { type: "line", toolbar: { show: false } },

@@ -25,11 +25,9 @@ export async function login(
   console.log(BACKEND_URL);
   const response = await fetch(`${BACKEND_URL}/auth/login`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(validatedFields.data),
+    credentials: "include", // 🔹 so cookie gets set
   });
 
   if (response.ok) {
@@ -39,16 +37,16 @@ export async function login(
 
     await createSession({
       user: {
-        id: result.id,
-        email: result.email,
-        name: result.firstName + " " + result.lastName,
-        // organizationId: result.organizationId,
-        RoleId: result.roleId, // Default to 2 if roleId is not provided
-        OrganizationId: result.organizationId,
+        id: result.user.UserId,
+        email: result.user.email,
+        name: result.user.firstName + " " + result.user.lastName,
+        RoleId: result.user.roleId,
+        OrganizationId: result.user.organizationId,
       },
       accessToken: result.accessToken,
-      refreshToken: result.refreshToken,
+      refreshToken: result.refreshToken, // also fix refreshToken here
     });
+
     // redirect("/dashboard");
   } else {
     return {
@@ -60,74 +58,55 @@ export async function login(
   }
 }
 
-// export async function login(formData: FormData) {
-//   const email = formData.get("email");
-//   const password = formData.get("password");
-
-//   if (!email || !password) {
-//     return { message: "Email and password are required" };
-//   }
-
-//   try {
-//     const response = await axiosClient.post("/auth/login", {
-//       email,
-//       password,
-//     });
-
-//     const result = response.data;
-
-//     await createSession({
-//       user: {
-//         id: result.id,
-//         email: result.email,
-//         name: result.firstName + " " + result.lastName,
-//         RoleId: result.roleId,
-//         OrganizationId: result.organizationId,
-//       },
-//       accessToken: result.accessToken,
-//       refreshToken: result.refreshToken,
-//     });
-
-//     return result;
-//   } catch (error: any) {
-//     return {
-//       message:
-//         error.response?.status === 401
-//           ? "Invalid Credentials!"
-//           : "An error occurred. Please try again.",
-//     };
-//   }
-// }
-
-export const refreshToken = async (oldRefreshToken: string) => {
+export const refreshToken = async () => {
   try {
-    const response = await fetch(`${BACKEND_URL}/auth/refresh`, {
+    const response = await fetch("http://localhost:3000/api/auth/update", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${oldRefreshToken}`, // 🔑 send in header
-      },
+      credentials: "include", // 🔹 send cookie automatically
     });
 
     if (!response.ok) {
-      throw new Error("Failed to refresh token" + response.statusText);
+      throw new Error("Failed to refresh token");
     }
 
-    const { accessToken, refreshToken } = await response.json();
-    // update session with new tokens
-    const updateRes = await fetch("http://localhost:3000/api/auth/update", {
-      method: "POST",
-      body: JSON.stringify({
-        accessToken,
-        refreshToken,
-      }),
-    });
-    if (!updateRes.ok) throw new Error("Failed to update the tokens");
-    console.log("refresh token has relesed", accessToken);
-
-    return accessToken;
+    const { accessToken } = await response.json();
+    return { accessToken };
   } catch (err) {
     console.error("Refresh Token failed:", err);
     return null;
   }
 };
+
+
+// export const refreshToken = async (oldRefreshToken: string) => {
+//   try {
+//     const response = await fetch(`${BACKEND_URL}/auth/refresh`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//         Authorization: `Bearer ${oldRefreshToken}`, // 🔑 send in header
+//       },
+//     });
+
+//     if (!response.ok) {
+//       throw new Error("Failed to refresh token" + response.statusText);
+//     }
+
+//     const { accessToken, refreshToken } = await response.json();
+//     // update session with new tokens
+//     const updateRes = await fetch("http://localhost:3000/api/auth/update", {
+//       method: "POST",
+//       body: JSON.stringify({
+//         accessToken,
+//         refreshToken,
+//       }),
+//     });
+//     if (!updateRes.ok) throw new Error("Failed to update the tokens");
+//     console.log("refresh token has relesed", accessToken);
+
+//     return accessToken;
+//   } catch (err) {
+//     console.error("Refresh Token failed:", err);
+//     return null;
+//   }
+// };

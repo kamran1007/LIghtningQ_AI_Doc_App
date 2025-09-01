@@ -9,6 +9,7 @@ import { headers } from "next/headers";
 import { Orbitron } from "next/font/google";
 import AppProviders from "@/providers/AppProviders";
 import { Toaster } from "react-hot-toast";
+import IdleLogoutProvider from "@/hooks/IdleLogoutProvider";
 
 // ⬇️ Orbitron font
 const orbitron = Orbitron({
@@ -40,8 +41,10 @@ export default async function RootLayout({
     <html lang="en" className={orbitron.className}>
       <body className="h-screen flex flex-col">
         <>
-        <Toaster position="top-center" reverseOrder={false} />
+          <Toaster position="top-center" reverseOrder={false} />
           <AppProviders>
+            {/* <IdleLogoutProvider /> */}
+
             {!isAuthPage && <ClientAppBarWrapper session={session} />}
             <div className="flex flex-1 overflow-hidden">
               {!isAuthPage && session?.user && <AppSidebar />}
@@ -53,7 +56,6 @@ export default async function RootLayout({
     </html>
   );
 }
-
 
 // import type { Metadata } from "next";
 // import "./globals.css";
@@ -99,7 +101,7 @@ export default async function RootLayout({
 //           <Toaster position="top-center" reverseOrder={false} />
 //           <ClientLayoutWrapper>
 //             {!isAuthPage && (
-//               <ClientAppBarWrapper session={session}/> 
+//               <ClientAppBarWrapper session={session}/>
 //             )}
 //             <div className="flex flex-1 overflow-hidden">
 //               {!isAuthPage && session?.user && <AppSidebar />}

@@ -25,7 +25,7 @@ model User {
   mobile             String          @unique
   passwordHash       String
   isActive           Boolean         @default(true)
-  hashedRefreshToken String
+  refreshToken String?
   dateOfBirth        DateTime
   roleId             Int
   role               Role            @relation(fields: [roleId], references: [RoleId])

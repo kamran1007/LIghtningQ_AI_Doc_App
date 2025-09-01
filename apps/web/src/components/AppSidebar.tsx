@@ -41,7 +41,7 @@ export function AppSidebar() {
     (state: RootState) => state.hospitalAccessRight.data
   ) as AccessRight[];
 
-  console.log("Access Rights from Redux AppBar:", accessRights);
+  // console.log("Access Rights from Redux AppBar:", accessRights);
 
   // ✅ filter only enabled modules
   const enabledNavItems = accessRights

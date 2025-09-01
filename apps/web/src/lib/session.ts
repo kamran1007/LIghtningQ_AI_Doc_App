@@ -1,11 +1,7 @@
 "use server";
 
 import { jwtVerify, SignJWT } from "jose";
-
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { refreshToken } from "./auth";
-// import { Role } from "./types";
 
 export type Session = {
   user: {
@@ -25,9 +21,9 @@ export type Session = {
 
 // eslint-disable-next-line turbo/no-undeclared-env-vars
 const secretKey = process.env.SESSION_SECRET_KEY!;
-console.log("session secrete key", secretKey);
 const encodedKey = new TextEncoder().encode(secretKey);
 
+// 🔹 Create session (cookie-based)
 export async function createSession(payload: Session) {
   const expiredAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
@@ -46,6 +42,7 @@ export async function createSession(payload: Session) {
   });
 }
 
+// 🔹 Get session
 export async function getSession() {
   const cookie = (await cookies()).get("session")?.value;
   if (!cookie) return null;
@@ -54,20 +51,20 @@ export async function getSession() {
     const { payload } = await jwtVerify(cookie, encodedKey, {
       algorithms: ["HS256"],
     });
-
     return payload as Session;
   } catch (err) {
     console.error("Failed to verify the session", err);
-    // redirect("/auth/login");
     return null;
   }
 }
 
+// 🔹 Delete session
 export async function deleteSession() {
   await (await cookies()).delete("session");
-  console.log("Session deleted", cookies, refreshToken);
+  console.log("Session deleted");
 }
 
+// 🔹 Update tokens in existing session
 export async function updateTokens({
   accessToken,
   refreshToken,
@@ -79,13 +76,10 @@ export async function updateTokens({
   if (!cookie) return null;
 
   const { payload } = await jwtVerify<Session>(cookie, encodedKey);
-
   if (!payload) throw new Error("Session not found");
 
   const newPayload: Session = {
-    user: {
-      ...payload.user,
-    },
+    ...payload,
     accessToken,
     refreshToken,
   };
@@ -93,7 +87,7 @@ export async function updateTokens({
   await createSession(newPayload);
 }
 
-
+// 🔹 Commit session (server + optional response)
 export async function commitSession(session: Session, res?: any) {
   const expiredAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 

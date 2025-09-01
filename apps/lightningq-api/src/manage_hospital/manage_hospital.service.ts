@@ -193,7 +193,7 @@ export class ManageHospitalService {
         Prefix: dto.Prefix as any as Title,
         Experience: dto.Experience ?? '', // ✅ fallback to empty string
         Employee_ID: dto.Employee_ID ?? '', // ✅ fallback to empty string
-        hashedRefreshToken: '',
+        refreshToken: '',
       },
       include: {
         AdminAccess: {

@@ -6,6 +6,7 @@ import axios from "axios";
 import { BACKEND_URL } from "./constants";
 
 import { getSession } from "./session";
+import { authFetch } from "./authFetch";
 // import toast from "react-hot-toast";
 // import { User } from "app/admin/hospitaluserlist";
 
@@ -152,6 +153,39 @@ export const getallusers = async (
   return result?.return;
 };
 
+
+// export const getallusers = async (
+//   page: number = 1,
+//   limit: number = 10,
+//   search?: string,
+//   hospitalId?: number | "all",
+//   roleId?: number | "all",
+//   organizationId?: number
+// ) => {
+//   const params = new URLSearchParams({
+//     page: String(page),
+//     limit: String(limit),
+//     organizationId: String(organizationId ?? ""),
+//   });
+
+//   if (search) params.append("search", search);
+//   if (hospitalId && hospitalId !== "all")
+//     params.append("hospitalId", String(hospitalId));
+//   if (roleId && roleId !== "all") params.append("roleId", String(roleId));
+
+//   const response = await authFetch(
+//     `/admin/AllUsers?${params.toString()}`
+//   );
+
+//   if (!response.ok) {
+//     const errorText = await response.text();
+//     throw new Error(`Failed to fetch users: ${response.status} ${errorText}`);
+//   }
+
+//   const result = await response.json();
+//   return result?.return;
+// };
+
 // lib/admin.tsx
 type User = {
   UserId: number;
@@ -210,6 +244,20 @@ export const getUserSpecialization = async () => {
   if (!response.ok) throw new Error("Failed to fetch User Specialization");
   return response.json(); // ✅ Parse and return JSON here
 };
+
+// export const getUserRole = async () => {
+//   const response = await authFetch(`/admin/getUserRole`);
+
+//   if (!response.ok) throw new Error("Failed to fetch User Role");
+//   return response.json();
+// };
+
+// export const getUserSpecialization = async () => {
+//   const response = await authFetch(`/admin/getUserSpecialization`);
+
+//   if (!response.ok) throw new Error("Failed to fetch User Specialization");
+//   return response.json();
+// };
 interface ApiResponse {
   success: boolean;
   message: string;

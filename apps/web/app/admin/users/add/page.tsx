@@ -364,8 +364,7 @@ export default function AddUserPage() {
     const formData = new FormData();
 
     console.log("Before saveUser, SignatureOfUser:", data.SignatureOfUser);
-
-    const res = await saveUser(formData); // <-- send FormData, not plain object
+    const res = await saveUser(data); // <-- send FormData, not plain object
 
     if (res?.return?.HttpCode === 200 || res?.data?.return?.HttpCode === 200) {
       toast.success(
@@ -886,8 +885,9 @@ export default function AddUserPage() {
             </div> */}
                 <div className="grid grid-cols-3 gap-4">
                   <div className="flex flex-col">
-                    <Label className="mb-1 block text-sm">Email                         <span className="text-red-500">*</span>
-</Label>
+                    <Label className="mb-1 block text-sm">
+                      Email <span className="text-red-500">*</span>
+                    </Label>
                     <Input
                       {...register("email")}
                       placeholder="Email"
@@ -918,8 +918,9 @@ export default function AddUserPage() {
                   ) : (
                     <>
                       <div className="flex flex-col">
-                        <Label className="mb-1 block text-sm">Password                         <span className="text-red-500">*</span>
-</Label>
+                        <Label className="mb-1 block text-sm">
+                          Password <span className="text-red-500">*</span>
+                        </Label>
                         <Input
                           {...register("passwordHash")}
                           type="password"
@@ -936,8 +937,7 @@ export default function AddUserPage() {
                       <div className="flex flex-col">
                         <Label className="mb-1 block text-sm">
                           Confirm Password
-                                                  <span className="text-red-500">*</span>
-
+                          <span className="text-red-500">*</span>
                         </Label>
 
                         <Input

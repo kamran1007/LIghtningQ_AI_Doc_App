@@ -18,39 +18,37 @@ export class UserService {
     });
   }
   async findOne(UserId: number) {
-    const updatedUser = await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { UserId },
       include: {
         AdminAccess: {
-          include: {
-            hospital: true,
-            role: true,
-          },
+          include: { hospital: true, role: true },
         },
         role: true,
       },
     });
-    return updatedUser;
+
+    // Ensure hashedRefreshToken is always string | null
+    return {
+      ...user,
+      refreshToken: user?.refreshToken ?? null,
+    };
   }
+
   async updateHashedRefreshToken(UserId: number, hashedRT: string | null) {
-    return await this.prisma.user.update({
-      where: {
-        UserId: UserId,
-      },
-      data: {
-        // hashedRefreshToken: hashedRT,  hashedRefreshToken String? // <== add the `?` to make it nullable -- > prisma
-        hashedRefreshToken: hashedRT === null ? undefined : hashedRT
-      },
+    return this.prisma.user.update({
+      where: { UserId }, // <-- requires actual number
+      data: { refreshToken: hashedRT },
     });
   }
-  
+
   // Update user
   async updateUserProfile(UserId: number, dto: UpdateProfileDto) {
     return await this.prisma.user.update({
       where: { UserId: UserId },
       data: {
         ...dto,
-        Prefix: dto.title  as Title, // Cast string to enum
+        Prefix: dto.title as Title, // Cast string to enum
 
         dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
       },
