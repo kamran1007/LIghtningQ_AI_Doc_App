@@ -152,7 +152,7 @@ export class UpsertPatientDto {
   @IsOptional()
   languages?: string[]; // array of LanguageId as string
   @IsOptional()
-  medicalHistory?: string[]; // array of MedicalHistoryId as string
+  MedicalHistory ?: string[]; // array of MedicalHistoryId as string
 
   // @IsOptional()
   // TagPatient?: string[]

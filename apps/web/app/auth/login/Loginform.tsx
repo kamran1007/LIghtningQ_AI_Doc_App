@@ -206,7 +206,7 @@ const LoginInForm = () => {
           className="flex flex-col items-center gap-8 p-6 w-full max-w-2lg max-h-xl mx-auto bg-white/70 backdrop-blur-md shadow-lg rounded-2xl "
         >
           {/* Greeting with gradient */}
-          <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent font-sans animate-ocean-flow">
+          <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-400 bg-clip-text text-transparent font-sans animate-ocean-flow">
             Welcome back, {sessionProfile?.name}!{/* 🎉 */}
           </h2>
 

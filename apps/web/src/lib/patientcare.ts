@@ -96,25 +96,66 @@ export const AddUpdatePatient = async (payload: any) => {
   }
 };
 
+export interface PatientFilter {
+  page?: number;
+  limit?: number;
+  organizationId?: number;
+  hospitalId?: number;
+  search?: string;
+  city?: string;
+  tagPatientId?: number;
+  gender?: string;
+  minAge?: number; // <-- add this
+  maxAge?: number; // <-- add this
+}
 
-export const GetFilterSearchPatient = async (page: number = 1, limit: number = 10) => {
+export const GetFilterSearchPatient = async (filters: PatientFilter = {}) => {
   const session = await getSession();
 
+  const {
+    page = 1,
+    limit = 10,
+    hospitalId,
+    organizationId,
+    search,
+    city,
+    tagPatientId,
+    gender,
+    minAge,
+    maxAge,
+  } = filters;
+
   try {
-    const res = await axios.get(`${BACKEND_URL}/patientcare/getallpatientdetail?page=${page}&limit=${limit}`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
-    });
+    const params = new URLSearchParams();
+
+    params.append("page", String(page));
+    params.append("limit", String(limit));
+
+    if (organizationId) params.append("organizationId", String(organizationId));
+    if (hospitalId) params.append("hospitalId", String(hospitalId));
+    if (search) params.append("search", search);
+    if (city) params.append("city", city);
+    if (tagPatientId) params.append("tagPatientId", String(tagPatientId));
+    if (gender) params.append("gender", gender);
+    if (minAge) params.append("minAge", String(minAge));
+    if (maxAge) params.append("maxAge", String(maxAge));
+
+    const res = await axios.get(
+      `${BACKEND_URL}/patientcare/getallpatientdetail?${params.toString()}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.accessToken}`,
+        },
+      }
+    );
+
     return res.data;
   } catch (error: any) {
     const message = error.response?.data?.message || error.message;
     console.error("❌ API Error:", message);
-    throw new Error(message); // important: propagate to caller
+    throw new Error(message);
   }
 };
-
-
 
 //Auto Save

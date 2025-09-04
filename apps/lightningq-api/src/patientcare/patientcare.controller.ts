@@ -105,11 +105,11 @@ export class PatientcareController {
       }
 
       // ✅ Final guard (this now will NOT trigger incorrectly)
-      if (!dto.PatientId && !imageUrl) {
-        throw new BadRequestException(
-          'Patient image is required for new patient.',
-        );
-      }
+      // if (!dto.PatientId && !imageUrl) {
+      //   throw new BadRequestException(
+      //     'Patient image is required for new patient.',
+      //   );
+      // }
 
       return this.patientcareService.upsertPatient(dto, imageUrl, CreatedBy);
     } catch (err) {
@@ -121,26 +121,28 @@ export class PatientcareController {
   //Get All patient
   @Get('getallpatientdetail')
   async getAllPatients(
+    @Query('organizationId') organizationId: number,
     @Query('hospitalId') hospitalId: number,
     @Query('search') search?: string,
     @Query('city') city?: string,
     @Query('tagPatientId') tagPatientId?: number,
     @Query('gender') gender?: string,
-    @Query('dobFrom') dobFrom?: string,
-    @Query('dobTo') dobTo?: string,
+    @Query('minAge') minAge?: string,
+    @Query('maxAge') maxAge?: string,
     @Query('page') page = '1',
     @Query('limit') limit = '10',
   ) {
     return this.patientcareService.getPatients({
+      organizationId: Number(organizationId),
       hospitalId,
       search,
       city,
       gender,
-      tagPatientId,
-      dobFrom,
-      dobTo,
+      tagPatientId: tagPatientId ? Number(tagPatientId) : undefined,
+      minAge: minAge ? Number(minAge) : undefined,
+      maxAge: maxAge ? Number(maxAge) : undefined,
       page: Number(page),
-      limit: Number(limit), // ✅ important
+      limit: Number(limit),
     });
   }
 
@@ -398,18 +400,17 @@ export class PatientcareController {
     return this.patientcareService.getInvestigationType();
   }
 
-@Patch('addupdatemedicalhistory')
-async addupdatemedicalhistory(
-  @Body() body: { MedicalHistoryName: string },
-  @Query('MedicalhistoryId') MedicalhistoryId?: number // Or however you're passing it
-) {
-  console.log('Received Body:', body);
-  return this.patientcareService.addupdatemedicalhistory(
-    body.MedicalHistoryName,
-    MedicalhistoryId
-  );
-}
-
+  @Patch('addupdatemedicalhistory')
+  async addupdatemedicalhistory(
+    @Body() body: { MedicalHistoryName: string },
+    @Query('MedicalhistoryId') MedicalhistoryId?: number, // Or however you're passing it
+  ) {
+    console.log('Received Body:', body);
+    return this.patientcareService.addupdatemedicalhistory(
+      body.MedicalHistoryName,
+      MedicalhistoryId,
+    );
+  }
 
   // get all diagnosis by specialization id
   // @Get('specialization/:specializationId')

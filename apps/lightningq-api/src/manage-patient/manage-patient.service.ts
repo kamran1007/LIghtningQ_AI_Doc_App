@@ -5,7 +5,6 @@ import { QuickAppointmentDto } from 'src/appointment/dto/create-appointment.dto'
 
 @Injectable()
 export class ManagePatientService {
-
   constructor(private readonly prisma: PrismaService) {}
 
   private parseArray(value: any): string[] | undefined {
@@ -30,7 +29,7 @@ export class ManagePatientService {
     const {
       allergies,
       languages,
-      medicalHistory,
+      MedicalHistory,
       PatientId,
       hospitalCode,
       HospitalId,
@@ -41,9 +40,29 @@ export class ManagePatientService {
     if (!dto.Prefix) throw new Error('Prefix is required');
     if (!hospitalCode) throw new Error('Hospital code is required');
 
+    if (!PatientId) {
+      const existingPatient = await this.prisma.patient.findFirst({
+        where: {
+          OR: [
+            { email: dto.email ?? undefined },
+            { mobile: dto?.mobile ?? undefined },
+          ],
+        },
+      });
+
+      if (existingPatient) {
+        return {
+          success: false,
+          message:
+            '❌ Patient already exists with the same email or mobile number',
+          patientId: existingPatient.PatientId,
+        };
+      }
+    }
+
     const parsedAllergies = this.parseArray(allergies);
     const parsedLanguages = this.parseArray(languages);
-    const parsedMedicalHistory = this.parseArray(medicalHistory);
+    const parsedMedicalHistory = this.parseArray(MedicalHistory);
 
     const connectAllergies = parsedAllergies?.map((id) => ({
       AllergyId: Number(id),
@@ -75,31 +94,38 @@ export class ManagePatientService {
         },
       });
     } else {
-      // ✅ CREATE
-      const lastPatient = await this.prisma.patient.findFirst({
-        where: {
-          Patient_Medical_Record_No: {
-            startsWith: hospitalCode,
-          },
-        },
-        orderBy: { PatientId: 'desc' },
+      // Get all patients of this hospital (only MRN field for efficiency)
+      // Get all MRNs for this hospital
+      const patients = await this.prisma.patient.findMany({
+        where: { HospitalId: Number(HospitalId) },
+        select: { Patient_Medical_Record_No: true },
       });
 
-      const nextNumber = lastPatient?.Patient_Medical_Record_No
-        ? parseInt(
-            lastPatient.Patient_Medical_Record_No.replace(hospitalCode, ''),
-          ) + 1
-        : 1;
+      let lastNumber = 0;
 
-      // ✅ Generate 10-digit MRN: e.g., H001000001
-      const paddedNumber = String(nextNumber).padStart(6, '0');
+      for (const p of patients) {
+        if (!p.Patient_Medical_Record_No) continue;
+
+        const numericPart = p.Patient_Medical_Record_No.slice(
+          hospitalCode.length,
+        );
+
+        // ✅ accept only exactly 7 digits starting with 0
+        if (!/^0\d{6}$/.test(numericPart)) {
+          continue; // skip MXJ1000003 type records
+        }
+
+        const parsed = parseInt(numericPart, 10);
+        if (parsed > lastNumber) {
+          lastNumber = parsed;
+        }
+      }
+
+      const nextNumber = lastNumber + 1;
+      const paddedNumber = String(nextNumber).padStart(7, '0');
       const generatedMRN = `${hospitalCode}${paddedNumber}`;
 
-      if (generatedMRN.length !== 10) {
-        throw new Error(
-          'Generated Patient_Medical_Record_No must be 10 digits',
-        );
-      }
+      console.log('Generated MRN:', generatedMRN);
 
       const { profileImageUrl: _, ...cleanedRestData } = restData;
 
@@ -132,30 +158,33 @@ export class ManagePatientService {
 
   //Get patient
   async getPatients(filters: {
+    organizationId: number;
     hospitalId: number;
     search?: string;
     city?: string;
     gender?: string;
     tagPatientId?: number;
-    dobFrom?: string;
-    dobTo?: string;
+    minAge?: number;
+    maxAge?: number;
     page?: number;
     limit?: number;
   }) {
     const {
+      organizationId,
       hospitalId,
       search,
       city,
       gender,
       tagPatientId,
-      dobFrom,
-      dobTo,
+      minAge,
+      maxAge,
       page = 1,
       limit = 10,
     } = filters;
 
     const where: any = {
       HospitalId: hospitalId,
+      OrganizationId: organizationId,
     };
 
     // 🔍 Search logic (MRN, Mobile, or full name)
@@ -206,11 +235,29 @@ export class ManagePatientService {
     if (city) where.city = city;
     if (gender) where.gender = gender;
 
-    if (dobFrom && dobTo) {
-      where.dateOfBirth = {
-        gte: new Date(dobFrom),
-        lte: new Date(dobTo),
-      };
+    // Age filter
+    if (minAge || maxAge) {
+      const today = new Date();
+
+      const dobFrom = maxAge
+        ? new Date(
+            today.getFullYear() - maxAge,
+            today.getMonth(),
+            today.getDate(),
+          )
+        : undefined;
+
+      const dobTo = minAge
+        ? new Date(
+            today.getFullYear() - minAge,
+            today.getMonth(),
+            today.getDate(),
+          )
+        : undefined;
+
+      where.dateOfBirth = {};
+      if (dobFrom) where.dateOfBirth.gte = dobFrom;
+      if (dobTo) where.dateOfBirth.lte = dobTo;
     }
 
     // 🏷️ TagPatient relation filter
@@ -259,7 +306,7 @@ export class ManagePatientService {
     const {
       allergies,
       languages,
-      medicalHistory,
+      MedicalHistory,
       PatientId,
       hospitalCode,
       HospitalId,
@@ -272,7 +319,7 @@ export class ManagePatientService {
 
     const parsedAllergies = this.parseArray(allergies);
     const parsedLanguages = this.parseArray(languages);
-    const parsedMedicalHistory = this.parseArray(medicalHistory);
+    const parsedMedicalHistory = this.parseArray(MedicalHistory);
 
     const connectAllergies = parsedAllergies?.map((id) => ({
       AllergyId: Number(id),

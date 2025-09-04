@@ -42,36 +42,39 @@ export class PatientcareService {
 
   //Get patient
   async getPatients(arg0: {
+    organizationId: number,
     hospitalId: number;
     search: string | undefined;
     city: string | undefined;
     gender: string | undefined;
     tagPatientId: number | undefined;
-    dobFrom: string | undefined;
-    dobTo: string | undefined;
+    minAge: number | undefined;
+    maxAge: number | undefined;
     page: number;
     limit: number;
   }) {
     const {
+      organizationId,
       hospitalId,
       search,
       city,
       gender,
       tagPatientId,
-      dobFrom,
-      dobTo,
+      minAge,
+      maxAge,
       page,
       limit,
     } = arg0;
 
     const result = await this.ManagePatientService.getPatients({
+      organizationId,
       hospitalId,
       search,
       city,
       gender,
       tagPatientId,
-      dobFrom,
-      dobTo,
+      minAge,
+      maxAge,
       page,
       limit,
     });

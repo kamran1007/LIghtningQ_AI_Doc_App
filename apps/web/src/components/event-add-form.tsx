@@ -99,6 +99,7 @@ const inputbox =
 interface EventAddFormProps {
   start: Date;
   end: Date;
+  selectedPatient: any;
 }
 
 const getInitials = (firstName: string = "", lastName: string = "") => {
@@ -134,14 +135,18 @@ const InfoColumn = ({ title, value }: { title: string; value: string }) => (
 
 type EventAddForm = z.infer<typeof quickAppointmentSchema>;
 
-export function EventAddForm({ start, end }: EventAddFormProps) {
+export function EventAddForm({
+  start,
+  end,
+  selectedPatient: initialPatient,
+}: EventAddFormProps) {
   const { editingEvent, setEditingEvent, setEventAddOpen, eventAddOpen } =
     useEvents();
 
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [booked, setBooked] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedPatient, setSelectedPatient] = useState<any>(null);
+  const [selectedPatient, setSelectedPatient] = useState<any>(initialPatient);
   const [displayText, setDisplayText] = useState("");
   const [msgIndex, setMsgIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
@@ -378,6 +383,26 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
     return sorted[0]?.appointmentDate ?? null;
   };
 
+  const formDefaultValues: quickAppointmentSchema = {
+    Prefix: "Mr", // must match enum or be undefined
+    firstName: "",
+    lastName: "",
+    gender: "MALE", // ✅ valid enum
+    mobile: "",
+    dateOfBirth: "",
+    visitTypeId: "",
+    paymentTypeId: "",
+    appointmentTime: "",
+    email: "",
+    reason: "",
+    AppointmentCharges: 0,
+    isAmountPaid: true,
+    sendEmailMessage: false,
+    sendSmsMessage: false,
+    sendWhatsappMessage: false,
+    TagPatientId: "",
+  };
+
   const {
     register,
     handleSubmit,
@@ -385,27 +410,11 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
     setValue,
     reset,
     watch,
+    getValues,
     formState: { errors, isSubmitting, isValid },
   } = useForm({
     resolver: zodResolver(quickAppointmentSchema), // ✅ Add this line
-
-    defaultValues: {
-      Prefix: "",
-      firstName: "",
-      lastName: "",
-      gender: "",
-      mobile: "",
-      dateOfBirth: "",
-      visitTypeId: "",
-      paymentTypeId: "",
-      email: "",
-      reason: "",
-      AppointmentCharges: 0,
-      isAmountPaid: true,
-      sendEmailMessage: false,
-      sendSmsMessage: false,
-      sendWhatsappMessage: false,
-    },
+    defaultValues: formDefaultValues,
   });
 
   const watchedFields = watch([
@@ -899,6 +908,43 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
       setSelectedTime(null);
     }
   }, [eventAddOpen]);
+
+  useEffect(() => {
+  if (!initialPatient) return;
+
+  reset(
+    {
+      ...formDefaultValues,
+      Prefix: initialPatient.Prefix ?? "Mr",
+      firstName: initialPatient.firstName ?? "",
+      lastName: initialPatient.lastName ?? "",
+      dateOfBirth: initialPatient.dateOfBirth
+        ? String(initialPatient.dateOfBirth).slice(0, 10)
+        : "",
+      gender: (initialPatient.gender as "MALE" | "FEMALE" | "OTHER") ?? "MALE",
+      mobile: initialPatient.mobile ?? "",
+      email: initialPatient.email ?? "",
+      TagPatientId: initialPatient.PatientId?.toString() ?? "", // ✅ must exist in defaultValues
+    },
+    { keepDirty: false, keepTouched: false }
+  );
+  console.log("values after reset:", getValues()); // ✅ check what form thinks
+
+  setTimeout(() => {
+    console.log("watch after reset:", {
+      firstName: watch("firstName"),
+      lastName: watch("lastName"),
+      gender: watch("gender"),
+      dateOfBirth: watch("dateOfBirth"),
+      mobile: watch("mobile"),
+      email: watch("email"),
+      TagPatientId: watch("TagPatientId"),
+    });
+  }, 0);
+}, [initialPatient, reset, watch]);
+
+
+  // console.log("Form values after reset:", watch());
 
   useEffect(() => {
     if (editingEvent) {
@@ -1524,10 +1570,11 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                     <Controller
                       control={control}
                       name="Prefix"
+                      defaultValue="Mr"
                       render={({ field }) => (
                         <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
+                          onValueChange={(val) => field.onChange(val)}
+                          value={field.value || ""}
                         >
                           <SelectTrigger className={inputbox}>
                             <SelectValue placeholder="Select" />
@@ -1549,6 +1596,7 @@ export function EventAddForm({ start, end }: EventAddFormProps) {
                       </p>
                     )}
                   </div>
+                  <input type="hidden" {...register("TagPatientId")} />
 
                   {/* First Name */}
                   <div className="w-1/2">

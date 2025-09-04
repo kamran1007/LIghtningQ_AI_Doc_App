@@ -10,6 +10,7 @@ import { Orbitron } from "next/font/google";
 import AppProviders from "@/providers/AppProviders";
 import { Toaster } from "react-hot-toast";
 import IdleLogoutProvider from "@/hooks/IdleLogoutProvider";
+import NProgressProvider from "@/components/NProgressProvider";
 
 // ⬇️ Orbitron font
 const orbitron = Orbitron({
@@ -44,6 +45,7 @@ export default async function RootLayout({
           <Toaster position="top-center" reverseOrder={false} />
           <AppProviders>
             {/* <IdleLogoutProvider /> */}
+            <NProgressProvider />
 
             {!isAuthPage && <ClientAppBarWrapper session={session} />}
             <div className="flex flex-1 overflow-hidden">

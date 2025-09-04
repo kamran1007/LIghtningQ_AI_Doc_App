@@ -12,7 +12,7 @@ export const userFormSchema = (isResetPassword: boolean) => z
       .min(10, "Mobile must be at least 10 digits")
       .regex(/^\d+$/, "Mobile must contain only numbers"),
 
-    gender: z.string().nonempty("Gender is required"),
+    gender: z.string().nonempty("Gender is required").min(1),
     dateOfBirth: z.string().nonempty("Date of birth is required"),
 
     email: z.string().email("Invalid email"),
