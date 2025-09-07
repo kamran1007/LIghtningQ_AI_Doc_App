@@ -63,7 +63,7 @@ import { Player } from "@lottiefiles/react-lottie-player";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import z, { boolean } from "zod";
+import z, { boolean, string } from "zod";
 import { useEvents } from "@/context/events-context";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
@@ -88,6 +88,8 @@ import { format } from "date-fns";
 import AppointmentBookingSkeleton from "./ui/skeletonloader/AppointmentBookingSkeleton";
 import { fetchAllAppointmentPatient } from "@/store/AppointmentSlice";
 import { useAppDispatch } from "@/store/hooks";
+import { useSelector } from "react-redux";
+import { generateAppointmentPDF } from "@/utils/generateAppointmentPDF.pdf";
 
 const messages = [
   "Search patient by Phone No.",
@@ -155,6 +157,10 @@ export function EventAddForm({
   const [selectedSpecializationId, setSelectedSpecializationId] = useState<
     string | null
   >(null);
+  const selectedHospital = useSelector(
+    (state: any) => state.hospitalSelection?.selectedHospital
+  );
+  // console.log("selected hospital from book Appointment", selectedHospital);
   const toast = useRef<Toast>(null);
 
   const DoctorIcons: Record<string, JSX.Element> = {
@@ -235,12 +241,18 @@ export function EventAddForm({
   const [selectedDoctorData, setSelectedDoctorData] = useState<any>(null);
 
   const [isLoadingQuickBook, setIsLoadingQuickBook] = useState(true);
+  const [printEnabled, setPrintEnabled] = useState(true); // defaultChecked ✅
 
   const costing = selectedDoctorData?.DoctorCosting?.[0];
   const walkInFee = costing?.walkInFee || 0;
+  const fasttrackpatient = costing?.fastTrackFee || 0;
   const discountPercent = costing?.discount || 0;
   const discountedFee = costing?.discountedFee || 0;
-
+  const ActualAppointmentCharges = costing?.walkInFee || 0;
+  const DiscountOnAppointment = walkInFee - discountedFee || 0;
+  const FastTrackCharges = costing?.fastTrackFee || 0;
+  const TotalAppointmentCharges =
+    ActualAppointmentCharges + FastTrackCharges - DiscountOnAppointment || 0;
   useEffect(() => {
     const current = messages[msgIndex];
     if (current && charIndex < current.length) {
@@ -319,25 +331,54 @@ export function EventAddForm({
             name: a.TagPatientName ?? "",
           })) || []
         );
+        const selectedHospitalId = selectedHospital?.hospital?.HospitalId;
 
         setDoctorData(
-          AllDoctorData?.return?.map((doc: any) => ({
-            firstName: doc.firstName,
-            lastName: doc.lastName,
-            DoctorId: doc.UserId.toString(),
-            DoctorName: `Dr. ${doc.firstName} ${doc.lastName}`,
-            imageUrl: doc.imageUrl,
-            SpecializationId: doc.SpecializationId,
-            Specialization: doc.Specialization,
-            Experience: doc.Experience,
-            DoctorTimeSlot: doc.DoctorTimeSlot,
-            DoctorCosting: doc.DoctorCosting,
-            DoctorSlot: doc.DoctorSlot,
-            email: doc.email,
-            Appointment: doc.Appointment,
-          })) || []
+          AllDoctorData?.return
+            ?.filter((doc: any) => {
+              return (
+                // 1. Check AdminAccess relation
+                doc.AdminAccess?.some(
+                  (access: any) => access.hospitalId === selectedHospitalId
+                ) ||
+                // 2. Check DoctorTimeSlot hospital assignment
+                doc.DoctorTimeSlot?.some(
+                  (slot: any) => slot.HospitalId === selectedHospitalId
+                ) ||
+                // 3. Check DoctorCosting hospital assignment
+                doc.DoctorCosting?.some(
+                  (cost: any) => cost.hospitalId === selectedHospitalId
+                )
+              );
+            })
+            ?.map((doc: any) => ({
+              firstName: doc.firstName,
+              lastName: doc.lastName,
+              DoctorId: doc.UserId.toString(),
+              DoctorName: `Dr. ${doc.firstName} ${doc.lastName}`,
+              imageUrl: doc.imageUrl,
+              SpecializationId: doc.SpecializationId,
+              Specialization: doc.Specialization,
+              Experience: doc.Experience,
+              // DoctorTimeSlot: doc.DoctorTimeSlot,
+              // DoctorCosting: doc.DoctorCosting,
+              // ✅ Keep only slots for selected hospital
+              DoctorTimeSlot: doc.DoctorTimeSlot?.filter(
+                (slot: any) => slot.HospitalId === selectedHospitalId
+              ),
+
+              // ✅ Keep only costing for selected hospital
+              DoctorCosting: doc.DoctorCosting?.filter(
+                (cost: any) => cost.hospitalId === selectedHospitalId
+              ),
+              DoctorSlot: doc.DoctorSlot,
+              email: doc.email,
+              Appointment: doc.Appointment,
+            })) || []
         );
+
         console.log("Doctor Type", AllDoctorData);
+        console.log("filter at select", doctorData);
       } catch (error) {
         console.error("❌ Error fetching initial Doctor data:", error);
       } finally {
@@ -394,12 +435,18 @@ export function EventAddForm({
     paymentTypeId: "",
     appointmentTime: "",
     email: "",
-    reason: "",
-    AppointmentCharges: 0,
+    VisitReason: "",
+    cancellationReason: "",
+    AppointmentChargesPaid: 0,
+    ActualAppointmentCharges: 0,
+    DiscountOnAppointment: 0,
+    FastTrackCharges: 0,
+    TotalAppointmentCharges: 0,
     isAmountPaid: true,
     sendEmailMessage: false,
     sendSmsMessage: false,
     sendWhatsappMessage: false,
+    fasttrackpatient: false,
     TagPatientId: "",
   };
 
@@ -425,7 +472,7 @@ export function EventAddForm({
     "gender",
     "email",
     "visitTypeId",
-    "reason",
+    "VisitReason",
     "paymentTypeId",
     // "appointmentTime",
     // "AppointmentCharges",
@@ -509,6 +556,7 @@ export function EventAddForm({
     })?.appointmentDate;
   };
 
+  const fastTrackSelected = watch("fasttrackpatient");
   const watchVisitTypeId = watch("visitTypeId");
   const appointmentDate = watch("appointmentDate");
   useEffect(() => {
@@ -551,28 +599,43 @@ export function EventAddForm({
 
   const [totalToPay, setTotalToPay] = useState<number>(0);
 
+  // const fastTrackFee = fastTrackSelected
+  //   ? editingEvent?.AppointmentId
+  //     ? editingEvent?.doctor?.DoctorCosting[0]?.fastTrackFee || 0
+  //     : 0 // you can set a default for new patients if needed
+  //   : 0;
+
   useEffect(() => {
     if (!costing || !watchVisitTypeId) return;
 
     const walkInFee = costing.walkInFee || 0;
+    const FastTrackPatient = costing?.fastTrackFee || 0;
+
     const discountedFee =
       costing.discountedFee !== undefined && costing.discountedFee > 0
         ? costing.discountedFee
         : walkInFee;
+
+    const isFastTrack =
+      fastTrackSelected !== undefined
+        ? fastTrackSelected
+        : editingEvent?.fasttrackpatient || false;
+
+    const fastTrackFee = isFastTrack ? FastTrackPatient : 0;
 
     if (watchVisitTypeId === "2") {
       const freeAllowed = costing.freeFollowupCount > 0;
       const validitySet = costing.followupValidityDays > 0;
 
       if (freeAllowed && validitySet) {
-        setTotalToPay(0); // ✅ Free Follow-up
+        setTotalToPay(0 + fastTrackFee); // ✅ Free Follow-up
       } else {
-        setTotalToPay(discountedFee); // 🛑 Fallback Paid if config is invalid
+        setTotalToPay(discountedFee + fastTrackFee); // 🛑 Fallback Paid if config is invalid
       }
     } else {
-      setTotalToPay(discountedFee); // ✅ Paid Follow-up or New Appointment
+      setTotalToPay(discountedFee + fastTrackFee); // ✅ Paid Follow-up or New Appointment
     }
-  }, [watchVisitTypeId, costing]);
+  }, [watchVisitTypeId, costing, fastTrackSelected, editingEvent]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -624,14 +687,20 @@ export function EventAddForm({
       visitTypeId: Number(form.visitTypeId),
       paymentTypeId: Number(form.paymentTypeId),
       TagPatientId: Number(form.TagPatientId) || 0,
-      hospitalId: Number(selectedDoctorData?.HospitalId || 1),
+      hospitalId: Number(selectedHospital?.hospital?.HospitalId || 0),
+      hospitalCode: selectedHospital?.hospital?.HospitalCode || "",
       bloodGroup: null,
       acuity: form.acuity || "moderate",
       sendWhatsappMessage: Boolean(form.sendWhatsappMessage),
+      fasttrackpatient: Boolean(form.fasttrackpatient),
       sendSmsMessage: Boolean(form.sendSmsMessage),
       sendEmailMessage: Boolean(form.sendEmailMessage),
-      AppointmentCharges: String(discountedFee), // fixed
-      VisitReason: form.reason || "", // fixed
+      AppointmentChargesPaid: String(totalToPay), // fixed
+      ActualAppointmentCharges: String(ActualAppointmentCharges),
+      DiscountOnAppointment: String(DiscountOnAppointment),
+      FastTrackCharges: fastTrackSelected ? String(FastTrackCharges) : "0",
+      TotalAppointmentCharges: String(TotalAppointmentCharges),
+      VisitReason: form.VisitReason || "", // fixed
       // status: editingEvent.mode || 'SCHEDULED',
     };
     const updatePayload = {
@@ -640,7 +709,8 @@ export function EventAddForm({
       appointmentTime: selectedTime.time,
       appointmentDate: selectedSlotDate,
       DoctorId: Number(selectedDoctorId),
-      RescheduleReason: form.reason || "",
+      // RescheduleReason: form.reason || "",
+      cancellationReason: form.cancellationReason,
       firstName: form.firstName,
       lastName: form.lastName,
       email: form.email,
@@ -649,6 +719,7 @@ export function EventAddForm({
       updatedBy: Number(userprofiledata?.user?.UserId) || 0,
       updatedAt: Date.now(), // ✅ fixed
       sendWhatsappMessage: Boolean(form.sendWhatsappMessage),
+      fasttrackpatient: Boolean(form.fasttrackpatient),
       sendSmsMessage: Boolean(form.sendSmsMessage),
       sendEmailMessage: Boolean(form.sendEmailMessage),
     };
@@ -659,6 +730,22 @@ export function EventAddForm({
         ? await UpdateAppointment(updatePayload) // call update
         : await BookAppointment(payload); // call add
       if (res?.return?.STATUS_CODES === 200) {
+        if (printEnabled) {
+          const appointmentPayload = {
+            ...payload,
+            AppointmentId:
+              res?.return?.AppointmentId || editingEvent?.AppointmentId,
+            doctor: selectedDoctorData, // ✅ include doctor
+            patient: selectedPatient,
+            AppoitmentSummary:
+              res?.return?.appointmentWithDetails || res?.return?.patient || [],
+            hospital: selectedHospital,
+          };
+
+          if (form.fasttrackpatient) {
+            generateAppointmentPDF(appointmentPayload);
+          }
+        }
         setTimeout(() => {
           setBooked(true);
 
@@ -910,39 +997,40 @@ export function EventAddForm({
   }, [eventAddOpen]);
 
   useEffect(() => {
-  if (!initialPatient) return;
+    if (!initialPatient) return;
 
-  reset(
-    {
-      ...formDefaultValues,
-      Prefix: initialPatient.Prefix ?? "Mr",
-      firstName: initialPatient.firstName ?? "",
-      lastName: initialPatient.lastName ?? "",
-      dateOfBirth: initialPatient.dateOfBirth
-        ? String(initialPatient.dateOfBirth).slice(0, 10)
-        : "",
-      gender: (initialPatient.gender as "MALE" | "FEMALE" | "OTHER") ?? "MALE",
-      mobile: initialPatient.mobile ?? "",
-      email: initialPatient.email ?? "",
-      TagPatientId: initialPatient.PatientId?.toString() ?? "", // ✅ must exist in defaultValues
-    },
-    { keepDirty: false, keepTouched: false }
-  );
-  console.log("values after reset:", getValues()); // ✅ check what form thinks
+    reset(
+      {
+        ...formDefaultValues,
+        Prefix: initialPatient.Prefix ?? "Mr",
+        firstName: initialPatient.firstName ?? "",
+        lastName: initialPatient.lastName ?? "",
+        dateOfBirth: initialPatient.dateOfBirth
+          ? String(initialPatient.dateOfBirth).slice(0, 10)
+          : "",
+        gender:
+          (initialPatient.gender as "MALE" | "FEMALE" | "OTHER") ?? "MALE",
+        mobile: initialPatient.mobile ?? "",
+        email: initialPatient.email ?? "",
+        TagPatientId: initialPatient.PatientId?.toString() ?? "", // ✅ must exist in defaultValues
+        fasttrackpatient: initialPatient.FastTrackPatient ?? false,
+      },
+      { keepDirty: false, keepTouched: false }
+    );
+    console.log("values after reset:", getValues()); // ✅ check what form thinks
 
-  setTimeout(() => {
-    console.log("watch after reset:", {
-      firstName: watch("firstName"),
-      lastName: watch("lastName"),
-      gender: watch("gender"),
-      dateOfBirth: watch("dateOfBirth"),
-      mobile: watch("mobile"),
-      email: watch("email"),
-      TagPatientId: watch("TagPatientId"),
-    });
-  }, 0);
-}, [initialPatient, reset, watch]);
-
+    setTimeout(() => {
+      console.log("watch after reset:", {
+        firstName: watch("firstName"),
+        lastName: watch("lastName"),
+        gender: watch("gender"),
+        dateOfBirth: watch("dateOfBirth"),
+        mobile: watch("mobile"),
+        email: watch("email"),
+        TagPatientId: watch("TagPatientId"),
+      });
+    }, 0);
+  }, [initialPatient, reset, watch]);
 
   // console.log("Form values after reset:", watch());
 
@@ -964,13 +1052,14 @@ export function EventAddForm({
         gender: editingEvent?.patient?.gender || "",
         mobile: editingEvent?.patient?.mobile || "",
         email: editingEvent?.patient?.email || "",
-        reason: editingEvent?.reason || "",
+        VisitReason: editingEvent?.reason || "",
         acuity: editingEvent?.acuity || "",
         appointmentDate: slotDate,
         appointmentTime: timeString,
         TagPatientId: editingEvent?.TagPatientId?.toString() || "",
         visitTypeId: editingEvent?.visitTypeId?.toString() || "",
         paymentTypeId: editingEvent?.paymentTypeId?.toString() || "",
+        fasttrackpatient: editingEvent?.fasttrackpatient ?? false,
       });
       const matchedSlot = editingEvent.doctor?.DoctorSlot?.find(
         (slot) => slot.appointmentId === editingEvent.AppointmentId
@@ -987,6 +1076,7 @@ export function EventAddForm({
       setSelectedSlotDate(slotDate);
       setSelectedSlotDay(weekday);
       setSelectedPatient(editingEvent?.patient);
+      setSelectedDate(appointmentDate); // helpful for highlighting
 
       // 3. Also set selected time slot
       setSelectedTime({
@@ -994,7 +1084,7 @@ export function EventAddForm({
         slotId: slotId ?? null,
       });
     }
-  }, [editingEvent, selectedDoctorData]);
+  }, [editingEvent, selectedDoctorData, reset]);
 
   useEffect(() => {
     if (!editingEvent || !selectedDoctorData?.DoctorSlot) return;
@@ -1711,6 +1801,7 @@ export function EventAddForm({
                     {...register("email")}
                     placeholder="Enter Address"
                     className={inputbox}
+                    type="email"
                   />
                   {errors.email && (
                     <p className="text-sm text-red-500">
@@ -1724,13 +1815,13 @@ export function EventAddForm({
                     visit Reason <span className="text-red-500">*</span>
                   </Label>
                   <Input
-                    {...register("reason")}
+                    {...register("VisitReason")}
                     placeholder="Enter visit Reason"
                     className={inputbox}
                   />
-                  {errors.reason && (
+                  {errors.VisitReason && (
                     <p className="text-sm text-red-500">
-                      {errors.reason.message}
+                      {errors.VisitReason.message}
                     </p>
                   )}
                 </div>
@@ -1900,7 +1991,7 @@ export function EventAddForm({
               </pre> */}
               </div>
 
-              <div className="space-y-4 bg-white border-2  border-blue-200 rounded-2xl shadow-md p-4 w-full max-w-md mx-auto text-gray-700">
+              <div className="space-y-2 bg-white border-2  border-blue-200 rounded-2xl shadow-md p-2 w-full max-w-md mx-auto text-gray-700">
                 <h3 className="text-xl font-semibold text-center text-blue-400 font-sans">
                   Appointment Summary
                 </h3>
@@ -1932,17 +2023,17 @@ export function EventAddForm({
                 </div>
 
                 <Controller
-                  name="fastTrackPatient"
+                  name="fasttrackpatient"
                   control={control}
                   defaultValue={false}
                   render={({ field }) => (
                     <label
-                      htmlFor="fastTrackPatient"
+                      htmlFor="fasttrackpatient"
                       className="flex items-center gap-2 cursor-pointer"
                     >
                       <input
                         type="checkbox"
-                        id="fastTrackPatient"
+                        id="fasttrackpatient"
                         {...field}
                         checked={field.value}
                         className="h-4 w-4 accent-green-600 border-gray-300 rounded focus:ring-green-300"
@@ -1977,6 +2068,7 @@ export function EventAddForm({
                         : walkInFee}
                     </p>
                   </div>
+
                   <div className="text-right">
                     <p className="text-sm font-medium">
                       Discount (
@@ -1998,11 +2090,25 @@ export function EventAddForm({
                   </div>
                 </div>
 
+                {fastTrackSelected && (
+                  <div className="flex items-center justify-between mt-2">
+                    <div>
+                      <p className="text-sm font-medium">Fast Track Charges:</p>
+                      <p className="text-base font-semibold text-gray-900">
+                        ₹
+                        {editingEvent?.AppointmentId
+                          ? editingEvent?.doctor?.DoctorCosting[0]?.fastTrackFee
+                          : fasttrackpatient}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-center justify-between border-t pt-2 border-blue-300">
                   <p className="text-sm font-semibold text-gray-800">
                     Total to Pay
                   </p>
-                  <p className="text-lg font-bold text-blue-900">
+                  {/* <p className="text-lg font-bold text-blue-900">
                     ₹
                     {editingEvent?.AppointmentId
                       ? Math.round(
@@ -2014,6 +2120,14 @@ export function EventAddForm({
                                 ?.discount || 0)) /
                               100
                         )
+                      : totalToPay}
+                  </p> */}
+                  <p className="text-lg font-bold text-blue-900">
+                    ₹
+                    {editingEvent?.AppointmentId
+                      ? totalToPay ||
+                        Number(editingEvent?.TotalAppointmentCharges) ||
+                        0
                       : totalToPay}
                   </p>
                 </div>
@@ -2116,7 +2230,8 @@ export function EventAddForm({
                           type="checkbox"
                           id={item.id}
                           className="h-4 w-4 accent-green-600 border-gray-300 rounded focus:ring-green-300"
-                          defaultChecked
+                          checked={printEnabled}
+                          onChange={(e) => setPrintEnabled(e.target.checked)}
                         />
                         <span className="flex items-center gap-1 text-sm font-medium">
                           <span className={item.color}>{item.icon}</span>
@@ -2181,6 +2296,7 @@ export function EventAddForm({
             </form>
 
             <PatientSearchDrawer
+              selectedHospital={selectedHospital}
               query={searchQuery}
               onSelect={(patient) => {
                 setSelectedPatient(patient);

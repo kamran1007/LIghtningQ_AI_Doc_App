@@ -422,7 +422,7 @@ export class ManagePatientService {
   }
 
   //getAlldoctor
-  async getAlldoctoRole() {
+  async getAlldoctoRole(req: any) {
     return this.prisma.user.findMany({
       where: {
         roleId: { in: [2, 3] },
@@ -434,6 +434,11 @@ export class ManagePatientService {
         DoctorTimeSlot: true,
         DoctorCosting: true,
         DoctorSlot: true,
+        AdminAccess: {
+          include: {
+            hospital: true, // ✅ gives you HospitalId + HospitalName
+          },
+        },
       },
       orderBy: { UserId: 'asc' },
     });

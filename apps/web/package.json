@@ -78,6 +78,8 @@
     "material-react-table": "^3.2.1",
     "next": "^15.3.0",
     "nprogress": "^0.2.0",
+    "number-to-words": "^1.2.4",
+    "pdfmake": "^0.2.20",
     "postcss": "^8.5.3",
     "primeicons": "^7.0.0",
     "primereact": "^10.9.6",

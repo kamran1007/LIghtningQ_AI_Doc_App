@@ -12,7 +12,8 @@ export const quickAppointmentSchema = z.object({
   addressLine1: z.string().optional(),
   visitTypeId: z.string().min(1, "Visit Type is required"), // if you're
   // using string IDs
-  reason: z.string().min(5, "Please Enter Visit Reason"),
+  VisitReason: z.string().min(5, "Please Enter Visit Reason"),
+cancellationReason: z.string().optional(),
   TagPatientId: z.string().optional(),
   acuity: z.string().optional(),
   paymentTypeId: z.string().min(1, "Payment Type is required"),
@@ -24,8 +25,14 @@ export const quickAppointmentSchema = z.object({
   sendEmailMessage: z.boolean().optional(),
   sendSmsMessage: z.boolean().optional(),
   sendWhatsappMessage: z.boolean().optional(),
-  AppointmentCharges: z.number().optional(),
+  AppointmentChargesPaid: z.number().optional(),
+  ActualAppointmentCharges: z.number().optional(),
+  DiscountOnAppointment: z.number().optional(),
+  FastTrackCharges: z.number().optional(),
+  TotalAppointmentCharges: z.number().optional(),
+
   isAmountPaid: z.boolean().optional(),
+  fasttrackpatient: z.boolean().optional(),
 });
 
 export type quickAppointmentSchema = z.infer<typeof quickAppointmentSchema>;

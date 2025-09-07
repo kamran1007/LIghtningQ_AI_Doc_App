@@ -199,8 +199,8 @@ export class PatientcareController {
   }
 
   @Get('getAlldoctoRole')
-  getAlldoctorrole() {
-    return this.patientcareService.getAlldoctoRole();
+  getAlldoctorrole(@Req() req: any,) {
+    return this.patientcareService.getAlldoctoRole(req);
   }
   //fetchpaymenttype
   @Get('getAllPaymentMode')

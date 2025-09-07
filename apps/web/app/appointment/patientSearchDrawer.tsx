@@ -21,6 +21,7 @@ import { getSession } from "@/lib/session";
 import { PatientAvatar } from "./PatientAvatar";
 
 type Props = {
+  selectedHospital: any;
   query: string;
   onSelect: (patient: any) => void;
   onQuickAppointment: () => void;
@@ -28,6 +29,7 @@ type Props = {
 };
 
 export function PatientSearchDrawer({
+  selectedHospital,
   query,
   onSelect,
   onQuickAppointment,
@@ -41,6 +43,8 @@ export function PatientSearchDrawer({
   const getInitials = (firstName: string = "", lastName: string = "") => {
     return `${firstName?.[0] ?? ""}${lastName?.[0] ?? ""}`.toUpperCase();
   };
+  const [onselectedHospital, SetOnSelectedHospital] = useState<any[]>([]);
+  // console.log("selected hospital from drawer", onselectedHospital);
 
   const getColorByInitials = (initials: string) => {
     const code = initials.charCodeAt(0);
@@ -57,7 +61,10 @@ export function PatientSearchDrawer({
     ];
     return colors[code % colors.length];
   };
-
+  useEffect(() => {
+    SetOnSelectedHospital(selectedHospital?.hospital?.organizationId ?? []);
+  }, [selectedHospital]);
+  
   const debouncedQuery = useDebounce(query, 1000);
   const { setEventAddOpen } = useEvents();
   const router = useRouter();
@@ -77,7 +84,7 @@ export function PatientSearchDrawer({
         const token = session?.accessToken;
 
         const res = await fetch(
-          `${BACKEND_URL}/patientcare/getallpatientdetail?search=${debouncedQuery}`,
+          `${BACKEND_URL}/patientcare/getallpatientdetail?search=${debouncedQuery}&organizationId=${onselectedHospital}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -112,7 +119,7 @@ export function PatientSearchDrawer({
     };
 
     fetchPatients();
-  }, [debouncedQuery]);
+  }, [debouncedQuery, onselectedHospital]);
 
   const handleContinue = () => {
     onRegisterNew(); // optional callback from props
@@ -177,7 +184,7 @@ export function PatientSearchDrawer({
                   >
                     <div className="flex justify-between items-center">
                       <div>
-                        <p className="text-base font-semibold text-gray-800">
+                        <p className="text-base font-light text-gray-800">
                           {p.firstName} {p.lastName}
                         </p>
                         <p className="text-xs text-gray-500 mt-0.5">

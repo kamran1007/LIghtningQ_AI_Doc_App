@@ -18,7 +18,9 @@
     "next-env.d.ts",
     "next.config.js",
     ".next/types/**/*.ts",
-    "types/custom.d.ts"
+    "types/custom.d.ts",
+    "src/types/pdfmake.d.ts"
+
   ],
   "exclude": [
     "node_modules"

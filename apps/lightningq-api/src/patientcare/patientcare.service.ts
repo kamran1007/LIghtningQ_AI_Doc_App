@@ -143,8 +143,8 @@ export class PatientcareService {
     };
   }
 
-  async getAlldoctoRole() {
-    const result = await this.ManagePatientService.getAlldoctoRole();
+  async getAlldoctoRole(req:any) {
+    const result = await this.ManagePatientService.getAlldoctoRole(req);
     return {
       message: 'All Doctor data has successfully Fetch',
       return: result,

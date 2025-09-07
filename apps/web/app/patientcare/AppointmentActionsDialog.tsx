@@ -145,16 +145,16 @@ export default function AppointmentActionsDialog({
                       variant="ghost"
                       className="justify-start gap-3"
                       onClick={() => {
-                        // if (isPastDate(patient.appointmentDate)) {
-                        //   toast.current?.show({
-                        //     severity: "error",
-                        //     summary: "Error",
-                        //     detail:
-                        //       "You can't start consultation for a past appointment.",
-                        //     life: 4000,
-                        //   });
-                        //   return;
-                        // }
+                        if (isPastDate(patient.appointmentDate)) {
+                          toast.current?.show({
+                            severity: "error",
+                            summary: "Error",
+                            detail:
+                              "You can't start consultation for a past appointment.",
+                            life: 4000,
+                          });
+                          return;
+                        }
                         onStartConsultation(patient);
                         setOpen(false);
                       }}

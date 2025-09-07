@@ -15,27 +15,27 @@ datasource db {
 }
 
 model User {
-  UserId             Int             @id @default(autoincrement())
-  Prefix             Title
-  imageUrl           String
-  firstName          String
-  lastName           String
-  gender             String
-  email              String          @unique
-  mobile             String          @unique
-  passwordHash       String
-  isActive           Boolean         @default(true)
-  refreshToken String?
-  dateOfBirth        DateTime
-  roleId             Int
-  role               Role            @relation(fields: [roleId], references: [RoleId])
-  SpecializationId   Int?
-  Specialization     Specialization? @relation(fields: [SpecializationId], references: [SpecializationId])
-  Experience         String
-  Employee_ID        String          @unique
-  SignatureOfUser    String
-  organizationId     Int
-  organization       Organization    @relation(fields: [organizationId], references: [OrganizationId])
+  UserId           Int             @id @default(autoincrement())
+  Prefix           Title
+  imageUrl         String
+  firstName        String
+  lastName         String
+  gender           String
+  email            String          @unique
+  mobile           String          @unique
+  passwordHash     String
+  isActive         Boolean         @default(true)
+  refreshToken     String?
+  dateOfBirth      DateTime
+  roleId           Int
+  role             Role            @relation(fields: [roleId], references: [RoleId])
+  SpecializationId Int?
+  Specialization   Specialization? @relation(fields: [SpecializationId], references: [SpecializationId])
+  Experience       String
+  Employee_ID      String          @unique
+  SignatureOfUser  String
+  organizationId   Int
+  organization     Organization    @relation(fields: [organizationId], references: [OrganizationId])
 
   // Settings and Sessions
   settings      Setting?       @relation("UserSettings")
@@ -536,6 +536,7 @@ model Appointment {
   rescheduledBy     Int?
   TagPatientId      Int?
   TagPatient        TagPatient[]
+  fasttrackpatient  Boolean?     @default(false)
   // AppointmentAmtPaid Int?
   // isAmountPaid Boolean default(true)
   // Relations
@@ -839,12 +840,17 @@ model AppointmentType {
 }
 
 model PaymentHistory {
-  PaymentHistoryId         Int           @id @default(autoincrement())
+  PaymentHistoryId         Int         @id @default(autoincrement())
   TransactionId            BigInt
   Transaction_DateTime     DateTime
-  PaymentTypeName          PaymentType   @relation(fields: [paymentTypePaymentTypeId], references: [PaymentTypeId])
-  AppointmentChargesPaid   Float?
-  isAmountPaid             Boolean?      @default(true)
+  PaymentTypeName          PaymentType @relation(fields: [paymentTypePaymentTypeId], references: [PaymentTypeId])
+  ActualAppointmentCharges Float?
+  DiscountOnAppointment    Float?
+  FastTrackCharges         Float?
+
+  TotalAppointmentCharges  Float?
+  AppointmentChargesPaid   Float? //in case of CANCEL Appointment AppointmentChargesPaid will be 0 
+  isAmountPaid             Boolean?      @default(true) // in case of CANCEL Appointment AppointmentChargesPaid will be 0 and IsAmountPaid will be 0
   appointments             Appointment[]
   paymentTypePaymentTypeId Int
 }
@@ -933,7 +939,6 @@ model RolePermission {
   UserId         Int
 
   // @@unique([RoleId, PermissionId, UserId, HospitalId, OrganizationId ])
-
 }
 
 // model Surgery {

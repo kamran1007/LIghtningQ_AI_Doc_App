@@ -34,42 +34,38 @@ export class AppointmentService {
           throw new Error('Patient not found with provided PatientId');
         }
       } else {
-        // Fetch hospital to get the real hospital code (e.g. MXJ, IZQ)
-        const hospital = await tx.hospital.findUnique({
-          where: { HospitalId: dto.hospitalId },
+        // Get all patients of this hospital (only MRN field for efficiency)
+        // Get all MRNs for this hospital
+        const patients = await this.prisma.patient.findMany({
+          where: { HospitalId: Number(dto.hospitalId) },
+          select: { Patient_Medical_Record_No: true },
         });
 
-        if (!hospital) {
-          throw new Error('Hospital not found for given hospitalId');
-        }
+        let lastNumber = 0;
 
-        const hospitalCode = hospital.HospitalCode; // <-- use real hospital code
+        for (const p of patients) {
+          if (!p.Patient_Medical_Record_No) continue;
 
-        // Find last patient MRN for this hospital
-        const lastPatient = await tx.patient.findFirst({
-          where: {
-            Patient_Medical_Record_No: {
-              startsWith: hospitalCode,
-            },
-          },
-          orderBy: { PatientId: 'desc' },
-        });
-
-        const nextNumber = lastPatient?.Patient_Medical_Record_No
-          ? parseInt(
-              lastPatient.Patient_Medical_Record_No.replace(hospitalCode, ''),
-              10,
-            ) + 1
-          : 1;
-
-        const paddedNumber = String(nextNumber).padStart(7, '0'); // 7 digits
-        const generatedMRN = `${hospitalCode}${paddedNumber}`;
-
-        if (generatedMRN.length !== 10) {
-          throw new Error(
-            `Generated Patient_Medical_Record_No must be 10 characters, got: ${generatedMRN}`,
+          const numericPart = p.Patient_Medical_Record_No.slice(
+            dto.hospitalCode.length,
           );
+
+          // ✅ accept only exactly 7 digits starting with 0
+          if (!/^0\d{6}$/.test(numericPart)) {
+            continue; // skip MXJ1000003 type records
+          }
+
+          const parsed = parseInt(numericPart, 10);
+          if (parsed > lastNumber) {
+            lastNumber = parsed;
+          }
         }
+
+        const nextNumber = lastNumber + 1;
+        const paddedNumber = String(nextNumber).padStart(7, '0');
+        const generatedMRN = `${dto.hospitalCode}${paddedNumber}`;
+
+        console.log('Generated MRN:', generatedMRN);
 
         patient = await tx.patient.create({
           data: {
@@ -93,6 +89,7 @@ export class AppointmentService {
             Patient_Medical_Record_No: generatedMRN,
           },
         });
+        
       }
 
       // 🛑 2. Prevent duplicate scheduled appointment
@@ -133,13 +130,14 @@ export class AppointmentService {
           paymentTypeId: dto.paymentTypeId!,
           TagPatientId: dto.TagPatientId,
           appointmentDate,
-          reason: dto.reason,
+          reason: dto.VisitReason,
           age: dto.age,
           createdBy: CreatedBy,
           sendWhatsappMessage: dto.sendWhatsappMessage,
           sendSmsMessage: dto.sendSmsMessage,
           sendEmailMessage: dto.sendEmailMessage,
           acuity: (dto.acuity as AcuityLevel) ?? 'MODERATE',
+          fasttrackpatient: dto.fasttrackpatient ?? false,
         },
       });
 
@@ -149,8 +147,17 @@ export class AppointmentService {
           TransactionId: Date.now(),
           Transaction_DateTime: new Date(),
           paymentTypePaymentTypeId: dto.paymentTypeId!,
-          AppointmentChargesPaid: parseFloat(dto.AppointmentCharges || '0'),
+          AppointmentChargesPaid: parseFloat(dto.AppointmentChargesPaid || '0'),
           isAmountPaid: dto.isAmountPaid ?? true,
+          ActualAppointmentCharges: parseFloat(
+            dto.ActualAppointmentCharges || '0',
+          ),
+          DiscountOnAppointment: parseFloat(dto.DiscountOnAppointment || '0'),
+          FastTrackCharges: parseFloat(dto.FastTrackCharges || '0'),
+          TotalAppointmentCharges: parseFloat(
+            dto.ActualAppointmentCharges || '0',
+          ),
+
           appointments: {
             connect: { AppointmentId: appointment.AppointmentId },
           },
@@ -460,6 +467,7 @@ export class AppointmentService {
         sendWhatsappMessage: dto.sendWhatsappMessage,
         sendSmsMessage: dto.sendSmsMessage,
         sendEmailMessage: dto.sendEmailMessage,
+        fasttrackpatient: dto.fasttrackpatient ?? false,
       },
     });
 
@@ -498,6 +506,7 @@ export class AppointmentService {
         hospital: true,
         visitType: true,
         patient: true,
+        PaymentType: true,
       },
     });
     console.log(appointmentWithDetails);
@@ -524,6 +533,7 @@ export class AppointmentService {
     return {
       message: 'Appointment updated successfully',
       updatedAppointment,
+      appointmentWithDetails,
       STATUS_CODES: 200,
     };
   }

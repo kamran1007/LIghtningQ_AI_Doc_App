@@ -111,7 +111,7 @@ export default function AllRegisterPatientList() {
     (state: any) => state.hospitalSelection?.selectedHospital
   );
   const [pageSize] = useState(10);
-  console.log("Hospital data in Register patient sceren ", selectedHospital);
+  // console.log("Hospital data in Register patient sceren ", selectedHospital);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");

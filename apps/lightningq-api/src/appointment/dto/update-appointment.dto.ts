@@ -85,4 +85,8 @@ export class UpdateAppointmentDto {
 
   @IsBoolean()
   sendEmailMessage?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  fasttrackpatient?: boolean;
 }

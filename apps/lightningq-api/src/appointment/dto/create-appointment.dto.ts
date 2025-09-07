@@ -9,6 +9,7 @@ import {
   IsString,
 } from 'class-validator';
 import { BloodGroup, GenderType } from '@prisma/client';
+import { Expose } from 'class-transformer';
 
 export class QuickAppointmentDto {
   // Patient fields
@@ -30,8 +31,8 @@ export class QuickAppointmentDto {
   })
   gender?: GenderType;
 
-  // @IsString()
-  // hospitalCode!: string;
+  @IsString()
+  hospitalCode!: string;
 
   // @IsInt()
   // HospitalId!: number;
@@ -87,6 +88,10 @@ export class QuickAppointmentDto {
   reason?: string;
 
   @IsOptional()
+  @IsBoolean()
+  fasttrackpatient?: boolean;
+
+  @IsOptional()
   @IsInt()
   age?: number;
 
@@ -117,11 +122,27 @@ export class QuickAppointmentDto {
 
   @IsOptional()
   @IsString()
-  AppointmentCharges?: string;
+  AppointmentChargesPaid?: string;
 
   @IsOptional()
   @IsBoolean()
   isAmountPaid?: boolean;
+
+  @IsOptional()
+  @IsString()
+  ActualAppointmentCharges?: string;
+
+  @IsOptional()
+  @IsString()
+  DiscountOnAppointment?: string;
+
+  @IsOptional()
+  @IsString()
+  FastTrackCharges?: string;
+
+  @IsOptional()
+  @IsString()
+  TotalAppointmentCharges?: string;
 
   // @IsString()
   // appointmentDate?: string;
