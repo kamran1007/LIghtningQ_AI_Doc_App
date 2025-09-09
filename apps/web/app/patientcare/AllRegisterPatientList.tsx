@@ -255,7 +255,7 @@ export default function AllRegisterPatientList() {
             placeholder="Search Name, MRN., Mobile No"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-4 py-3 w-full rounded-2xl border border-gray-200 h-10
+            className="pl-10 pr-4 py-3 w-full rounded-3xl border border-gray-200 h-10
         bg-white shadow-sm focus:border-pink-400 focus:ring-2 
         focus:ring-pink-200 transition-all"
           />
@@ -279,104 +279,119 @@ export default function AllRegisterPatientList() {
         <>
           {/* Wrapper aligned to right */}
 
-          <div className="mt-4 w-full overflow-hidden rounded-md shadow-sm bg-blue-400">
-            <table className="w-full text-sm text-left border-b border-blue-400">
-              <thead className="bg-blue-100 text-zinc-600 text-xs font-sans border-b border-blue-400">
-                <tr className="divide-x divide-zinc-200">
-                  <th className="px-4 py-3 border-b border-blue-400">Name</th>
-                  <th className="px-4 py-3 border-b border-blue-400">MRN</th>
-                  <th className="px-4 py-3 border-b border-blue-400">
-                    Contact Info
-                  </th>
-                  <th className="px-4 py-3 border-b border-blue-400">Age</th>
-                  <th className="px-4 py-3 border-b border-blue-400">
-                    Last Visit
-                  </th>
-                  <th className="px-2 py-3 w-16 text-center border-b border-blue-400">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-100 bg-white">
-                {data.map((p, idx) => {
-                  const imageUrl = p.profileImageUrl
-                    ? `${BACKEND_URL}${p.profileImageUrl}`
-                    : null;
-                  const initials = getInitials(p.firstName, p.lastName);
-                  const fallbackColor = getColorByInitials(initials);
+          <div
+            className="w-full overflow-hidden rounded-md shadow-sm border-b mt-2"
+            style={{
+              borderColor: "transparent",
+              backgroundImage:
+                "linear-gradient(135deg, #22d3ee 0%, #818cf8 100%)",
+              padding: "1px",
+            }}
+          >
+            {" "}
+            <div className="rounded-md overflow-hidden bg-white">
+              <table className="w-full text-sm text-left">
+                <thead
+                  className="text-zinc-600 text-xs font-sans"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(135deg, #22d3ee 0%, #818cf8 100%)",
+                    color: "white",
+                  }}
+                >
+                  <tr className="divide-x divide-zinc-200">
+                    <th className="px-4 py-3">Name</th>
+                    <th className="px-4 py-3">MRN</th>
+                    <th className="px-4 py-3">Contact Info</th>
+                    <th className="px-4 py-3">Age</th>
+                    <th className="px-2 py-3 w-16 text-center">Last Visit</th>
+                    <th className="px-2 py-3">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-100 bg-white">
+                  {data.map((p, idx) => {
+                    const imageUrl = p.profileImageUrl
+                      ? `${BACKEND_URL}${p.profileImageUrl}`
+                      : null;
+                    const initials = getInitials(p.firstName, p.lastName);
+                    const fallbackColor = getColorByInitials(initials);
 
-                  const imageError = imageErrorMap[idx];
-                  return (
-                    <tr key={idx} className="hover:bg-[#EFFFFD] cursor-pointer">
-                      <td className="flex items-center gap-3 px-4 py-3 font-medium text-zinc-800">
-                        <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
-                          {!imageError && imageUrl ? (
-                            <PrimeImage
-                              src={imageUrl}
-                              alt={`${p.firstName} ${p.lastName}`}
-                              preview
-                              downloadable
-                              className="h-full w-full object-cover rounded-full"
-                              imageClassName="h-full w-full object-cover rounded-full"
-                              onError={() =>
-                                setImageErrorMap((prev) => ({
-                                  ...prev,
-                                  [idx]: true,
-                                }))
-                              }
-                            />
-                          ) : (
-                            <Avatar className="w-10 h-10">
-                              <AvatarFallback className={fallbackColor}>
-                                {initials}
-                              </AvatarFallback>
-                            </Avatar>
-                          )}
-                        </div>
-                        <span>
-                          {p.firstName} {p.lastName}
-                        </span>
-                      </td>
+                    const imageError = imageErrorMap[idx];
+                    return (
+                      <tr
+                        key={idx}
+                        className="hover:bg-[#EFFFFD] cursor-pointer"
+                      >
+                        <td className="flex items-center gap-3 px-4 py-3 font-medium text-zinc-800">
+                          <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
+                            {!imageError && imageUrl ? (
+                              <PrimeImage
+                                src={imageUrl}
+                                alt={`${p.firstName} ${p.lastName}`}
+                                preview
+                                downloadable
+                                className="h-full w-full object-cover rounded-full"
+                                imageClassName="h-full w-full object-cover rounded-full"
+                                onError={() =>
+                                  setImageErrorMap((prev) => ({
+                                    ...prev,
+                                    [idx]: true,
+                                  }))
+                                }
+                              />
+                            ) : (
+                              <Avatar className="w-10 h-10">
+                                <AvatarFallback className={fallbackColor}>
+                                  {initials}
+                                </AvatarFallback>
+                              </Avatar>
+                            )}
+                          </div>
+                          <span>
+                            {p.firstName} {p.lastName}
+                          </span>
+                        </td>
 
-                      <td className="px-4 py-3 text-zinc-700">
-                        {p.Patient_Medical_Record_No}
-                      </td>
-                      <td className="px-4 py-3 space-y-0.5">
-                        <p>{p.mobile}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {p.email}
-                        </p>
-                      </td>
-                      <td className="px-4 py-3">
-                        {p.dateOfBirth ? calculateAge(p.dateOfBirth) : "-"}
-                      </td>
-                      <td className="px-4 py-3">{p.lastVisit || "-"}</td>
-                      <td className="px-2 py-3 w-16 text-center">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger className="focus:outline-none">
-                            <MoreHorizontal className="w-5 h-5 text-blue-500 cursor-pointer" />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent
-                            align="end"
-                            className="rounded-md shadow-md border border-gray-200 bg-white"
-                          >
-                            <DropdownMenuItem>View Record</DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => {
-                                setEditingPatient(p); // set selected patient
-                                setRegisterPatientOpen(true); // open modal
-                              }}
+                        <td className="px-4 py-3 text-zinc-700">
+                          {p.Patient_Medical_Record_No}
+                        </td>
+                        <td className="px-4 py-3 space-y-0.5">
+                          <p>{p.mobile}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {p.email}
+                          </p>
+                        </td>
+                        <td className="px-4 py-3">
+                          {p.dateOfBirth ? calculateAge(p.dateOfBirth) : "-"}
+                        </td>
+                        <td className="px-4 py-3">{p.lastVisit || "-"}</td>
+                        <td className="px-2 py-3 w-16 text-center">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger className="focus:outline-none">
+                              <MoreHorizontal className="w-5 h-5 text-blue-500 cursor-pointer" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                              align="end"
+                              className="rounded-md shadow-md border border-gray-200 bg-white"
                             >
-                              Edit
-                            </DropdownMenuItem>{" "}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                              <DropdownMenuItem>View Record</DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setEditingPatient(p); // set selected patient
+                                  setRegisterPatientOpen(true); // open modal
+                                }}
+                              >
+                                Edit
+                              </DropdownMenuItem>{" "}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Pagination */}
@@ -387,7 +402,20 @@ export default function AllRegisterPatientList() {
                 page={currentPage}
                 onChange={(_, value) => setCurrentPage(value)}
                 variant="outlined"
-                color="primary"
+                sx={{
+                  "& .MuiPaginationItem-root": {
+                    borderRadius: "20px",
+                  },
+                  "& .Mui-selected": {
+                    background:
+                      "linear-gradient(135deg, #22d3ee 0%, #818cf8 100%)",
+                    color: "#fff",
+                  },
+                  "& .Mui-selected:hover": {
+                    background:
+                      "linear-gradient(135deg, #22d3ee 0%, #818cf8 100%)", // darker hover
+                  },
+                }}
               />
             </Stack>
           </div>
@@ -398,8 +426,8 @@ export default function AllRegisterPatientList() {
               // ✅ no default X button
             >
               <SheetHeader>
-                <SheetTitle className="font-sans text-xl p-0">
-                  Filter
+                <SheetTitle className="font-sans text-xl p-0 text-teal-500">
+                  Patient Filter
                 </SheetTitle>
               </SheetHeader>
 
@@ -476,7 +504,7 @@ export default function AllRegisterPatientList() {
               {/* Apply Button */}
               <SheetFooter>
                 <button
-                  className="bg-teal-300 hover:bg-teal-500 text-white px-4 py-2 rounded-lg shadow-2xl shadow-md transition"
+                  className="bg-teal-300 hover:bg-teal-500 text-white px-4 py-2 rounded-lg shadow-2xl transition"
                   onClick={handleApplyFilters}
                 >
                   Apply Filters

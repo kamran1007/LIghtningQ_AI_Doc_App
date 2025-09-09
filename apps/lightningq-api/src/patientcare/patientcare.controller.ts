@@ -199,7 +199,7 @@ export class PatientcareController {
   }
 
   @Get('getAlldoctoRole')
-  getAlldoctorrole(@Req() req: any,) {
+  getAlldoctorrole(@Req() req: any) {
     return this.patientcareService.getAlldoctoRole(req);
   }
   //fetchpaymenttype
@@ -242,42 +242,52 @@ export class PatientcareController {
   }
 
   //searchappointment
-  @Get('searchappointment')
-  async searchAppointments(@Query() query: any) {
-    const {
-      hospitalId,
-      DoctorId,
-      status,
-      visitTypeId,
-      acuity,
-      search,
-      appointmentDate, // ✅ single date
-      appointmentDateFrom,
-      appointmentDateTo,
-      page = 1,
-      limit = 10,
-    } = query;
+@Get('searchappointment')
+async searchAppointments(@Query() query: any) {
+  const {
+    hospitalId,
+    DoctorId,
+    status,
+    visitTypeId,
+    TagPatientId,
+    gender,        // lowercase
+    GenderName,    // uppercase
+    SpecializationId,
+    isConsultationcompleted,
+    acuity,
+    search,
+    appointmentDate,
+    appointmentDateFrom,
+    appointmentDateTo,
+    minAge,        // camelCase
+    maxAge,
+    minage,        // lowercase
+    maxage,
+    page = 1,
+    limit = 10,
+  } = query;
 
-    if (search && search.length < 3) {
-      throw new BadRequestException(
-        'Search term must be at least 3 characters',
-      );
-    }
+  return this.patientcareService.searchAppointments({
+    hospitalId: Number(hospitalId),
+    DoctorId: Number(DoctorId),
+    status,
+    visitTypeId: Number(visitTypeId),
+    TagPatientId: Number(TagPatientId),
+    GenderName: gender || GenderName,   // normalize
+    SpecializationId: Number(SpecializationId),
+    isConsultationcompleted,
+    acuity,
+    search,
+    appointmentDate,
+    appointmentDateFrom,
+    appointmentDateTo,
+    minage: Number(minAge || minage),   // normalize
+    maxage: Number(maxAge || maxage),   // normalize
+    page: Number(page),
+    limit: Number(limit),
+  });
+}
 
-    return this.patientcareService.searchAppointments({
-      hospitalId: Number(hospitalId),
-      DoctorId: Number(DoctorId),
-      status,
-      visitTypeId: Number(visitTypeId),
-      acuity,
-      search,
-      appointmentDate,
-      appointmentDateFrom,
-      appointmentDateTo,
-      page: Number(page),
-      limit: Number(limit),
-    });
-  }
 
   // vitals
   @Patch('addUpdatepatientvitals')

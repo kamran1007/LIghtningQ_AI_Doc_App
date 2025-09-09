@@ -2,17 +2,16 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Eye, MoreHorizontal, Maximize2, X, Edit } from "lucide-react";
+  Search,
+  FunnelPlus,
+  CalendarSearch,
+  User,
+  VenusAndMars,
+  FileBadge2,
+  FileBadge,
+} from "lucide-react";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
-import { TabView, TabPanel } from "primereact/tabview";
-import { motion, AnimatePresence } from "framer-motion";
 import { GetFilterSearchappointment } from "@/lib/bookappointment"; // ✅ adjust import path
 import { BACKEND_URL } from "@/lib/constants";
 import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
@@ -21,18 +20,30 @@ import { fetchAllAppointmentPatient } from "@/store/AppointmentSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useEvents } from "@/context/events-context";
 import AppointmentListSkeleton from "@/components/ui/skeletonloader/AppointmentList";
-import { MultiSelect } from "primereact/multiselect";
-import { Calendar } from "primereact/calendar";
-import { FunnelIcon as FilterIcon } from "@heroicons/react/24/solid";
 import AppointmentActionsDialog from "./AppointmentActionsDialog";
 import ConsultationDrawer from "../consultation/ConsultationDrawer";
-import { Funnel } from "lucide-react";
+
+import { Input } from "@/components/ui/input";
+import { DateRangePicker } from "react-date-range";
+
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@radix-ui/react-tooltip";
+  Select,
+  SelectTrigger,
+  SelectItem,
+  SelectContent,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetClose,
+  SheetFooter,
+} from "@/components/ui/sheet";
+import { Slider } from "@/components/ui/slider";
+import { getUserSpecialization } from "@/lib/admin";
+import { useSelector } from "react-redux";
 
 const getAcuityColor = (acuity: string) => {
   switch (acuity?.toLowerCase()) {
@@ -53,8 +64,11 @@ export default function AppointmentLookupList() {
   const [fullScreen, setFullScreen] = useState(false);
   const [filter, setFilter] = useState("all");
   const [selectedDate, setSelectedDate] = useState(null);
-  const [actionDialogOpen, setActionDialogOpen] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
+  const [patientGender, setPatientGender] = useState<string | undefined>();
+  const [specializations, setSpecializations] = useState([]);
+  const [activeChip, setActiveChip] = useState("All Appointments"); // ✅ default
 
   const filterRef = useRef(null);
   useEffect(() => {
@@ -83,7 +97,7 @@ export default function AppointmentLookupList() {
   const messages = [
     "Search patient by Phone No.",
     "Search patient by Name",
-    "Search patient by MR No.",
+    "Search patient by MRN.",
   ];
 
   useEffect(() => {
@@ -111,9 +125,9 @@ export default function AppointmentLookupList() {
   const [currentPage, setCurrentPage] = useState(1);
 
   // fetch appointments whenever page or limit changes
-  useEffect(() => {
-    dispatch(fetchAllAppointmentPatient({ page: currentPage, limit }));
-  }, [currentPage, limit, dispatch]);
+  // useEffect(() => {
+  //   dispatch(fetchAllAppointmentPatient({ page: currentPage, limit }));
+  // }, [currentPage, limit, dispatch]);
 
   const totalPages = Math.ceil(total / limit);
 
@@ -140,27 +154,28 @@ export default function AppointmentLookupList() {
     filter === "all" ? true : a.status?.toLowerCase() === filter
   );
 
-  const openSheet = (patient: any) => {
-    setSelectedPatient(patient);
-    setDrawerOpen(true);
-    setFullScreen(false);
-  };
-
   const closeSheet = () => {
     setDrawerOpen(false);
     setSelectedPatient(null);
     setFullScreen(false);
   };
   const [showFilter, setShowFilter] = useState(false);
-  const [selectedGenders, setSelectedGenders] = useState([]);
-  const [selectedSpecialists, setSelectedSpecialists] = useState([]);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [filterData, setFilterData] = useState({ gender: "", date: "" });
   const [dialogOpen, setDialogOpen] = useState(false);
 
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [ageRange, setAgeRange] = useState<[number, number]>([16, 29]);
+  const [ageDirty, setAgeDirty] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedSpecialization, setSelectedSpecialization] = useState<
+    string | undefined
+  >();
+
   const debounceSearch = useRef<NodeJS.Timeout>(null);
 
-  function handleSearch(val: string) {
+  function setSearchQuery(val: string) {
     setSearchTerm(val);
 
     if (debounceSearch.current) clearTimeout(debounceSearch.current);
@@ -191,48 +206,6 @@ export default function AppointmentLookupList() {
     return date.toLocaleDateString("en-CA"); // gives 'YYYY-MM-DD'
   }
 
-  function handleFilterChange(key: string, value: any) {
-    const newFilter = { ...filterData, [key]: value };
-    setFilterData(newFilter);
-
-    const formattedDate =
-      key === "appointmentDate" && value instanceof Date
-        ? toLocalDateString(value)
-        : filterData.appointmentDate;
-
-    const updatedFilters = {
-      ...newFilter,
-      appointmentDate: formattedDate, // always a string: "YYYY-MM-DD"
-    };
-    console.log(
-      "📅 Sending appointmentDate filter:",
-      updatedFilters.appointmentDate
-    );
-
-    console.log("📅 Filter Date:", updatedFilters.appointmentDate);
-
-    fetchAppointments({
-      search: searchTerm,
-      ...updatedFilters,
-      page: 1,
-      limit: 10,
-    });
-  }
-
-  const classificationTabs = [
-    { key: "all", label: "All" },
-    { key: "current", label: "Current" },
-    { key: "new", label: "New" },
-    // { key: "discharged", label: "Discharged" },
-    { key: "high", label: "High Priority" },
-  ];
-
-  const specialistOptions = [
-    { name: "Cardiologist", code: "cardio" },
-    { name: "Dermatologist", code: "derma" },
-    { name: "Neurologist", code: "neuro" },
-    // Add dynamically if needed
-  ];
   function calculateAge(dateOfBirth: string): string {
     const birthDate = new Date(dateOfBirth);
     const today = new Date();
@@ -280,141 +253,204 @@ export default function AppointmentLookupList() {
     setEventAddOpen(true);
     setDrawerOpen(false);
   };
-  const handleOpenDialog = (patient: any) => {
-    setSelectedPatient(patient);
-    setDialogOpen(true);
-  };
+
   const startConsultation = (patient: any) => {
     setSelectedPatient(patient);
     setDialogOpen(false);
     setDrawerOpen(true);
   };
+  function formatDateLocal(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`; // YYYY-MM-DD in local timezone
+  }
+
+  const todayStr = formatDateLocal(new Date());
+
+  const [dateRange, setDateRange] = useState([
+    {
+      startDate: new Date(todayStr), // local today
+      endDate: new Date(todayStr), // local today
+      key: "selection",
+    },
+  ]);
+  const selectedHospital = useSelector(
+    (state: any) => state.hospitalSelection?.selectedHospital
+  );
+
+  const chipFilters: Record<string, any> = {
+    "All Appointments": {}, // no extra filter
+    "New Appointment": { visitTypeId: 1 },
+    "High Priority": { acuity: "High" },
+    Completed: { isConsultationcompleted: true },
+  };
+
+  useEffect(() => {
+    const loadAppointmentdatefilter = async () => {
+      try {
+        const startDate = dateRange[0]?.startDate
+          ? formatDateLocal(dateRange[0].startDate)
+          : undefined;
+
+        const endDate = dateRange[0]?.endDate
+          ? formatDateLocal(dateRange[0].endDate)
+          : undefined;
+
+        const filters: Record<string, string | number | undefined> = {
+          hospitalId: selectedHospital
+            ? Number(selectedHospital?.hospitalId)
+            : undefined,
+          page: currentPage,
+          limit,
+          ...chipFilters[activeChip], // merge chip filter here
+        };
+
+        if (startDate && !endDate) {
+          filters.appointmentDate = startDate;
+        } else if (startDate && endDate) {
+          filters.appointmentDateFrom = startDate;
+          filters.appointmentDateTo = endDate;
+        }
+
+        const data = await dispatch(
+          fetchAllAppointmentPatient(filters)
+        ).unwrap();
+        setAppointments(data);
+      } catch (err) {
+        console.error("Failed to fetch appointments:", err);
+      }
+    };
+
+    loadAppointmentdatefilter();
+  }, [dateRange, dispatch, currentPage, limit, selectedHospital, activeChip]);
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        setIsLoading(true);
+
+        const [specRes] = await Promise.all([
+          // getOrganizationByUser(),
+          getUserSpecialization(),
+          // getallusers(),
+        ]);
+
+        // setOrganizations(orgRes?.return?.data ?? []);
+        // setRoles(roleRes?.return?.data ?? []);
+        setSpecializations(specRes?.return?.data ?? []);
+
+        // ✅ Set user if editing
+        // if (userId) {
+        //   const foundUser = userList.find(
+        //     (u: { UserId: number }) => u.UserId === Number(userId)
+        //   );
+        //   setUser(foundUser ?? null);
+        // console.log("Found user for editing:", foundUser);
+        // console.log("Editing user:", user);
+        // }
+      } catch (error) {
+        console.error("Failed to fetch data", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchInitialData();
+  }, []);
+
+  const handleApplyFilters = () => {
+    console.log("Applying filters:", {
+      ageRange,
+      ageDirty,
+      gender: patientGender,
+      SpecializationId: selectedSpecialization,
+    });
+
+    dispatch(
+      fetchAllAppointmentPatient({
+        page: currentPage,
+        limit: limit,
+        SpecializationId: selectedSpecialization
+          ? Number(selectedSpecialization)
+          : undefined,
+        gender:
+          patientGender && patientGender !== "all-gender"
+            ? patientGender
+            : undefined,
+        minAge: ageRange[0],
+        maxAge: ageRange[1],
+      })
+    );
+
+    setIsDialogOpen(false);
+  };
+
   return (
-    <div className="p-0 py-1 space-y-1 ">
-      {/* Filter Buttons */}
-
-      <div className="w-full px-1 mb-4">
-        <div className="flex flex-wrap justify-between items-center gap-3">
-          {/* LEFT: Classification Tabs */}
-          <div className="flex gap-1 overflow-auto rounded-xl p-1 flex-wrap">
-            {classificationTabs.map(({ key, label }) => (
-              <button
-                key={key}
-                onClick={() => setFilter(key)}
-                className={`px-4 py-1.5 rounded-full whitespace-nowrap text-sm font-medium transition-all duration-200 ${
-                  filter === key
-                    ? "bg-teal-100 text-grey-700 shadow-xl"
-                    : "bg-gray-50 text-zinc-600 hover:bg-purple-100 border border-zinc-300"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-
-          {/* RIGHT: Search + Filter Funnel */}
-          <div className="flex items-center gap-1 flex-wrap justify-end">
-            {/* Search Input */}
-            <input
-              type="text"
-              placeholder={displayText}
-                className="pl-5 pr-5 py-2 text-sm h-10 border border-gray-300 rounded-4xl shadow-xl focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all w-60 duration-300 ease-in-out hover:shadow-md focus:shadow-lg"
-
-              onChange={(e) => handleSearch(e.target.value)}
-            />
-
-            {/* Funnel Filter */}
-            <div className="relative" ref={filterRef}>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={() => setShowFilter((prev) => !prev)}
-                      className="p-0 rounded hover:bg-gray-100"
-                    >
-                      <Funnel className="text-zinc-600 h-5 w-5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    side="top"
-                    sideOffset={6}
-                    className="bg-black text-white text-xs px-3 py-1 rounded-md shadow-sm"
-                  >
-                    {" "}
-                    <p>Toggle filter</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              {/* Dropdown Filter Panel */}
-              {showFilter && (
-                <div className="absolute right-0 mt-2 w-80 z-50 bg-white border border-zinc-200 shadow-xl rounded-xl p-4 transition-all duration-300 animate-fade-slide-down">
-                  {/* Gender Filter */}
-                  <div>
-                    <label className="text-xs font-medium text-zinc-500 mb-1 block">
-                      Gender
-                    </label>
-                    <MultiSelect
-                      value={selectedGenders}
-                      onChange={(e) => {
-                        const selected = e.value;
-                        setSelectedGenders(selected);
-                        const genderCodes = selected
-                          .map((item: any) => item.code)
-                          .join(",");
-                        handleFilterChange("gender", genderCodes);
-                      }}
-                      options={[
-                        { name: "Male", code: "male" },
-                        { name: "Female", code: "female" },
-                        { name: "Other", code: "other" },
-                      ]}
-                      optionLabel="name"
-                      display="chip"
-                      placeholder="Select Gender(s)"
-                      className="w-full"
-                    />
-                  </div>
-
-                  {/* Specialist Filter */}
-                  <div>
-                    <label className="text-xs font-medium text-zinc-500 mb-1 block">
-                      Specialist
-                    </label>
-                    <MultiSelect
-                      value={selectedSpecialists}
-                      onChange={(e) => setSelectedSpecialists(e.value)}
-                      options={specialistOptions}
-                      optionLabel="name"
-                      display="chip"
-                      placeholder="Select Specialist(s)"
-                      className="w-full"
-                    />
-                  </div>
-
-                  {/* Date Filter */}
-                  <div>
-                    <label className="text-xs font-medium text-zinc-500 mb-1 block">
-                      Appointment Date
-                    </label>
-                    <Calendar
-                      value={selectedDate}
-                      onChange={(e) => {
-                        const selected =
-                          e.value instanceof Date ? e.value : new Date(e.value);
-                        setSelectedDate(selected);
-                        handleFilterChange("appointmentDate", selected);
-                      }}
-                      placeholder="Select a Date"
-                      dateFormat="dd/mm/yy"
-                      className="w-full"
-                      showIcon
-                    />
-                  </div>
-                </div>
-              )}
+    <div className="p-0 py-0.5 space-y-1 ">
+      <div className="flex items-center justify-between w-full gap-4">
+        {/* Left side → Chips */}
+        {/* Left side → Filter Chips */}
+        <div className="flex items-center gap-2">
+          {[
+            "All Appointments",
+            "New Appointment",
+            "High Priority",
+            "Completed",
+          ].map((label) => (
+            <div
+              key={label}
+              onClick={() => setActiveChip(label)}
+              className={`px-4 py-1 rounded-full border cursor-pointer transition shadow-2xl
+      ${
+        activeChip === label
+          ? "bg-gradient-to-r from-cyan-500  to-teal-500 text-white border-teal-500"
+          : "bg-white text-gray-500 border-teal-400 hover:bg-teal-200 hover:text-gray-600"
+      }`}
+            >
+              {label}
             </div>
+          ))}
+        </div>
+
+        {/* Right side → Search, Calendar, Filter */}
+        <div className="flex items-center gap-4">
+          {/* Search Bar */}
+          <div className="relative flex-1 max-w-sm mt-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-8 text-teal-400" />
+            <Input
+              type="text"
+              ref={inputRef}
+              placeholder={displayText}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-4 py-3 w-full rounded-3xl border border-gray-200 h-10
+          bg-white shadow-sm focus:border-pink-400 focus:ring-2 
+          focus:ring-pink-200 transition-all"
+            />
           </div>
+
+          {/* Calendar Icon + Picker */}
+          <div className="relative inline-block">
+            <CalendarSearch
+              className="w-6 h-6 text-teal-300 cursor-pointer"
+              onClick={() => setShowPicker((prev) => !prev)}
+            />
+            {showPicker && (
+              <div className="absolute z-50 mt-2 shadow-lg bg-white rounded-lg p-2 right-full mr-2">
+                <DateRangePicker
+                  ranges={dateRange}
+                  onChange={(item) => setDateRange([item.selection])}
+                  rangeColors={["#22E0D4"]}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Filter Icon */}
+          <FunnelPlus
+            className="w-6 h-6 text-teal-300 cursor-pointer"
+            onClick={() => setIsDialogOpen(true)}
+          />
         </div>
       </div>
 
@@ -422,113 +458,120 @@ export default function AppointmentLookupList() {
       {loading ? (
         <AppointmentListSkeleton rows={10} />
       ) : (
-        <div className="w-full overflow-hidden rounded-md shadow-sm border-b border-purple-600">
-          <table className="w-full text-sm text-left border-b border-purple-600">
-            <thead className="bg-purple-100 text-zinc-600 text-xs font-sans border-b border-purple-600">
-              <tr className="divide-x divide-zinc-200 ">
-                <th className="px-4 py-3 border-b border-purple-600">Name</th>
-                <th className="px-4 py-3 border-b border-purple-600">MRN</th>
-                <th className="px-4 py-3 border-b border-purple-600">
-                  Contact Info
-                </th>
-                <th className="px-4 py-3 border-b border-purple-600">Age</th>
-                <th className="px-4 py-3 border-b border-purple-600">
-                  Specialist
-                </th>
-                <th className="px-4 py-3 border-b border-purple-600">Reason</th>
-                <th className="px-4 py-3 border-b border-purple-600">Acuity</th>
-                <th className="px-4 py-3 border-b border-purple-600">
-                  Assigned Provider
-                </th>
-                <th className="px-4 py-3 border-b border-purple-600">
-                  Last Visit
-                </th>
-                <th className="px-2 py-3 w-16 text-center border-b border-purple-600">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-100 bg-white">
-              {filteredAppointments?.map((p, idx) => {
-                const imageUrl = p?.patient?.profileImageUrl
-                  ? `${BACKEND_URL}${p?.patient?.profileImageUrl}`
-                  : null;
-                const initials = getInitials(
-                  p?.patient?.firstName,
-                  p?.patient?.lastName
-                );
-                const fallbackColor = getColorByInitials(initials);
-                const imageError = imageErrorMap?.[idx]; // make sure imageErrorMap is defined via useState
+        <div
+          className="w-full overflow-hidden rounded-md shadow-sm border-b mt-2"
+          style={{
+            borderColor: "transparent",
+            backgroundImage:
+              "linear-gradient(135deg, #5eead4 0%, #818cf8 100%)",
+            padding: "1px",
+          }}
+        >
+          {" "}
+          <div className="rounded-md overflow-hidden bg-white">
+            <table className="w-full text-sm text-left">
+              <thead
+                className="text-zinc-600 text-xs font-sans"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(135deg, #5eead4 0%, #818cf8 100%)",
+                  color: "white",
+                }}
+              >
+                <tr className="divide-x divide-zinc-200">
+                  <th className="px-4 py-3">Name</th>
+                  <th className="px-4 py-3">MRN</th>
+                  <th className="px-4 py-3">Contact Info</th>
+                  <th className="px-4 py-3">Age</th>
+                  <th className="px-4 py-3">Specialist</th>
+                  <th className="px-4 py-3">Reason</th>
+                  <th className="px-4 py-3">Acuity</th>
+                  <th className="px-4 py-3">Assigned Provider</th>
+                  <th className="px-4 py-3">Last Visit</th>
+                  <th className="px-2 py-3 w-16 text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-100 bg-white">
+                {filteredAppointments?.map((p, idx) => {
+                  const imageUrl = p?.patient?.profileImageUrl
+                    ? `${BACKEND_URL}${p?.patient?.profileImageUrl}`
+                    : null;
+                  const initials = getInitials(
+                    p?.patient?.firstName,
+                    p?.patient?.lastName
+                  );
+                  const fallbackColor = getColorByInitials(initials);
+                  const imageError = imageErrorMap?.[idx]; // make sure imageErrorMap is defined via useState
 
-                return (
-                  <tr
-                    key={idx}
-                    className="hover:bg-[#EFFFFD] cursor-pointer"
-                    // onClick={() => openSheet(p)}
-                  >
-                    <td className="flex items-center gap-3 px-2 py-3 font-medium text-zinc-800">
-                      <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
-                        {!imageError && imageUrl ? (
-                          <PrimeImage
-                            src={imageUrl}
-                            alt={`${p?.patient?.firstName} ${p?.patient?.lastName}`}
-                            preview
-                            downloadable
-                            className="h-full w-full object-cover rounded-full"
-                            imageClassName="h-full w-full object-cover rounded-full"
-                            onError={() =>
-                              setImageErrorMap((prev) => ({
-                                ...prev,
-                                [idx]: true,
-                              }))
-                            }
-                          />
-                        ) : (
-                          <Avatar className="w-10 h-10 rounded-full ring-1 ring-zinc-300 shadow-sm">
-                            <AvatarFallback
-                              className={`w-full h-full rounded-full flex items-center justify-center font-medium text-sm ${fallbackColor}`}
-                            >
-                              {initials}
-                            </AvatarFallback>
-                          </Avatar>
-                        )}
-                      </div>
-                      <span>
-                        {p?.patient?.firstName} {p?.patient?.lastName}
-                      </span>
-                    </td>
+                  return (
+                    <tr
+                      key={idx}
+                      className="hover:bg-[#EFFFFD] cursor-pointer"
+                      // onClick={() => openSheet(p)}
+                    >
+                      <td className="flex items-center gap-3 px-2 py-3 font-medium text-zinc-800">
+                        <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
+                          {!imageError && imageUrl ? (
+                            <PrimeImage
+                              src={imageUrl}
+                              alt={`${p?.patient?.firstName} ${p?.patient?.lastName}`}
+                              preview
+                              downloadable
+                              className="h-full w-full object-cover rounded-full"
+                              imageClassName="h-full w-full object-cover rounded-full"
+                              onError={() =>
+                                setImageErrorMap((prev) => ({
+                                  ...prev,
+                                  [idx]: true,
+                                }))
+                              }
+                            />
+                          ) : (
+                            <Avatar className="w-10 h-10 rounded-full ring-1 ring-zinc-300 shadow-sm">
+                              <AvatarFallback
+                                className={`w-full h-full rounded-full flex items-center justify-center font-medium text-sm ${fallbackColor}`}
+                              >
+                                {initials}
+                              </AvatarFallback>
+                            </Avatar>
+                          )}
+                        </div>
+                        <span>
+                          {p?.patient?.firstName} {p?.patient?.lastName}
+                        </span>
+                      </td>
 
-                    <td className="px-4 py-3">
-                      {p?.patient?.Patient_Medical_Record_No}
-                    </td>
-                    <td className="px-4 py-3">
-                      <p>{p?.patient?.mobile}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {p?.patient?.email}
-                      </p>
-                    </td>
-                    <td className="px-4 py-3">
-                      {p?.patient?.dateOfBirth
-                        ? calculateAge(p?.patient?.dateOfBirth)
-                        : "-"}
-                    </td>
-                    <td className="px-4 py-3">
-                      {p?.doctor?.Specialization?.SpecializationName}
-                    </td>
-                    <td className="px-4 py-3">{p?.reason}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`px-2 py-0.5 text-xs font-semibold rounded-xl ${getAcuityColor(
-                          p?.acuity
-                        )}`}
-                      >
-                        {p?.acuity}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">Dr. {p?.doctor?.firstName}</td>
-                    <td className="px-4 py-3">{p?.lastVisit || "-"}</td>
-                    <td className="px-2 py-3 w-10 text-center">
-                      {/* <MoreHorizontal
+                      <td className="px-4 py-3">
+                        {p?.patient?.Patient_Medical_Record_No}
+                      </td>
+                      <td className="px-4 py-3">
+                        <p>{p?.patient?.mobile}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {p?.patient?.email}
+                        </p>
+                      </td>
+                      <td className="px-4 py-3">
+                        {p?.patient?.dateOfBirth
+                          ? calculateAge(p?.patient?.dateOfBirth)
+                          : "-"}
+                      </td>
+                      <td className="px-4 py-3">
+                        {p?.doctor?.Specialization?.SpecializationName}
+                      </td>
+                      <td className="px-4 py-3">{p?.reason}</td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`px-2 py-0.5 text-xs font-semibold rounded-xl ${getAcuityColor(
+                            p?.acuity
+                          )}`}
+                        >
+                          {p?.acuity}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">Dr. {p?.doctor?.firstName}</td>
+                      <td className="px-4 py-3">{p?.lastVisit || "-"}</td>
+                      <td className="px-2 py-3 w-10 text-center">
+                        {/* <MoreHorizontal
                         className="w-5 h-5 text-blue-500 cursor-pointer"
                         onClick={(e) => {
                           // e.stopPropagation(); // ✅ prevent row click
@@ -536,7 +579,7 @@ export default function AppointmentLookupList() {
                         }}
                       /> */}
 
-                      {/* <AppointmentActionsDialog
+                        {/* <AppointmentActionsDialog
                         open={dialogOpen}
                         onOpenChange={setDialogOpen}
                         patient={p}
@@ -565,33 +608,37 @@ export default function AppointmentLookupList() {
                         patient={selectedPatient}
                       /> */}
 
-                      <AppointmentActionsDialog
-                        patient={p}
-                        onReschedule={(appointment) => {
-                          handleReschedule(appointment);
-                        }}
-                        onCancel={(appointment) => {
-                          handleCancel(appointment);
-                        }}
-                        onViewCaseHistory={(appointment) => {
-                          console.log("Viewing case history for", appointment);
-                        }}
-                        onStartConsultation={(appointment) => {
-                          startConsultation(appointment);
-                        }}
-                      />
-                      <ConsultationDrawer
-                        // patient={p}
-                        open={drawerOpen}
-                        onClose={() => closeSheet()}
-                        patient={selectedPatient}
-                      />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                        <AppointmentActionsDialog
+                          patient={p}
+                          onReschedule={(appointment) => {
+                            handleReschedule(appointment);
+                          }}
+                          onCancel={(appointment) => {
+                            handleCancel(appointment);
+                          }}
+                          onViewCaseHistory={(appointment) => {
+                            console.log(
+                              "Viewing case history for",
+                              appointment
+                            );
+                          }}
+                          onStartConsultation={(appointment) => {
+                            startConsultation(appointment);
+                          }}
+                        />
+                        <ConsultationDrawer
+                          // patient={p}
+                          open={drawerOpen}
+                          onClose={() => closeSheet()}
+                          patient={selectedPatient}
+                        />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
@@ -603,10 +650,115 @@ export default function AppointmentLookupList() {
             page={currentPage}
             onChange={handlePageChange}
             variant="outlined"
-            color="secondary"
+            sx={{
+              "& .MuiPaginationItem-root": {
+                borderRadius: "20px",
+              },
+              "& .Mui-selected": {
+                background: "linear-gradient(135deg, #5eead4 0%, #818cf8 100%)",
+                color: "#fff",
+              },
+              "& .Mui-selected:hover": {
+                background: "linear-gradient(135deg, #22d3ee 0%, #6366f1 100%)", // darker hover
+              },
+            }}
           />
         </Stack>
       </div>
+
+      <Sheet open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <SheetContent
+          side="right"
+          className="w-[600px] sm:w-[700px] lg:w-[800px] overflow-y-auto no-scrollbar px-6 border-b-cyan-700"
+          // ✅ no default X button
+        >
+          <SheetHeader>
+            <SheetTitle className="font-sans text-xl p-0 text-teal-400 mb-0 mt-0">
+              Appointment Filter
+            </SheetTitle>
+          </SheetHeader>
+
+          {/* 🔹 Filters */}
+          <div className="mb-2 flex flex-col gap-4 mt-2 ">
+            {/* Age Range */}
+            <div className="flex flex-col w-full bg-white border border-teal-300 rounded-lg shadow-sm p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <User className="h-4 w-4 text-teal-400" />
+                <span className="font-medium text-gray-700">Age Range</span>
+              </div>
+
+              <Slider
+                min={0}
+                max={120}
+                step={1}
+                value={ageRange}
+                onValueChange={(val) => {
+                  setAgeRange(val as [number, number]);
+                  setAgeDirty(true);
+                }}
+                className="w-full
+          [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-teal-400
+          [&_[role=slider]]:h-4 [&_[role=slider]]:w-4 rounded-full
+      
+          [&_[class*='SliderTrack']]:bg-teal-300  [&_[class*='SliderTrack']]:h-2
+          [&_[class*='SliderRange']]:bg-teal-500
+        "
+              />
+
+              <div className="flex justify-between text-sm text-gray-600 mt-2">
+                <span>{ageRange[0]} yrs</span>
+                <span>{ageRange[1]} yrs</span>
+              </div>
+            </div>
+
+            {/* Hospital Filter */}
+            <Select
+              value={selectedSpecialization}
+              onValueChange={setSelectedSpecialization}
+            >
+              <SelectTrigger className="w-full border border-teal-300 rounded-lg shadow-sm focus:border-[#22E0D4] focus:ring-2 focus:ring-[#22E0D4] transition flex items-center gap-2">
+                <FileBadge className="w-5 h-5 text-teal-400" />
+                <SelectValue placeholder="Select Specialist" />
+              </SelectTrigger>
+              <SelectContent className="border-gray-300 shadow-2xl rounded-2xl">
+                <SelectItem value="all-hospitals">All Specialist</SelectItem>
+                {specializations.map((spec: any) => (
+                  <SelectItem
+                    key={spec.SpecializationId}
+                    value={spec.SpecializationId.toString()}
+                  >
+                    {spec.SpecializationName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Gender Filter */}
+            <Select value={patientGender} onValueChange={setPatientGender}>
+              <SelectTrigger className="w-full border border-teal-300 rounded-lg shadow-sm focus:border-[#22E0D4] focus:ring-2 focus:ring-[#22E0D4] transition flex items-center gap-2">
+                <VenusAndMars className="w-5 h-5 text-teal-400" />
+                <SelectValue placeholder="Select Gender" />
+              </SelectTrigger>
+              <SelectContent className="border-gray-300 shadow-2xl rounded-2xl">
+                <SelectItem value="all-gender">All Gender</SelectItem>
+                <SelectItem value="MALE">MALE</SelectItem>
+                <SelectItem value="FEMALE">FEMALE</SelectItem>
+                <SelectItem value="OTHER">OTHER</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Apply Button */}
+          <SheetFooter>
+            <button
+              className="bg-teal-300 hover:bg-teal-500 text-white px-4 py-2 rounded-lg shadow-2xl  transition"
+              onClick={handleApplyFilters}
+            >
+              Apply Filters
+            </button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

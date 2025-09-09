@@ -9,7 +9,7 @@ import {
   IsString,
 } from 'class-validator';
 import { BloodGroup, GenderType } from '@prisma/client';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 
 export class QuickAppointmentDto {
   // Patient fields
@@ -143,6 +143,10 @@ export class QuickAppointmentDto {
   @IsOptional()
   @IsString()
   TotalAppointmentCharges?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  SpecializationId?: number;
 
   // @IsString()
   // appointmentDate?: string;

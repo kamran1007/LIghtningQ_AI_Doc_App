@@ -11,12 +11,15 @@ export const FetchDoctorSpecialization = async () => {
     throw new Error("Unauthorized: Access token not found.");
   }
 
-  const res = await axios.get(`${BACKEND_URL}/patientcare/getallSpecialization`, {
-    headers: {
-      "Content-Type": "application/json",
-      authorization: `Bearer ${session?.accessToken}`,
-    },
-  });
+  const res = await axios.get(
+    `${BACKEND_URL}/patientcare/getallSpecialization`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${session?.accessToken}`,
+      },
+    }
+  );
   return res.data;
 };
 
@@ -129,16 +132,22 @@ export const getAllTagPatientType = async () => {
   return res.data;
 };
 
-
-//get apppointment 
+//get apppointment
 
 export const GetFilterSearchappointment = async (
   filters: {
+    hospitalId?: number;
+    DoctorId?: number;
+    status?: string;
+    visitTypeId?: number;
+    TagPatientId?: number;
+    GenderName?: string;
+    SpecializationId?: number;
+    acuity?: string;
     search?: string;
     appointmentDate?: string;
     appointmentDateFrom?: string;
     appointmentDateTo?: string;
-    gender?: string;
     page?: 1;
     limit?: 10;
   } = {}
@@ -167,4 +176,3 @@ export const GetFilterSearchappointment = async (
     throw new Error(message);
   }
 };
-

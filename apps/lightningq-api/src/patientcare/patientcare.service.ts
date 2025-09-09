@@ -42,7 +42,7 @@ export class PatientcareService {
 
   //Get patient
   async getPatients(arg0: {
-    organizationId: number,
+    organizationId: number;
     hospitalId: number;
     search: string | undefined;
     city: string | undefined;
@@ -143,7 +143,7 @@ export class PatientcareService {
     };
   }
 
-  async getAlldoctoRole(req:any) {
+  async getAlldoctoRole(req: any) {
     const result = await this.ManagePatientService.getAlldoctoRole(req);
     return {
       message: 'All Doctor data has successfully Fetch',
@@ -201,11 +201,17 @@ export class PatientcareService {
     DoctorId: number;
     status?: string;
     visitTypeId?: number;
+    TagPatientId?: number;
+    GenderName?: string;
+    SpecializationId?: number;
+    isConsultationcompleted?: boolean
     acuity?: string;
     search?: string;
     appointmentDate?: string; // ✅ single date
     appointmentDateFrom?: string; // ✅ date range
     appointmentDateTo?: string;
+    minage?: number;
+    maxage?: number;
     page?: number;
     limit?: number;
   }) {
@@ -454,6 +460,5 @@ export class PatientcareService {
       message: 'Procedure have been successfully deleted',
       return: result,
     };
-  }  
-
+  }
 }

@@ -684,6 +684,7 @@ export function EventAddForm({
       DoctorTimeSlotId: selectedTime.slotId,
       organizationId: 1,
       DoctorId: Number(selectedDoctorId),
+      SpecializationId: Number(selectedSpecializationId),
       visitTypeId: Number(form.visitTypeId),
       paymentTypeId: Number(form.paymentTypeId),
       TagPatientId: Number(form.TagPatientId) || 0,
@@ -711,6 +712,8 @@ export function EventAddForm({
       DoctorId: Number(selectedDoctorId),
       // RescheduleReason: form.reason || "",
       cancellationReason: form.cancellationReason,
+      SpecializationId: Number(selectedSpecializationId),
+
       firstName: form.firstName,
       lastName: form.lastName,
       email: form.email,
@@ -1120,13 +1123,15 @@ export function EventAddForm({
       <AlertDialog open={eventAddOpen} onOpenChange={setEventAddOpen}>
         {!eventAddOpen && (
           <AlertDialogTrigger asChild>
-            <Button
-              className="glow-button bg-white text-white text-[1rem] md:text-sm cursor-pointer border-e-black"
-              onClick={() => setEventAddOpen(true)}
-            >
-              <CalendarClock className="w-5 h-5 text-grey-500" />
-              Book Appointment
-            </Button>
+            <div className="flex-none">
+              <Button
+                className="book-appointment-btn inline-flex items-center gap-2"
+                onClick={() => setEventAddOpen(true)}
+              >
+                <CalendarClock className="w-5 h-5" />
+                Book Appointment
+              </Button>
+            </div>
           </AlertDialogTrigger>
         )}
 

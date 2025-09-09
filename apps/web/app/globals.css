@@ -9,7 +9,6 @@
 @import "primereact/resources/primereact.min.css";
 @import "primeicons/primeicons.css";
 
-
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -119,25 +118,23 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-
-
 @font-face {
-  font-family: 'Branbon';
-  src: url('/fonts/Branbon.ttf') format('truetype');
+  font-family: "Branbon";
+  src: url("/fonts/Branbon.ttf") format("truetype");
   /* Adjust the path and format */
   font-weight: 120;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'portada';
-  src: url('/fonts/HouschkaPro.ttf') format('truetype');
+  font-family: "portada";
+  src: url("/fonts/HouschkaPro.ttf") format("truetype");
   font-weight: 300;
   font-style: normal;
 }
 
 body {
-  font-family: 'portada', sans-serif;
+  font-family: "portada", sans-serif;
   /* overflow-x: hidden; */
 }
 .main-container {
@@ -158,13 +155,13 @@ body {
 }
 
 .font-houschka {
-  font-family: 'span', sans-serif;
+  font-family: "span", sans-serif;
   font-weight: 450;
   font-size: medium;
-  font-style:normal;
+  font-style: normal;
 }
 .ModelFont {
-  font-family: 'span', sans-serif;
+  font-family: "span", sans-serif;
   font-weight: 550;
   font-size: medium;
   font-style: normal;
@@ -201,12 +198,18 @@ body {
   height: 3.5rem;
   /* Fully rounded (pill shape) */
   color: white;
-  font-family: 'Brandon Grotesque', sans-serif;
+  font-family: "Brandon Grotesque", sans-serif;
   font-size: 1.25rem;
   font-weight: bold;
   position: center;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  background: radial-gradient(circle, rgba(0, 36, 34, 1) 0%, rgba(25, 138, 224, 1) 0%, rgba(25, 138, 224, 1) 0%, rgba(34, 224, 212, 1) 97%);
+  background: radial-gradient(
+    circle,
+    rgba(0, 36, 34, 1) 0%,
+    rgba(25, 138, 224, 1) 0%,
+    rgba(25, 138, 224, 1) 0%,
+    rgba(34, 224, 212, 1) 97%
+  );
   transition: opacity 0.9s;
 }
 
@@ -255,17 +258,18 @@ body {
   animation: gradientShift 30s ease-in-out;
 }
 
-
 .submit-button:hover {
   opacity: 0.9;
 }
 
 .custom-gradient-hover:hover {
-  background: radial-gradient(circle,
-      rgba(0, 36, 34, 1) 0%,
-      rgba(25, 138, 224, 1) 0%,
-      rgba(25, 138, 224, 1) 0%,
-      rgba(34, 224, 212, 1) 97%) !important;
+  background: radial-gradient(
+    circle,
+    rgba(0, 36, 34, 1) 0%,
+    rgba(25, 138, 224, 1) 0%,
+    rgba(25, 138, 224, 1) 0%,
+    rgba(34, 224, 212, 1) 97%
+  ) !important;
 }
 
 .scroll-gradient {
@@ -276,7 +280,7 @@ body {
 /* Gradient overlays */
 .scroll-gradient::before,
 .scroll-gradient::after {
-  content: '';
+  content: "";
   position: sticky;
   left: 0;
   right: 0;
@@ -287,31 +291,37 @@ body {
 
 .scroll-gradient::before {
   top: 0;
-  background: radial-gradient(circle,
-      rgba(0, 36, 34, 1) 0%,
-      rgba(25, 138, 224, 1) 0%,
-      rgba(25, 138, 224, 1) 0%,
-      rgba(34, 224, 212, 1) 97%);
+  background: radial-gradient(
+    circle,
+    rgba(0, 36, 34, 1) 0%,
+    rgba(25, 138, 224, 1) 0%,
+    rgba(25, 138, 224, 1) 0%,
+    rgba(34, 224, 212, 1) 97%
+  );
 }
 
 .scroll-gradient::after {
   bottom: 0;
-  background: radial-gradient(circle,
-      rgba(0, 36, 34, 1) 0%,
-      rgba(25, 138, 224, 1) 0%,
-      rgba(25, 138, 224, 1) 0%,
-      rgba(34, 224, 212, 1) 97%);
+  background: radial-gradient(
+    circle,
+    rgba(0, 36, 34, 1) 0%,
+    rgba(25, 138, 224, 1) 0%,
+    rgba(25, 138, 224, 1) 0%,
+    rgba(34, 224, 212, 1) 97%
+  );
 }
 
 .futuristic-font {
-  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  font-family: "Orbitron", "Segoe UI", sans-serif;
   letter-spacing: 0.05em;
 }
 
 input[type="checkbox"].gradient-checkbox:checked {
-  background: radial-gradient(circle,
-      rgba(25, 138, 224, 1) 0%,
-      rgba(34, 224, 212, 1) 97%);
+  background: radial-gradient(
+    circle,
+    rgba(25, 138, 224, 1) 0%,
+    rgba(34, 224, 212, 1) 97%
+  );
   border: none;
 }
 
@@ -327,13 +337,12 @@ input[type="checkbox"].gradient-checkbox:checked {
   scrollbar-width: none !important;
 }
 
-
 .input-style {
   @apply w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
 }
 
 .glow-button {
-  background: rgb(150, 235, 221);
+  background: rgba(150, 211, 235, 0.863);
   color: rgb(0, 0, 0);
   font-size: 1rem;
   /* or remove and let Tailwind handle font-size */
@@ -343,26 +352,29 @@ input[type="checkbox"].gradient-checkbox:checked {
   position: relative;
   width: 200px;
   font-weight: 500;
-    /* semi-bold */}
+  /* semi-bold */
+}
 
-.glow-button::before {
-  content: '';
+/* .glow-button::before {
+  content: "";
   position: absolute;
   inset: -2px;
-  background: linear-gradient(270deg,
-      #ff6ec4,
-      #7873f5,
-      #4ade80,
-      #60a5fa,
-      #facc15,
-      #ff6ec4);
+  background: linear-gradient(
+    270deg,
+    #ff6ec4,
+    #7873f5,
+    #4ade80,
+    #60a5fa,
+    #facc15,
+    #ff6ec4
+  );
   background-size: 300%;
   animation: moveGradient 5s linear infinite;
   z-index: -1;
   border-radius: inherit;
   filter: blur(20px);
   opacity: 0.8;
-}
+} */
 
 @keyframes moveGradient {
   0% {
@@ -378,41 +390,42 @@ input[type="checkbox"].gradient-checkbox:checked {
   }
 }
 
-
-
 .glow-reister-button {
   background: rgb(130, 217, 243);
   color: rgb(0, 0, 0);
   font-size: 1rem;
-  /* or remove and let Tailwind handle font-size */
-  padding: 0.4rem 1rem;
-  border-radius: none;
+  padding: 0.4rem 0.4rem;
   border: none;
+  border-radius: 8px;
+  /* better than "none" */
   position: relative;
   width: 200px;
   font-weight: 500;
-  color: rgb(0, 0, 0);
-  /* semi-bold */
+  cursor: pointer;
+  z-index: 0;
+  /* ensure glow appears behind */
 }
 
-.glow-reister-button::before {
-  content: '';
+/* .glow-reister-button:hover::before {
+  content: "";
   position: absolute;
   inset: -2px;
-  background: linear-gradient(270deg,
-      #ff6ec4,
-      #7873f5,
-      #4ade80,
-      #60a5fa,
-      #facc15,
-      #ff6ec4);
+  background: linear-gradient(
+    270deg,
+    #ff6ec4,
+    #7873f5,
+    #4ade80,
+    #60a5fa,
+    #facc15,
+    #ff6ec4
+  );
   background-size: 300%;
   animation: moveGradient 5s linear infinite;
   z-index: -1;
   border-radius: inherit;
   filter: blur(20px);
   opacity: 0.8;
-}
+} */
 
 @keyframes floatUp {
   from {
@@ -427,8 +440,6 @@ input[type="checkbox"].gradient-checkbox:checked {
 .animate-floatUp {
   animation: floatUp 0.6s ease-out forwards;
 }
-
-
 
 .custom-toast-container {
   position: relative;
@@ -455,11 +466,7 @@ input[type="checkbox"].gradient-checkbox:checked {
 }
 
 .gradient-border-animated {
-  background: linear-gradient(90deg,
-      #3b82f6,
-      #10b981,
-      #f472b6,
-      #3b82f6);
+  background: linear-gradient(90deg, #3b82f6, #10b981, #f472b6, #3b82f6);
   /* blue, green, pink, back to blue */
   background-size: 300% 300%;
   animation: gradientBorderMove 10s linear infinite;
@@ -473,13 +480,12 @@ input[type="checkbox"].gradient-checkbox:checked {
   background-clip: padding-box, border-box;
   background-image:
     linear-gradient(#f9fafb, #f9fafb),
-    /* inner background */
-    linear-gradient(90deg, #10b981, #6366f1, #ec4899);
+    /* inner background */ linear-gradient(90deg, #10b981, #6366f1, #ec4899);
   /* border gradient */
 }
 
 .p-speeddial-button {
-  background-color: #22E0D4 !important;
+  background-color: #22e0d4 !important;
   border: none !important;
 }
 
@@ -497,7 +503,6 @@ input[type="checkbox"].gradient-checkbox:checked {
   display: none !important;
   padding: 0 !important;
   margin: 0 !important;
-
 }
 
 .sticky-header {
@@ -513,7 +518,6 @@ input[type="checkbox"].gradient-checkbox:checked {
   top: 80px;
   /* Adjust based on header height */
 }
-
 
 .sticky-sidebar {
   position: sticky;
@@ -569,4 +573,50 @@ input[type="checkbox"].gradient-checkbox:checked {
 .animate-ocean-flow {
   background-size: 200% 200%;
   animation: ocean-flow 8s ease infinite;
+}
+
+.book-appointment-btn {
+  /* background: linear-gradient(
+    135deg,
+    #5eead4 0%,
+    #22d3ee 100%
+  );  */
+  /* background: linear-gradient(135deg, #5eead4 0%, #818cf8 100%); */
+   background: linear-gradient(135deg, #5eead4 0%, #818cf8 100%);
+  /* background: linear-gradient(135deg, #5eead4 0%, #e5e7eb 100%);  */
+  color: white;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 200px;
+  transition: all 0.3s ease-in-out;
+}
+
+.book-appointment-btn:hover {
+  /* background: linear-gradient(135deg, #5eead4 0%, #22d3ee 100%); */
+  /* teal → slate/steel */
+  /* background: linear-gradient(135deg, #5eead4 0%, #818cf8 100%); */
+  background: linear-gradient(135deg, #2dd4bf 0%, #6366f1 100%);  /* background: linear-gradient(135deg, #5eead4 0%, #e5e7eb 100%);  */
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 4px 20px rgba(20, 184, 166, 0.4);
+}
+
+.register-patient-btn {
+  background: linear-gradient(135deg, #22d3ee 0%, #818cf8 100%);  /* cyan → silver */
+  color: white;  /* slate/near-black for contrast */
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 200px;
+  transition: all 0.3s ease-in-out;
+}
+
+.register-patient-btn:hover {
+  background: linear-gradient(135deg, #06b6d4 0%, #6366f1 100%);  /* darker cyan → steel gray */
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);
 }

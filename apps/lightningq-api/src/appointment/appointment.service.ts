@@ -11,6 +11,8 @@ import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { MailerService } from 'src/common/mailer/mailer.service';
 import { createEvent } from 'ics';
 import { STATUS_CODES } from 'http';
+import { addDays } from 'date-fns';
+
 // import { subMinutes, addMilliseconds } from 'date-fns';
 
 @Injectable()
@@ -89,7 +91,6 @@ export class AppointmentService {
             Patient_Medical_Record_No: generatedMRN,
           },
         });
-        
       }
 
       // 🛑 2. Prevent duplicate scheduled appointment
@@ -138,6 +139,7 @@ export class AppointmentService {
           sendEmailMessage: dto.sendEmailMessage,
           acuity: (dto.acuity as AcuityLevel) ?? 'MODERATE',
           fasttrackpatient: dto.fasttrackpatient ?? false,
+          SpecializationId: dto.SpecializationId!,
         },
       });
 
@@ -539,113 +541,378 @@ export class AppointmentService {
   }
 
   //searchAppointments
+  // async searchAppointments(filters: {
+  //   hospitalId?: number;
+  //   DoctorId?: number;
+  //   status?: string;
+  //   visitTypeId?: number;
+  //   TagPatientId?: number;
+  //   GenderName?: string;
+  //   SpecializationId?: number;
+  //   isConsultationcompleted?: boolean | string;
+  //   acuity?: string;
+  //   search?: string;
+  //   appointmentDate?: string;
+  //   appointmentDateFrom?: string;
+  //   appointmentDateTo?: string;
+  //   minage?: number | string;
+  //   maxage?: number | string;
+  //   page?: number | string;
+  //   limit?: number | string;
+  // }) {
+  //   // helpers to build dates in IST
+  //   const istDayStart = (yyyyMmDd: string) =>
+  //     new Date(`${yyyyMmDd}T00:00:00+05:30`);
+  //   const istDayEnd = (yyyyMmDd: string) =>
+  //     new Date(`${yyyyMmDd}T23:59:59.999+05:30`);
+
+  //   const andConditions: any[] = [];
+
+  //   // pagination
+  //   const page = Number(filters.page ?? 1);
+  //   const limit = Number(filters.limit ?? 10);
+  //   const skip = (page - 1) * limit;
+
+  //   // scalar filters (only if they’re numbers, not undefined/NaN)
+  //   if (filters.hospitalId)
+  //     andConditions.push({ hospitalId: Number(filters.hospitalId) });
+  //   if (filters.DoctorId)
+  //     andConditions.push({ DoctorId: Number(filters.DoctorId) });
+  //   if (filters.visitTypeId)
+  //     andConditions.push({ visitTypeId: Number(filters.visitTypeId) });
+  //   if (filters.TagPatientId)
+  //     andConditions.push({ TagPatientId: Number(filters.TagPatientId) });
+  //   if (filters.SpecializationId)
+  //     andConditions.push({
+  //       SpecializationId: Number(filters.SpecializationId),
+  //     });
+  //   if (filters.status) andConditions.push({ status: filters.status });
+
+  //   // enum (acuity)
+  //   if (filters.acuity) {
+  //     andConditions.push({ acuity: String(filters.acuity).toUpperCase() });
+  //   }
+
+  //   // consultation completed flag
+  //   if (typeof filters.isConsultationcompleted !== 'undefined') {
+  //     const isCompleted =
+  //       String(filters.isConsultationcompleted).toLowerCase() === 'true';
+  //     andConditions.push({
+  //       consultation: { is: { IsconsultationCompleted: isCompleted } },
+  //     });
+  //   }
+
+  //   // patient filters
+  //   const patientFilter: any = {};
+  //   if (filters.GenderName) {
+  //     patientFilter.gender = filters.GenderName;
+  //   }
+
+  //   if (filters.minage || filters.maxage) {
+  //     const today = new Date();
+
+  //     if (filters.minage) {
+  //       const minAgeNum = Number(filters.minage);
+  //       if (!isNaN(minAgeNum)) {
+  //         const maxDob = new Date(today);
+  //         maxDob.setFullYear(today.getFullYear() - minAgeNum);
+  //         maxDob.setHours(23, 59, 59, 999);
+  //         patientFilter.dateOfBirth = {
+  //           ...(patientFilter.dateOfBirth || {}),
+  //           lte: maxDob,
+  //         };
+  //       }
+  //     }
+
+  //     if (filters.maxage) {
+  //       const maxAgeNum = Number(filters.maxage);
+  //       if (!isNaN(maxAgeNum)) {
+  //         const minDob = new Date(today);
+  //         minDob.setFullYear(today.getFullYear() - maxAgeNum);
+  //         minDob.setHours(0, 0, 0, 0);
+  //         patientFilter.dateOfBirth = {
+  //           ...(patientFilter.dateOfBirth || {}),
+  //           gte: minDob,
+  //         };
+  //       }
+  //     }
+  //   }
+
+  //   if (Object.keys(patientFilter).length > 0) {
+  //     andConditions.push({ patient: { is: patientFilter } });
+  //   }
+
+  //   // appointment date filters
+  //   if (filters.appointmentDate) {
+  //     const from = istDayStart(filters.appointmentDate);
+  //     const to = istDayEnd(filters.appointmentDate);
+  //     if (!isNaN(from.getTime()) && !isNaN(to.getTime())) {
+  //       andConditions.push({ appointmentDate: { gte: from, lte: to } });
+  //     }
+  //   } else if (filters.appointmentDateFrom || filters.appointmentDateTo) {
+  //     const dateFilter: any = {};
+  //     if (filters.appointmentDateFrom) {
+  //       const from = istDayStart(filters.appointmentDateFrom);
+  //       if (!isNaN(from.getTime())) dateFilter.gte = from;
+  //     }
+  //     if (filters.appointmentDateTo) {
+  //       const to = istDayEnd(filters.appointmentDateTo);
+  //       if (!isNaN(to.getTime())) dateFilter.lte = to;
+  //     }
+  //     if (Object.keys(dateFilter).length > 0) {
+  //       andConditions.push({ appointmentDate: dateFilter });
+  //     }
+  //   }
+
+  //   // search filter (only if 3+ chars)
+  //   if (filters.search && String(filters.search).length >= 3) {
+  //     const q = String(filters.search);
+  //     andConditions.push({
+  //       OR: [
+  //         { patient: { firstName: { contains: q, mode: 'insensitive' } } },
+  //         { patient: { lastName: { contains: q, mode: 'insensitive' } } },
+  //         { patient: { mobile: { contains: q } } },
+  //         { patient: { Patient_Medical_Record_No: { contains: q } } },
+  //       ],
+  //     });
+  //   }
+
+  //   const whereClause = andConditions.length > 0 ? { AND: andConditions } : {};
+
+  //   // debug
+  //   console.log('🕵️ Final whereClause:', JSON.stringify(whereClause, null, 2));
+
+  //   // run queries
+  //   const [data, total] = await Promise.all([
+  //     this.prisma.appointment.findMany({
+  //       where: whereClause,
+  //       skip,
+  //       take: limit,
+  //       orderBy: { appointmentDate: 'asc' },
+  //       include: {
+  //         patient: {
+  //           include: {
+  //             allergies: true,
+  //             languages: true,
+  //             medicalHistory: true,
+  //             TagPatient: true,
+  //           },
+  //         },
+  //         doctor: {
+  //           include: {
+  //             Specialization: true,
+  //             DoctorSlot: true,
+  //             DoctorTimeSlot: true,
+  //             DoctorCosting: true,
+  //           },
+  //         },
+  //         visitType: true,
+  //         hospital: true,
+  //         TagPatient: true,
+  //         Vitals: true,
+  //         consultation: {
+  //           include: {
+  //             ConsultationCheifComplaint: { include: { chiefComplaint: true } },
+  //             ConsultationDiagnosis: { include: { diagnosis: true } },
+  //             ConsultationProcedure: { include: { procedure: true } },
+  //             ConsultationMedication: true,
+  //             ConsultationInvestigation: {
+  //               include: {
+  //                 InvestigationType: true,
+  //                 InvestigationSubType: true,
+  //               },
+  //             },
+  //             ConsultationTreatment: true,
+  //             ConsultationFollowUpPlan: true,
+  //             ConsultationclinicalNotes: true,
+  //           },
+  //         },
+  //       },
+  //     }),
+  //     this.prisma.appointment.count({ where: whereClause }),
+  //   ]);
+
+  //   return {
+  //     data,
+  //     total,
+  //     page,
+  //     limit,
+  //     totalPages: Math.ceil(total / limit),
+  //   };
+  // }
   async searchAppointments(filters: {
     hospitalId?: number;
     DoctorId?: number;
     status?: string;
     visitTypeId?: number;
+    TagPatientId?: number;
+    GenderName?: string;
+    SpecializationId?: number;
+    isConsultationcompleted?: boolean | string;
     acuity?: string;
     search?: string;
     appointmentDate?: string;
     appointmentDateFrom?: string;
     appointmentDateTo?: string;
-    page?: number;
-    limit?: number;
+    minage?: number | string;
+    maxage?: number | string;
+    page?: number | string;
+    limit?: number | string;
   }) {
-    const whereClause: any = {
-      ...(filters.hospitalId && { hospitalId: filters.hospitalId }),
-      ...(filters.DoctorId && { DoctorId: filters.DoctorId }),
-      ...(filters.status && { status: filters.status }),
-      ...(filters.visitTypeId && { visitTypeId: filters.visitTypeId }),
-      ...(filters.acuity && { acuity: filters.acuity }),
+    // --- helpers --------------------------------------------------------------
+    const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+
+    // Build UTC Date objects that correspond to IST day boundaries.
+    const istDayRangeToUtc = (yyyyMmDd: string) => {
+      if (!yyyyMmDd) return null;
+      const parts = yyyyMmDd.split('-');
+      if (parts.length !== 3) return null;
+      const year = Number(parts[0]);
+      const month = Number(parts[1]); // 1..12
+      const day = Number(parts[2]);
+      if ([year, month, day].some((v) => !Number.isFinite(v))) return null;
+
+      // UTC instant for local IST midnight
+      const utcStartMs =
+        Date.UTC(year, month - 1, day, 0, 0, 0, 0) - IST_OFFSET_MS;
+      const utcEndMs =
+        Date.UTC(year, month - 1, day, 23, 59, 59, 999) - IST_OFFSET_MS;
+
+      return { start: new Date(utcStartMs), end: new Date(utcEndMs) };
     };
 
-    if (filters.search && filters.search.length >= 3) {
-      whereClause.OR = [
-        {
-          patient: {
-            firstName: { contains: filters.search, mode: 'insensitive' },
-          },
-        },
-        {
-          patient: {
-            lastName: { contains: filters.search, mode: 'insensitive' },
-          },
-        },
-        {
-          patient: {
-            mobile: { contains: filters.search },
-          },
-        },
-        {
-          patient: {
-            Patient_Medical_Record_No: {
-              contains: filters.search,
-            },
-          },
-        },
-      ];
-    }
-
-    // ✅ Date filtering logic
-    // ✅ Date filtering logic
-    if (filters.appointmentDate) {
-      const istDateString = filters.appointmentDate;
-
-      const startIST = new Date(`${istDateString}T00:00:00+05:30`);
-      const endIST = new Date(`${istDateString}T23:59:59+05:30`);
-
-      const startUTC = new Date(startIST.toISOString());
-      const endUTC = new Date(endIST.toISOString());
-
-      whereClause.appointmentDate = {
-        gte: startUTC,
-        lte: endUTC,
-      };
-
-      console.log('📆 IST date:', filters.appointmentDate);
-      console.log('🕒 UTC range (finalized):', {
-        from: startUTC.toISOString(),
-        to: endUTC.toISOString(),
-      });
-    } else if (filters.appointmentDateFrom || filters.appointmentDateTo) {
-      whereClause.appointmentDate = {};
-
-      if (filters.appointmentDateFrom) {
-        const from = new Date(filters.appointmentDateFrom);
-        from.setUTCHours(0, 0, 0, 0);
-        whereClause.appointmentDate.gte = from;
+    const parseNumberSafe = (v: any) => {
+      if (typeof v === 'number') return Number.isFinite(v) ? v : undefined;
+      if (typeof v === 'string' && v.trim() !== '') {
+        const n = Number(v);
+        return Number.isFinite(n) ? n : undefined;
       }
+      return undefined;
+    };
 
-      if (filters.appointmentDateTo) {
-        const to = new Date(filters.appointmentDateTo);
-        to.setUTCHours(23, 59, 59, 999);
-        whereClause.appointmentDate.lte = to;
-      }
-    }
-
-    console.log('📅 Filtering appointments between:');
-    // console.log("   Start:", startDate.toISOString());
-    // console.log("   End  :", endDate.toISOString());
-
-    // Also log a few DB appointmentDates for reference
-    const allAppts = await this.prisma.appointment.findMany({
-      select: { appointmentDate: true },
-      orderBy: { appointmentDate: 'desc' },
-      take: 10,
-    });
-    console.log(
-      '🗂 Recent DB Dates:',
-      allAppts.map((a) => a.appointmentDate.toISOString()),
-    );
-
-    const page = filters.page || 1;
-    const limit = filters.limit || 10;
+    // --- pagination & numeric normalization -----------------------------------
+    const page = parseNumberSafe(filters.page) ?? 1;
+    const limit = parseNumberSafe(filters.limit) ?? 10;
     const skip = (page - 1) * limit;
 
+    // --- build AND conditions safely ------------------------------------------
+    const andConditions: any[] = [];
+
+    // scalars: only add if valid numbers or non-empty strings
+    const hospitalId = parseNumberSafe(filters.hospitalId);
+    if (hospitalId !== undefined) andConditions.push({ hospitalId });
+
+    const DoctorId = parseNumberSafe(filters.DoctorId);
+    if (DoctorId !== undefined) andConditions.push({ DoctorId });
+
+    if (filters.status) andConditions.push({ status: filters.status });
+
+    const visitTypeId = parseNumberSafe(filters.visitTypeId);
+    if (visitTypeId !== undefined) andConditions.push({ visitTypeId });
+
+    const TagPatientId = parseNumberSafe(filters.TagPatientId);
+    if (TagPatientId !== undefined) andConditions.push({ TagPatientId });
+
+    const SpecializationId = parseNumberSafe(filters.SpecializationId);
+    if (SpecializationId !== undefined)
+      andConditions.push({ SpecializationId });
+
+    if (filters.acuity)
+      andConditions.push({ acuity: String(filters.acuity).toUpperCase() });
+
+    // consultation completion (convert string->bool defensively)
+    if (typeof filters.isConsultationcompleted !== 'undefined') {
+      const isCompleted =
+        String(filters.isConsultationcompleted).toLowerCase() === 'true';
+      andConditions.push({
+        consultation: { is: { IsconsultationCompleted: isCompleted } },
+      });
+    }
+
+    // patient nested filters: gender, age -> dateOfBirth range
+    const patientFilter: any = {};
+    if (filters.GenderName) patientFilter.gender = filters.GenderName;
+
+    if (
+      typeof filters.minage !== 'undefined' ||
+      typeof filters.maxage !== 'undefined'
+    ) {
+      const today = new Date();
+
+      if (typeof filters.minage !== 'undefined') {
+        const minageN = parseNumberSafe(filters.minage);
+        if (minageN !== undefined) {
+          const maxDob = new Date(today);
+          maxDob.setFullYear(today.getFullYear() - minageN);
+          maxDob.setUTCHours(23, 59, 59, 999);
+          patientFilter.dateOfBirth = {
+            ...(patientFilter.dateOfBirth || {}),
+            lte: maxDob,
+          };
+        }
+      }
+
+      if (typeof filters.maxage !== 'undefined') {
+        const maxageN = parseNumberSafe(filters.maxage);
+        if (maxageN !== undefined) {
+          const minDob = new Date(today);
+          minDob.setFullYear(today.getFullYear() - maxageN);
+          minDob.setUTCHours(0, 0, 0, 0);
+          patientFilter.dateOfBirth = {
+            ...(patientFilter.dateOfBirth || {}),
+            gte: minDob,
+          };
+        }
+      }
+    }
+
+    if (Object.keys(patientFilter).length > 0) {
+      andConditions.push({ patient: { is: patientFilter } });
+    }
+
+    // appointment date / range: parse via istDayRangeToUtc
+    if (filters.appointmentDate) {
+      const r = istDayRangeToUtc(filters.appointmentDate);
+      if (r)
+        andConditions.push({ appointmentDate: { gte: r.start, lte: r.end } });
+    } else if (filters.appointmentDateFrom || filters.appointmentDateTo) {
+      const range: any = {};
+      if (filters.appointmentDateFrom) {
+        const rFrom = istDayRangeToUtc(filters.appointmentDateFrom);
+        if (rFrom) range.gte = rFrom.start;
+      }
+      if (filters.appointmentDateTo) {
+        const rTo = istDayRangeToUtc(filters.appointmentDateTo);
+        if (rTo) range.lte = rTo.end;
+      }
+      if (Object.keys(range).length > 0)
+        andConditions.push({ appointmentDate: range });
+    }
+
+    // search (OR) — only if 3+ chars
+    if (filters.search && String(filters.search).trim().length >= 3) {
+      const q = String(filters.search).trim();
+      andConditions.push({
+        OR: [
+          { patient: { firstName: { contains: q, mode: 'insensitive' } } },
+          { patient: { lastName: { contains: q, mode: 'insensitive' } } },
+          { patient: { mobile: { contains: q } } },
+          { patient: { Patient_Medical_Record_No: { contains: q } } },
+        ],
+      });
+    }
+
+    // Final where
+    const where = andConditions.length > 0 ? { AND: andConditions } : {};
+
+    // debug helpful logs (leave in dev)
+    console.log('🕵️ Final whereClause:', JSON.stringify(where, null, 2));
+    console.log('🧾 pagination', { page, limit, skip });
+
+    // queries
     const [data, total] = await Promise.all([
       this.prisma.appointment.findMany({
-        where: whereClause,
+        where,
         skip,
         take: limit,
         orderBy: { appointmentDate: 'asc' },
@@ -672,15 +939,9 @@ export class AppointmentService {
           Vitals: true,
           consultation: {
             include: {
-              ConsultationCheifComplaint: {
-                include: { chiefComplaint: true },
-              },
-              ConsultationDiagnosis: {
-                include: { diagnosis: true },
-              },
-              ConsultationProcedure: {
-                include: { procedure: true },
-              },
+              ConsultationCheifComplaint: { include: { chiefComplaint: true } },
+              ConsultationDiagnosis: { include: { diagnosis: true } },
+              ConsultationProcedure: { include: { procedure: true } },
               ConsultationMedication: true,
               ConsultationInvestigation: {
                 include: {
@@ -695,7 +956,7 @@ export class AppointmentService {
           },
         },
       }),
-      this.prisma.appointment.count({ where: whereClause }),
+      this.prisma.appointment.count({ where }),
     ]);
 
     return {

@@ -89,4 +89,8 @@ export class UpdateAppointmentDto {
   @IsOptional()
   @IsBoolean()
   fasttrackpatient?: boolean;
+
+  @IsOptional()
+  @IsInt()
+  SpecializationId?: number;
 }

@@ -5,7 +5,7 @@ import { RegisterPatient } from "./PatientRegister";
 import AppointmentLookupList from "./AppointmentLookupList";
 import AllRegisterPatientList from "./AllRegisterPatientList";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { CalendarCheck, Users } from "lucide-react";
+import { CalendarCheck, CalendarClock, Users } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { EventAddForm } from "@/components/event-add-form";
@@ -59,20 +59,32 @@ export default function PatientClientWrapper() {
                   <TabsTrigger
                     ref={(el) => (tabRefs.current.appointments = el)}
                     value="appointments"
-                    className="relative z-10 flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300 data-[state=active]:text-purple-600 cursor-pointer"
+                    className="relative z-10 flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300 cursor-pointer
+    data-[state=active]:bg-[linear-gradient(135deg,#5eead4_0%,#818cf8_100%)]
+    data-[state=active]:text-white
+    data-[state=inactive]:text-gray-600"
                   >
-                    <CalendarCheck className="w-4 h-4" /> Appointments
+                    <CalendarClock className="w-4 h-4" />
+                    Appointments
                   </TabsTrigger>
+
                   <TabsTrigger
                     ref={(el) => (tabRefs.current.registered = el)}
                     value="registered"
-                    className="relative z-10 flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300 data-[state=active]:text-blue-600 cursor-pointer"
+                    className="relative z-10 flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300 cursor-pointer
+    data-[state=active]:bg-[linear-gradient(135deg,#22d3ee_0%,#818cf8_100%)]
+    data-[state=active]:text-white
+    data-[state=inactive]:text-gray-600"
                   >
                     <Users className="w-4 h-4" /> All Patients
                   </TabsTrigger>
                 </TabsList>
               </div>
 
+              {/* <div className="w-full flex justify-end items-center gap-2 pr-2">
+                <EventAddForm />
+                <RegisterPatient />
+              </div> */}
               <RegisterPatient />
               <EventAddForm />
 

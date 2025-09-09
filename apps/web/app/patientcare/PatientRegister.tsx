@@ -580,7 +580,14 @@ export function RegisterPatient() {
         setTimeout(() => {
           setRegisterPatientOpen(false);
           setRegisterAnimation(false);
-          dispatch(fetchAllRegisterPatient({organizationId: selectedHospital?.organizationId,hospitalId: selectedHospital?.hospitalId, page: 1, limit: 10 }));
+          dispatch(
+            fetchAllRegisterPatient({
+              organizationId: selectedHospital?.organizationId,
+              hospitalId: selectedHospital?.hospitalId,
+              page: 1,
+              limit: 10,
+            })
+          );
           reset();
           setImageUrl(null);
         }, 5000);
@@ -647,15 +654,15 @@ export function RegisterPatient() {
 
   // const { setSelectedPatient } = useEvents();
 
-    const hospitals = useSelector((state: RootState) => state.hospital.data);
+  const hospitals = useSelector((state: RootState) => state.hospital.data);
 
-    console.log()
-  
-    useEffect(() => {
-      if (!hospitals || hospitals.length === 0) {
-        dispatch(fetchHospitals());
-      }
-    }, [dispatch]);
+  console.log();
+
+  useEffect(() => {
+    if (!hospitals || hospitals.length === 0) {
+      dispatch(fetchHospitals());
+    }
+  }, [dispatch]);
 
   return (
     <>
@@ -666,13 +673,15 @@ export function RegisterPatient() {
         onOpenChange={setRegisterPatientOpen}
       >
         <div className="w-full flex justify-end pr-4">
-          <Button
-            className="glow-reister-button bg-white text-black text-[1rem] md:text-sm cursor-pointer border border-black flex items-center gap-2"
-            onClick={() => setRegisterPatientOpen(true)}
-          >
-            <UserPlus className="w-5 h-5" />
-            Register Patient
-          </Button>
+          <div className="flex-none">
+            <Button
+        className="register-patient-btn inline-flex items-center gap-2"
+              onClick={() => setRegisterPatientOpen(true)}
+            >
+              <UserPlus className="w-5 h-5 inline-block mr-2" />
+              Register Patient
+            </Button>
+          </div>
         </div>
         {/* ✅ Success Animation */}
         <div className="relative">

@@ -8,14 +8,24 @@ export default function PatientTableSkeleton({ rows = 10 }: { rows?: number }) {
   return (
     <div className="w-full overflow-hidden rounded-md shadow-sm bg-blue-200">
       <table className="w-full text-sm text-left border-b border-blue-200">
-        <thead className="bg-blue-100 text-zinc-600 text-xs font-sans border-b border-blue-200">
+        <thead
+          className="text-zinc-600 text-xs font-sans border-b"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(34, 211, 238, 0.15) 0%, rgba(129, 140, 248, 0.15) 100%)",
+            borderColor: "rgba(129, 140, 248, 0.3)", // subtle gradient-like border
+          }}
+        >
+          {" "}
           <tr className="divide-x divide-zinc-200">
             <th className="px-4 py-3 border-b border-blue-200">Name</th>
             <th className="px-4 py-3 border-b border-blue-200">MRN</th>
             <th className="px-4 py-3 border-b border-blue-200">Contact Info</th>
             <th className="px-4 py-3 border-b border-blue-200">Age</th>
             <th className="px-4 py-3 border-b border-blue-200">Last Visit</th>
-            <th className="px-2 py-3 w-16 text-center border-b border-blue-400">Action</th>
+            <th className="px-2 py-3 w-16 text-center border-b border-blue-400">
+              Action
+            </th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
