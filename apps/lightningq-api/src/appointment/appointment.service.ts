@@ -129,7 +129,6 @@ export class AppointmentService {
           hospitalId: dto.hospitalId,
           visitTypeId: dto.visitTypeId!,
           paymentTypeId: dto.paymentTypeId!,
-          TagPatientId: dto.TagPatientId,
           appointmentDate,
           reason: dto.VisitReason,
           age: dto.age,
@@ -140,6 +139,11 @@ export class AppointmentService {
           acuity: (dto.acuity as AcuityLevel) ?? 'MODERATE',
           fasttrackpatient: dto.fasttrackpatient ?? false,
           SpecializationId: dto.SpecializationId!,
+          TagPatients: dto.TagPatientIds?.length
+            ? {
+                connect: dto.TagPatientIds.map((id) => ({ TagPatientId: id })),
+              }
+            : undefined,
         },
       });
 
@@ -935,7 +939,7 @@ export class AppointmentService {
           },
           visitType: true,
           hospital: true,
-          TagPatient: true,
+          TagPatients: true,
           Vitals: true,
           consultation: {
             include: {

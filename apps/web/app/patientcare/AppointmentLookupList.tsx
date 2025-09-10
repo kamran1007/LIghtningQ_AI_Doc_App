@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { JSX, useEffect, useRef, useState } from "react";
 import {
   Search,
   FunnelPlus,
@@ -9,6 +9,12 @@ import {
   VenusAndMars,
   FileBadge2,
   FileBadge,
+  Star,
+  ActivitySquare,
+  Accessibility,
+  Crown,
+  Bed,
+  Circle,
 } from "lucide-react";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
@@ -22,7 +28,12 @@ import { useEvents } from "@/context/events-context";
 import AppointmentListSkeleton from "@/components/ui/skeletonloader/AppointmentList";
 import AppointmentActionsDialog from "./AppointmentActionsDialog";
 import ConsultationDrawer from "../consultation/ConsultationDrawer";
-
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import { DateRangePicker } from "react-date-range";
 
@@ -91,6 +102,19 @@ export default function AppointmentLookupList() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const tagIconMap: Record<string, JSX.Element> = {
+    VIP: <Crown className="w-4 h-4 text-yellow-500" />,
+    "wheel Chair": <Accessibility className="w-4 h-4 text-blue-500" />,
+    "Oxygen Mask": <ActivitySquare className="w-4 h-4 text-cyan-500" />,
+    Disabled: <Accessibility className="w-4 h-4 text-gray-500" />,
+    Stretcher: <Bed className="w-4 h-4 text-rose-500" />,
+    "Red Triage": <Circle className="w-4 h-4 text-red-600" />,
+    "Yellow Triage": <Circle className="w-4 h-4 text-yellow-500" />,
+    "Green Triage": <Circle className="w-4 h-4 text-green-600" />,
+    "Black Triage": <Circle className="w-4 h-4 text-black" />,
+  };
+
   const [displayText, setDisplayText] = useState("");
   const [msgIndex, setMsgIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
@@ -181,7 +205,16 @@ export default function AppointmentLookupList() {
     if (debounceSearch.current) clearTimeout(debounceSearch.current);
 
     debounceSearch.current = setTimeout(() => {
-      dispatch(fetchAllAppointmentPatient({ search: val, page: 1, limit: 10 }));
+      dispatch(
+        fetchAllAppointmentPatient({
+          search: val,
+          page: 1,
+          limit: 10,
+          hospitalId: selectedHospital
+            ? Number(selectedHospital?.hospitalId)
+            : undefined,
+        })
+      );
     }, 500);
   }
   useEffect(() => {
@@ -374,6 +407,9 @@ export default function AppointmentLookupList() {
         SpecializationId: selectedSpecialization
           ? Number(selectedSpecialization)
           : undefined,
+        hospitalId: selectedHospital
+          ? Number(selectedHospital?.hospitalId)
+          : undefined,
         gender:
           patientGender && patientGender !== "all-gender"
             ? patientGender
@@ -405,7 +441,7 @@ export default function AppointmentLookupList() {
       ${
         activeChip === label
           ? "bg-gradient-to-r from-cyan-500  to-teal-500 text-white border-teal-500"
-          : "bg-white text-gray-500 border-teal-400 hover:bg-teal-200 hover:text-gray-600"
+          : "bg-white text-gray-500 border-teal-400 hover:bg-teal-50 hover:text-gray-600"
       }`}
             >
               {label}
@@ -423,7 +459,7 @@ export default function AppointmentLookupList() {
               ref={inputRef}
               placeholder={displayText}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-3 w-full rounded-3xl border border-gray-200 h-10
+              className="pl-11 pr-4 py-3 w-full rounded-3xl border border-gray-200 h-10
           bg-white shadow-sm focus:border-pink-400 focus:ring-2 
           focus:ring-pink-200 transition-all"
             />
@@ -479,16 +515,23 @@ export default function AppointmentLookupList() {
                 }}
               >
                 <tr className="divide-x divide-zinc-200">
-                  <th className="px-4 py-3">Name</th>
-                  <th className="px-4 py-3">MRN</th>
-                  <th className="px-4 py-3">Contact Info</th>
-                  <th className="px-4 py-3">Age</th>
-                  <th className="px-4 py-3">Specialist</th>
-                  <th className="px-4 py-3">Reason</th>
-                  <th className="px-4 py-3">Acuity</th>
-                  <th className="px-4 py-3">Assigned Provider</th>
-                  <th className="px-4 py-3">Last Visit</th>
-                  <th className="px-2 py-3 w-16 text-center">Action</th>
+                  <th className="px-2 py-3 w-1 text-center whitespace-nowrap">
+                    S.No.
+                  </th>
+                  <th className="px-4 py-3 whitespace-nowrap">Patient Info</th>
+                  <th className="px-4 py-3  whitespace-nowrap">Contact Info</th>
+                  <th className="px-4 py-3 whitespace-nowrap">Visit Type</th>
+
+                  {/* <th className="px-4 py-3 whitespace-nowrap">Age</th> */}
+                  <th className="px-4 py-3 whitespace-nowrap">Specialist</th>
+                  <th className="px-4 py-3 whitespace-nowrap">Reason</th>
+                  <th className="px-4 py-3 whitespace-nowrap">Acuity</th>
+                  <th className="px-4 py-3 whitespace-nowrap">
+                    Assign Provider
+                  </th>
+                  <th className="px-2 py-3 w-16 text-center whitespace-nowrap">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100 bg-white">
@@ -509,6 +552,7 @@ export default function AppointmentLookupList() {
                       className="hover:bg-[#EFFFFD] cursor-pointer"
                       // onClick={() => openSheet(p)}
                     >
+                      <td className="px-2 py-3">{idx + 1}</td>
                       <td className="flex items-center gap-3 px-2 py-3 font-medium text-zinc-800">
                         <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
                           {!imageError && imageUrl ? (
@@ -536,30 +580,202 @@ export default function AppointmentLookupList() {
                             </Avatar>
                           )}
                         </div>
-                        <span>
-                          {p?.patient?.firstName} {p?.patient?.lastName}
-                        </span>
+
+                        <td className="px-2 py-3">
+                          <div className="flex items-center gap-2">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <p className="truncate max-w-[160px] cursor-default">
+                                    {p?.patient?.Prefix} {p?.patient?.firstName}{" "}
+                                    {p?.patient?.lastName}
+                                  </p>
+                                </TooltipTrigger>
+                                <TooltipContent
+                                  side="top"
+                                  className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg"
+                                >
+                                  {`${p?.patient?.firstName} ${p?.patient?.lastName}`}
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+
+                            {/* Tag icons */}
+                            <div className="flex gap-1 items-center">
+                              {p?.TagPatients?.slice(0, 2).map((tag: any) => (
+                                <TooltipProvider key={tag.TagPatientId}>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <span>
+                                        {tagIconMap[tag.TagPatientName] || (
+                                          <Circle className="w-4 h-4 text-gray-400" />
+                                        )}
+                                      </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent
+                                      side="top"
+                                      className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg"
+                                    >
+                                      {tag.TagPatientName}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              ))}
+
+                              {/* Show +N if more than 3 */}
+                              {p?.TagPatients?.length > 2 && (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <span className="text-xs font-medium text-gray-600 cursor-pointer">
+                                        +{p.TagPatients.length - 2}
+                                      </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent
+                                      side="top"
+                                      className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg space-y-1"
+                                    >
+                                      {p.TagPatients.slice(2).map(
+                                        (extraTag: any) => (
+                                          <div
+                                            key={extraTag.TagPatientId}
+                                            className="flex items-center gap-1"
+                                          >
+                                            {tagIconMap[
+                                              extraTag.TagPatientName
+                                            ] || (
+                                              <Circle className="w-3 h-3 text-gray-400" />
+                                            )}
+                                            <span>
+                                              {extraTag.TagPatientName}
+                                            </span>
+                                          </div>
+                                        )
+                                      )}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* MRN, Age, Gender */}
+                          <div className="text-sm text-gray-600">
+                            {p?.patient?.Patient_Medical_Record_No} |{" "}
+                            {p?.patient?.dateOfBirth
+                              ? calculateAge(p?.patient?.dateOfBirth)
+                              : "-"}{" "}
+                            (
+                            {p?.patient?.gender
+                              ? p.patient.gender.toLowerCase() === "male"
+                                ? "M"
+                                : p.patient.gender.toLowerCase() === "female"
+                                  ? "F"
+                                  : "-"
+                              : "-"}
+                            )
+                          </div>
+                        </td>
                       </td>
 
-                      <td className="px-4 py-3">
+                      {/* <td className="px-4 py-3">
                         {p?.patient?.Patient_Medical_Record_No}
+                      </td> */}
+                      <td className="px-2 py-3 whitespace-nowrap max-w-[200px]">
+                        {/* Mobile + Area */}
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <p className="truncate cursor-default">
+                                {p?.patient?.mobile}
+                                {p?.patient?.area
+                                  ? ` | ${
+                                      p.patient.area.length > 12
+                                        ? p.patient.area.slice(0, 12) + "..."
+                                        : p.patient.area
+                                    }`
+                                  : ""}
+                              </p>
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="top"
+                              className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg"
+                            >
+                              {p?.patient?.mobile}
+                              {p?.patient?.area ? ` | ${p.patient.area}` : ""}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        {/* Email */}
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <p className="text-xs text-muted-foreground truncate cursor-default">
+                                {p?.patient?.email}
+                              </p>
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="top"
+                              className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg"
+                            >
+                              {p?.patient?.email || "-"}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </td>
-                      <td className="px-4 py-3">
-                        <p>{p?.patient?.mobile}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {p?.patient?.email}
-                        </p>
+                      <td className="px-2 py-3 whitespace-nowrap">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="truncate max-w-[120px] cursor-default">
+                                {p?.visitType?.AppointmentTypeName?.length > 9
+                                  ? p.visitType.AppointmentTypeName.slice(
+                                      0,
+                                      9
+                                    ) + "..."
+                                  : p?.visitType?.AppointmentTypeName || "-"}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="top"
+                              className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg"
+                            >
+                              {p?.visitType?.AppointmentTypeName || "-"}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </td>
-                      <td className="px-4 py-3">
+
+                      {/* <td className="px-4 py-3">
                         {p?.patient?.dateOfBirth
                           ? calculateAge(p?.patient?.dateOfBirth)
                           : "-"}
-                      </td>
-                      <td className="px-4 py-3">
+                      </td> */}
+                      <td className="px-2 py-3">
                         {p?.doctor?.Specialization?.SpecializationName}
                       </td>
-                      <td className="px-4 py-3">{p?.reason}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="truncate max-w-[120px] cursor-default">
+                                {p?.reason?.length > 12
+                                  ? p.reason.slice(0, 12) + "..."
+                                  : p?.reason}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="top"
+                              className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg"
+                            >
+                              {p?.reason || "-"}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </td>
+
+                      <td className="px-2 py-3">
                         <span
                           className={`px-2 py-0.5 text-xs font-semibold rounded-xl ${getAcuityColor(
                             p?.acuity
@@ -568,70 +784,62 @@ export default function AppointmentLookupList() {
                           {p?.acuity}
                         </span>
                       </td>
-                      <td className="px-4 py-3">Dr. {p?.doctor?.firstName}</td>
-                      <td className="px-4 py-3">{p?.lastVisit || "-"}</td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="truncate max-w-[150px] cursor-default">
+                                {`Dr. ${p?.doctor?.firstName ?? ""} ${p?.doctor?.lastName ?? ""}`}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="top"
+                              className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg"
+                            >
+                              {`Dr. ${p?.doctor?.firstName ?? ""} ${p?.doctor?.lastName ?? ""}`}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </td>
+
                       <td className="px-2 py-3 w-10 text-center">
-                        {/* <MoreHorizontal
-                        className="w-5 h-5 text-blue-500 cursor-pointer"
-                        onClick={(e) => {
-                          // e.stopPropagation(); // ✅ prevent row click
-                          handleOpenDialog(p); // ✅ open dialog
-                        }}
-                      /> */}
-
-                        {/* <AppointmentActionsDialog
-                        open={dialogOpen}
-                        onOpenChange={setDialogOpen}
-                        patient={p}
-                        onReschedule={() => {
-                          setDialogOpen(false);
-                          handleReschedule(selectedPatient);
-                        }}
-                        onCancel={() => {
-                          setDialogOpen(false);
-                          handleCancel(selectedPatient);
-                        }}
-                        onViewCaseHistory={() => {
-                          setDialogOpen(false);
-                          console.log(
-                            "Viewing case history for",
-                            selectedPatient
-                          );
-                        }}
-                        onStartConsultation={() => {
-                          startConsultation(selectedPatient);
-                        }}
-                      />
-                      <ConsultationDrawer
-                        open={drawerOpen}
-                        onClose={() => closeSheet()}
-                        patient={selectedPatient}
-                      /> */}
-
-                        <AppointmentActionsDialog
-                          patient={p}
-                          onReschedule={(appointment) => {
-                            handleReschedule(appointment);
-                          }}
-                          onCancel={(appointment) => {
-                            handleCancel(appointment);
-                          }}
-                          onViewCaseHistory={(appointment) => {
-                            console.log(
-                              "Viewing case history for",
-                              appointment
-                            );
-                          }}
-                          onStartConsultation={(appointment) => {
-                            startConsultation(appointment);
-                          }}
-                        />
-                        <ConsultationDrawer
-                          // patient={p}
-                          open={drawerOpen}
-                          onClose={() => closeSheet()}
-                          patient={selectedPatient}
-                        />
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="inline-flex items-center justify-center w-full h-full cursor-pointer">
+                                <AppointmentActionsDialog
+                                  patient={p}
+                                  onReschedule={(appointment) => {
+                                    handleReschedule(appointment);
+                                  }}
+                                  onCancel={(appointment) => {
+                                    handleCancel(appointment);
+                                  }}
+                                  onViewCaseHistory={(appointment) => {
+                                    console.log(
+                                      "Viewing case history for",
+                                      appointment
+                                    );
+                                  }}
+                                  onStartConsultation={(appointment) => {
+                                    startConsultation(appointment);
+                                  }}
+                                />
+                                <ConsultationDrawer
+                                  open={drawerOpen}
+                                  onClose={() => closeSheet()}
+                                  patient={selectedPatient}
+                                />
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="top"
+                              className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg"
+                            >
+                              Appointment Action Panel(ATP)
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </td>
                     </tr>
                   );

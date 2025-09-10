@@ -18,6 +18,8 @@ import {
   SelectContent,
   SelectValue,
 } from "@/components/ui/select";
+import ReactSelect from "react-select";
+
 import { motion, AnimatePresence } from "framer-motion";
 
 import { Toast } from "primereact/toast";
@@ -96,6 +98,9 @@ const messages = [
   "Search patient by Name",
   "Search patient by MR No.",
 ];
+
+const domains = [".com", ".in", ".org", ".net"];
+
 const inputbox =
   "pl-4 pr-2 py-2 text-sm h-10 border border-gray-300 rounded-4xl  border-[#22E0D4] focus:!border-[#c0f9f6] focus:!ring-2 focus:!ring-[#c0f9f6] focus:!ring-offset-2 focus:!ring-offset-white transition-all duration-300 ease-in-out hover:shadow-md focus:shadow-2xl";
 interface EventAddFormProps {
@@ -162,6 +167,7 @@ export function EventAddForm({
   );
   // console.log("selected hospital from book Appointment", selectedHospital);
   const toast = useRef<Toast>(null);
+  const [open, setOpen] = useState(false);
 
   const DoctorIcons: Record<string, JSX.Element> = {
     general: <Stethoscope className="w-5 h-5 text-blue-500" />,
@@ -212,7 +218,7 @@ export function EventAddForm({
   const [appointmentType, setAppointmentType] = useState<AppointmentType[]>([]);
 
   type TagPatientType = {
-    TagPatientId: number;
+    TagPatientIds: number;
     TagPatientName: string;
   };
   const [tagpatientType, setTagpatientType] = useState<TagPatientType[]>([]);
@@ -331,6 +337,7 @@ export function EventAddForm({
             name: a.TagPatientName ?? "",
           })) || []
         );
+        console.log("Tags from db", tagpatientType);
         const selectedHospitalId = selectedHospital?.hospital?.HospitalId;
 
         setDoctorData(
@@ -447,7 +454,7 @@ export function EventAddForm({
     sendSmsMessage: false,
     sendWhatsappMessage: false,
     fasttrackpatient: false,
-    TagPatientId: "",
+    TagPatientIds: [],
   };
 
   const {
@@ -682,12 +689,14 @@ export function EventAddForm({
       PatientId: selectedPatient?.PatientId || null,
       appointmentTime: selectedTime.time,
       DoctorTimeSlotId: selectedTime.slotId,
+      appointmentDate: selectedSlotDate,
+
       organizationId: 1,
       DoctorId: Number(selectedDoctorId),
       SpecializationId: Number(selectedSpecializationId),
       visitTypeId: Number(form.visitTypeId),
       paymentTypeId: Number(form.paymentTypeId),
-      TagPatientId: Number(form.TagPatientId) || 0,
+      TagPatientIds: form.TagPatientIds || [],
       hospitalId: Number(selectedHospital?.hospital?.HospitalId || 0),
       hospitalCode: selectedHospital?.hospital?.HospitalCode || "",
       bloodGroup: null,
@@ -756,7 +765,19 @@ export function EventAddForm({
             reset();
             setBooked(false);
             setEventAddOpen(false);
-            dispatch(fetchAllAppointmentPatient({ page: 1, limit: 10 })); // 🟢 Fetch updated patient list
+            const today = new Date().toISOString().split("T")[0]; // yyyy-mm-dd
+
+            dispatch(
+              fetchAllAppointmentPatient({
+                page: 1,
+                limit: 10,
+                hospitalId: selectedHospital
+                  ? Number(selectedHospital?.hospitalId)
+                  : undefined,
+                appointmentDateFrom: today,
+                appointmentDateTo: today,
+              })
+            ); // 🟢 Fetch updated patient list
             // clear selections if needed
           }, 2000);
         }, 800);
@@ -1015,7 +1036,7 @@ export function EventAddForm({
           (initialPatient.gender as "MALE" | "FEMALE" | "OTHER") ?? "MALE",
         mobile: initialPatient.mobile ?? "",
         email: initialPatient.email ?? "",
-        TagPatientId: initialPatient.PatientId?.toString() ?? "", // ✅ must exist in defaultValues
+        // TagPatientIds: initialPatient.PatientId?.toString() ?? "", // ✅ must exist in defaultValues
         fasttrackpatient: initialPatient.FastTrackPatient ?? false,
       },
       { keepDirty: false, keepTouched: false }
@@ -1030,7 +1051,7 @@ export function EventAddForm({
         dateOfBirth: watch("dateOfBirth"),
         mobile: watch("mobile"),
         email: watch("email"),
-        TagPatientId: watch("TagPatientId"),
+        TagPatientIds: watch("TagPatientIds"),
       });
     }, 0);
   }, [initialPatient, reset, watch]);
@@ -1059,7 +1080,8 @@ export function EventAddForm({
         acuity: editingEvent?.acuity || "",
         appointmentDate: slotDate,
         appointmentTime: timeString,
-        TagPatientId: editingEvent?.TagPatientId?.toString() || "",
+          TagPatientIds: editingEvent?.TagPatients?.map((t) => String(t.TagPatientId)) || [],
+
         visitTypeId: editingEvent?.visitTypeId?.toString() || "",
         paymentTypeId: editingEvent?.paymentTypeId?.toString() || "",
         fasttrackpatient: editingEvent?.fasttrackpatient ?? false,
@@ -1115,6 +1137,54 @@ export function EventAddForm({
 
     // Also update form again (if needed)
   }, [editingEvent, selectedDoctorData]);
+
+  interface TagOption {
+    value: number;
+    label: string;
+  }
+
+  const customStyles = {
+    control: (base: any) => ({
+      ...base,
+      borderColor: "#2dd4bf",
+      "&:hover": { borderColor: "#2dd4bf" },
+      boxShadow: "none",
+      borderRadius: "9999px",
+      minHeight: "36px",
+      maxHeight: "36px",
+      overflow: "hidden", // ❌ no floating scrollbars
+    }),
+    valueContainer: (base: any) => ({
+      ...base,
+      display: "flex",
+      flexWrap: "nowrap", // keep in single row
+      overflowX: "auto", // ✅ only tags scroll
+      scrollbarWidth: "none", // hide scrollbar (Firefox)
+      msOverflowStyle: "none", // hide scrollbar (IE/Edge)
+      "::-webkit-scrollbar": { display: "none" }, // hide scrollbar (Chrome/Safari)
+      padding: "2px 8px",
+    }),
+    multiValue: (base: any) => ({
+      ...base,
+      backgroundColor: "#ccfbf1",
+      borderRadius: "20px",
+      padding: "0 4px",
+      marginRight: "4px",
+    }),
+    multiValueLabel: (base: any) => ({
+      ...base,
+      color: "#0f766e",
+      fontWeight: 400,
+      fontSize: "12px",
+    }),
+    multiValueRemove: (base: any) => ({
+      ...base,
+      color: "#0f766e",
+      ":hover": { backgroundColor: "#14b8a6", color: "white" },
+    }),
+    dropdownIndicator: () => ({ display: "none" }),
+    indicatorSeparator: () => ({ display: "none" }),
+  };
 
   return (
     <>
@@ -1691,7 +1761,7 @@ export function EventAddForm({
                       </p>
                     )}
                   </div>
-                  <input type="hidden" {...register("TagPatientId")} />
+                  <input type="hidden" {...register("TagPatientIds")} />
 
                   {/* First Name */}
                   <div className="w-1/2">
@@ -1815,6 +1885,54 @@ export function EventAddForm({
                   )}
                 </div>
 
+                {/* <div>
+                  <Label className="text-sm font-medium text-gray-700 mb-1.5 block">
+                    Email Address <span className="text-red-500">*</span>
+                  </Label>
+
+                  <div className="flex gap-2">
+                    {/* Username Part */}
+                {/* <Input
+                      {...register("emailUsername")}
+                      placeholder="Enter email"
+                      className="flex-1"
+                      type="text"
+                    /> */}
+
+                {/* Domain Select */}
+                {/* <Controller
+                      name="emailDomain"
+                      control={control}
+                      defaultValue=".com"
+                      render={({ field }) => (
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <SelectTrigger className="w-24 border-gray-300">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {domains.map((d) => (
+                              <SelectItem key={d} value={d}>
+                                {d}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div> */}
+
+                {/* Error */}
+                {/* {(errors.emailUsername || errors.emailDomain) && (
+                    <p className="text-sm text-red-500">
+                      {errors.emailUsername?.message ||
+                        errors.emailDomain?.message}
+                    </p>
+                  )}
+                </div> */}
+
                 <div>
                   <Label className="text-sm font-medium text-gray-700 mb-1.5 block">
                     visit Reason <span className="text-red-500">*</span>
@@ -1831,43 +1949,54 @@ export function EventAddForm({
                   )}
                 </div>
 
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <Label className="text-sm font-medium text-gray-700 mb-1.5 block">
-                      Tag Patient <span className="text-red-500">*</span>
-                    </Label>
-                    <Controller
-                      name="TagPatientId"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <SelectTrigger className={inputbox}>
-                            <SelectValue placeholder="Select" />
-                          </SelectTrigger>
-                          <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
-                            {" "}
-                            {tagpatientType.map((item) => (
-                              <SelectItem
-                                key={item.id}
-                                value={item.id.toString()}
-                              >
-                                {item.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
+                <div className="flex-1">
+                  <Label className="text-sm font-medium text-gray-700 mb-1.5 block">
+                    Tag Patient
+                  </Label>
+                  <Controller
+                    name="TagPatientIds"
+                    control={control}
+                    defaultValue={[]}
+                    render={({ field }) => {
+                      const options: TagOption[] = tagpatientType.map(
+                        (item: any) => ({
+                          value: String(item.id), // string
+                          label: item.name, // string
+                        })
+                      );
 
-                    {errors.TagPatientId && (
-                      <p className="text-sm text-red-500">
-                        {errors.TagPatientId.message}
-                      </p>
-                    )}
-                  </div>
+                      return (
+                        <ReactSelect
+                          isMulti
+                          options={options}
+                          styles={customStyles}
+                          className="react-select-container"
+                          classNamePrefix="react-select"
+                          placeholder="Select tags..."
+                          value={options.filter((opt) =>
+                            (field.value || []).includes(opt.value)
+                          )}
+                          onChange={(selected) => {
+                            const newValues = (selected as TagOption[]).map(
+                              (s) => s.value
+                            );
+
+                            field.onChange(newValues);
+                          }}
+                          menuPlacement="top"
+                        />
+                      );
+                    }}
+                  />
+
+                  {errors.TagPatientIds && (
+                    <p className="text-sm text-red-500">
+                      {errors.TagPatientIds.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex gap-2">
                   <div className="flex-1">
                     <Label className="text-sm font-medium text-gray-700 mb-1 block">
                       Acuity <span className="text-red-500">*</span>
@@ -1892,7 +2021,7 @@ export function EventAddForm({
                                 type="button"
                                 onClick={() => field.onChange(option.id)}
                                 className={`
-              px-4 py-2 rounded-full text-sm transition shadow-md
+              px-4 py-2 rounded-full text-sm transition shadow-md justify-self-center
               ${
                 isSelected
                   ? `${option.color} border`

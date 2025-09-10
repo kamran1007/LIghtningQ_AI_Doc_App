@@ -299,7 +299,10 @@ export default function AllRegisterPatientList() {
                     color: "white",
                   }}
                 >
-                  <tr className="divide-x divide-zinc-200">
+                  <tr className="divide-x divide-zinc-200 whitespace-nowrap">
+                    <th className="px-4 py-3 w-1 text-center whitespace-nowrap">
+                      S.No.
+                    </th>
                     <th className="px-4 py-3">Name</th>
                     <th className="px-4 py-3">MRN</th>
                     <th className="px-4 py-3">Contact Info</th>
@@ -322,6 +325,8 @@ export default function AllRegisterPatientList() {
                         key={idx}
                         className="hover:bg-[#EFFFFD] cursor-pointer"
                       >
+                        <td className="px-4 py-3">{idx + 1}</td>
+
                         <td className="flex items-center gap-3 px-4 py-3 font-medium text-zinc-800">
                           <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
                             {!imageError && imageUrl ? (
@@ -352,16 +357,16 @@ export default function AllRegisterPatientList() {
                           </span>
                         </td>
 
-                        <td className="px-4 py-3 text-zinc-700">
+                        <td className="px-2 py-3 text-zinc-700">
                           {p.Patient_Medical_Record_No}
                         </td>
-                        <td className="px-4 py-3 space-y-0.5">
+                        <td className="px-2 py-3 space-y-0.5">
                           <p>{p.mobile}</p>
                           <p className="text-xs text-muted-foreground">
                             {p.email}
                           </p>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-2 py-3">
                           {p.dateOfBirth ? calculateAge(p.dateOfBirth) : "-"}
                         </td>
                         <td className="px-4 py-3">{p.lastVisit || "-"}</td>

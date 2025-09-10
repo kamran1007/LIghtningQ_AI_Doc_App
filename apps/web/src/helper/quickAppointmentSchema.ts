@@ -13,8 +13,11 @@ export const quickAppointmentSchema = z.object({
   visitTypeId: z.string().min(1, "Visit Type is required"), // if you're
   // using string IDs
   VisitReason: z.string().min(5, "Please Enter Visit Reason"),
-cancellationReason: z.string().optional(),
-  TagPatientId: z.string().optional(),
+  cancellationReason: z.string().optional(),
+  TagPatientIds: z
+    .array(z.union([z.string(), z.number()]))
+    .transform((arr) => arr.map((id) => Number(id)))
+    .optional(),
   acuity: z.string().optional(),
   paymentTypeId: z.string().min(1, "Payment Type is required"),
   appointmentDate: z.string().optional(),

@@ -10,13 +10,13 @@ export default function AppointmentListSkeleton({ rows = 10 }: { rows?: number }
 <thead
   className="text-zinc-600 text-xs font-sans"
   style={{
-    background: "linear-gradient(135deg, rgba(34, 211, 238, 0.15) 0%, rgba(129, 140, 248, 0.15) 100%)",
+    background: "linear-gradient(135deg, rgba(34, 211, 238, 0.35) 0%, rgba(129, 140, 248, 0.15) 100%)",
   }}
 >          <tr className="divide-x divide-zinc-200">
             <th className="px-4 py-3">Name</th>
-            <th className="px-4 py-3">MRN</th>
+            {/* <th className="px-4 py-3">MRN</th> */}
             <th className="px-4 py-3">Contact Info</th>
-            <th className="px-4 py-3">Age</th>
+            {/* <th className="px-4 py-3">Age</th> */}
             <th className="px-4 py-3">Specialist</th>
             <th className="px-4 py-3">Reason</th>
             <th className="px-4 py-3">Acuity</th>
@@ -34,18 +34,18 @@ export default function AppointmentListSkeleton({ rows = 10 }: { rows?: number }
                 <div className={`h-4 w-24 rounded ${shimmer}`} />
               </td>
               {/* MRN */}
-              <td className="px-4 py-3">
+              {/* <td className="px-4 py-3">
                 <div className={`h-4 w-20 rounded ${shimmer}`} />
-              </td>
+              </td> */}
               {/* Contact Info */}
               <td className="px-4 py-3">
                 <div className={`h-4 w-24 rounded ${shimmer} mb-1`} />
                 <div className={`h-3 w-28 rounded ${shimmer}`} />
               </td>
               {/* Age */}
-              <td className="px-4 py-3">
+              {/* <td className="px-4 py-3">
                 <div className={`h-4 w-16 rounded ${shimmer}`} />
-              </td>
+              </td> */}
               {/* Specialist */}
               <td className="px-4 py-3">
                 <div className={`h-4 w-24 rounded ${shimmer}`} />

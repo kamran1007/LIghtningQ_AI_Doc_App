@@ -479,9 +479,8 @@ model TagPatient {
   TagPatientId   Int    @id @default(autoincrement())
   TagPatientName String @unique
 
-  patients Patient[] @relation("PatientTagPatient")
-
-  Appointment Appointment[]
+  patients     Patient[]     @relation("PatientTagPatient")
+  Appointments Appointment[] @relation("AppointmentTagPatients")
 }
 
 model Allergy {
@@ -534,8 +533,8 @@ model Appointment {
   rescheduledDate   DateTime? // ✅ New field
   // rescheduleReason String?
   rescheduledBy     Int?
-  TagPatientId      Int?
-  TagPatient        TagPatient[]
+  // TagPatientId      Int?
+  TagPatients       TagPatient[] @relation("AppointmentTagPatients")
   fasttrackpatient  Boolean?     @default(false)
   // AppointmentAmtPaid Int?
   // isAmountPaid Boolean default(true)
