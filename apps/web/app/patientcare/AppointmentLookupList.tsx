@@ -286,11 +286,15 @@ export default function AppointmentLookupList() {
     setEventAddOpen(true);
     setDrawerOpen(false);
   };
+  const [initialTab, setInitialTab] = useState("vitals");
+
 
   const startConsultation = (patient: any) => {
     setSelectedPatient(patient);
     setDialogOpen(false);
     setDrawerOpen(true);
+  setInitialTab(patient.initialTab ?? "vitals"); // 👈 capture tab
+
   };
   function formatDateLocal(date: Date): string {
     const year = date.getFullYear();
@@ -753,16 +757,38 @@ export default function AppointmentLookupList() {
                           ? calculateAge(p?.patient?.dateOfBirth)
                           : "-"}
                       </td> */}
-                      <td className="px-2 py-3">
-                        {p?.doctor?.Specialization?.SpecializationName}
+                      <td className="px-2 py-3 max-w-[100px]">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="truncate cursor-default">
+                                {p?.doctor?.Specialization?.SpecializationName
+                                  ?.length > 7
+                                  ? p?.doctor?.Specialization?.SpecializationName.slice(
+                                      0,
+                                      7
+                                    ) + "..."
+                                  : p?.doctor?.Specialization
+                                      ?.SpecializationName}
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="top"
+                              className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg"
+                            >
+                              {p?.doctor?.Specialization?.SpecializationName}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
+
+                      <td className="px-2 py-3 whitespace-nowrap">
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <span className="truncate max-w-[120px] cursor-default">
-                                {p?.reason?.length > 12
-                                  ? p.reason.slice(0, 12) + "..."
+                                {p?.reason?.length > 10
+                                  ? p.reason.slice(0, 10) + "..."
                                   : p?.reason}
                               </span>
                             </TooltipTrigger>
@@ -785,7 +811,7 @@ export default function AppointmentLookupList() {
                           {p?.acuity}
                         </span>
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
+                      <td className="px-2 py-3 whitespace-nowrap">
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -833,10 +859,9 @@ export default function AppointmentLookupList() {
                               </div>
                             </TooltipTrigger>
                             <TooltipContent>
-                              {p?.consultation?.IsconsultationCompleted === true
+                              {p?.IsConsultationCompleted === true
                                 ? "Completed"
-                                : p?.consultation?.IsconsultationCompleted ===
-                                    false
+                                : p?.IsConsultationCompleted === false
                                   ? "Incomplete"
                                   : "Going on"}
                             </TooltipContent>
@@ -875,6 +900,7 @@ export default function AppointmentLookupList() {
                                   open={drawerOpen}
                                   onClose={() => closeSheet()}
                                   patient={selectedPatient}
+                                  initialTab={initialTab} // 👈 pass it here
                                 />
                               </div>
                             </TooltipTrigger>
@@ -1016,3 +1042,4 @@ export default function AppointmentLookupList() {
     </div>
   );
 }
+

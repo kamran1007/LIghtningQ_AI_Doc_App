@@ -9,6 +9,7 @@ import {
   ClipboardList,
   Stethoscope,
   MoreHorizontal,
+  SquareActivity,
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { Toast } from "primereact/toast";
@@ -20,7 +21,7 @@ interface AppointmentActionsDialogProps {
   onCancel: () => void;
   onReschedule: () => void;
   onViewCaseHistory: (patient: any) => void; // Keep if you still want to trigger callback
-  onStartConsultation: () => void;
+  onStartConsultation: (patient: any) => void; // 👈 fix here
 }
 
 export default function AppointmentActionsDialog({
@@ -43,6 +44,9 @@ export default function AppointmentActionsDialog({
 
     return appointmentDate < today;
   };
+
+  const hoverchange =
+    "justify-start gap-3 hover:bg-[linear-gradient(135deg,rgba(34,211,238,0.35)_0%,rgba(129,140,248,0.15)_100%)]";
 
   return (
     <>
@@ -94,14 +98,14 @@ export default function AppointmentActionsDialog({
                   }}
                   className="fixed z-50 top-1/2 left-1/2 w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-xl"
                 >
-                  <h2 className="text-lg font-medium text-center mb-4 text-[#2cbbb1] font-mono">
+                  <h2 className="text-lg font-medium text-center mb-4 text-[#2cbbb1] font-sans ">
                     Appointment Actions Panel
                   </h2>
 
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-3 hover:to-blue-100">
                     <Button
                       variant="ghost"
-                      className="justify-start gap-3"
+                      className={hoverchange}
                       onClick={() => {
                         if (
                           isPastDate(patient.appointmentDate) ||
@@ -127,7 +131,7 @@ export default function AppointmentActionsDialog({
 
                     <Button
                       variant="ghost"
-                      className="justify-start gap-3"
+                      className={hoverchange}
                       onClick={() => {
                         if (isPastDate(patient.appointmentDate)) {
                           toast.current?.show({
@@ -148,19 +152,48 @@ export default function AppointmentActionsDialog({
 
                     <Button
                       variant="ghost"
-                      className="justify-start gap-3"
+                      className={hoverchange}
                       onClick={() => {
-                        if (isPastDate(patient.appointmentDate)) {
-                          toast.current?.show({
-                            severity: "error",
-                            summary: "Error",
-                            detail:
-                              "You can't start consultation for a past appointment.",
-                            life: 4000,
-                          });
-                          return;
-                        }
-                        onStartConsultation(patient);
+                        // if (isPastDate(patient.appointmentDate)) {
+                        //   toast.current?.show({
+                        //     severity: "error",
+                        //     summary: "Error",
+                        //     detail:
+                        //       "You can't add vitals for a past appointment.",
+                        //     life: 4000,
+                        //   });
+                        //   return;
+                        // }
+                        onStartConsultation({
+                          ...patient,
+                          initialTab: "vitals",
+                        });
+                        setOpen(false);
+                      }}
+                    >
+                      <SquareActivity className="w-5 h-5 text-blue-500" />
+                      Vitals
+                    </Button>
+
+                    <Button
+                      variant="ghost"
+                      className={hoverchange}
+                      onClick={() => {
+                        // if (isPastDate(patient.appointmentDate)) {
+                        //   toast.current?.show({
+                        //     severity: "error",
+                        //     summary: "Error",
+                        //     detail:
+                        //       "You can't start consultation for a past appointment.",
+                        //     life: 4000,
+                        //   });
+                        //   return;
+                        // }
+                        onStartConsultation({
+                          ...patient,
+                          initialTab: "consultation",
+                        });
+
                         setOpen(false);
                       }}
                     >
@@ -170,7 +203,7 @@ export default function AppointmentActionsDialog({
 
                     <Button
                       variant="ghost"
-                      className="justify-start gap-3"
+                      className={hoverchange}
                       onClick={() => {
                         setIsCaseHistoryOpen(true);
                       }}

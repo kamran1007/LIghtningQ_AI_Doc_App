@@ -59,6 +59,7 @@ interface ConsultationDrawerProps {
   open: boolean;
   onClose: () => void;
   patient: any;
+  initialTab?: string;
 }
 
 // import { MultiSelect } from "@/components/multi-select";
@@ -105,6 +106,7 @@ export default function ConsultationDrawer({
   open,
   onClose,
   patient,
+  initialTab,
 }: ConsultationDrawerProps) {
   const [fullScreen, setFullScreen] = useState(false);
   const toast = useRef<Toast>(null);
@@ -263,21 +265,13 @@ export default function ConsultationDrawer({
       ],
     }));
   };
-  const [selectedTab, setSelectedTab] = useState("vitals");
+  const [selectedTab, setSelectedTab] = useState(initialTab ?? "vitals");
 
-  const [notes, setNotes] = useState("");
-
-  interface ChiefComplaint {
-    id: string;
-    patientId: string;
-    tags: string[]; // Multi-select tags
-    freeText: string | null;
-    createdAt: Date;
-  }
-  interface Diagnosis {
-    DiagnosisId: number;
-    DiagnosisName: string;
-  }
+  useEffect(() => {
+    if (initialTab) {
+      setSelectedTab(initialTab);
+    }
+  }, [initialTab]);
 
   const [customCategory, setCustomCategory] = useState("Others"); // default
   const [chiefComplaints, setChiefComplaints] = useState<string[]>([]); // for tags
