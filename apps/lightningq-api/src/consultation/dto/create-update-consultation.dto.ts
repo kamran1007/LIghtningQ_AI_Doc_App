@@ -9,7 +9,7 @@ import {
   IsArray,
   IsNumber,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
 class ChiefComplaintDto {
   @IsInt()
@@ -93,9 +93,6 @@ class FollowUpPlanDto {
 }
 
 class ConsultationProcedureDto {
-
-  
-
   @IsOptional()
   @IsString()
   ProcedureName?: string;
@@ -107,7 +104,6 @@ class ConsultationProcedureDto {
   @IsOptional()
   @IsString()
   Description?: string;
-
 }
 
 export class CreateOrUpdateConsultationDto {
@@ -137,6 +133,7 @@ export class CreateOrUpdateConsultationDto {
 
   @IsOptional()
   @IsDateString()
+  @Transform(({ value }) => (value === '' ? undefined : value))
   consultationEndDateTime?: string;
 
   @IsOptional()

@@ -23,23 +23,24 @@ const VitalCardSkeleton = () => (
 
 export default function VitalsSkeleton({ count = 8 }: { count?: number }) {
   return (
-    <div className="w-full">
+    <div className="w-full flex flex-col items-center">
       {/* Vitals History Button Skeleton */}
-      <div className="w-full flex justify-end pr-4 mb-2">
+      <div className="w-full flex justify-end pr-4 mb-2 max-w-4xl">
         <div className="h-9 w-40 rounded-2xl bg-gray-200 animate-pulse" />
       </div>
 
       {/* Cards Skeleton */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 p-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 p-4 w-full max-w-4xl">
         {Array.from({ length: count }).map((_, i) => (
           <VitalCardSkeleton key={i} />
         ))}
 
         {/* Submit button skeleton */}
-        <div className="col-span-full flex justify-center mx-3">
+        <div className="col-span-full flex justify-center">
           <div className="h-10 w-40 rounded-2xl bg-teal-200 animate-pulse shadow-md" />
         </div>
       </div>
     </div>
   );
 }
+

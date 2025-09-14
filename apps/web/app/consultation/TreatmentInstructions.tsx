@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 
 const TreatmentInstructionsCard = ({
+  disabled,
   form,
   setForm,
   handleTreatmentMicClick,
@@ -42,23 +43,34 @@ const TreatmentInstructionsCard = ({
 
       <div className="relative">
         <Textarea
+        disabled={disabled}
           placeholder="Enter treatment plan or advice to patient..."
           value={form.treatment}
           name="treatment"
           onChange={handleChange}
-          className="text-sm pr-10"
+          className="text-sm pr-10 rounded-2xl border-2 border-yellow-200 hover:border-yellow-300 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all duration-300 no-scrollbar bg-gradient-to-br from-yellow-50/50 to-amber-50/30 placeholder:text-gray-400 placeholder:font-light text-gray-700 leading-relaxed tracking-wide shadow-sm hover:shadow-md focus:shadow-lg backdrop-blur-sm resize-none min-h-[120px] p-4"
+          style={{
+            fontFamily:
+              '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            fontSize: "14px",
+            lineHeight: "1.6",
+            letterSpacing: "0.025em",
+          }}
         />
         <button
           type="button"
+          disabled={disabled}
           onClick={handleTreatmentMicClick}
-          className={`absolute right-2 top-2 p-2 rounded-full transition ${
-            isListening ? "bg-red-100 hover:bg-red-200" : "bg-blue-100 hover:bg-blue-200"
+          className={`absolute right-2 bottom-2 p-1 rounded-full transition ${
+            isListening
+              ? "bg-red-100 hover:bg-red-200"
+              : "bg-yellow-100 hover:bg-yellow-200"
           }`}
         >
           {isListening ? (
             <MicOff className="w-4 h-4 text-red-600 animate-pulse" />
           ) : (
-            <Mic className="w-4 h-4 text-blue-600" />
+            <Mic className="w-4 h-4 text-yellow-400" />
           )}
         </button>
       </div>
@@ -70,6 +82,7 @@ const TreatmentInstructionsCard = ({
       <div className="flex flex-wrap gap-2 mt-2">
         {quickSnippets.map((text, idx) => (
           <button
+          disabled={disabled}
             key={idx}
             onClick={() => insertSnippet(text)}
             className="text-xs px-2 py-1 rounded-md border border-gray-300 text-gray-700 hover:bg-yellow-50 transition"

@@ -9,7 +9,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import { SpeedDial } from "primereact/speeddial";
 import { useRouter } from "next/navigation"; // ✅ correct for app/
 import { Toast } from "primereact/toast";
-import { Tooltip } from "primereact/tooltip";
+// import { Tooltip } from "primereact/tooltip";
 
 import {
   Stethoscope,
@@ -32,7 +32,17 @@ import {
   History,
   Droplets,
   Scale,
+  Loader2Icon,
+  Plus,
+  ClipboardList,
 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TabPanel, TabView } from "primereact/tabview";
@@ -86,6 +96,11 @@ import { useAppDispatch } from "@/store/hooks";
 import { fetchAllAppointmentPatient } from "@/store/AppointmentSlice";
 import { title } from "process";
 import ProcedureInputCard from "./procedureCard";
+import Lottie from "lottie-react";
+import successAnimation from "@/assets/Success.json";
+import { useSelector } from "react-redux";
+import PatientCaseHistory from "app/patientvisithistory/CaseHistory";
+
 export default function ConsultationDrawer({
   open,
   onClose,
@@ -300,6 +315,14 @@ export default function ConsultationDrawer({
     [key: string]: string;
   }>({});
   const [procedures, setProcedures] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [consultationComleted, SetConsultationComlete] = useState(false);
+  const selectedHospital = useSelector(
+    (state: any) => state.hospitalSelection?.selectedHospital
+  );
+  const [isDisabled, setIsDisabled] = useState(true);
+  const [isCaseHistoryOpen, setIsCaseHistoryOpen] = useState(false);
 
   // console.log("Selected Chief Complaints:", selectedChiefComplaints);
   const dispatch = useAppDispatch();
@@ -541,16 +564,37 @@ export default function ConsultationDrawer({
     animate: { opacity: 1, y: 0 },
     exit: { opacity: 0, y: -20 },
   };
+  useEffect(() => {
+    // by default lock if completed
+    if (patient?.IsConsultationCompleted === true) {
+      setIsDisabled(true);
+    } else {
+      setIsDisabled(false);
+    }
+  }, [patient?.IsConsultationCompleted]);
+  const userHasEditAccess = true; // or false
+
   const items = [
     {
-      label: "Add",
-      icon: "pi pi-pencil",
+      label: "Edit",
+      icon: "pi pi-file-edit",
+      title: "Edit Consultation",
       command: () => {
-        toast.current?.show({
-          severity: "info",
-          summary: "Add",
-          detail: "Data Added",
-        });
+        // ✅ Only allow edit if user has access
+        if (userHasEditAccess) {
+          setIsDisabled(false); // enable fields
+          toast.current?.show({
+            severity: "success",
+            summary: "Edit Mode",
+            detail: "You can now edit the consultation",
+          });
+        } else {
+          toast.current?.show({
+            severity: "warn",
+            summary: "Access Denied",
+            detail: "You do not have rights to edit this consultation",
+          });
+        }
       },
     },
     {
@@ -571,7 +615,7 @@ export default function ConsultationDrawer({
       label: "Save",
       icon: "pi pi-save",
       template: (item, options) => (
-        <div {...options} title="Save">
+        <div {...options} title="Save Consultation">
           <i className={item.icon} />
           {/* <span>{item.label}</span> */}
         </div>
@@ -580,17 +624,38 @@ export default function ConsultationDrawer({
         handleSaveConsultation("save");
       },
     },
+    // {
+    //   label: "Upload",
+    //   icon: "pi pi-upload",
+    //   command: () => router.push("/fileupload"),
+    // },
     {
-      label: "Upload",
-      icon: "pi pi-upload",
-      command: () => router.push("/fileupload"),
-    },
-    {
-      label: "React Website",
-      icon: "pi pi-external-link",
-      command: () => (window.location.href = "https://react.dev/"),
+      label: "Case History",
+      icon: "pi pi-file-export",
+      title: "Case history",
+      template: (item, options) => (
+        <div {...options} title="Case History">
+          <i className={item.icon} />
+          {/* <span>{item.label}</span> */}
+        </div>
+      ),
+
+      command: () => {
+        setIsCaseHistoryOpen(true); // ✅ open dialog/drawer
+      },
     },
   ];
+
+  <Button
+    variant="ghost"
+    className="justify-start gap-3"
+    onClick={() => {
+      setIsCaseHistoryOpen(true);
+    }}
+  >
+    <ClipboardList className="w-5 h-5 text-green-500" />
+    View Case History
+  </Button>;
 
   useEffect(() => {
     const heightInMeters = Number(form.height) / 100;
@@ -619,6 +684,49 @@ export default function ConsultationDrawer({
     }
   }, [form.height, form.weight]);
 
+  const appointmentId = patient?.AppointmentId;
+
+  // ✅ define fetchVitals outside useEffect so it's reusable
+  const fetchVitals = async () => {
+    try {
+      setVitalsLoading(true);
+      const data = await getVitalsWithHistory(appointmentId);
+
+      console.log("Fetched vitals data:", data);
+
+      setVitalsHistory(data?.data?.history || []);
+
+      if (data?.data?.current) {
+        const current = data?.data?.current || {};
+
+        setForm((prev) => ({
+          ...prev,
+          systolic: current.Systolic || "",
+          diastolic: current.Diastolic || "",
+          weight: current.Weight || "",
+          temperature: current.Temperature || "",
+          heartRate: current.HeartRate || "",
+          oxygen: current.OxygenSaturation || "",
+          height: current.Height || "",
+          bloodgroup: current.BloodGroup || "",
+          BMI: current.BMI || "",
+          BMIStatus: current.BMIStatus || "",
+        }));
+      }
+
+      setVitalsLoading(false);
+    } catch (err) {
+      console.error("Failed to fetch vitals:", err);
+    }
+  };
+
+  // ✅ useEffect just calls fetchVitals
+  useEffect(() => {
+    if (appointmentId) {
+      fetchVitals();
+    }
+  }, [appointmentId]);
+
   const handleSaveVitals = async () => {
     try {
       // Step 1: Construct the payload with all fields
@@ -644,6 +752,7 @@ export default function ConsultationDrawer({
 
       // Step 3: Make API call
       await AddUpdateVitals(cleanedPayload);
+      console.log("Showing success toast…", toast.current);
 
       toast.current?.show({
         severity: "success",
@@ -652,6 +761,7 @@ export default function ConsultationDrawer({
         life: 4000,
         // className: "custom-toast-container",
       });
+      fetchVitals();
     } catch (error) {
       toast.current?.show({
         severity: "error",
@@ -679,46 +789,46 @@ export default function ConsultationDrawer({
     },
   });
 
-  // useEffect(() => {
-  //   if (patient?.patient?.bloodGroup) {
-  //     setValue("bloodgroup", patient.patient.bloodGroup);
-  //   }
-  // }, [patient?.patient?.bloodGroup, setValue]);
-  const appointmentId = patient?.AppointmentId;
   useEffect(() => {
-    const fetchVitals = async () => {
-      try {
-        setVitalsLoading(true);
-        const data = await getVitalsWithHistory(appointmentId); // pass appointmentId from props/context
-        console.log("Fetched vitals data:", data);
-        setVitalsHistory(data?.data?.history || []); // store history if needed
-        if (data?.data?.current) {
-          const current = data?.data?.current || {};
-
-          setForm((prev) => ({
-            ...prev,
-            systolic: current.Systolic || "",
-            diastolic: current.Diastolic || "",
-            weight: current.Weight || "",
-            temperature: current.Temperature || "",
-            heartRate: current.HeartRate || "",
-            oxygen: current.OxygenSaturation || "",
-            height: current.Height || "",
-            bloodgroup: current.BloodGroup || "", // match backend key
-            BMI: current.BMI || "",
-            BMIStatus: current.BMIStatus || "",
-          }));
-        }
-        setVitalsLoading(false);
-      } catch (err) {
-        console.error("Failed to fetch vitals:", err);
-      }
-    };
-
-    if (appointmentId) {
-      fetchVitals();
+    if (patient?.patient?.bloodGroup) {
+      setValue("bloodgroup", patient.patient.bloodGroup);
     }
-  }, [appointmentId]);
+  }, [patient?.patient?.bloodGroup, setValue]);
+  // const appointmentId = patient?.AppointmentId;
+  // useEffect(() => {
+  //   const fetchVitals = async () => {
+  //     try {
+  //       setVitalsLoading(true);
+  //       const data = await getVitalsWithHistory(appointmentId); // pass appointmentId from props/context
+  //       console.log("Fetched vitals data:", data);
+  //       setVitalsHistory(data?.data?.history || []); // store history if needed
+  //       if (data?.data?.current) {
+  //         const current = data?.data?.current || {};
+
+  //         setForm((prev) => ({
+  //           ...prev,
+  //           systolic: current.Systolic || "",
+  //           diastolic: current.Diastolic || "",
+  //           weight: current.Weight || "",
+  //           temperature: current.Temperature || "",
+  //           heartRate: current.HeartRate || "",
+  //           oxygen: current.OxygenSaturation || "",
+  //           height: current.Height || "",
+  //           bloodgroup: current.BloodGroup || "", // match backend key
+  //           BMI: current.BMI || "",
+  //           BMIStatus: current.BMIStatus || "",
+  //         }));
+  //       }
+  //       setVitalsLoading(false);
+  //     } catch (err) {
+  //       console.error("Failed to fetch vitals:", err);
+  //     }
+  //   };
+
+  //   if (appointmentId) {
+  //     fetchVitals();
+  //   }
+  // }, [appointmentId]);
 
   useEffect(() => {
     if (form.bloodgroup) {
@@ -729,12 +839,13 @@ export default function ConsultationDrawer({
   const handleSaveConsultation = async (type: string) => {
     try {
       const isComplete = type?.toLowerCase() === "complete"; // case-insensitive check
-
+      setIsSaving(true);
       const payload = {
         ConsultationId: patient?.consultationId || 0,
         AppointmentId: appointmentId, // Replace with your source
-        consultationDatTime: new Date().toISOString(),
-        consultationEndDateTime: new Date().toISOString(),
+        consultationDatTime:
+          patient?.consultationStartDateTime || new Date().toISOString(),
+        consultationEndDateTime: isComplete ? new Date().toISOString() : "",
         CheifcomplaintNotes: form?.notes || complaintText,
         IsSentCaseSheet: isComplete,
         IsconsultationCompleted: isComplete,
@@ -812,9 +923,27 @@ export default function ConsultationDrawer({
         detail: "Consultation successfully saved.",
       });
       setTimeout(() => {
-        onClose(); // ✅ Correctly calling the onClose function
-        dispatch(fetchAllAppointmentPatient({ page: 1, limit: 10 }));
-      }, 800);
+        SetConsultationComlete(true);
+
+        setTimeout(() => {
+          SetConsultationComlete(false);
+          const today = new Date().toLocaleDateString("en-CA", {
+            timeZone: "Asia/Kolkata", // adjust if needed
+          });
+          onClose(); // ✅ Correctly calling the onClose function
+          dispatch(
+            fetchAllAppointmentPatient({
+              page: 1,
+              limit: 10,
+              hospitalId: selectedHospital
+                ? Number(selectedHospital?.hospitalId)
+                : undefined,
+              appointmentDateFrom: today,
+              appointmentDateTo: today,
+            })
+          );
+        }, 2000);
+      }, 1000);
     } catch (error) {
       console.error("❌ Error saving consultation", error);
       toast.current?.show({
@@ -822,6 +951,8 @@ export default function ConsultationDrawer({
         summary: "Error",
         detail: "Failed to save consultation.",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -1006,7 +1137,14 @@ export default function ConsultationDrawer({
           <div className="px-4 pb-4 overflow-y-auto h-[calc(100%-4rem)]">
             {/* Patient Info */}
 
-            <div className="w-full px-1 py-1 border border-[#22E0D4] rounded-tr-md shadow-sm sticky top-0 z-50 bg-white">
+            <div
+              className="sticky top-0 z-50 w-full rounded-tr-md shadow-sm bg-white px-2 py-1"
+              style={{
+                border: "1px solid transparent",
+                borderImage: "linear-gradient(to right, #14b8a6, #6366f1) 1",
+              }}
+            >
+              {" "}
               <div className="flex items-center gap-4">
                 {/* Avatar */}
                 <Avatar className="h-12 w-12 rounded-full">
@@ -1051,18 +1189,94 @@ export default function ConsultationDrawer({
                       <div className="flex items-center col-span-1 gap-0.5">
                         <MilkOff className="w-4 h-4 text-[#22E0D4]" />
 
-                        <span className="text-[12px] text-shadow-muted-foreground">
-                          Allergy:
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">Allergies:</p>
+
+                          {patient?.patient?.allergies?.length ? (
+                            <div className="flex items-center gap-2">
+                              {/* Show only first allergy */}
+                              <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-600 dark:bg-red-700/30 dark:text-red-300">
+                                {patient.patient.allergies[0]?.AllergyName}
+                              </span>
+
+                              {/* Show +N if more exist */}
+                              {patient.patient.allergies.length > 1 && (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <span className="cursor-pointer text-xs font-medium text-gray-500 dark:text-gray-300">
+                                        +{patient.patient.allergies.length - 1}
+                                      </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <div className="flex flex-col gap-1">
+                                        {patient.patient.allergies
+                                          .slice(1)
+                                          .map((a: any, idx: number) => (
+                                            <span
+                                              key={idx}
+                                              className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-600 dark:bg-red-700/30 dark:text-red-300"
+                                            >
+                                              {a?.AllergyName}
+                                            </span>
+                                          ))}
+                                      </div>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              )}
+                            </div>
+                          ) : (
+                            <p className="italic text-gray-400">None</p>
+                          )}
+                        </div>
                         {/* {patient?.patient?.allergies || "None"} */}
                       </div>
-                      <div className="flex items-center col-span-1 gap-0.5">
+                      <div className="flex items-center gap-2">
                         <Languages className="w-4 h-4 text-[#22E0D4]" />
-
-                        <span className="text-[12px] text-shadow-muted-foreground">
+                        <span className="text-[12px] text-shadow-muted-foreground font-medium">
                           Language Spoken:
                         </span>
-                        {patient?.patient?.language || "N/A"}
+
+                        {patient?.patient?.languages?.length ? (
+                          <div className="flex items-center gap-2">
+                            {/* First language */}
+                            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-600 dark:bg-blue-700/30 dark:text-blue-300">
+                              {patient.patient.languages[0]?.LanguageName}
+                            </span>
+
+                            {/* +N with tooltip if more languages */}
+                            {patient.patient.languages.length > 1 && (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="cursor-pointer text-xs font-medium text-gray-500 dark:text-gray-300">
+                                      +{patient.patient.languages.length - 1}
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <div className="flex flex-col gap-1">
+                                      {patient.patient.languages
+                                        .slice(1)
+                                        .map((lang: any) => (
+                                          <span
+                                            key={lang.LanguageId}
+                                            className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-600 dark:bg-blue-700/30 dark:text-blue-300"
+                                          >
+                                            {lang.LanguageName}
+                                          </span>
+                                        ))}
+                                    </div>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="italic text-gray-400 text-xs">
+                            N/A
+                          </span>
+                        )}
                       </div>
 
                       {/* Row 2 */}
@@ -1075,11 +1289,54 @@ export default function ConsultationDrawer({
                         {patient?.patient?.mobile || "N/A"}
                       </div>
                       <div className="flex items-center col-span-3 gap-0.5 ">
-                        <ClipboardPlus className="w-4 h-4 text-[#22E0D4]" />
+                        <ClipboardPlus className="w-4 h-4 text-[#1ab4aa]" />
 
-                        <span className="text-[12px] text-shadow-muted-foreground">
-                          Past Medical Record:
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">Medical History:</p>
+
+                          {patient?.patient?.medicalHistory?.length ? (
+                            <div className="flex items-center gap-2">
+                              {/* Show only first medical history */}
+                              <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-600 dark:bg-green-700/30 dark:text-green-300">
+                                {
+                                  patient.patient.medicalHistory[0]
+                                    ?.MedicalHistoryName
+                                }
+                              </span>
+
+                              {/* Show +N if more exist */}
+                              {patient.patient.medicalHistory.length > 1 && (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <span className="cursor-pointer text-xs font-medium text-gray-500 dark:text-gray-300">
+                                        +
+                                        {patient.patient.medicalHistory.length -
+                                          1}
+                                      </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <div className="flex flex-col gap-1">
+                                        {patient.patient.medicalHistory
+                                          .slice(1)
+                                          .map((c: any, idx: number) => (
+                                            <span
+                                              key={idx}
+                                              className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-600 dark:bg-green-700/30 dark:text-green-300"
+                                            >
+                                              {c?.MedicalHistoryName}
+                                            </span>
+                                          ))}
+                                      </div>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              )}
+                            </div>
+                          ) : (
+                            <p className="italic text-gray-400">None</p>
+                          )}
+                        </div>
                         {/* {patient?.patient?.medicalHistory || "N/A"} */}
                       </div>
                     </div>
@@ -1151,24 +1408,39 @@ export default function ConsultationDrawer({
                   </div>
 
                   {/* Reason */}
-                  <div className="flex flex-col ">
-                    <div className="flex items-center justify-items-center gap-1 text-[12px] text-muted-foreground">
+                  <div className="flex flex-col">
+                    {/* Label */}
+                    <div className="flex items-center gap-1 text-[12px] text-muted-foreground">
                       <NotebookPen className="w-4 h-4 text-red-300" />
                       <span>Visit Reason</span>
                     </div>
 
-                    <div className="flex flex-wrap   gap-1">
-                      {patient?.reason || "N/A"}
-
-                      {/* Optional Tag Mapping (if needed later)
-  {patient?.patient?.TagPatientId?.map((tag: string, idx: number) => (
-    <span
-      key={idx}
-      className="bg-orange-100 text-orange-600 text-[11px] px-2 py-[2px] rounded-md"
-    >
-      {tag}
-    </span>
-  ))} */}
+                    {/* Value */}
+                    <div className="flex flex-wrap gap-1">
+                      {patient?.reason ? (
+                        patient.reason.length > 35 ? (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="cursor-pointer text-sm text-gray-700 dark:text-gray-300">
+                                  {patient.reason.slice(0, 35)}...
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="max-w-xs break-words">
+                                  {patient.reason}
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ) : (
+                          <span className="text-m text-gray-700 dark:text-gray-300">
+                            {patient.reason}
+                          </span>
+                        )
+                      ) : (
+                        <span className="italic text-gray-400">N/A</span>
+                      )}
                     </div>
                   </div>
 
@@ -1209,7 +1481,11 @@ export default function ConsultationDrawer({
                       height={20}
                       className="object-contain"
                     /> */}
-                      <span className="text-sm">Fast Track Patient</span>
+                      <span className="text-sm">
+                        {patient?.fasttrackpatient
+                          ? "Fast Track Patient"
+                          : "Normal Patient"}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -1303,7 +1579,13 @@ export default function ConsultationDrawer({
               onValueChange={setSelectedTab}
               className="font-mono"
             >
-              <TabsList className="mb-2">
+              <TabsList
+                className="mb-2 rounded-xl p-1 text-black"
+                style={{
+                  background:
+                    "linear-gradient(135deg, rgba(34, 211, 238, 0.35) 0%, rgba(129, 140, 248, 0.15) 100%)",
+                }}
+              >
                 <TabsTrigger
                   value="vitals"
                   className="relative z-10 px-4 py-2 data-[state=active]:text-[#22E0D4]"
@@ -1322,12 +1604,12 @@ export default function ConsultationDrawer({
                 >
                   Medications
                 </TabsTrigger>
-                <TabsTrigger
+                {/* <TabsTrigger
                   value="labTests"
                   className="relative z-10 px-4 py-2 data-[state=active]:text-[#22E0D4]"
                 >
                   Lab Test Results
-                </TabsTrigger>
+                </TabsTrigger> */}
                 {/* <TabsTrigger value="appointmentHistory">Appointment History</TabsTrigger> */}
               </TabsList>
               <AnimatePresence mode="wait">
@@ -1349,7 +1631,7 @@ export default function ConsultationDrawer({
                             <div className="w-full flex justify-end pr-4 mb-2 cursor-pointer">
                               <Button
                                 variant="outline"
-                                className="text-sm font-medium border-gray-300 rounded-2xl cursor-pointer hover:bg-teal-100 transition-colors "
+                                className="text-sm font-medium border-gray-300 rounded-3xl cursor-pointer hover:bg-teal-100 transition-colors "
                                 onClick={() => {
                                   setVitalsData(vitalsHistory); // Set vitals data
                                   setVitalsHistoryOpen(true); // Open dialog
@@ -1371,163 +1653,165 @@ export default function ConsultationDrawer({
                                     : "w-full"
                                 }
                               >
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 p-4">
-                                  <Toast ref={toast} />
+                                <>
+                                  <Toast ref={toast} position="top-right" />
 
-                                  <VitalCardInput
-                                    icon={<Droplet size={18} />}
-                                    label="Blood Pressure"
-                                    unit="mmHg"
-                                    customField={
-                                      <div className="flex items-center justify-center w-full gap-1">
-                                        <input
-                                          type="text"
-                                          maxLength={3}
-                                          name="systolic"
-                                          placeholder="SBP"
-                                          value={form.systolic}
-                                          onChange={handleChange}
-                                          className="w-10 text-center border border-gray-300 rounded px-1 py-1 text-sm focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:outline-none transition-all"
-                                        />
-                                        <span className="text-gray-500 text-sm">
-                                          /
-                                        </span>
-                                        <input
-                                          type="text"
-                                          maxLength={3}
-                                          name="diastolic"
-                                          placeholder="DBP"
-                                          value={form.diastolic}
-                                          onChange={handleChange}
-                                          className="w-10 text-center border border-gray-300 rounded px-1 py-1 text-sm focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:outline-none transition-all"
-                                        />
-                                      </div>
-                                    }
-                                    value={""}
-                                    name={""}
-                                  />
-                                  <VitalCardInput
-                                    icon={<Weight size={18} />}
-                                    label="Weight"
-                                    value={form.weight}
-                                    name="weight"
-                                    unit="Kg"
-                                    onChange={handleChange}
-                                  />
-                                  <VitalCardInput
-                                    icon={<Thermometer size={18} />}
-                                    label="Temperature"
-                                    value={form.temperature}
-                                    name="temperature"
-                                    unit="°F"
-                                    onChange={handleChange}
-                                  />
-                                  <VitalCardInput
-                                    icon={<HeartPulse size={18} />}
-                                    label="Heart Rate"
-                                    value={form.heartRate}
-                                    name="heartRate"
-                                    unit="bpm"
-                                    onChange={handleChange}
-                                  />
-                                  <VitalCardInput
-                                    icon={<Activity size={18} />}
-                                    label="SpO2"
-                                    value={form.oxygen}
-                                    name="oxygen"
-                                    unit="%"
-                                    onChange={handleChange}
-                                  />
-                                  <VitalCardInput
-                                    icon={<Ruler size={18} />}
-                                    label="Height"
-                                    value={form.height}
-                                    name="height"
-                                    unit="Cm"
-                                    onChange={handleChange}
-                                  />
-                                  <VitalCardInput
-                                    icon={<Droplets size={18} />}
-                                    label="Blood Group"
-                                    value={form.bloodgroup}
-                                    name="bloodgroup"
-                                    customField={
-                                      <Controller
-                                        control={control}
-                                        name="bloodgroup"
-                                        render={({ field }) => (
-                                          <Select
-                                            value={form.bloodgroup}
-                                            onValueChange={(val) =>
-                                              setForm((prev) => ({
-                                                ...prev,
-                                                bloodgroup: val,
-                                              }))
-                                            }
-                                          >
-                                            <SelectTrigger>
-                                              <SelectValue placeholder="Select" />
-                                            </SelectTrigger>
-                                            <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
-                                              {" "}
-                                              <SelectItem value="O_POS">
-                                                O+
-                                              </SelectItem>
-                                              <SelectItem value="O_NEG">
-                                                O-
-                                              </SelectItem>
-                                              <SelectItem value="A_POS">
-                                                A+
-                                              </SelectItem>
-                                              <SelectItem value="A_NEG">
-                                                A-
-                                              </SelectItem>
-                                              <SelectItem value="B_POS">
-                                                B+
-                                              </SelectItem>
-                                              <SelectItem value="B_NEG">
-                                                B-
-                                              </SelectItem>
-                                              <SelectItem value="AB_POS">
-                                                AB+
-                                              </SelectItem>
-                                              <SelectItem value="AB_NEG">
-                                                AB-
-                                              </SelectItem>
-                                            </SelectContent>
-                                          </Select>
-                                        )}
-                                      />
-                                    }
-                                  />
-
-                                  <VitalCardInput
-                                    icon={<Scale size={18} />}
-                                    label="BMI"
-                                    value={form.BMI}
-                                    name="bmi"
-                                    unit="kg/m²"
-                                    onChange={handleChange}
-                                    description={
-                                      form.BMI ? (
-                                        <div className="flex justify-items-start mx-0 text-sm text-gray-600">
-                                          {/* <span className="font-medium ">BMI: </span>{" "}
-              {form.BMI} */}
-                                          {form.BMIStatus && (
-                                            <>
-                                              <span className="ml-4 font-medium">
-                                                Status:
-                                              </span>
-                                              <span className="text-teal-600 ml-1">
-                                                {form.BMIStatus}
-                                              </span>
-                                            </>
-                                          )}
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 p-4">
+                                    <VitalCardInput
+                                      icon={<Droplet size={18} />}
+                                      label="Blood Pressure"
+                                      unit="mmHg"
+                                      customField={
+                                        <div className="flex items-center justify-center w-full gap-1">
+                                          <input
+                                            type="text"
+                                            maxLength={3}
+                                            name="systolic"
+                                            placeholder="SBP"
+                                            value={form.systolic}
+                                            onChange={handleChange}
+                                            className="w-10 text-center border border-gray-300 rounded px-1 py-1 text-sm focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:outline-none transition-all"
+                                          />
+                                          <span className="text-gray-500 text-sm">
+                                            /
+                                          </span>
+                                          <input
+                                            type="text"
+                                            maxLength={3}
+                                            name="diastolic"
+                                            placeholder="DBP"
+                                            value={form.diastolic}
+                                            onChange={handleChange}
+                                            className="w-10 text-center border border-gray-300 rounded px-1 py-1 text-sm focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:outline-none transition-all"
+                                          />
                                         </div>
-                                      ) : null
-                                    }
-                                  />
-                                </div>
+                                      }
+                                      value={""}
+                                      name={""}
+                                    />
+                                    <VitalCardInput
+                                      icon={<Weight size={18} />}
+                                      label="Weight"
+                                      value={form.weight}
+                                      name="weight"
+                                      unit="Kg"
+                                      onChange={handleChange}
+                                    />
+                                    <VitalCardInput
+                                      icon={<Thermometer size={18} />}
+                                      label="Temperature"
+                                      value={form.temperature}
+                                      name="temperature"
+                                      unit="°F"
+                                      onChange={handleChange}
+                                    />
+                                    <VitalCardInput
+                                      icon={<HeartPulse size={18} />}
+                                      label="Heart Rate"
+                                      value={form.heartRate}
+                                      name="heartRate"
+                                      unit="bpm"
+                                      onChange={handleChange}
+                                    />
+                                    <VitalCardInput
+                                      icon={<Activity size={18} />}
+                                      label="SpO2"
+                                      value={form.oxygen}
+                                      name="oxygen"
+                                      unit="%"
+                                      onChange={handleChange}
+                                    />
+                                    <VitalCardInput
+                                      icon={<Ruler size={18} />}
+                                      label="Height"
+                                      value={form.height}
+                                      name="height"
+                                      unit="Cm"
+                                      onChange={handleChange}
+                                    />
+                                    <VitalCardInput
+                                      icon={<Droplets size={18} />}
+                                      label="Blood Group"
+                                      value={form.bloodgroup}
+                                      name="bloodgroup"
+                                      customField={
+                                        <Controller
+                                          control={control}
+                                          name="bloodgroup"
+                                          render={({ field }) => (
+                                            <Select
+                                              value={form.bloodgroup}
+                                              onValueChange={(val) =>
+                                                setForm((prev) => ({
+                                                  ...prev,
+                                                  bloodgroup: val,
+                                                }))
+                                              }
+                                            >
+                                              <SelectTrigger>
+                                                <SelectValue placeholder="Select" />
+                                              </SelectTrigger>
+                                              <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
+                                                {" "}
+                                                <SelectItem value="O_POS">
+                                                  O+
+                                                </SelectItem>
+                                                <SelectItem value="O_NEG">
+                                                  O-
+                                                </SelectItem>
+                                                <SelectItem value="A_POS">
+                                                  A+
+                                                </SelectItem>
+                                                <SelectItem value="A_NEG">
+                                                  A-
+                                                </SelectItem>
+                                                <SelectItem value="B_POS">
+                                                  B+
+                                                </SelectItem>
+                                                <SelectItem value="B_NEG">
+                                                  B-
+                                                </SelectItem>
+                                                <SelectItem value="AB_POS">
+                                                  AB+
+                                                </SelectItem>
+                                                <SelectItem value="AB_NEG">
+                                                  AB-
+                                                </SelectItem>
+                                              </SelectContent>
+                                            </Select>
+                                          )}
+                                        />
+                                      }
+                                    />
+
+                                    <VitalCardInput
+                                      icon={<Scale size={18} />}
+                                      label="BMI"
+                                      value={form.BMI}
+                                      name="bmi"
+                                      unit="kg/m²"
+                                      onChange={handleChange}
+                                      description={
+                                        form.BMI ? (
+                                          <div className="flex justify-items-start mx-0 text-sm text-gray-600">
+                                            {/* <span className="font-medium ">BMI: </span>{" "}
+              {form.BMI} */}
+                                            {form.BMIStatus && (
+                                              <>
+                                                <span className="ml-4 font-medium">
+                                                  Status:
+                                                </span>
+                                                <span className="text-teal-600 ml-1">
+                                                  {form.BMIStatus}
+                                                </span>
+                                              </>
+                                            )}
+                                          </div>
+                                        ) : null
+                                      }
+                                    />
+                                  </div>
+                                </>
 
                                 <motion.div
                                   initial={{ opacity: 0, y: 10 }}
@@ -1573,21 +1857,73 @@ export default function ConsultationDrawer({
                     transition={{ duration: 0.3 }}
                   >
                     <TabsContent value="consultation">
+                      {consultationComleted && (
+                        <AnimatePresence>
+                          <motion.div
+                            className="fixed inset-0 z-[9999] bg-white/90 flex items-center justify-center overflow-auto"
+                            style={{ pointerEvents: "auto" }}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.5 }}
+                          >
+                            <motion.div
+                              className="flex flex-col items-center justify-center text-center p-6 max-w-md w-full mx-auto"
+                              initial={{ scale: 0.9, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              exit={{ scale: 0.9, opacity: 0 }}
+                              transition={{ duration: 0.5 }}
+                            >
+                              <div className="mb-2">
+                                <Lottie
+                                  animationData={successAnimation}
+                                  loop={false}
+                                  autoplay
+                                  style={{ width: 150, height: 150 }}
+                                  onComplete={() => {
+                                    // Automatically hide after animation ends
+                                    setTimeout(
+                                      () => SetConsultationComlete(false),
+                                      500
+                                    );
+                                  }}
+                                />
+                              </div>
+                              <p className="text-2xl mt-4 font-semibold text-green-600">
+                                Consultation saved successfully!
+                              </p>
+                            </motion.div>
+                          </motion.div>
+                        </AnimatePresence>
+                      )}
                       <div>
                         <Toast ref={toast} />
                         <SpeedDial
                           model={items}
-                          radius={70}
-                          type="semi-circle"
-                          direction="left"
+                          radius={120}
+                          type="quarter-circle"
+                          direction="up-left"
+                          // title="consultation Action controller"
                           style={{
                             position: "fixed",
-                            top: "50%",
+                            bottom: "1.5rem",
                             right: "1.5rem",
-                            transform: "translateY(-50%)",
                             zIndex: 1000,
                           }}
-                          className="[&_.p-speeddial-button]:!bg-[#22E0D4] [&_.p-speeddial-button]:!rounded-full [&_.p-speeddial-button]:!w-14 [&_.p-speeddial-button]:!h-14 [&_.p-speeddial-button_.p-button-icon]:!text-white"
+                          className="[&_.p-speeddial-button]:!bg-[#22E0D4] [&_.p-speeddial-button]:!rounded-full [&_.p-speeddial-button]:!w-14 [&_.p-speeddial-button]:!h-14"
+                          buttonTemplate={(options) => (
+                            <button
+                              type="button"
+                              className={`p-speeddial-button flex items-center justify-center ${options.className}`}
+                              onClick={options.onClick}
+                            >
+                              {isSaving ? (
+                                <Loader2Icon className="animate-spin text-white w-7 h-7" />
+                              ) : (
+                                <Plus className="text-white w-7 h-7" />
+                              )}
+                            </button>
+                          )}
                         />
                       </div>
                       <ScrollArea className="w-full font-sans">
@@ -1599,6 +1935,7 @@ export default function ConsultationDrawer({
                           }
                         >
                           <ChiefComplaintCard
+                            disabled={isDisabled}
                             selectedChiefComplaints={selectedChiefComplaints}
                             setSelectedChiefComplaints={
                               setSelectedChiefComplaints
@@ -1614,6 +1951,7 @@ export default function ConsultationDrawer({
                             customsStyles={customsStyles}
                           />
                           <ClinicalNotesCard
+                            disabled={isDisabled}
                             clinicalnotesText={clinicalnotesText}
                             setClinicalnotesText={setClinicalnotesText}
                             handleClinicalNoteMicClick={
@@ -1622,6 +1960,7 @@ export default function ConsultationDrawer({
                             listening={listeningClinicalNote}
                           />
                           <InvestigationCard
+                            disabled={isDisabled}
                             investigationCategories={investigationCategories}
                             setInvestigationCategories={
                               setInvestigationCategories
@@ -1639,6 +1978,7 @@ export default function ConsultationDrawer({
                             listening={listeningInvestigation} // ✅ FIXED HERE
                           />
                           <DiagnosisInputCard
+                            disabled={isDisabled}
                             diagnoses={diagnoses}
                             setDiagnoses={setDiagnoses}
                             // handleDiagnosisMicClick={handleDiagnosisMicClick}
@@ -1649,6 +1989,7 @@ export default function ConsultationDrawer({
                             // listenings={listeningDiagnosis}
                           />
                           <ProcedureInputCard
+                            disabled={isDisabled}
                             procedures={procedures}
                             setProcedures={setProcedures}
                             inputValue={inputValue}
@@ -1657,23 +1998,31 @@ export default function ConsultationDrawer({
                             setProcedureremarkMap={setProcedureremarkMap}
                           />
                           <TreatmentInstructionsCard
+                            disabled={isDisabled}
                             form={form}
                             setForm={setForm}
                             handleTreatmentMicClick={handleTreatmentMicClick}
                             isListening={listeningTreatment}
                           />
                           <MedicationCard
+                            disabled={isDisabled}
                             medications={form.medications}
                             handleMedicationChange={handleMedicationChange}
                             handleAddMedication={handleAddMedication}
                             handleRemoveMedication={handleRemoveMedication}
                           />
                           <FollowUpPlanCard
+                            disabled={isDisabled}
                             form={form}
                             setForm={setForm}
                             handleChange={handleChange}
                             // handleFollowUpMicClick={handleFollowUpMicClick}
                             handleFollowUpShortcut={handleFollowUpShortcut}
+                          />
+                          <PatientCaseHistory
+                            visible={isCaseHistoryOpen}
+                            onHide={() => setIsCaseHistoryOpen(false)}
+                            patient={patient}
                           />
                           ;
                         </div>

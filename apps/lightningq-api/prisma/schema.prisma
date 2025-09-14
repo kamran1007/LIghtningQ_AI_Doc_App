@@ -536,6 +536,7 @@ model Appointment {
   // TagPatientId      Int?
   TagPatients       TagPatient[] @relation("AppointmentTagPatients")
   fasttrackpatient  Boolean?     @default(false)
+  IsConsultationCompleted  Boolean        @default(false)
   // AppointmentAmtPaid Int?
   // isAmountPaid Boolean default(true)
   // Relations

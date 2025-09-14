@@ -9,6 +9,8 @@
 @import "primereact/resources/primereact.min.css";
 @import "primeicons/primeicons.css";
 
+
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

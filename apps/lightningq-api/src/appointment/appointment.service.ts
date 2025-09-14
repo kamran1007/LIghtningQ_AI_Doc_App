@@ -914,54 +914,70 @@ export class AppointmentService {
     console.log('🧾 pagination', { page, limit, skip });
 
     // queries
-    const [data, total] = await Promise.all([
-      this.prisma.appointment.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { appointmentDate: 'asc' },
-        include: {
-          patient: {
-            include: {
-              allergies: true,
-              languages: true,
-              medicalHistory: true,
-              TagPatient: true,
-            },
-          },
-          doctor: {
-            include: {
-              Specialization: true,
-              DoctorSlot: true,
-              DoctorTimeSlot: true,
-              DoctorCosting: true,
-            },
-          },
-          visitType: true,
-          hospital: true,
-          TagPatients: true,
-          Vitals: true,
-          consultation: {
-            include: {
-              ConsultationCheifComplaint: { include: { chiefComplaint: true } },
-              ConsultationDiagnosis: { include: { diagnosis: true } },
-              ConsultationProcedure: { include: { procedure: true } },
-              ConsultationMedication: true,
-              ConsultationInvestigation: {
-                include: {
-                  InvestigationType: true,
-                  InvestigationSubType: true,
-                },
-              },
-              ConsultationTreatment: true,
-              ConsultationFollowUpPlan: true,
-              ConsultationclinicalNotes: true,
-            },
+    // query appointments
+    const appointments = await this.prisma.appointment.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: { appointmentDate: 'asc' },
+      include: {
+        patient: {
+          include: {
+            allergies: true,
+            languages: true,
+            medicalHistory: true,
+            TagPatient: true,
           },
         },
-      }),
-      this.prisma.appointment.count({ where }),
-    ]);
+        doctor: {
+          include: {
+            Specialization: true,
+            DoctorSlot: true,
+            DoctorTimeSlot: true,
+            DoctorCosting: true,
+          },
+        },
+        visitType: true,
+        hospital: true,
+        TagPatients: true,
+        Vitals: true,
+        consultation: {
+          include: {
+            ConsultationCheifComplaint: { include: { chiefComplaint: true } },
+            ConsultationDiagnosis: { include: { diagnosis: true } },
+            ConsultationProcedure: { include: { procedure: true } },
+            ConsultationMedication: true,
+            ConsultationInvestigation: {
+              include: {
+                InvestigationType: true,
+                InvestigationSubType: true,
+              },
+            },
+            ConsultationTreatment: true,
+            ConsultationFollowUpPlan: true,
+            ConsultationclinicalNotes: true,
+          },
+        },
+      },
+    });
+
+    // sort them in memory
+    const data = appointments.sort((a, b) => {
+      const aCompleted = a.consultation?.IsconsultationCompleted ? 1 : 0;
+      const bCompleted = b.consultation?.IsconsultationCompleted ? 1 : 0;
+
+      if (aCompleted !== bCompleted) {
+        return aCompleted - bCompleted; // incomplete first
+      }
+
+      return (
+        new Date(a.appointmentDate).getTime() -
+        new Date(b.appointmentDate).getTime()
+      );
+    });
+
+    // count in parallel
+    const total = await this.prisma.appointment.count({ where });
 
     return {
       data,

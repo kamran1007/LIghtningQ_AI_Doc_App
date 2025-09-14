@@ -22,6 +22,7 @@ interface Medication {
 }
 
 interface MedicationCardProps {
+  disabled: boolean,
   medications: Medication[];
   handleMedicationChange: (
     index: number,
@@ -33,6 +34,7 @@ interface MedicationCardProps {
 }
 
 export default function MedicationCard({
+  disabled,
   medications,
   handleMedicationChange,
   handleAddMedication,
@@ -50,13 +52,28 @@ export default function MedicationCard({
           key={index}
           className="relative grid grid-cols-6 gap-2 mb-2 p-4 rounded-lg border border-gray-200 bg-gray-50"
         >
+          {/* Close button at top-right of the whole medication block */}
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={() => handleRemoveMedication(index)}
+            className="absolute top-1 right-1 text-red-500 hover:text-red-700"
+          >
+            <X className="w-4 h-4" />
+          </button>
+
+          {/* Drug */}
           <DrugAutocompleteInput
             value={med.drug}
+            disabled={disabled}
             onChange={(val) => handleMedicationChange(index, "drug", val)}
           />
 
+          {/* Dosage */}
           <Select
             value={med.dosage}
+            disabled={disabled}
+
             onValueChange={(value) =>
               handleMedicationChange(index, "dosage", value)
             }
@@ -64,8 +81,7 @@ export default function MedicationCard({
             <SelectTrigger className="col-span-1">
               <SelectValue placeholder="Dosage" />
             </SelectTrigger>
-            <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
-              {" "}
+            <SelectContent className="border-gray-300 shadow-2xl rounded-2xl">
               {["0.5", "1", "2", "5"].map((d) => (
                 <SelectItem key={d} value={d}>
                   {d}
@@ -74,8 +90,10 @@ export default function MedicationCard({
             </SelectContent>
           </Select>
 
+          {/* Frequency */}
           <Select
             value={med.frequency}
+            disabled={disabled}
             onValueChange={(value) =>
               handleMedicationChange(index, "frequency", value)
             }
@@ -83,8 +101,7 @@ export default function MedicationCard({
             <SelectTrigger className="col-span-1">
               <SelectValue placeholder="Frequency" />
             </SelectTrigger>
-            <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
-              {" "}
+            <SelectContent className="border-gray-300 shadow-2xl rounded-2xl">
               {[
                 "Once a day",
                 "Twice a day",
@@ -102,10 +119,12 @@ export default function MedicationCard({
             </SelectContent>
           </Select>
 
+          {/* Duration + Unit */}
           <div className="flex gap-2 col-span-2">
             <div className="!w-60">
               <Input
                 type="number"
+                disabled={disabled}
                 placeholder="Duration"
                 value={med.duration}
                 onChange={(e) =>
@@ -116,6 +135,7 @@ export default function MedicationCard({
 
             <Select
               value={med.durationUnit || "Days"}
+              disabled={disabled}
               onValueChange={(value) =>
                 handleMedicationChange(index, "durationUnit", value)
               }
@@ -123,8 +143,7 @@ export default function MedicationCard({
               <SelectTrigger className="min-w-[80px]">
                 <SelectValue placeholder="Unit" />
               </SelectTrigger>
-              <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
-                {" "}
+              <SelectContent className="border-gray-300 shadow-2xl rounded-2xl">
                 {[
                   "Days",
                   "Weeks",
@@ -141,28 +160,23 @@ export default function MedicationCard({
             </Select>
           </div>
 
-          <Input
-            placeholder="Notes"
-            value={med.notes}
-            onChange={(e) =>
-              handleMedicationChange(index, "notes", e.target.value)
-            }
-            className="col-span-1"
-          />
-
-          <button
-            type="button"
-            onClick={() => handleRemoveMedication(index)}
-            className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          {/* Notes */}
+          <div className="col-span-1">
+            <Input
+              placeholder="Notes"
+              disabled={disabled}
+              value={med.notes}
+              onChange={(e) =>
+                handleMedicationChange(index, "notes", e.target.value)
+              }
+            />
+          </div>
         </div>
       ))}
-
       <div className="flex justify-end">
         <Button
           variant="outline"
+          disabled={disabled}
           size="sm"
           onClick={handleAddMedication}
           className="border-[#22E0D4] text-gray-700 hover:bg-gray-100"

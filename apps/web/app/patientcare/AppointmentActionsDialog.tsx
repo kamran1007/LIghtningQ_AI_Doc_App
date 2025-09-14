@@ -94,7 +94,7 @@ export default function AppointmentActionsDialog({
                   }}
                   className="fixed z-50 top-1/2 left-1/2 w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-xl"
                 >
-                  <h2 className="text-lg font-medium text-center mb-4 text-[#22E0D4] font-mono">
+                  <h2 className="text-lg font-medium text-center mb-4 text-[#2cbbb1] font-mono">
                     Appointment Actions Panel
                   </h2>
 
@@ -103,15 +103,20 @@ export default function AppointmentActionsDialog({
                       variant="ghost"
                       className="justify-start gap-3"
                       onClick={() => {
-                        // if (isPastDate(patient.appointmentDate)) {
-                        //   toast.current?.show({
-                        //     severity: "error",
-                        //     summary: "Error",
-                        //     detail: "You can't reschedule a past appointment.",
-                        //     life: 4000,
-                        //   });
-                        //   return;
-                        // }
+                        if (
+                          isPastDate(patient.appointmentDate) ||
+                          patient.IsConsultationCompleted
+                        ) {
+                          toast.current?.show({
+                            severity: "error",
+                            summary: "Error",
+                            detail: patient.IsConsultationCompleted
+                              ? "You can't reschedule a completed consultation."
+                              : "You can't reschedule a past appointment.",
+                            life: 4000,
+                          });
+                          return;
+                        }
                         onReschedule(patient);
                         setOpen(false);
                       }}

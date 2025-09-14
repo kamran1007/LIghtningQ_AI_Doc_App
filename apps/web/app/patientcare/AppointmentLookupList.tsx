@@ -177,7 +177,7 @@ export default function AppointmentLookupList() {
   const filteredAppointments = data?.filter((a) =>
     filter === "all" ? true : a.status?.toLowerCase() === filter
   );
-
+  // console.log("All Appointment data",filteredAppointments)
   const closeSheet = () => {
     setDrawerOpen(false);
     setSelectedPatient(null);
@@ -503,7 +503,6 @@ export default function AppointmentLookupList() {
             padding: "1px",
           }}
         >
-          {" "}
           <div className="rounded-md overflow-hidden bg-white">
             <table className="w-full text-sm text-left">
               <thead
@@ -519,21 +518,21 @@ export default function AppointmentLookupList() {
                     S.No.
                   </th>
                   <th className="px-4 py-3 whitespace-nowrap">Patient Info</th>
-                  <th className="px-4 py-3  whitespace-nowrap">Contact Info</th>
+                  <th className="px-4 py-3 whitespace-nowrap">Contact Info</th>
                   <th className="px-4 py-3 whitespace-nowrap">Visit Type</th>
-
-                  {/* <th className="px-4 py-3 whitespace-nowrap">Age</th> */}
                   <th className="px-4 py-3 whitespace-nowrap">Specialist</th>
                   <th className="px-4 py-3 whitespace-nowrap">Reason</th>
                   <th className="px-4 py-3 whitespace-nowrap">Acuity</th>
                   <th className="px-4 py-3 whitespace-nowrap">
                     Assign Provider
                   </th>
+                  <th className="px-4 py-3 whitespace-nowrap">status</th>
                   <th className="px-2 py-3 w-16 text-center whitespace-nowrap">
                     Action
                   </th>
                 </tr>
               </thead>
+
               <tbody className="divide-y divide-zinc-100 bg-white">
                 {filteredAppointments?.map((p, idx) => {
                   const imageUrl = p?.patient?.profileImageUrl
@@ -553,129 +552,131 @@ export default function AppointmentLookupList() {
                       // onClick={() => openSheet(p)}
                     >
                       <td className="px-2 py-3">{idx + 1}</td>
-                      <td className="flex items-center gap-3 px-2 py-3 font-medium text-zinc-800">
-                        <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
-                          {!imageError && imageUrl ? (
-                            <PrimeImage
-                              src={imageUrl}
-                              alt={`${p?.patient?.firstName} ${p?.patient?.lastName}`}
-                              preview
-                              downloadable
-                              className="h-full w-full object-cover rounded-full"
-                              imageClassName="h-full w-full object-cover rounded-full"
-                              onError={() =>
-                                setImageErrorMap((prev) => ({
-                                  ...prev,
-                                  [idx]: true,
-                                }))
-                              }
-                            />
-                          ) : (
-                            <Avatar className="w-10 h-10 rounded-full ring-1 ring-zinc-300 shadow-sm">
-                              <AvatarFallback
-                                className={`w-full h-full rounded-full flex items-center justify-center font-medium text-sm ${fallbackColor}`}
-                              >
-                                {initials}
-                              </AvatarFallback>
-                            </Avatar>
-                          )}
-                        </div>
-
-                        <td className="px-2 py-3">
-                          <div className="flex items-center gap-2">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <p className="truncate max-w-[160px] cursor-default">
-                                    {p?.patient?.Prefix} {p?.patient?.firstName}{" "}
-                                    {p?.patient?.lastName}
-                                  </p>
-                                </TooltipTrigger>
-                                <TooltipContent
-                                  side="top"
-                                  className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg"
+                      <td className="px-2 py-3">
+                        <div className="flex items-center gap-3 font-medium text-zinc-800">
+                          <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
+                            {!imageError && imageUrl ? (
+                              <PrimeImage
+                                src={imageUrl}
+                                alt={`${p?.patient?.firstName} ${p?.patient?.lastName}`}
+                                preview
+                                downloadable
+                                className="h-full w-full object-cover rounded-full"
+                                imageClassName="h-full w-full object-cover rounded-full"
+                                onError={() =>
+                                  setImageErrorMap((prev) => ({
+                                    ...prev,
+                                    [idx]: true,
+                                  }))
+                                }
+                              />
+                            ) : (
+                              <Avatar className="w-10 h-10 rounded-full ring-1 ring-zinc-300 shadow-sm">
+                                <AvatarFallback
+                                  className={`w-full h-full rounded-full flex items-center justify-center font-medium text-sm ${fallbackColor}`}
                                 >
-                                  {`${p?.patient?.firstName} ${p?.patient?.lastName}`}
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                                  {initials}
+                                </AvatarFallback>
+                              </Avatar>
+                            )}
+                          </div>
 
-                            {/* Tag icons */}
-                            <div className="flex gap-1 items-center">
-                              {p?.TagPatients?.slice(0, 2).map((tag: any) => (
-                                <TooltipProvider key={tag.TagPatientId}>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <span>
-                                        {tagIconMap[tag.TagPatientName] || (
-                                          <Circle className="w-4 h-4 text-gray-400" />
+                          <div className="px-2 py-3">
+                            <div className="flex items-center gap-2">
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <p className="truncate max-w-[160px] cursor-default">
+                                      {p?.patient?.Prefix}{" "}
+                                      {p?.patient?.firstName}{" "}
+                                      {p?.patient?.lastName}
+                                    </p>
+                                  </TooltipTrigger>
+                                  <TooltipContent
+                                    side="top"
+                                    className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg"
+                                  >
+                                    {`${p?.patient?.firstName} ${p?.patient?.lastName}`}
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+
+                              {/* Tags */}
+                              <div className="flex gap-1 items-center">
+                                {p?.TagPatients?.slice(0, 2).map((tag: any) => (
+                                  <TooltipProvider key={tag.TagPatientId}>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <span>
+                                          {tagIconMap[tag.TagPatientName] || (
+                                            <Circle className="w-4 h-4 text-gray-400" />
+                                          )}
+                                        </span>
+                                      </TooltipTrigger>
+                                      <TooltipContent
+                                        side="top"
+                                        className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg"
+                                      >
+                                        {tag.TagPatientName}
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                ))}
+
+                                {p?.TagPatients?.length > 2 && (
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <span className="text-xs font-medium text-gray-600 cursor-pointer">
+                                          +{p.TagPatients.length - 2}
+                                        </span>
+                                      </TooltipTrigger>
+                                      <TooltipContent
+                                        side="top"
+                                        className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg space-y-1"
+                                      >
+                                        {p.TagPatients.slice(2).map(
+                                          (extraTag: any) => (
+                                            <div
+                                              key={extraTag.TagPatientId}
+                                              className="flex items-center gap-1"
+                                            >
+                                              {tagIconMap[
+                                                extraTag.TagPatientName
+                                              ] || (
+                                                <Circle className="w-3 h-3 text-gray-400" />
+                                              )}
+                                              <span>
+                                                {extraTag.TagPatientName}
+                                              </span>
+                                            </div>
+                                          )
                                         )}
-                                      </span>
-                                    </TooltipTrigger>
-                                    <TooltipContent
-                                      side="top"
-                                      className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg"
-                                    >
-                                      {tag.TagPatientName}
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              ))}
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                )}
+                              </div>
+                            </div>
 
-                              {/* Show +N if more than 3 */}
-                              {p?.TagPatients?.length > 2 && (
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <span className="text-xs font-medium text-gray-600 cursor-pointer">
-                                        +{p.TagPatients.length - 2}
-                                      </span>
-                                    </TooltipTrigger>
-                                    <TooltipContent
-                                      side="top"
-                                      className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg space-y-1"
-                                    >
-                                      {p.TagPatients.slice(2).map(
-                                        (extraTag: any) => (
-                                          <div
-                                            key={extraTag.TagPatientId}
-                                            className="flex items-center gap-1"
-                                          >
-                                            {tagIconMap[
-                                              extraTag.TagPatientName
-                                            ] || (
-                                              <Circle className="w-3 h-3 text-gray-400" />
-                                            )}
-                                            <span>
-                                              {extraTag.TagPatientName}
-                                            </span>
-                                          </div>
-                                        )
-                                      )}
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              )}
+                            {/* MRN, Age, Gender */}
+                            <div className="text-sm text-gray-600">
+                              {p?.patient?.Patient_Medical_Record_No} |{" "}
+                              {p?.patient?.dateOfBirth
+                                ? calculateAge(p?.patient?.dateOfBirth)
+                                : "-"}{" "}
+                              (
+                              {p?.patient?.gender
+                                ? p.patient.gender.toLowerCase() === "male"
+                                  ? "M"
+                                  : p.patient.gender.toLowerCase() === "female"
+                                    ? "F"
+                                    : "-"
+                                : "-"}
+                              )
                             </div>
                           </div>
-
-                          {/* MRN, Age, Gender */}
-                          <div className="text-sm text-gray-600">
-                            {p?.patient?.Patient_Medical_Record_No} |{" "}
-                            {p?.patient?.dateOfBirth
-                              ? calculateAge(p?.patient?.dateOfBirth)
-                              : "-"}{" "}
-                            (
-                            {p?.patient?.gender
-                              ? p.patient.gender.toLowerCase() === "male"
-                                ? "M"
-                                : p.patient.gender.toLowerCase() === "female"
-                                  ? "F"
-                                  : "-"
-                              : "-"}
-                            )
-                          </div>
-                        </td>
+                        </div>
                       </td>
 
                       {/* <td className="px-4 py-3">
@@ -801,6 +802,47 @@ export default function AppointmentLookupList() {
                           </Tooltip>
                         </TooltipProvider>
                       </td>
+                      <td>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex items-center gap-2 cursor-default">
+                                {/* Status Circle */}
+                                {p?.IsConsultationCompleted === true ? (
+                                  <>
+                                    <span className="w-3 h-3 rounded-full bg-green-500"></span>
+                                    <span className="text-green-600 text-sm">
+                                      Compl..
+                                    </span>
+                                  </>
+                                ) : p?.IsConsultationCompleted === false ? (
+                                  <>
+                                    <span className="w-3 h-3 rounded-full bg-red-500"></span>
+                                    <span className="text-red-600 text-sm">
+                                      In compl..
+                                    </span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <span className="w-3 h-3 rounded-full bg-yellow-500"></span>
+                                    <span className="text-yellow-600 text-sm">
+                                      Go on
+                                    </span>
+                                  </>
+                                )}
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {p?.consultation?.IsconsultationCompleted === true
+                                ? "Completed"
+                                : p?.consultation?.IsconsultationCompleted ===
+                                    false
+                                  ? "Incomplete"
+                                  : "Going on"}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </td>
 
                       <td className="px-2 py-3 w-10 text-center">
                         <TooltipProvider>
@@ -822,7 +864,11 @@ export default function AppointmentLookupList() {
                                     );
                                   }}
                                   onStartConsultation={(appointment) => {
-                                    startConsultation(appointment);
+                                    const startTime = new Date().toISOString();
+                                    startConsultation({
+                                      ...appointment,
+                                      consultationStartDateTime: startTime,
+                                    });
                                   }}
                                 />
                                 <ConsultationDrawer
@@ -834,9 +880,9 @@ export default function AppointmentLookupList() {
                             </TooltipTrigger>
                             <TooltipContent
                               side="top"
-                              className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg"
+                              className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg z-[9999]"
                             >
-                              Appointment Action Panel(ATP)
+                              Appointment Action Panel
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>

@@ -1,69 +1,121 @@
-// useFieldSpeechRecognition.ts
 import { useEffect, useState, useRef } from "react";
 
-const useFieldSpeechRecognition = (fieldKey: string) => {
+type UseFieldSpeechRecognitionProps = {
+  fieldKey: string;
+  onTranscript: (fieldKey: string, text: string) => void;
+};
+
+const useFieldSpeechRecognition = ({
+  fieldKey,
+  onTranscript,
+}: UseFieldSpeechRecognitionProps) => {
   const [transcript, setTranscript] = useState("");
   const [listening, setListening] = useState(false);
+  const [interimTranscript, setInterimTranscript] = useState(""); // Added this line
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const lastTranscriptRef = useRef<{ [key: string]: string }>({});
+
 
   useEffect(() => {
-    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    if (
+      !("webkitSpeechRecognition" in window || "SpeechRecognition" in window)
+    ) {
       console.error("Speech recognition not supported.");
       return;
     }
 
     const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
 
-    recognitionRef.current = new SpeechRecognition();
-    recognitionRef.current.continuous = true;
-    recognitionRef.current.interimResults = false;
-    recognitionRef.current.lang = "en-IN";
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "en-IN";
 
-    recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
-      const lastResult = event.results[event.results.length - 1];
-      if (lastResult && lastResult.isFinal) {
-        setTranscript((prev) => prev + " " + lastResult[0].transcript.trim());
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      let interimText = "";
+      let finalText = "";
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        if (result.isFinal) {
+          finalText += result[0].transcript;
+        } else {
+          interimText += result[0].transcript;
+        }
+      }
+
+      // Update interim results
+      setInterimTranscript(interimText);
+
+      // Update final results
+      if (finalText.trim()) {
+        const newTranscript = (transcript + " " + finalText.trim()).trim();
+        setTranscript(newTranscript);
+        onTranscript(fieldKey, newTranscript);
       }
     };
 
-    recognitionRef.current.onerror = (event: any) => {
-      console.error("Speech recognition error:", event);
+    recognition.onerror = (event: any) => {
+      if (event.error === "aborted") {
+        console.log(
+          "Speech recognition aborted — safe to ignore unless unexpected."
+        );
+        return;
+      }
+      console.error("Speech recognition error:", event.error);
       stopListening();
     };
 
-    recognitionRef.current.onend = () => {
+    recognition.onend = () => {
       setListening(false);
+      setInterimTranscript(""); // Clear interim when ended
     };
 
+    recognitionRef.current = recognition;
+
     return () => {
-      recognitionRef.current?.stop();
+      recognition.stop();
+      recognitionRef.current = null;
     };
   }, [fieldKey]);
 
   const startListening = () => {
-    if (recognitionRef.current && !listening) {
-      setTranscript("");
-      setListening(true);
-      recognitionRef.current.start();
+    if (!recognitionRef.current) return;
+    if (listening) {
+      console.log("Recognition already active, ignoring start()");
+      return;
     }
+    setTranscript("");
+    setInterimTranscript(""); // Clear interim when starting
+    setListening(true);
+    recognitionRef.current.start();
   };
 
   const stopListening = () => {
-    recognitionRef.current?.stop();
-    setListening(false);
+    if (recognitionRef.current && listening) {
+      recognitionRef.current.stop();
+      setListening(false);
+      setInterimTranscript(""); // Clear interim when stopping
+    }
   };
 
   const resetTranscript = () => {
     setTranscript("");
+    setInterimTranscript(""); // Clear interim when resetting
+    onTranscript(fieldKey, "");
   };
 
   return {
     transcript,
+    interimTranscript, // Added this to return
     listening,
     startListening,
     stopListening,
     resetTranscript,
+    lastTranscriptRef 
+
   };
 };
 

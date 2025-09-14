@@ -13,14 +13,10 @@ import { ConsultationProcedureDto } from './dto/CreateOrUpdateConsultationDto';
 
 @Injectable()
 export class ConsultationService {
-
-
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
   ) {}
-
-
 
   async upsertVitals(dto: VitalsDto, user: number) {
     const { AppointmentId, ...vitalsData } = dto;
@@ -332,6 +328,7 @@ export class ConsultationService {
         where: { ConsultationId },
         data: {
           ...baseData,
+
           ConsultationCheifComplaint: {
             deleteMany: {},
             create:
@@ -414,6 +411,12 @@ export class ConsultationService {
             })),
           },
         },
+      });
+    }
+    if (IsconsultationCompleted) {
+      await this.prisma.appointment.update({
+        where: { AppointmentId },
+        data: { IsConsultationCompleted: true },
       });
     } else {
       // Create flow
@@ -644,11 +647,11 @@ export class ConsultationService {
 
   //create cheif complaint
   async addOrUpdateChiefComplaint(dto: CreateChiefComplaintDto) {
-    const { ChiefComplaintTagId, ChiefComplainTagName, SpecializationId } = dto;
+    const { ChiefComplaintTagId, ChiefComplainTagName, specializationId } = dto;
 
     const data = {
       ChiefComplainTagName: ChiefComplainTagName?.trim() ?? '',
-      specialization: { connect: { SpecializationId: SpecializationId } },
+      specialization: { connect: { SpecializationId: specializationId } },
     };
 
     if (ChiefComplaintTagId) {

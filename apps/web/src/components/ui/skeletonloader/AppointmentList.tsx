@@ -3,16 +3,22 @@ import React from "react";
 
 const shimmer = "animate-pulse bg-zinc-200";
 
-export default function AppointmentListSkeleton({ rows = 10 }: { rows?: number }) {
+export default function AppointmentListSkeleton({
+  rows = 10,
+}: {
+  rows?: number;
+}) {
   return (
     <div className="w-full overflow-hidden rounded-md shadow-sm bg-white">
       <table className="w-full text-sm text-left">
-<thead
-  className="text-zinc-600 text-xs font-sans"
-  style={{
-    background: "linear-gradient(135deg, rgba(34, 211, 238, 0.35) 0%, rgba(129, 140, 248, 0.15) 100%)",
-  }}
->          <tr className="divide-x divide-zinc-200">
+        <thead
+          className="text-zinc-600 text-xs font-sans"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(34, 211, 238, 0.35) 0%, rgba(129, 140, 248, 0.15) 100%)",
+          }}
+        >
+          <tr className="divide-x divide-zinc-200">
             <th className="px-4 py-3">Name</th>
             {/* <th className="px-4 py-3">MRN</th> */}
             <th className="px-4 py-3">Contact Info</th>

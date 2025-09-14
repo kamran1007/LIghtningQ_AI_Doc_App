@@ -1080,7 +1080,8 @@ export function EventAddForm({
         acuity: editingEvent?.acuity || "",
         appointmentDate: slotDate,
         appointmentTime: timeString,
-          TagPatientIds: editingEvent?.TagPatients?.map((t) => String(t.TagPatientId)) || [],
+        TagPatientIds:
+          editingEvent?.TagPatients?.map((t) => String(t.TagPatientId)) || [],
 
         visitTypeId: editingEvent?.visitTypeId?.toString() || "",
         paymentTypeId: editingEvent?.paymentTypeId?.toString() || "",
@@ -1243,7 +1244,17 @@ export function EventAddForm({
             {/* Pull input box upward using negative margin */}
             {/* <div className="bg-[#f7f5fe] h-16 px-4 py-0 rounded-tr-xs shadow-xl"> */}
 
-            <div className="bg-gradient-to-br from-[#c0f9f6] to-[#dbf7f6] border-2 border-[#22E0D4] h-16 px-4 flex items-center rounded-tr-xl shadow-md ">
+            {/* <div className="bg-gradient-to-br from-[#c0f9f6] to-[#dbf7f6] border-2 border-[#22E0D4] h-16 px-4 flex items-center rounded-tr-xl shadow-md "></div> */}
+
+            <div
+              className="h-16 px-4 flex items-center rounded-tr-xl shadow-md"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(34, 211, 238, 0.35) 0%, rgba(129, 140, 248, 0.15) 100%)",
+                // border: "1px solid transparent",
+                borderImage: "linear-gradient(to right, #14b8a6, #6366f1) 1",
+              }}
+            >
               <div className="flex items-center">
                 {/* Input Box */}
 

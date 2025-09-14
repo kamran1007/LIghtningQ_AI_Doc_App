@@ -3,7 +3,13 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Microscope, Trash2 } from "lucide-react";
+import {
+  MessageCirclePlus,
+  Mic,
+  MicOff,
+  Microscope,
+  Trash2,
+} from "lucide-react";
 import CreatableSelect from "react-select/creatable";
 import { Textarea } from "@/components/ui/textarea";
 import { addupdateProcedure, FetchProcedure } from "@/lib/consultation";
@@ -24,15 +30,19 @@ interface Procedure {
 }
 
 interface ProcedureInputCardProps {
+  disabled: boolean,
   procedures: Procedure[];
   setProcedures: (val: Procedure[]) => void;
   inputValue: string;
   setInputValue: (val: string) => void;
   procedureremarkMap: { [key: string]: string };
-  setProcedureremarkMap: React.Dispatch<React.SetStateAction<{ [key: string]: string }>>;
+  setProcedureremarkMap: React.Dispatch<
+    React.SetStateAction<{ [key: string]: string }>
+  >;
 }
 
 export default function ProcedureInputCard({
+  disabled,
   procedures,
   setProcedures,
   inputValue,
@@ -42,7 +52,9 @@ export default function ProcedureInputCard({
 }: ProcedureInputCardProps) {
   const [options, setOptions] = useState<Option[]>([]);
   const [userprofiledata, setUserprofiledata] = useState<any>(null);
-  const [activeMicProcedure, setActiveMicProcedure] = useState<string | null>(null);
+  const [activeMicProcedure, setActiveMicProcedure] = useState<string | null>(
+    null
+  );
   const [prevTranscript, setPrevTranscript] = useState("");
 
   const {
@@ -60,7 +72,7 @@ export default function ProcedureInputCard({
         const profile = await getProfile();
         setUserprofiledata(profile);
         const res = await FetchProcedure();
-                console.log("procedure", res)
+        console.log("procedure", res);
 
         const frequent = res.return.slice(0, 10);
         const remaining = res.return.slice(10);
@@ -114,7 +126,7 @@ export default function ProcedureInputCard({
       ProcedureName: inputValue,
       specializationId: userprofiledata?.user?.SpecializationId || 0,
       ProcedureCode: "",
-      createdBy: userprofiledata?.user?.UserId
+      createdBy: userprofiledata?.user?.UserId,
     };
 
     try {
@@ -150,6 +162,7 @@ export default function ProcedureInputCard({
 
       <CreatableSelect
         isMulti
+        isDisabled={disabled}
         options={options}
         value={selectedOptions}
         onChange={(selected) => {
@@ -166,22 +179,40 @@ export default function ProcedureInputCard({
         onCreateOption={handleCreateOption}
         placeholder="Type or select procedure..."
         classNamePrefix="react-select"
-        className="mb-3"
+        className="mb-3 border border-blue-200 focus:border-blue-300 focus:ring-blue-200"
+        styles={{
+          control: (provided, state) => ({
+            ...provided,
+            borderColor: state.isFocused ? "#93C5FD" : "#93C5FD", // Tailwind blue-300 hex
+            boxShadow: state.isFocused ? "0 0 0 1px #93C5FD" : "none",
+            "&:hover": {
+              borderColor: "#93C5FD",
+            },
+            borderRadius: "0.75rem", // rounded-xl look (optional)
+            minHeight: "42px",
+          }),
+        }}
       />
 
       {procedures.length > 0 && (
         <ul className="space-y-2">
           {procedures.map((item, index) => {
             const key = item.ProcedureId || item.label;
+            const hasRemark = procedureremarkMap?.[key] !== undefined;
+            const remarkValue = procedureremarkMap?.[key] ?? "";
+
             return (
               <li
                 key={key}
-                className="border-blue-300 bg-gray-50 p-2 rounded text-sm"
+                className={`mt-2 ${
+                  index > 0 ? "border-t border-green-200 pt-2" : ""
+                }`}
               >
                 <div className="flex justify-between items-center">
                   <span className="font-medium text-gray-800">
                     {item.label}
                   </span>
+                  {/* ❌ Remove procedure itself */}
                   <button
                     type="button"
                     onClick={() => {
@@ -197,37 +228,98 @@ export default function ProcedureInputCard({
                   </button>
                 </div>
 
-                <div className="relative mt-1">
-                  <Textarea
-                    value={procedureremarkMap?.[key] ?? ""}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setProcedureremarkMap((prev) => ({
-                        ...prev,
-                        [key]: value,
-                      }));
-                    }}
-                    placeholder={`Enter remark for ${item.label}...`}
-                    className="text-sm pr-10"
-                  />
+                {/* If no remark yet → show Add Remark button */}
+                {!hasRemark && (
                   <button
                     type="button"
-                    onClick={() => handleMicClick(key)}
-                    className="absolute right-2 top-2 text-gray-500 hover:text-blue-600"
+                    onClick={() =>
+                      setProcedureremarkMap((prev) => ({
+                        ...prev,
+                        [key]: "", // create remark field
+                      }))
+                    }
+                    className="mt-2 text-xs text-blue-400 hover:underline flex items-center gap-1"
                   >
-                    {listening && activeMicProcedure === key ? (
-                      <MicOff className="w-4 h-4" />
-                    ) : (
-                      <Mic className="w-4 h-4" />
-                    )}
+                    <MessageCirclePlus className="w-4 h-4" />
+                    <span>Add {item.label} Remark</span>
                   </button>
-                </div>
+                )}
 
-                <p className="text-xs text-gray-500 mt-1">
-                  {listening && activeMicProcedure === key
-                    ? "Listening..."
-                    : "Click mic to dictate"}
-                </p>
+                {/* If remark exists → show textarea + controls */}
+                {hasRemark && (
+                  <div className="mt-2">
+                    <div className="relative">
+                      <Textarea
+                        value={remarkValue}
+                        disabled={disabled}
+                        onChange={(e) =>
+                          setProcedureremarkMap((prev) => ({
+                            ...prev,
+                            [key]: e.target.value,
+                          }))
+                        }
+                        placeholder={`Enter remark for ${item.label}...`}
+                        className="text-sm pr-10 rounded-2xl border-2 border-blue-200 hover:border-blue-300 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all duration-300 no-scrollbar bg-gradient-to-br from-blue-50/50 to-sky-50/30 placeholder:text-gray-400 placeholder:font-light text-gray-700 leading-relaxed tracking-wide shadow-sm hover:shadow-md focus:shadow-lg backdrop-blur-sm resize-none min-h-[100px] p-4"
+                        style={{
+                          fontFamily:
+                            '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                          fontSize: "14px",
+                          lineHeight: "1.6",
+                          letterSpacing: "0.025em",
+                        }}
+                      />
+                      {/* Mic button inside textarea */}
+                      <button
+                        type="button"
+                        disabled={disabled}
+                        onClick={() => handleMicClick(key)}
+                        className="absolute bottom-2 right-2 p-1 rounded-full transition bg-white shadow hover:bg-gray-50"
+                      >
+                        {listening && activeMicProcedure === key ? (
+                          <MicOff className="w-4 h-4 text-red-600 animate-pulse" />
+                        ) : (
+                          <Mic className="w-4 h-4 text-blue-500" />
+                        )}
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {listening && activeMicProcedure === key
+                        ? "Listening..."
+                        : "Click mic to dictate"}
+                    </p>
+
+                    {/* Clear + Remove buttons below textarea */}
+                    <div className="flex gap-2 mt-2">
+                      <button
+                        type="button"
+                        disabled={disabled}
+                        onClick={() =>
+                          setProcedureremarkMap((prev) => ({
+                            ...prev,
+                            [key]: "",
+                          }))
+                        }
+                        className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                      >
+                        Clear
+                      </button>
+                      <button
+                        type="button"
+                        disabled={disabled}
+                        onClick={() => {
+                          setProcedureremarkMap((prev) => {
+                            const newMap = { ...prev };
+                            delete newMap[key];
+                            return newMap;
+                          });
+                        }}
+                        className="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                )}
               </li>
             );
           })}

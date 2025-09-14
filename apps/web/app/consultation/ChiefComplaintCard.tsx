@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Stethoscope, Mic, MicOff } from "lucide-react";
+import { Stethoscope, Mic, MicOff, MessageCirclePlus } from "lucide-react";
 import CreatableSelect from "react-select/creatable";
 import {
   AddUpdatechiefComplaint,
@@ -15,6 +15,7 @@ interface ComplaintOption {
 }
 
 export const ChiefComplaintCard = ({
+  disabled,
   selectedChiefComplaints,
   setSelectedChiefComplaints, // array of { id, label, value }
   inputValue,
@@ -28,8 +29,10 @@ export const ChiefComplaintCard = ({
   const [chiefComplaintOptions, setChiefComplaintOptions] = useState<
     ComplaintOption[]
   >([]);
-    const [userprofiledata, setUserprofiledata] = useState<any>(null);
-  
+  const [userprofiledata, setUserprofiledata] = useState<any>(null);
+  const [showComplaintRemark, setShowComplaintRemark] = useState(
+    !!complaintText // open if remark already exists
+  );
   // console.log("ChiefComplaintCard rendered", chiefComplaintOptions);
   useEffect(() => {
     const fetchData = async () => {
@@ -54,8 +57,7 @@ export const ChiefComplaintCard = ({
   const handleCreateOption = async (inputValue: string) => {
     const newTag = {
       ChiefComplainTagName: inputValue,
-     specializationId: userprofiledata?.user?.SpecializationId  || 0, // Use specializationId from user profile
-
+      specializationId: userprofiledata?.user?.SpecializationId || 0, // Use specializationId from user profile
     };
 
     try {
@@ -78,17 +80,23 @@ export const ChiefComplaintCard = ({
   };
 
   const handleChange = (selected: any) => {
-  const updated = selected.map((s: any) => {
-    const found = chiefComplaintOptions.find((opt) => opt.value === s.value);
-    return {
-      label: s?.label,
-      value: s?.value,
-      ChiefComplaintTagId: found ? found?.ChiefComplaintTagId : 0, // fallback if not matched
-    };
-  });
+    const updated = selected.map((s: any) => {
+      const found = chiefComplaintOptions.find((opt) => opt.value === s.value);
+      return {
+        label: s?.label,
+        value: s?.value,
+        ChiefComplaintTagId: found ? found?.ChiefComplaintTagId : 0, // fallback if not matched
+      };
+    });
 
-  setSelectedChiefComplaints(updated);
-};
+    setSelectedChiefComplaints(updated);
+  };
+
+  useEffect(() => {
+    if (complaintText && complaintText.trim() !== "") {
+      setShowComplaintRemark(true);
+    }
+  }, [complaintText]);
 
   return (
     <Card className="p-4 rounded-xl shadow-sm border bg-white border-gray-300 hover:shadow-xl hover:border-blue-300">
@@ -99,6 +107,7 @@ export const ChiefComplaintCard = ({
 
       <CreatableSelect
         isMulti
+        isDisabled={disabled}
         options={chiefComplaintOptions}
         styles={customsStyles}
         value={(selectedChiefComplaints || []).map((c) => ({
@@ -113,35 +122,84 @@ export const ChiefComplaintCard = ({
         classNamePrefix="react-select"
       />
 
-      <div className="relative flex items-center gap-2 py-1 mt-2">
-        <textarea
-          value={complaintText}
-          onChange={(e) => setComplaintText(e.target.value)}
-          placeholder="Enter or speak your complaint..."
-          className="text-sm px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300 pr-10"
-          name="notes"
-          rows={6}
-        />
-        <button
-          type="button"
-          onClick={handleChiefComplaintMicClick}
-          className={`absolute right-2 bottom-4 p-2 rounded-full transition ${
-            listening
-              ? "bg-red-100 hover:bg-red-200"
-              : "bg-blue-100 hover:bg-blue-200"
-          }`}
-        >
-          {listening ? (
-            <MicOff className="w-5 h-5 text-red-600 animate-pulse" />
-          ) : (
-            <Mic className="w-5 h-5 text-[#22E0D4]" />
-          )}
-        </button>
-      </div>
+      {/* Add Remark Section */}
+      <div className="mt-3">
+        {!showComplaintRemark ? (
+          <button
+            type="button"
+            onClick={() => setShowComplaintRemark(true)}
+            className="mt-2 text-xs text-blue-400 hover:underline flex items-center gap-1"
+          >
+            <MessageCirclePlus className="w-4 h-4" />
+            <span>Add Chief Complaint Remark</span>
+          </button>
+        ) : (
+          <div className="relative flex flex-col gap-2">
+            {/* Textarea */}
+            <div className="relative">
+              <textarea
+                value={complaintText}
+                disabled={disabled}
+                onChange={(e) => setComplaintText(e.target.value)}
+                placeholder="Enter or speak your complaint..."
+                className="mt-1 pr-10 w-full resize-none rounded-2xl border-2 border-blue-200 hover:border-blue-300 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all duration-300 no-scrollbar bg-gradient-to-br from-blue-50/50 to-sky-50/30 placeholder:text-gray-400 placeholder:font-light text-gray-700 leading-relaxed tracking-wide shadow-sm hover:shadow-md focus:shadow-lg backdrop-blur-sm p-4"
+                rows={3}
+                style={{
+                  fontFamily:
+                    '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                  fontSize: "14px",
+                  lineHeight: "1.6",
+                  letterSpacing: "0.025em",
+                  minHeight: "90px",
+                }}
+              />
+              <button
+                type="button"
+                disabled={disabled}
+                onClick={handleChiefComplaintMicClick}
+                className={`absolute bottom-2 right-2 p-1 rounded-full transition ${
+                  listening
+                    ? "bg-red-100 hover:bg-red-200"
+                    : "bg-blue-100 hover:bg-blue-200"
+                }`}
+              >
+                {listening ? (
+                  <MicOff className="w-5 h-5 text-red-600 animate-pulse" />
+                ) : (
+                  <Mic className="w-5 h-5 text-blue-400 shadow-xl hover:shadow-2xl" />
+                )}
+              </button>
+            </div>
 
-      <p className="text-xs text-gray-500">
-        {listening ? "Listening..." : "Click the mic to speak"}
-      </p>
+            <p className="text-xs text-gray-500">
+              {listening ? "Listening..." : "Click the mic to speak"}
+            </p>
+
+            {/* Action Buttons */}
+            <div className="flex gap-2">
+              <button
+                disabled={disabled}
+                type="button"
+                onClick={() => setComplaintText("")}
+                className="px-2 py-1 text-xs mouse-pointer bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+              >
+                Clear
+              </button>
+              <button
+                type="button"
+                disabled={disabled}
+                onClick={() => {
+                  setComplaintText("");
+                  setShowComplaintRemark(false);
+                }}
+                className="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </Card>
   );
 };

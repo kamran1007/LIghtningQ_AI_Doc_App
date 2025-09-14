@@ -1,4 +1,4 @@
-// Updated InvestigationCard with correct hook usage
+// Improved InvestigationCard with better speech recognition handling
 
 "use client";
 
@@ -9,13 +9,24 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import CreatableSelect from "react-select/creatable";
-import { PlusCircle, Microscope, MicOff, Mic, Trash2 } from "lucide-react";
+import { StylesConfig } from "react-select";
+
+import {
+  PlusCircle,
+  Microscope,
+  MicOff,
+  Mic,
+  Trash2,
+  MessageCirclePlus,
+} from "lucide-react";
 import { AddUpdateInvestigation, FetchInvestigation } from "@/lib/consultation";
 import { getProfile } from "@/lib/action";
 import Select from "react-select";
 import { useFieldSpeechRecognition } from "./useFieldSpeechRecognition";
+import chroma from "chroma-js";
 
 const InvestigationCard = ({
+  disabled,
   investigationCategories,
   setInvestigationCategories,
   customCategory,
@@ -30,34 +41,53 @@ const InvestigationCard = ({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [userprofiledata, setUserprofiledata] = useState<any>(null);
   const [inputValue, setInputValue] = useState("");
-
   const [activeField, setActiveField] = useState<string | null>(null);
+
+  // Speech recognition with proper field handling
   const {
     transcript,
+    interimTranscript,
     listening,
     startListening,
     stopListening,
     resetTranscript,
-  } = useFieldSpeechRecognition(activeField);
+    lastTranscriptRef,
+  } = useFieldSpeechRecognition({
+    fieldKey: activeField || "default",
+    onTranscript: (fieldKey, text) => {
+      if (fieldKey && fieldKey !== "default") {
+        const prevTranscript = lastTranscriptRef.current[fieldKey] || "";
+        const newPart = text.replace(prevTranscript, "").trim();
+
+        if (newPart) {
+          setForm((prev: any) => ({
+            ...prev,
+            investigationRemarks: {
+              ...prev.investigationRemarks,
+              [fieldKey]:
+                (prev.investigationRemarks?.[fieldKey] || "") + " " + newPart,
+            },
+          }));
+          lastTranscriptRef.current[fieldKey] = text; // update cache
+        }
+      }
+    },
+  });
 
   useEffect(() => {
     fetchOptions();
   }, []);
 
+  // Debug effect to monitor transcript changes
   useEffect(() => {
     if (transcript && activeField) {
-      setForm((prev: any) => {
-        const existingRemark = prev.investigationRemarks?.[activeField] || "";
-        return {
-          ...prev,
-          investigationRemarks: {
-            ...prev.investigationRemarks,
-            [activeField]: `${existingRemark} ${transcript}`.trim(),
-          },
-        };
-      });
+      console.log("Transcript changed:", transcript, "for field:", activeField);
+      console.log(
+        "Current form state:",
+        form.investigationRemarks?.[activeField]
+      );
     }
-  }, [transcript]);
+  }, [transcript, activeField, form.investigationRemarks]);
 
   const fetchOptions = async () => {
     try {
@@ -106,6 +136,59 @@ const InvestigationCard = ({
     }
   };
 
+  const handleMicClick = (invValue: string) => {
+    if (listening && activeField === invValue) {
+      // Stop current recording
+      stopListening();
+      setActiveField(null);
+    } else {
+      // Start recording for this field
+      if (listening) {
+        // Stop any current recording first
+        stopListening();
+      }
+      setActiveField(invValue);
+      resetTranscript(); // Small delay to ensure previous recording is stopped
+      setTimeout(() => {
+        startListening();
+      }, 150);
+    }
+  };
+
+  const handleAddRemark = (id: string) => {
+    setForm((prev: any) => ({
+      ...prev,
+      investigationRemarks: {
+        ...prev.investigationRemarks,
+        [id]: "", // only now we create remark field
+      },
+    }));
+  };
+
+  const customsStyles: StylesConfig<any, true> = {
+    control: (base) => ({
+      ...base,
+      minHeight: 44,
+      fontSize: 14,
+    }),
+    valueContainer: (base) => ({
+      ...base,
+      padding: "4px 6px",
+    }),
+    multiValue: (base) => ({
+      ...base,
+      backgroundColor: "#E0F2FE",
+    }),
+    multiValueLabel: (base) => ({
+      ...base,
+      color: "#0369A1",
+    }),
+    placeholder: (base) => ({
+      ...base,
+      fontSize: 14,
+    }),
+  };
+
   return (
     <Card className="p-4 rounded-xl shadow-sm border bg-white w-full hover:shadow-xl hover:border-pink-300">
       <div className="flex items-center gap-2 mb-2 font-semibold text-gray-800">
@@ -116,36 +199,39 @@ const InvestigationCard = ({
         <Label className="text-sm block mb-1">Select Investigations</Label>
         <Select
           isMulti
+          isDisabled={disabled}
           options={investigationOptions}
           value={form.investigations}
           onChange={(selectedOptions) => {
-            setForm((prev: any) => {
-              const newRemarks = { ...prev.investigationRemarks };
-              selectedOptions.forEach((option: any) => {
-                if (!newRemarks[option.value]) newRemarks[option.value] = "";
-              });
-              return {
-                ...prev,
-                investigations: selectedOptions,
-                investigationRemarks: newRemarks,
-              };
-            });
+            setForm((prev: any) => ({
+              ...prev,
+              investigations: selectedOptions,
+              // ❌ don't auto-add remark here
+              investigationRemarks: { ...prev.investigationRemarks },
+            }));
           }}
           onInputChange={(value) => setInputValue(value)}
           placeholder="Select or search investigations..."
-          className="text-sm w-full"
+          className="text-sm w-full border border-pink-200 focus:border-pink-300 focus:ring-pink-200"
           classNamePrefix="react-select"
           styles={{
             ...customStyles,
             menuPortal: (base) => ({ ...base, zIndex: 9999 }),
             menu: (base) => ({ ...base, zIndex: 9999, position: "absolute" }),
-            menuList: (base) => ({
+            menuList: (base, state) => ({
               ...base,
               maxHeight: "200px",
               overflowY: "auto",
+              borderColor: state.isFocused ? "#f9a8d4" : "#fbcfe8", // pink-300 on focus, pink-200 default
+              boxShadow: state.isFocused ? "0 0 0 1px #f9a8d4" : "none",
+              "&:hover": {
+                borderColor: "#f9a8d4", // keep pink on hover
+              },
             }),
           }}
-          menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+          menuPortalTarget={
+            typeof window !== "undefined" ? document.body : null
+          }
           noOptionsMessage={() =>
             inputValue && !showCreateForm ? (
               <div className="flex justify-between items-center text-sm px-2 py-1">
@@ -155,7 +241,7 @@ const InvestigationCard = ({
                     e.preventDefault();
                     setShowCreateForm(true);
                   }}
-                  className="text-blue-500 hover:underline ml-2"
+                  className="text-pink-400 hover:underline ml-2"
                 >
                   ➕ Add New
                 </button>
@@ -169,6 +255,7 @@ const InvestigationCard = ({
         <div className="mt-3 flex items-center gap-2">
           <CreatableSelect
             options={investigationCategories}
+            isDisabled={disabled}
             value={investigationCategories.find(
               (c) => c.value === customCategory
             )}
@@ -179,7 +266,9 @@ const InvestigationCard = ({
             className="text-sm w-[220px]"
             isSearchable={false}
             placeholder="Select category"
-            menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+            menuPortalTarget={
+              typeof window !== "undefined" ? document.body : null
+            }
             menuPosition="fixed"
             styles={{
               menuPortal: (base) => ({ ...base, zIndex: 9999 }),
@@ -204,71 +293,142 @@ const InvestigationCard = ({
         </div>
       )}
 
-      {form.investigations?.map((inv: any) => {
-        const remark = form.investigationRemarks?.[inv.value] || "";
+      {form.investigations?.map((inv: any, index: number) => {
+        const hasRemark = form.investigationRemarks?.[inv.value] !== undefined;
+        const remarkValue = form.investigationRemarks?.[inv.value] || "";
+        const isActiveField = activeField === inv.value;
 
         return (
-          <div key={inv.value} className="mt-2">
+          <div
+            key={inv.value}
+            className={`mt-2 ${index > 0 ? "border-t border-pink-200 pt-2" : ""}`}
+          >
+            {" "}
             <div className="flex justify-between items-center mb-1">
               <label className="text-sm font-medium text-gray-700">
                 {inv.label}
               </label>
+            </div>
+            {/* If no remark yet → show Add Remark button */}
+            {!hasRemark && (
               <button
                 type="button"
-                onClick={() => {
-                  const updatedRemarks = { ...form.investigationRemarks };
-                  updatedRemarks[inv.value] = "";
-                  setForm((prev: any) => ({
-                    ...prev,
-                    investigationRemarks: updatedRemarks,
-                  }));
-                }}
-                className="text-red-500 hover:text-red-700"
+                onClick={() => handleAddRemark(inv.value)}
+                className="mt-2 text-xs text-pink-400 hover:underline flex items-center gap-1"
               >
-                <Trash2 className="w-4 h-4" />
+                <MessageCirclePlus className="w-4 h-4" />
+                <span>Add {inv.label} Remark</span>
               </button>
-            </div>
+            )}
+            {/* If remark exists → show textarea + controls */}
+            {hasRemark && (
+              <div className="w-full">
+                <div className="relative">
+                  <Textarea
+                  disabled={disabled}
+                    className="mt-1 pr-10 resize-none rounded-2xl border-2 border-pink-200 hover:border-pink-300 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all duration-300 no-scrollbar bg-gradient-to-br from-pink-50/50 to-rose-50/30 placeholder:text-gray-400 placeholder:font-light text-gray-700 leading-relaxed tracking-wide shadow-sm hover:shadow-md focus:shadow-lg backdrop-blur-sm min-h-[100px] p-4"
+                    placeholder={`Enter remark for ${inv.label}...`}
+                    value={remarkValue}
+                    onChange={(e) => {
+                      setForm((prev) => ({
+                        ...prev,
+                        investigationRemarks: {
+                          ...prev.investigationRemarks,
+                          [inv.value]: e.target.value,
+                        },
+                      }));
+                    }}
+                    style={{
+                      fontFamily:
+                        '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                      fontSize: "14px",
+                      lineHeight: "1.6",
+                      letterSpacing: "0.025em",
+                    }}
+                  />
 
-            <div className="relative w-full">
-              <Textarea
-                className="mt-1"
-                placeholder={`Enter remark for ${inv.label}...`}
-                value={remark}
-                onChange={(e) => {
-                  const updatedRemarks = {
-                    ...form.investigationRemarks,
-                    [inv.value]: e.target.value,
-                  };
-                  setForm((prev: any) => ({
-                    ...prev,
-                    investigationRemarks: updatedRemarks,
-                  }));
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  if (listening && activeField === inv.value) {
-                    stopListening();
-                    setActiveField(null);
-                  } else {
-                    setActiveField(inv.value);
-                    startListening();
-                  }
-                }}
-                className={`absolute right-2 bottom-4 p-0.5 rounded-full transition ${
-                  listening && activeField === inv.value
-                    ? "bg-red-100 hover:bg-red-200"
-                    : "bg-blue-100 hover:bg-blue-200"
-                }`}
-              >
-                {listening && activeField === inv.value ? (
-                  <MicOff className="w-5 h-5 text-red-600 animate-pulse" />
-                ) : (
-                  <Mic className="w-5 h-5 text-[#22E0D4]" />
-                )}
-              </button>
-            </div>
+                  {/* Show interim transcript as overlay when listening */}
+                  {listening && isActiveField && interimTranscript && (
+                    <div className="absolute inset-0 mt-1 px-3 py-2 pointer-events-none">
+                      <span className="text-gray-400 italic">
+                        {remarkValue}
+                        {remarkValue && " "}
+                        {/* {interimTranscript} */}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Mic button */}
+                  <button
+                    type="button"
+                    disabled={disabled}
+                    onClick={() => handleMicClick(inv.value)}
+                    className={`absolute bottom-2 right-2 p-1 rounded-full transition ${
+                      listening && isActiveField
+                        ? "bg-red-100 hover:bg-red-200"
+                        : "bg-white shadow hover:bg-gray-50"
+                    }`}
+                  >
+                    {listening && isActiveField ? (
+                      <MicOff className="w-4 h-4 text-red-600 animate-pulse" />
+                    ) : (
+                      <Mic className="w-4 h-4 text-pink-400" />
+                    )}
+                  </button>
+                </div>
+
+                <p className="text-xs text-gray-500 mt-1">
+                  {listening && isActiveField
+                    ? `Listening... ${interimTranscript ? `(Processing: "${interimTranscript}")` : "Speak now"}`
+                    : "Click mic to dictate"}
+                </p>
+
+                <div className="flex gap-2 mt-1">
+                  {/* Clear remark text */}
+                  <button
+                    type="button"
+                    disabled={disabled}
+                    onClick={() => {
+                      if (listening && isActiveField) {
+                        stopListening();
+                        setActiveField(null);
+                      }
+                      setForm((prev: any) => ({
+                        ...prev,
+                        investigationRemarks: {
+                          ...prev.investigationRemarks,
+                          [inv.value]: "",
+                        },
+                      }));
+                    }}
+                    className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                  >
+                    Clear
+                  </button>
+
+                  {/* Remove remark field */}
+                  <button
+                    type="button"
+                    disabled={disabled}
+                    onClick={() => {
+                      if (listening && isActiveField) {
+                        stopListening();
+                        setActiveField(null);
+                      }
+                      const updatedRemarks = { ...form.investigationRemarks };
+                      delete updatedRemarks[inv.value];
+                      setForm((prev: any) => ({
+                        ...prev,
+                        investigationRemarks: updatedRemarks,
+                      }));
+                    }}
+                    className="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         );
       })}
