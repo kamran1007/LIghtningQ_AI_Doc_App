@@ -87,7 +87,7 @@ export class DashboardService {
     });
 
     const bookedCount = todaysAppointments.filter(
-      (a) => a.status === 'SCHEDULED',
+  (a) => a.status === 'SCHEDULED' || a.status === 'RESCHEDULED'
     ).length;
     const cancelledCount = todaysAppointments.filter(
       (a) => a.status === 'CANCELLED',
@@ -360,7 +360,7 @@ export class DashboardService {
         {
           id: 'revenue',
           title: 'Revenue in Range',
-          value: `$${(Number(monthlyRevenue._sum.AppointmentChargesPaid) || 0).toLocaleString()}`,
+          value: `₹${(Number(monthlyRevenue._sum.AppointmentChargesPaid) || 0).toLocaleString()}`,
           subtitle: `${monthlyGrowth >= 0 ? '+' : ''}${monthlyGrowth.toFixed(1)}% vs last period`,
         },
         {
@@ -414,6 +414,7 @@ export class DashboardService {
         PatientId: true,
         acuity: true,
         visitType: { select: { AppointmentTypeName: true } },
+        fasttrackpatient: true,
         patient: {
           select: {
             firstName: true,
@@ -434,7 +435,7 @@ export class DashboardService {
       (a) => a.patient.gender === 'FEMALE',
     ).length;
     const fastTrack = appointments.filter(
-      (a) => a.visitType.AppointmentTypeName === 'Fast Track',
+      (a) => a.fasttrackpatient
     ).length;
     const highAcuity = appointments.filter((a) => a.acuity === 'HIGH').length;
     const newPatients = appointments.filter((a) => {

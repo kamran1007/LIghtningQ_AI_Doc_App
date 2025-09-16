@@ -328,3 +328,22 @@ export const Patientappointmentcasesheet = async (appointmentId: number) => {
   );
   return res.data;
 };
+
+
+export const GetPatientMedications = async (patientId: number) => {
+  const session = await getSession();
+  if (!session?.accessToken) {
+    throw new Error("Unauthorized: Access token not found.");
+  }
+
+  const res = await axios.get(
+    `${BACKEND_URL}/patientcare/getPatientMedications/${patientId}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${session?.accessToken}`,
+      },
+    }
+  );
+  return res.data;
+};

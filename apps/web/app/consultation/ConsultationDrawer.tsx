@@ -81,6 +81,7 @@ import {
 import {
   addupdateConsultation,
   AddUpdateVitals,
+  GetPatientMedications,
   getVitalsWithHistory,
 } from "@/lib/consultation";
 import { is, tr } from "date-fns/locale";
@@ -285,6 +286,11 @@ export default function ConsultationDrawer({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [vitalsLoading, setVitalsLoading] = useState(false);
   const [vitalsHistory, setVitalsHistory] = useState<any[]>([]);
+  const [patientMedicineHistory, setPatientMedicineHistory] = useState<any[]>(
+    []
+  );
+  const [patientMedicineLoading, setPatientMedicineLoading] = useState(false);
+
   const [vitalsHistoryOpen, setVitalsHistoryOpen] = useState(false);
   const [vitalsData, setVitalsData] = useState<any[]>([]);
   const [selectedChiefComplaints, setSelectedChiefComplaints] = useState([]);
@@ -720,6 +726,27 @@ export default function ConsultationDrawer({
       fetchVitals();
     }
   }, [appointmentId]);
+
+  const fetchPatientMedicine = async () => {
+    try {
+      setPatientMedicineLoading(true);
+      const data = await GetPatientMedications(patient?.PatientId);
+
+      setPatientMedicineHistory(data?.return || []);
+      console.log("Fetched Patient Medicine  data:", patientMedicineHistory);
+
+      setPatientMedicineLoading(false);
+    } catch (err) {
+      console.error("Failed to Patient Medicine data:", err);
+    }
+  };
+
+  // ✅ useEffect just calls fetchVitals
+  useEffect(() => {
+    if (patient?.PatientId) {
+      fetchPatientMedicine();
+    }
+  }, [patient?.PatientId]);
 
   const handleSaveVitals = async () => {
     try {
@@ -2034,12 +2061,71 @@ export default function ConsultationDrawer({
                     transition={{ duration: 0.3 }}
                   >
                     <TabsContent value="medications">
-                      <ScrollArea className="h-60">
-                        Medications content here
+                      <ScrollArea className="h-72 pr-3">
+                        <div className="relative">
+                          {/* Vertical timeline line */}
+                          <div className="absolute left-4 top-0 h-full w-0.5 bg-gradient-to-b from-teal-400 via-blue-400 to-purple-400 rounded-full" />
+
+                          <div className="space-y-8">
+                            {patientMedicineHistory?.history?.length ? (
+                              patientMedicineHistory.history.map((h: any) => (
+                                <div
+                                  key={h.consultationId}
+                                  className="relative pl-12"
+                                >
+                                  {/* Circle marker */}
+                                  <div className="absolute left-2 top-1.5 w-4 h-4 rounded-full bg-gradient-to-r from-teal-400 to-blue-500 shadow-md border border-white dark:border-zinc-800" />
+
+                                  {/* Date */}
+                                  <p className="text-sm font-semibold text-zinc-600 dark:text-zinc-300 mb-2">
+                                    {new Date(h.date).toLocaleDateString(
+                                      "en-IN",
+                                      {
+                                        day: "2-digit",
+                                        month: "short",
+                                        year: "numeric",
+                                      }
+                                    )}
+                                  </p>
+
+                                  {/* Medications */}
+                                  <div className="grid gap-3">
+                                    {h.medications.map((m: any) => (
+                                      <motion.div
+                                        key={m.id}
+                                        whileHover={{ scale: 1.02 }}
+                                        className="rounded-2xl bg-gradient-to-r from-white to-zinc-50 dark:from-zinc-800 dark:to-zinc-900 shadow-md border border-zinc-200 dark:border-zinc-700 p-4 transition"
+                                      >
+                                        <div className="flex justify-between items-center">
+                                          <p className="text-base font-semibold text-zinc-800 dark:text-zinc-100 capitalize">
+                                            {m.name}
+                                          </p>
+                                          <span className="text-xs px-2 py-1 rounded-full bg-gradient-to-r from-teal-500 to-blue-500 text-white shadow-sm">
+                                            {m.dosage} • {m.frequency}
+                                          </span>
+                                        </div>
+                                        {m.instructions && (
+                                          <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
+                                            {m.instructions}
+                                          </p>
+                                        )}
+                                      </motion.div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ))
+                            ) : (
+                              <p className="text-center text-zinc-500 dark:text-zinc-400 mt-6">
+                                No medication history available
+                              </p>
+                            )}
+                          </div>
+                        </div>
                       </ScrollArea>
                     </TabsContent>
                   </motion.div>
                 )}
+
                 {selectedTab === "labTests" && (
                   <motion.div
                     key="labTests"

@@ -204,7 +204,7 @@ export class PatientcareService {
     TagPatientId?: number;
     GenderName?: string;
     SpecializationId?: number;
-    isConsultationcompleted?: boolean
+    isConsultationcompleted?: boolean;
     acuity?: string;
     search?: string;
     appointmentDate?: string; // ✅ single date
@@ -458,6 +458,15 @@ export class PatientcareService {
       await this.ConsultationService.deleteMedicalHistory(MedicalHistoryId);
     return {
       message: 'Procedure have been successfully deleted',
+      return: result,
+    };
+  }
+
+  async getPatientMedications(patientId: number) {
+    const result =
+      await this.ConsultationService.getPatientMedications(patientId);
+    return {
+      message: 'Medicine have  successfully fetch',
       return: result,
     };
   }

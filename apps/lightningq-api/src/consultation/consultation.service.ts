@@ -416,7 +416,7 @@ export class ConsultationService {
     if (IsconsultationCompleted) {
       await this.prisma.appointment.update({
         where: { AppointmentId },
-        data: { IsConsultationCompleted: true },
+        data: { IsConsultationCompleted: true ,status:'COMPLETED'},
       });
     } else {
       // Create flow
@@ -1063,4 +1063,44 @@ export class ConsultationService {
   //     },
   //   });
   // }
+  async getPatientMedications(patientId: number) {
+  const consultations = await this.prisma.consultation.findMany({
+    where: {
+      appointment: {
+        PatientId: patientId,
+      },
+    },
+    include: {
+      ConsultationMedication: true,
+    },
+    orderBy: {
+      consultationDatTime: 'desc', // latest first
+    },
+  });
+
+  if (consultations.length === 0) {
+    return { current: [], past: [], history: [] };
+  }
+
+  const history = consultations.map((c) => ({
+    consultationId: c.ConsultationId,
+    date: c.consultationDatTime,
+    medications: c.ConsultationMedication.map((m) => ({
+      id: m.ConsultationMedicationId,
+      name: m.medicationName,
+      dosage: m.dosage,
+      frequency: m.frequency,
+      instructions: m.remarks,
+    })),
+  }));
+
+  // ✅ Latest consultation meds = current
+  const current = history[0]?.medications ;
+
+  // ✅ All older consultation meds = past
+  const past = history.slice(1).flatMap((h) => h.medications);
+
+  return { current, past, history };
+}
+
 }

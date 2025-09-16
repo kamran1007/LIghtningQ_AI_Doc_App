@@ -242,52 +242,51 @@ export class PatientcareController {
   }
 
   //searchappointment
-@Get('searchappointment')
-async searchAppointments(@Query() query: any) {
-  const {
-    hospitalId,
-    DoctorId,
-    status,
-    visitTypeId,
-    TagPatientId,
-    gender,        // lowercase
-    GenderName,    // uppercase
-    SpecializationId,
-    isConsultationcompleted,
-    acuity,
-    search,
-    appointmentDate,
-    appointmentDateFrom,
-    appointmentDateTo,
-    minAge,        // camelCase
-    maxAge,
-    minage,        // lowercase
-    maxage,
-    page = 1,
-    limit = 10,
-  } = query;
+  @Get('searchappointment')
+  async searchAppointments(@Query() query: any) {
+    const {
+      hospitalId,
+      DoctorId,
+      status,
+      visitTypeId,
+      TagPatientId,
+      gender, // lowercase
+      GenderName, // uppercase
+      SpecializationId,
+      isConsultationcompleted,
+      acuity,
+      search,
+      appointmentDate,
+      appointmentDateFrom,
+      appointmentDateTo,
+      minAge, // camelCase
+      maxAge,
+      minage, // lowercase
+      maxage,
+      page = 1,
+      limit = 10,
+    } = query;
 
-  return this.patientcareService.searchAppointments({
-    hospitalId: Number(hospitalId),
-    DoctorId: Number(DoctorId),
-    status,
-    visitTypeId: Number(visitTypeId),
-    TagPatientId: Number(TagPatientId),
-    GenderName: gender || GenderName,   // normalize
-    SpecializationId: Number(SpecializationId),
-    isConsultationcompleted,
-    acuity,
-    search,
-    appointmentDate,
-    appointmentDateFrom,
-    appointmentDateTo,
-    minage: Number(minAge || minage),   // normalize
-    maxage: Number(maxAge || maxage),   // normalize
-    page: Number(page),
-    limit: Number(limit),
-  });
-}
-
+    return this.patientcareService.searchAppointments({
+      hospitalId: Number(hospitalId),
+      DoctorId: Number(DoctorId),
+      status,
+      visitTypeId: Number(visitTypeId),
+      TagPatientId: Number(TagPatientId),
+      GenderName: gender || GenderName, // normalize
+      SpecializationId: Number(SpecializationId),
+      isConsultationcompleted,
+      acuity,
+      search,
+      appointmentDate,
+      appointmentDateFrom,
+      appointmentDateTo,
+      minage: Number(minAge || minage), // normalize
+      maxage: Number(maxAge || maxage), // normalize
+      page: Number(page),
+      limit: Number(limit),
+    });
+  }
 
   // vitals
   @Patch('addUpdatepatientvitals')
@@ -477,5 +476,10 @@ async searchAppointments(@Query() query: any) {
     return this.patientcareService.deletemedicalhistory(
       Number(MedicalHistoryId),
     );
+  }
+
+  @Get('getPatientMedications/:patientId')
+  async getPatientMedications(@Param('patientId', ParseIntPipe) patientId: number) {
+    return this.patientcareService.getPatientMedications(patientId);
   }
 }
