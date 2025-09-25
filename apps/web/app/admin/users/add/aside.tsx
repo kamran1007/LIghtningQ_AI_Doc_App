@@ -13,6 +13,7 @@ import Costing from "./costing";
 import { set } from "zod";
 import toast from "react-hot-toast";
 import AccessRight from "./accessright";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@radix-ui/react-tooltip";
 
 interface AsideProps {
   user: User | null;
@@ -62,7 +63,6 @@ const Aside: React.FC<AsideProps> = ({ user }) => {
   };
 
   const setIsCostingDialogOpen = () => {
-
     if (!user) {
       setOpenCostingModal(false);
       toast.error("User has Not Added!  Add user first.");
@@ -70,8 +70,6 @@ const Aside: React.FC<AsideProps> = ({ user }) => {
       console.log("Opening Timeslot dialog");
       setOpenCostingModal(true);
     }
-
-
   };
   return (
     <>
@@ -79,21 +77,36 @@ const Aside: React.FC<AsideProps> = ({ user }) => {
         {/* Back Button */}
         <div>
           <div className="flex">
-            <Button
-              asChild
-              className="justify-center rounded-2xl"
-              title="Back to Admin"
-            >
-              <Link href="/admin" className="flex items-center gap-1 text-sm">
-                <CircleChevronLeft className="h-4 w-4 text-teal-400"/>
-                {/* Back */}
-              </Link>
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    asChild
+                    className="justify-center rounded-2xl"
+                  >
+                    <Link
+                      href="/admin"
+                      className="flex items-center gap-1 text-sm"
+                    >
+                      <CircleChevronLeft className="h-4 w-4 text-teal-400" />
+                      {/* You can leave text hidden if you only want tooltip */}
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="bottom"
+                  sideOffset={6}
+                  className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg z-[9999]"
+                >
+                  Back to Admin
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
 
         {/* Section Title */}
-        <div className="px-2 flex flex-col items-center mt-6">
+        <div className="px-2 flex flex-col items-center mt-6 font-sans">
           <h2 className="text-lg font-semibold text-gray-800 mb-1 flex items-center">
             User Settings
           </h2>
@@ -122,8 +135,9 @@ const Aside: React.FC<AsideProps> = ({ user }) => {
         onOpenChange={setOpenCostingModal}
         user={user}
       />
-      <AccessRight open={openAccessRightDialog}
-       onOpenChange={setOpenAccessRightDialog}
+      <AccessRight
+        open={openAccessRightDialog}
+        onOpenChange={setOpenAccessRightDialog}
         user={user}
       />
     </>

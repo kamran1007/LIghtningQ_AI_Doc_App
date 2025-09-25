@@ -57,12 +57,36 @@ const LoginInForm = () => {
         console.log("Session in login page:", session);
         const UserSession = session?.user;
         setSessionProfile(UserSession);
+        // ✅ Check if user is active
+        if (!profile?.user?.isActive) {
+          toast.current?.show({
+            severity: "error",
+            summary: "Access Denied",
+            detail: "Your account is inactive. Please contact admin.",
+            life: 4000,
+            className: "custom-toast-container",
+          });
+          return result; // stop login flow
+        }
 
         if (profile?.user?.AssignHospital?.length) {
           const list = profile.user.AssignHospital;
           setHospitals(list);
 
           if (list.length === 1) {
+            const hospital = list[0]?.hospital; // ✅ correctly reference first hospital
+
+            if (!hospital?.isActive || hospital?.status !== "ACTIVE") {
+              toast.current?.show({
+                severity: "error",
+                summary: "Error",
+                detail: "This hospital is inactive. Please contact admin.",
+                life: 4000,
+                className: "custom-toast-container", // for blur
+              });
+              return;
+            }
+
             dispatch(setSelectedHospital(list[0]));
             dispatch(fetchAccessRight());
 
@@ -71,6 +95,7 @@ const LoginInForm = () => {
             setStage("hospital");
           }
         }
+
         return result;
       } finally {
         dispatch(stopLoading());
@@ -85,8 +110,8 @@ const LoginInForm = () => {
       hospital.hospital?.status !== "ACTIVE"
     ) {
       toast.current?.show({
-        severity: "info",
-        summary: "Info",
+        severity: "error",
+        summary: "Error",
         detail: "This hospital is inactive. Please contact admin.",
         life: 4000,
         className: "custom-toast-container", // for blur
@@ -151,13 +176,13 @@ const LoginInForm = () => {
     <>
       <Toast ref={toast} />
       {stage === "login" && (
-          <form
-            action={action}
-            autoComplete="on"
-            className="flex flex-col items-center justify-center gap-6"
-          >
-            {/* Hidden input to stop autofill guesses */}
-            {/* <input
+        <form
+          action={action}
+          autoComplete="on"
+          className="flex flex-col items-center justify-center gap-6"
+        >
+          {/* Hidden input to stop autofill guesses */}
+          {/* <input
           type="text"
           name="fakeUsername"
           autoComplete="username"
@@ -165,78 +190,78 @@ const LoginInForm = () => {
           tabIndex={-1}
         /> */}
 
-            <div className="flex flex-col gap-4 w-full max-w-[400px]">
-              {state?.message && (
-                <p className="text-sm text-red-500 text-center">
-                  {state.message}
-                </p>
-              )}
+          <div className="flex flex-col gap-4 w-full max-w-[400px]">
+            {state?.message && (
+              <p className="text-sm text-red-500 text-center">
+                {state.message}
+              </p>
+            )}
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Email Address
-                </label>
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-blue-500 rounded-xl opacity-0 group-focus-within:opacity-20 transition-opacity duration-200" />
-                  <div className="relative flex items-center">
-                    <Mail className="absolute left-4 w-5 h-5 text-teal-400" />
-                    <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="User@Lightningq.com"
-                      autoComplete="new-email"
-                      autoComplete="email" 
-                      className="w-full pl-12 pr-12 py-4 bg-gray-50 border border-gray-200 rounded-xl 
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">
+                Email Address
+              </label>
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-blue-500 rounded-xl opacity-0 group-focus-within:opacity-20 transition-opacity duration-200" />
+                <div className="relative flex items-center">
+                  <Mail className="absolute left-4 w-5 h-5 text-teal-400" />
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="User@Lightningq.com"
+                    autoComplete="new-email"
+                    autoComplete="email"
+                    className="w-full pl-12 pr-12 py-4 bg-gray-50 border border-gray-200 rounded-xl 
                     focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent 
                     transition-all duration-200"
-                      required
-                    />
-                  </div>
+                    required
+                  />
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Password
-                </label>
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-blue-500 rounded-xl opacity-0 group-focus-within:opacity-20 transition-opacity duration-200" />
-
-                  <div className="relative flex items-center">
-                    <Lock className="absolute left-4 w-5 h-5 text-teal-400" />
-
-                    <input
-                      id="password"
-                      name="password"
-                      type="password"
-                      className="w-full pl-12 pr-12 py-4 bg-gray-50 border border-gray-200 rounded-xl 
-                    focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent 
-                    transition-all duration-200"
-                      placeholder="********"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 p-1 text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                      {showPassword ? (
-                        <EyeOff className="w-5 h-5 text-teal-300" />
-                      ) : (
-                        <Eye className="w-5 h-5 text-teal-300" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-4 flex justify-self-end-safe items-center ">
-                <Button className="submit-button shadow-2xl px-6 py-2 cursor-pointer  rounded-4xl">
-                  Login
-                </Button>
               </div>
             </div>
-          </form>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-blue-500 rounded-xl opacity-0 group-focus-within:opacity-20 transition-opacity duration-200" />
+
+                <div className="relative flex items-center">
+                  <Lock className="absolute left-4 w-5 h-5 text-teal-400" />
+
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    className="w-full pl-12 pr-12 py-4 bg-gray-50 border border-gray-200 rounded-xl 
+                    focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent 
+                    transition-all duration-200"
+                    placeholder="********"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5 text-teal-300" />
+                    ) : (
+                      <Eye className="w-5 h-5 text-teal-300" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 flex justify-self-end-safe items-center ">
+              <Button className="submit-button shadow-2xl px-6 py-2 cursor-pointer  rounded-4xl">
+                Login
+              </Button>
+            </div>
+          </div>
+        </form>
       )}
       {stage === "hospital" && (
         <motion.div

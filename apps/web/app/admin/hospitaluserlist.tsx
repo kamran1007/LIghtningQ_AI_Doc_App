@@ -216,6 +216,11 @@ const UserList = () => {
       muiTableHeadCellProps: {
         sx: { textAlign: "center" },
       },
+      Cell: ({ row }: { row: any }) => {
+        const empId = row.getValue("Employee_ID");
+        // Handle both real null and string "null"
+        return empId === null || empId === "null" ? "" : empId;
+      },
     },
     {
       accessorKey: "mobile",
