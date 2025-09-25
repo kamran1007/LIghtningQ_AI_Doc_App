@@ -6,7 +6,7 @@ import {
   endOfDay,
   endOfWeek,
 } from 'date-fns';
-import { Injectable,Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { MailerService } from 'src/common/mailer/mailer.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -1005,6 +1005,7 @@ export class DashboardService {
     const dueReports = await this.prisma.scheduledReport.findMany({
       where: {
         nextRunAt: { lte: today },
+        frequency: { in: ['WEEKLY', 'MONTHLY'] },
         OR: [{ lastRunAt: null }, { lastRunAt: { lt: today } }],
       },
     });
@@ -1020,8 +1021,7 @@ export class DashboardService {
         } else if (report.frequency === 'MONTHLY') {
           nextRunAt = this.calculateNextMonthlyRun(today);
         } else {
-          nextRunAt = new Date(today);
-          nextRunAt.setDate(today.getDate() + 1);
+          continue;
         }
 
         await this.prisma.scheduledReport.update({
