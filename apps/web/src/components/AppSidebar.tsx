@@ -13,6 +13,12 @@ import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import Image from "next/image";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@radix-ui/react-tooltip";
 
 // mapping ModuleName → Sidebar info
 const moduleNavMap: Record<string, { icon: React.ElementType; path: string }> =
@@ -66,34 +72,48 @@ export function AppSidebar() {
         onMouseLeave={() => setIsExpanded(false)}
       >
         {/* Logo Section */}
-        <div
-          className="flex items-center justify-center h-16 cursor-pointer border-b-2 border-teal-200"
-          onClick={() => router.push("/")} // redirect to home/dashboard on logo click
-        >
-          {!isExpanded ? (
-            <div className="w-14 h-14 bg-gradient-to-r from-teal-600 to-teal-700 rounded-lg flex items-center justify-center">
-              <Image
-                src="/NavBarLogo.png"
-                alt="Logo"
-                width={40} // resize depending on state
-                height={40}
-                className={`object-contain transition-all duration-300 ${
-                  isExpanded ? "ml-2" : ""
-                }`}
-                priority
-              />
-            </div>
-          ) : (
-            <Image
-              src="/LoginCard.png"
-              alt="Logo Collapsed"
-              width={220}
-              height={80}
-              className="object-contain transition-all duration-300"
-              priority
-            />
-          )}
-        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div
+                className="flex items-center justify-center h-16 cursor-pointer border-b-2 border-teal-200"
+                // onClick={() => router.push("/")} // redirect to home/dashboard on logo click
+              >
+                {!isExpanded ? (
+                  <div className="w-14 h-14 bg-gradient-to-r from-teal-600 to-teal-700 rounded-lg flex items-center justify-center">
+                    <Image
+                      src="/NavBarLogo.png"
+                      alt="Logo"
+                      width={40}
+                      height={40}
+                      className={`object-contain transition-all duration-300 ${
+                        isExpanded ? "ml-2" : ""
+                      }`}
+                      priority
+                    />
+                  </div>
+                ) : (
+                  <Image
+                    src="/LoginCard.png"
+                    alt="Logo Expanded"
+                    width={220}
+                    height={80}
+                    className="object-contain transition-all duration-300"
+                    priority
+                  />
+                )}
+              </div>
+            </TooltipTrigger>
+
+            <TooltipContent
+              side="right"
+              sideOffset={8}
+              className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg z-[9999]"
+            >
+              LightningQ – AI powered healthcare platform
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
         {/* Navigation Links */}
         <nav className="flex-1 p-3 space-y-5">
