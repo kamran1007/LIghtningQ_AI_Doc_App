@@ -52,12 +52,12 @@ export default function ReleaseNotes() {
         ],
       },
       {
-        section: "Patient Care",
+        section: "Patient Care(OP)",
         icon: <Building2 className="w-6 h-6 text-purple-600" />,
         items: [
           "Register patients with demographics, emergency details, allergies, and languages",
           "Capture patient photo, emergency contacts, past medical records",
-          "Outpatient Queue Management with live status and P4 rule support",
+          "Outpatient Queue Management with live status and FIFO rule support",
         ],
       },
       {
@@ -88,7 +88,6 @@ export default function ReleaseNotes() {
       <button
         onClick={() => setOpen(true)}
         className="p-2 rounded-full hover:bg-gray-100 transition-all duration-200 group"
-        title="Release Notes"
       >
         <FileText className="w-6 h-6 text-white group-hover:text-teal-600 group-hover:scale-110 transition-transform" />
       </button>

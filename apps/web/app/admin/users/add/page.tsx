@@ -101,7 +101,10 @@ export default function AddUserPage() {
       roleId: undefined,
       SpecializationId: undefined,
       Experience: "",
-      Employee_ID: "",
+      Employee_ID:
+        user?.Employee_ID && user.Employee_ID !== "null"
+          ? user.Employee_ID
+          : "",
       imageUrl: "",
       SignatureOfUser: null,
     },
@@ -449,7 +452,10 @@ export default function AddUserPage() {
       setValue("Prefix", user.Prefix);
       setValue("firstName", user.firstName);
       setValue("lastName", user.lastName);
-      setValue("Employee_ID", user.Employee_ID);
+      setValue(
+        "Employee_ID",
+        user.Employee_ID && user.Employee_ID !== "null" ? user.Employee_ID : ""
+      );
       setValue("mobile", user.mobile);
       setValue("gender", user.gender);
       setValue("email", user.email);
@@ -655,6 +661,11 @@ export default function AddUserPage() {
 
                   <Input
                     {...register("Employee_ID")}
+                    defaultValue={
+                      user?.Employee_ID && user.Employee_ID !== "null"
+                        ? user.Employee_ID
+                        : ""
+                    }
                     placeholder="Employee ID"
                     className={`${inputbox} mb-2 py-4`}
                   />
