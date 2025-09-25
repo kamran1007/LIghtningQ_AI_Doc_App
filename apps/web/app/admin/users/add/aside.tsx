@@ -85,7 +85,7 @@ const Aside: React.FC<AsideProps> = ({ user }) => {
               title="Back to Admin"
             >
               <Link href="/admin" className="flex items-center gap-1 text-sm">
-                <CircleChevronLeft className="h-4 w-4" />
+                <CircleChevronLeft className="h-4 w-4 text-teal-400"/>
                 {/* Back */}
               </Link>
             </Button>
@@ -97,7 +97,7 @@ const Aside: React.FC<AsideProps> = ({ user }) => {
           <h2 className="text-lg font-semibold text-gray-800 mb-1 flex items-center">
             User Settings
           </h2>
-          <div className="h-1 w-40 bg-teal-500 rounded-full flex items-center" />
+          <div className="h-1 w-40 bg-teal-500 rounded-full flex items-center font-sans" />
         </div>
 
         {/* Navigation List */}

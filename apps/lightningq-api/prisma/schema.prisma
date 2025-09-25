@@ -32,7 +32,7 @@ model User {
   SpecializationId Int?
   Specialization   Specialization? @relation(fields: [SpecializationId], references: [SpecializationId])
   Experience       String
-  Employee_ID      String          @unique
+  Employee_ID      String?         @unique
   SignatureOfUser  String
   organizationId   Int
   organization     Organization    @relation(fields: [organizationId], references: [OrganizationId])
@@ -122,7 +122,7 @@ model Organization {
   industryType     String // Optional, e.g. "Healthcare", "Diagnostics"
   status           Hospital_Org_status @default(ACTIVE) // Enum for status
   description      String? // Optional about/description field
-
+  isActive         Boolean?  @default(true)
   // Relations
   hospitals Hospital[]
   users     User[]
@@ -527,25 +527,25 @@ model Appointment {
   cancellationReason String?
   age                Int?
 
-  createdAt         DateTime     @default(now())
-  createdBy         Int?
-  rescheduledAt     DateTime?
-  rescheduledDate   DateTime? // ✅ New field
+  createdAt               DateTime     @default(now())
+  createdBy               Int?
+  rescheduledAt           DateTime?
+  rescheduledDate         DateTime? // ✅ New field
   // rescheduleReason String?
-  rescheduledBy     Int?
+  rescheduledBy           Int?
   // TagPatientId      Int?
-  TagPatients       TagPatient[] @relation("AppointmentTagPatients")
-  fasttrackpatient  Boolean?     @default(false)
-  IsConsultationCompleted  Boolean        @default(false)
+  TagPatients             TagPatient[] @relation("AppointmentTagPatients")
+  fasttrackpatient        Boolean?     @default(false)
+  IsConsultationCompleted Boolean      @default(false)
   // AppointmentAmtPaid Int?
   // isAmountPaid Boolean default(true)
   // Relations
-  patient           Patient      @relation(fields: [PatientId], references: [PatientId])
-  doctor            User         @relation("Doctor", fields: [DoctorId], references: [UserId])
-  assignedProvider  User?        @relation("AssignedProvider", fields: [AssignedProviderId], references: [UserId])
-  specialist        User?        @relation("Specialist", fields: [SpecializationId], references: [UserId])
-  createdByUser     User?        @relation("CreatedBy", fields: [createdBy], references: [UserId])
-  rescheduledByUser User?        @relation("RescheduledBy", fields: [rescheduledBy], references: [UserId])
+  patient                 Patient      @relation(fields: [PatientId], references: [PatientId])
+  doctor                  User         @relation("Doctor", fields: [DoctorId], references: [UserId])
+  assignedProvider        User?        @relation("AssignedProvider", fields: [AssignedProviderId], references: [UserId])
+  specialist              User?        @relation("Specialist", fields: [SpecializationId], references: [UserId])
+  createdByUser           User?        @relation("CreatedBy", fields: [createdBy], references: [UserId])
+  rescheduledByUser       User?        @relation("RescheduledBy", fields: [rescheduledBy], references: [UserId])
 
   hospital         Hospital        @relation(fields: [hospitalId], references: [HospitalId])
   visitType        AppointmentType @relation(fields: [visitTypeId], references: [AppointmentTypeId])

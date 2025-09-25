@@ -93,45 +93,50 @@ export default function FollowUpPlanCard({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Textarea with mic */}
         <div className="relative">
-          <Textarea
-            placeholder="e.g. Review in 7 days, next appointment date..."
-            disabled={disabled}
-            value={form.followUp}
-            name="followUp"
-            onChange={handleChange}
-            className="text-sm pr-16 rounded-2xl border-2 border-indigo-200 hover:border-indigo-300 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 transition-all duration-300 no-scrollbar bg-gradient-to-br from-indigo-50/50 to-blue-50/30 placeholder:text-gray-400 placeholder:font-light text-gray-700 leading-relaxed tracking-wide shadow-sm hover:shadow-md focus:shadow-lg backdrop-blur-sm resize-none min-h-[100px] p-4"
-            style={{
-              fontFamily:
-                '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-              fontSize: "14px",
-              lineHeight: "1.6",
-              letterSpacing: "0.025em",
-            }}
-          />
+          {/* Wrapper around textarea to position mic inside */}
+          <div className="relative w-full">
+            <Textarea
+              placeholder="e.g. Review in 7 days, next appointment date..."
+              disabled={disabled}
+              value={form.followUp}
+              name="followUp"
+              onChange={handleChange}
+              className="text-sm pr-12 rounded-2xl border-2 border-indigo-200 hover:border-indigo-300 
+                 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 transition-all duration-300 
+                 no-scrollbar bg-gradient-to-br from-indigo-50/50 to-blue-50/30 
+                 placeholder:text-gray-400 placeholder:font-light text-gray-700 
+                 leading-relaxed tracking-wide shadow-sm hover:shadow-md focus:shadow-lg 
+                 backdrop-blur-sm resize-none min-h-[100px] p-4"
+              style={{
+                fontFamily:
+                  '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                fontSize: "14px",
+                lineHeight: "1.6",
+                letterSpacing: "0.025em",
+              }}
+            />
 
-          {/* Mic button positioned inside textarea content area */}
-          <button
-            type="button"
-            disabled={disabled}
-            onClick={handleFollowUpMicClick}
-            className={`absolute p-1 rounded-full transition-all duration-200 z-10 ${
-              listening
-                ? "bg-red-100 hover:bg-red-200 shadow-sm"
-                : "bg-white hover:bg-gray-50 shadow-sm hover:shadow-md border border-gray-200"
-            }`}
-            style={{
-              bottom: "20px",
-              right: "20px",
-              transform: "translateY(0)",
-            }}
-          >
-            {listening ? (
-              <MicOff className="text-red-600 animate-pulse" size={16} />
-            ) : (
-              <Mic className="text-indigo-500" size={16} />
-            )}
-          </button>
+            {/* Mic overlay INSIDE textarea border */}
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={handleFollowUpMicClick}
+              className={`absolute bottom-2 right-3 p-1 rounded-full transition-colors shadow-sm 
+        ${
+          listening
+            ? "bg-red-100 hover:bg-red-200"
+            : "bg-white hover:bg-gray-50 border border-gray-200"
+        }`}
+            >
+              {listening ? (
+                <MicOff className="text-red-600 animate-pulse" size={18} />
+              ) : (
+                <Mic className="text-indigo-500" size={18} />
+              )}
+            </button>
+          </div>
 
+          {/* Status text */}
           <p className="text-xs text-gray-500 mt-2 px-1">
             {listening
               ? "🎤 Listening... Speak now"

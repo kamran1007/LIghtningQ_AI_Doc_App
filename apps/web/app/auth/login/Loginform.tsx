@@ -14,7 +14,7 @@ import {
   loadHospitalFromStorage,
   setSelectedHospital,
 } from "@/store/HospitalBranchSelectionSlice";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useActionState } from "react"; // not react-dom
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -22,6 +22,8 @@ import { getSession } from "@/lib/session";
 import { fetchAccessRight } from "@/store/LoginAccessRightSlice";
 import { setProfile } from "@/store/authSlice";
 import { RootState } from "@/store";
+import { Toast } from "primereact/toast";
+import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 
 const LoginInForm = () => {
   const dispatch = useAppDispatch();
@@ -34,7 +36,11 @@ const LoginInForm = () => {
   const [hospitals, setHospitals] = React.useState<any[]>([]);
 
   const [stage, setStage] = useState<"login" | "hospital">("login");
+  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({ email: "", password: "" });
+
   const [sessionProfile, setSessionProfile] = useState<any>(null);
+  const toast = useRef<Toast>(null);
 
   const [state, action] = useActionState(
     async (prevState: FormState, formData: FormData) => {
@@ -74,6 +80,20 @@ const LoginInForm = () => {
   );
 
   const handleHospitalSelect = async (hospital: any) => {
+    if (
+      !hospital.hospital?.isActive ||
+      hospital.hospital?.status !== "ACTIVE"
+    ) {
+      toast.current?.show({
+        severity: "info",
+        summary: "Info",
+        detail: "This hospital is inactive. Please contact admin.",
+        life: 4000,
+        className: "custom-toast-container", // for blur
+      });
+      return;
+    }
+
     dispatch(startLoading()); // 🚀 Start loading
     dispatch(setSelectedHospital(hospital));
     localStorage.setItem("selectedHospital", JSON.stringify(hospital));
@@ -127,74 +147,96 @@ const LoginInForm = () => {
     }
   }, [dispatch, selectedHospital, profile]);
 
-
   return (
     <>
+      <Toast ref={toast} />
       {stage === "login" && (
-        <form
-          action={action}
-          autoComplete="off"
-          className="flex flex-col items-center justify-center gap-6"
-        >
-          {/* Hidden input to stop autofill guesses */}
-          {/* <input
-        type="text"
-        name="fakeUsername"
-        autoComplete="username"
-        style={{ display: "none" }}
-        tabIndex={-1}
-      /> */}
+          <form
+            action={action}
+            autoComplete="on"
+            className="flex flex-col items-center justify-center gap-6"
+          >
+            {/* Hidden input to stop autofill guesses */}
+            {/* <input
+          type="text"
+          name="fakeUsername"
+          autoComplete="username"
+          style={{ display: "none" }}
+          tabIndex={-1}
+        /> */}
 
-          <div className="flex flex-col gap-4 w-82">
-            {state?.message && (
-              <p className="text-sm text-red-500 text-center">
-                {state.message}
-              </p>
-            )}
+            <div className="flex flex-col gap-4 w-full max-w-[400px]">
+              {state?.message && (
+                <p className="text-sm text-red-500 text-center">
+                  {state.message}
+                </p>
+              )}
 
-            <div className="flex flex-col gap-2 w-full max-w-md">
-              <Label htmlFor="email">Email</Label>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">
+                  Email Address
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-blue-500 rounded-xl opacity-0 group-focus-within:opacity-20 transition-opacity duration-200" />
+                  <div className="relative flex items-center">
+                    <Mail className="absolute left-4 w-5 h-5 text-teal-400" />
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="User@Lightningq.com"
+                      autoComplete="new-email"
+                      autoComplete="email" 
+                      className="w-full pl-12 pr-12 py-4 bg-gray-50 border border-gray-200 rounded-xl 
+                    focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent 
+                    transition-all duration-200"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
 
-              <div className="group relative w-full rounded-md">
-                {/* Gradient border wrapper */}
-                <div className="absolute -inset-[2px] rounded-md bg-transparent transition-all duration-300 group-focus-within:bg-[radial-gradient(circle,_rgba(0,36,34,1)_0%,_rgba(25,138,224,1)_30%,_rgba(34,224,212,1)_97%)]"></div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">
+                  Password
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-blue-500 rounded-xl opacity-0 group-focus-within:opacity-20 transition-opacity duration-200" />
 
-                {/* Input */}
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="User@Lightningq.com"
-                  autoComplete="new-email"
-                  required
-                  className="relative z-10 w-full h-12 px-4 py-2 bg-white rounded-md border-none ring-0 focus:ring-0 focus:border-none outline-none"
-                />
+                  <div className="relative flex items-center">
+                    <Lock className="absolute left-4 w-5 h-5 text-teal-400" />
+
+                    <input
+                      id="password"
+                      name="password"
+                      type="password"
+                      className="w-full pl-12 pr-12 py-4 bg-gray-50 border border-gray-200 rounded-xl 
+                    focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent 
+                    transition-all duration-200"
+                      placeholder="********"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-5 h-5 text-teal-300" />
+                      ) : (
+                        <Eye className="w-5 h-5 text-teal-300" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 flex justify-self-end-safe items-center ">
+                <Button className="submit-button shadow-2xl px-6 py-2 cursor-pointer  rounded-4xl">
+                  Login
+                </Button>
               </div>
             </div>
-
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="group relative w-full rounded-md">
-                {/* Gradient border wrapper */}
-                <div className="absolute -inset-[2px] rounded-md bg-transparent transition-all duration-300 group-focus-within:bg-[radial-gradient(circle,_rgba(0,36,34,1)_0%,_rgba(25,138,224,1)_30%,_rgba(34,224,212,1)_97%)]"></div>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  placeholder="********"
-                  autoComplete="new-password"
-                  required
-                  className="relative z-10 w-full h-12 px-4 py-2 bg-white rounded-md border-none ring-0 focus:ring-0 focus:border-none outline-none"
-                />
-              </div>
-            </div>
-            <div className="mt-4 flex justify-self-end-safe items-center ">
-              <Button className="submit-button shadow-2xl px-6 py-2 cursor-pointer  rounded-4xl">
-                Login
-              </Button>
-            </div>
-          </div>
-        </form>
+          </form>
       )}
       {stage === "hospital" && (
         <motion.div
@@ -203,7 +245,7 @@ const LoginInForm = () => {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -100 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="flex flex-col items-center gap-8 p-6 w-full max-w-2lg max-h-xl mx-auto bg-white/70 backdrop-blur-md shadow-lg rounded-2xl "
+          className="flex flex-col items-center gap-8 p-6 w-full max-w-2lg max-h-xl mx-auto bg-white/70 backdrop-blur-md shadow-lg rounded-2xl"
         >
           {/* Greeting with gradient */}
           <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-400 bg-clip-text text-transparent font-sans animate-ocean-flow">
@@ -215,29 +257,40 @@ const LoginInForm = () => {
           </p>
 
           {/* Hospital Buttons */}
-          {/* Hospital Buttons */}
           <div className="flex flex-col items-center gap-4 w-full">
             {hospitals.map((h) => (
-              <motion.div
+              <motion.button
                 key={h.hospitalId}
-                whileHover={{ scale: 1.05 }}
+                type="button"
+                onClick={() => handleHospitalSelect(h)}
+                whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="w-full flex justify-center"
+                className="relative sm:w-90 w-84 py-3 px-6 rounded-xl font-semibold font-sans
+          bg-gradient-to-r from-cyan-400 via-teal-400 to-blue-400
+          text-white shadow-md hover:shadow-xl 
+          overflow-hidden transition-all duration-300 cursor-pointer"
               >
-                <Button
-                  onClick={() => handleHospitalSelect(h)}
-                  className="sm:w-90 w-84 text-center py-3 rounded-lg font-semibold font-sans 
-                 bg-gradient-to-r from-cyan-400 to-teal-400
-                 text-white shadow-md transition-all duration-300
-                 hover:shadow-xl hover:from-teal-400 hover:via-blue-400 hover:to-purple-500 cursor-pointer"
-                >
-                  {h.hospital?.HospitalName ?? `Hospital ${h.hospitalId}`} -{" "}
+                {/* Shimmer effect */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
+                  initial={{ x: "-100%" }}
+                  animate={{ x: "100%" }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                  }}
+                />
+
+                {/* Button label */}
+                <span className="relative z-10">
+                  {h.hospital?.HospitalName ?? `Hospital ${h.hospitalId}`} –{" "}
                   {h.hospital?.city}
-                </Button>
-              </motion.div>
+                </span>
+              </motion.button>
             ))}
           </div>
         </motion.div>
+
         //bg-gradient-to-r from-cyan-500 to-teal-500
         // text-2xl font-extrabold bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent
         //bg-gradient-to-r from-blue-500 via-cyan-400 to-teal-400

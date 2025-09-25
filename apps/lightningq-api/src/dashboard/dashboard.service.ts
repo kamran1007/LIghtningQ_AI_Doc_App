@@ -6,7 +6,7 @@ import {
   endOfDay,
   endOfWeek,
 } from 'date-fns';
-import { Injectable } from '@nestjs/common';
+import { Injectable,Logger } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { MailerService } from 'src/common/mailer/mailer.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -18,6 +18,7 @@ const TZ = 'Asia/Kolkata';
 
 @Injectable()
 export class DashboardService {
+  private readonly logger = new Logger(DashboardService.name);
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
@@ -87,7 +88,7 @@ export class DashboardService {
     });
 
     const bookedCount = todaysAppointments.filter(
-  (a) => a.status === 'SCHEDULED' || a.status === 'RESCHEDULED'
+      (a) => a.status === 'SCHEDULED' || a.status === 'RESCHEDULED',
     ).length;
     const cancelledCount = todaysAppointments.filter(
       (a) => a.status === 'CANCELLED',
@@ -434,9 +435,7 @@ export class DashboardService {
     const femaleCount = appointments.filter(
       (a) => a.patient.gender === 'FEMALE',
     ).length;
-    const fastTrack = appointments.filter(
-      (a) => a.fasttrackpatient
-    ).length;
+    const fastTrack = appointments.filter((a) => a.fasttrackpatient).length;
     const highAcuity = appointments.filter((a) => a.acuity === 'HIGH').length;
     const newPatients = appointments.filter((a) => {
       // Example: define "new patient" as no previous appointments
@@ -998,6 +997,7 @@ export class DashboardService {
     };
   }
 
+  @Cron(CronExpression.EVERY_DAY_AT_7AM, { timeZone: 'Asia/Kolkata' })
   async checkAndSendReports() {
     const today = new Date();
 
@@ -1010,31 +1010,45 @@ export class DashboardService {
     });
 
     for (const report of dueReports) {
-      const whereClause = this.buildWhereClause(report);
+      try {
+        const whereClause = this.buildWhereClause(report);
+        await this.generateAndSendPDF(report, whereClause);
 
-      // 1. Generate & send the report
-      await this.generateAndSendPDF(report, whereClause);
+        let nextRunAt: Date;
+        if (report.frequency === 'WEEKLY') {
+          nextRunAt = this.calculateNextWeeklyRun(today);
+        } else if (report.frequency === 'MONTHLY') {
+          nextRunAt = this.calculateNextMonthlyRun(today);
+        } else {
+          nextRunAt = new Date(today);
+          nextRunAt.setDate(today.getDate() + 1);
+        }
 
-      // 2. Calculate next run depending on frequency
-      let nextRunAt: Date;
-      if (report.frequency === 'WEEKLY') {
-        nextRunAt = this.calculateNextWeeklyRun(today);
-      } else if (report.frequency === 'MONTHLY') {
-        nextRunAt = this.calculateNextMonthlyRun(today);
-      } else {
-        // fallback: just +1 day
-        nextRunAt = new Date(today);
-        nextRunAt.setDate(today.getDate() + 1);
+        await this.prisma.scheduledReport.update({
+          where: { ScheduledReportId: report.ScheduledReportId },
+          data: {
+            lastRunAt: today,
+            nextRunAt,
+          },
+        });
+
+        this.logger.log(
+          `Report ${report.ScheduledReportId} sent, next run at ${nextRunAt.toISOString()}`,
+        );
+      } catch (err) {
+        const errorMessage =
+          err && typeof err === 'object' && 'message' in err
+            ? (err as any).message
+            : String(err);
+        const errorStack =
+          err && typeof err === 'object' && 'stack' in err
+            ? (err as any).stack
+            : undefined;
+        this.logger.error(
+          `Failed to process report ${report.ScheduledReportId}: ${errorMessage}`,
+          errorStack,
+        );
       }
-
-      // 3. Update DB
-      await this.prisma.scheduledReport.update({
-        where: { ScheduledReportId: report.ScheduledReportId },
-        data: {
-          lastRunAt: today,
-          nextRunAt,
-        },
-      });
     }
   }
 

@@ -12,18 +12,17 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
+import Image from "next/image";
 
 // mapping ModuleName → Sidebar info
-const moduleNavMap: Record<
-  string,
-  { icon: React.ElementType; path: string }
-> = {
-  Dashboard: { icon: LayoutDashboard, path: "/dashboard" },
-  "Patient Care": { icon: Stethoscope, path: "/patientcare" },
-  Appointments: { icon: CalendarClock, path: "/appointment" },
-  Admin: { icon: UserCog, path: "/admin" },
-  Settings: { icon: Sliders, path: "/settings" },
-};
+const moduleNavMap: Record<string, { icon: React.ElementType; path: string }> =
+  {
+    Dashboard: { icon: LayoutDashboard, path: "/dashboard" },
+    "Patient Care": { icon: Stethoscope, path: "/patientcare" },
+    Appointments: { icon: CalendarClock, path: "/appointment" },
+    Admin: { icon: UserCog, path: "/admin" },
+    Settings: { icon: Sliders, path: "/settings" },
+  };
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -66,6 +65,37 @@ export function AppSidebar() {
         }`}
         onMouseLeave={() => setIsExpanded(false)}
       >
+        {/* Logo Section */}
+        <div
+          className="flex items-center justify-center h-16 cursor-pointer border-b-2 border-teal-200"
+          onClick={() => router.push("/")} // redirect to home/dashboard on logo click
+        >
+          {!isExpanded ? (
+            <div className="w-14 h-14 bg-gradient-to-r from-teal-600 to-teal-700 rounded-lg flex items-center justify-center">
+              <Image
+                src="/NavBarLogo.png"
+                alt="Logo"
+                width={40} // resize depending on state
+                height={40}
+                className={`object-contain transition-all duration-300 ${
+                  isExpanded ? "ml-2" : ""
+                }`}
+                priority
+              />
+            </div>
+          ) : (
+            <Image
+              src="/LoginCard.png"
+              alt="Logo Collapsed"
+              width={220}
+              height={80}
+              className="object-contain transition-all duration-300"
+              priority
+            />
+          )}
+        </div>
+
+        {/* Navigation Links */}
         <nav className="flex-1 p-3 space-y-5">
           {enabledNavItems?.map((item) => {
             const isActive = pathname.startsWith(item.path);
@@ -78,22 +108,22 @@ export function AppSidebar() {
                     router.push(item.path);
                   }}
                   className={`cursor-pointer flex items-center w-full px-4 py-3 rounded-lg text-sm font-medium transition 
-                    ${
-                      isExpanded
-                        ? isActive
-                          ? "bg-teal-100 text-teal-400"
-                          : "hover:bg-gray-100 text-teal-400"
-                        : isActive
-                        ? "bg-teal-100"
-                        : "text-teal-500"
-                    }
-                    shadow hover:shadow-2xl transition-shadow duration-300 ease-in-out`}
+              ${
+                isExpanded
+                  ? isActive
+                    ? "bg-teal-100 text-teal-400"
+                    : "hover:bg-gray-100 text-teal-400"
+                  : isActive
+                    ? "bg-white text-black shadow-md"
+                    : "text-teal-500"
+              }
+              shadow hover:shadow-2xl transition-shadow duration-300 ease-in-out`}
                 >
-                    <Icon
-                      className={`min-w-[18px] transition-all transform duration-300 group-hover:scale-110 group-hover:text-teal-400 ${
-                        isExpanded ? "mr-3" : "mx-auto"
-                      }`}
-                    />
+                  <Icon
+                    className={`min-w-[18px] transition-all transform duration-300 group-hover:scale-110 group-hover:text-teal-400 ${
+                      isExpanded ? "mr-3" : "mx-auto"
+                    }`}
+                  />
                   <span
                     className={`transition-opacity duration-300 ${
                       isExpanded ? "opacity-100" : "opacity-0"

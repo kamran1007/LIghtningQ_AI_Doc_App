@@ -75,7 +75,6 @@ const daysOfWeek = [
 
 const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
-  const [acceptAppointments, setAcceptAppointments] = useState(true);
   const [cancelledDays, setCancelledDays] = useState<string[]>([]);
   const [dndDays, setDndDays] = useState<string[]>([]);
   const [selectedHospitalId, setSelectedHospitalId] = useState("");
@@ -85,7 +84,6 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
   const [remarkText, setRemarkText] = useState("");
   const [remarkType, setRemarkType] = useState<"DND" | "CANCEL" | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isPermanentCancelled, setIsPermanentCancel] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   type TimeSlot = {
@@ -112,18 +110,6 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
       ...prev,
       [day]: prev[day] ?? { ...defaultDaySlot },
     }));
-  };
-
-  const handleCancelDay = (day: string) => {
-    setCancelledDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
-    );
-  };
-
-  const handleMarkDND = (day: string) => {
-    setDndDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
-    );
   };
 
   const isTimeInRange = (target: string, start?: string, end?: string) => {
@@ -409,8 +395,9 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
     } catch (err) {
       console.error("Save error:", err);
       toast.error("Failed to save time slots.");
+    } finally {
+      setIsSubmitting(false);
     }
-    finally { setIsSubmitting(false); }
   };
 
   // const hospitals = useSelector((state: RootState) => state.hospital.data);
@@ -1103,7 +1090,11 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
                       <span>{today} (Today)</span>
                       {cancelledDays.includes(today) && (
                         <span className="text-md italic text-black">
-                          {slotsByDay[today]?.cancellationRemarks}
+                          {slotsByDay[today]?.cancellationRemarks} -- {
+                            slotsByDay[today]?.isPermanentCancelled
+                              ? "Cancelled Permanent"
+                              : "Cancelled Temporary"
+                          }
                         </span>
                       )}
                       {dndDays.includes(today) &&
@@ -1140,7 +1131,15 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
                       <span>{day}</span>
                       {cancelledDays.includes(day) && (
                         <span className="text-md italic text-black">
-                          {slotsByDay[day]?.cancellationRemarks} -- {slotsByDay[day]?.isPermanentCancelled ? "Permanent" : "Temporary"}
+                          {slotsByDay[day]?.cancellationRemarks
+                            ? `${slotsByDay[day].cancellationRemarks} -- ${
+                                slotsByDay[day].isPermanentCancelled
+                                  ? "Permanent"
+                                  : "Temporary"
+                              }`
+                            : slotsByDay[day]?.isPermanentCancelled
+                              ? "Cancelled Permanently"
+                              : "Cancelled Temporarily"}
                         </span>
                       )}
                       {dndDays.includes(day) &&

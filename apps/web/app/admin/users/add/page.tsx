@@ -45,6 +45,9 @@ import { userFormSchema } from "@/helper/userFormSchema";
 import Aside from "./aside";
 import z, { set } from "zod";
 import AddUserSkeleton from "@/components/ui/skeletonloader/AddUserSkeleton";
+import PasswordStrengthMeter from "@/components/ui/PasswordStrengthMeter";
+import { Eye, EyeOff } from "lucide-react";
+
 export default function AddUserPage() {
   const dispatch = useDispatch<AppDispatch>();
   const hospitals = useSelector((state: RootState) => state.hospital.data);
@@ -135,6 +138,10 @@ export default function AddUserPage() {
   const router = useRouter();
 
   const sigRef = useRef<SignaturePadExtended | null>(null);
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordValue, setPasswordValue] = useState("");
 
   // const handleSignatureFileChange = (
   //   e: React.ChangeEvent<HTMLInputElement>
@@ -532,10 +539,10 @@ export default function AddUserPage() {
                       className="object-cover h-full w-full transition-transform duration-300 group-hover:scale-105"
                     />
                   ) : (
-                    <div className="flex items-center justify-center h-full w-full bg-gray-100">
+                    <div className="flex items-center justify-center h-full w-full bg-teal-100">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-10 w-10 text-gray-400"
+                        className="h-10 w-10 text-teal-400"
                         viewBox="0 0 24 24"
                         fill="currentColor"
                       >
@@ -926,6 +933,12 @@ export default function AddUserPage() {
                           type="password"
                           placeholder="New Password"
                           className={`${inputbox} mb-2 py-4`}
+                          onChange={(e) =>
+                            setValue("passwordHash", e.target.value)
+                          }
+                        />
+                        <PasswordStrengthMeter
+                          password={watch("passwordHash")}
                         />
                         {errors.passwordHash && (
                           <p className="text-red-500 text-sm">
@@ -939,13 +952,47 @@ export default function AddUserPage() {
                           Confirm Password
                           <span className="text-red-500">*</span>
                         </Label>
-
                         <Input
                           {...register("confirmPassword")}
                           type="password"
                           placeholder="Confirm New Password"
                           className={`${inputbox} mb-2 py-4`}
                         />
+
+                        {/* Real-time password match validation */}
+                        {watch("passwordHash") &&
+                          watch("confirmPassword") &&
+                          watch("passwordHash") !==
+                            watch("confirmPassword") && (
+                            <p className="text-red-500 text-sm mb-2">
+                              Passwords do not match
+                            </p>
+                          )}
+
+                        {/* Show success message when passwords match */}
+                        {watch("passwordHash") &&
+                          watch("confirmPassword") &&
+                          watch("passwordHash") === watch("confirmPassword") &&
+                          watch("confirmPassword").length > 0 && (
+                            <p className="text-green-600 text-sm mb-2 flex items-center">
+                              <svg
+                                className="w-4 h-4 mr-1"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M5 13l4 4L19 7"
+                                ></path>
+                              </svg>
+                              Passwords match
+                            </p>
+                          )}
+
+                        {/* Form validation errors */}
                         {errors.confirmPassword && (
                           <p className="text-red-500 text-sm">
                             {errors.confirmPassword.message}

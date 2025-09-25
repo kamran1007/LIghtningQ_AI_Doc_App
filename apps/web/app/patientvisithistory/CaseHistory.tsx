@@ -3,6 +3,8 @@ import { Sidebar } from "primereact/sidebar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
+import Lottie from "lottie-react";
+import successAnimation from "@/assets/ECG.json";
 import {
   User,
   FileText,
@@ -63,7 +65,6 @@ export default function PatientCaseHistory({
   patient,
 }: CaseHistoryProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // starts collapsed
-  const [recentVisitLoading, setRecentVisitLoading] = useState(false);
   const [recentVisit, SetRecentVisit] = useState<any[]>([]);
   const [lastFetchedPatientId, setLastFetchedPatientId] = useState<
     number | null
@@ -76,7 +77,9 @@ export default function PatientCaseHistory({
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(
     recentVisit?.return?.[0]?.AppointmentId ?? null
   );
+  const [recentVisitLoading, setRecentVisitLoading] = useState(false);
 
+  
   const bloodGroupMap: Record<string, string> = {
     A_POS: "A+",
     A_NEG: "A-",
@@ -144,26 +147,20 @@ export default function PatientCaseHistory({
         setRecentVisitLoading(true);
         const data = await FetchPatientAppointment(PatientId);
         SetRecentVisit(data || []);
-        setRecentVisitLoading(false);
-        setLastFetchedPatientId(PatientId); // mark as fetched
+        setLastFetchedPatientId(PatientId);
+
         const consultationData =
           await Patientappointmentcasesheet(AppointmentId);
         setAppointmentcasesheet(consultationData?.data || []);
-        console.log("fetch consultation Data", appointmentcasesheet);
         console.log("Fetched Consultation Data:", consultationData);
       } catch (err) {
-        console.error(
-          "Failed to fetch Patient Appointment and consultation Data:",
-          err
-        );
+        console.error("Failed to fetch data:", err);
+      } finally {
+        setRecentVisitLoading(false); // always stop animation
       }
     };
 
-    if (
-      visible && // slider just opened
-      PatientId && // valid ID
-      PatientId !== lastFetchedPatientId // not fetched already
-    ) {
+    if (visible && PatientId && PatientId !== lastFetchedPatientId) {
       fetchVitals();
     }
   }, [visible, PatientId]);
@@ -344,6 +341,7 @@ export default function PatientCaseHistory({
   };
   const sections = createConsultationSections(appointmentcasesheet);
 
+
   return (
     <Sidebar
       visible={visible}
@@ -355,6 +353,18 @@ export default function PatientCaseHistory({
       {/* Header */}
       <>
         <Toast ref={toast} position="bottom-right" />
+
+        {recentVisitLoading && (
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-white/40 backdrop-blur-3xl h">
+            <Lottie
+              animationData={successAnimation}
+              loop
+              autoplay
+              className="w-48 h-48"
+              renderer="svg" // use SVG renderer for better performance
+            />
+          </div>
+        )}
 
         <div className="w-full border-b-amber-300 shadow py-1 px-4 flex items-center justify-between bg-white dark:bg-slate-900 dark:border-slate-700 sticky-header bg-gradient-to-b from-[#dbfffd] to-[#eff8f8]">
           <div className="flex items-center gap-2">
@@ -755,7 +765,7 @@ export default function PatientCaseHistory({
                 <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                   <button
                     onClick={() =>
-                      generateConsultationPDF(appointmentcasesheet)
+                      generateConsultationPDF(appointmentcasesheet, patient)
                     }
                     className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                   >

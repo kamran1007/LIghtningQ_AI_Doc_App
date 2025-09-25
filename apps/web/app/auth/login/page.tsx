@@ -30,7 +30,7 @@ export default async function SignInPage() {
             priority={false}
             src="/LoginCard.png"
             alt="Logo"
-            width={300}
+            width={320}
             height={100}
             className="mx-auto"
           />

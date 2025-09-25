@@ -192,7 +192,7 @@ export class ManageHospitalService {
         gender: dto.gender,
         Prefix: dto.Prefix as any as Title,
         Experience: dto.Experience ?? '', // ✅ fallback to empty string
-        Employee_ID: dto.Employee_ID ?? '', // ✅ fallback to empty string
+        Employee_ID: dto.Employee_ID || null, // ✅ fallback to empty string
         refreshToken: '',
       },
       include: {
@@ -920,20 +920,47 @@ export class ManageHospitalService {
       SATURDAY: 6,
     };
 
+    // const adjustedSlots = slots.map((slot) => {
+    //   const slotDay = slot.DayOfWeek?.toUpperCase();
+    //   const slotDayIndex = dayIndexMap[slotDay ?? ''];
+
+    //   // Proceed if all values are valid
+    //   if (
+    //     slot.is_SlotCancelled &&
+    //     slot.isPermanentCancelled === false &&
+    //     typeof slotDayIndex === 'number'
+    //   ) {
+    //     // Check if today is the NEXT DAY of the slot's day
+    //     const isNextDay = (todayIndex - slotDayIndex + 7) % 7 === 1; // today is one day after the slot day
+
+    //     if (isNextDay) {
+    //       return {
+    //         ...slot,
+    //         is_SlotCancelled: false,
+    //         Slot_cancellation_remarks: '',
+    //       };
+    //     }
+    //   }
+
+    //   return slot;
+    // });
+
     const adjustedSlots = slots.map((slot) => {
       const slotDay = slot.DayOfWeek?.toUpperCase();
       const slotDayIndex = dayIndexMap[slotDay ?? ''];
 
-      // Proceed if all values are valid
-      if (
-        slot.is_SlotCancelled &&
-        slot.isPermanentCancelled === false &&
-        typeof slotDayIndex === 'number'
-      ) {
-        // Check if today is the NEXT DAY of the slot's day
-        const isNextDay = (todayIndex - slotDayIndex + 7) % 7 === 1; // today is one day after the slot day
+      // If invalid day, just return original slot
+      if (typeof slotDayIndex !== 'number') return slot;
 
-        if (isNextDay) {
+      // If permanently cancelled, always keep it cancelled
+      if (slot.is_SlotCancelled && slot.isPermanentCancelled) {
+        return slot;
+      }
+
+      // If temporarily cancelled, reset on the *next calendar day* or later
+      if (slot.is_SlotCancelled && !slot.isPermanentCancelled) {
+        const isDayPassed = todayIndex !== slotDayIndex; // ✅ any day after that slot day
+        if (isDayPassed) {
           return {
             ...slot,
             is_SlotCancelled: false,

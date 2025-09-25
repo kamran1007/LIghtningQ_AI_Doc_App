@@ -1,7 +1,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-export function generateConsultationPDF(data: any) {
+export async function generateConsultationPDF(data: any, patient: any) {
   const doc = new jsPDF();
   doc.setFont("helvetica", "normal");
   doc.setFontSize(11);
@@ -31,19 +31,24 @@ export function generateConsultationPDF(data: any) {
 
   // ---------------- HEADER ----------------
   const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.height;
 
   // Top teal bar
-  doc.setFillColor(162, 182, 180); // teal
+  doc.setFillColor(162, 182, 180);
   doc.rect(0, 0, pageWidth, 20, "F");
 
   // Logo (if exists)
   if (data?.appointment?.hospital?.logo) {
-    doc.addImage(data.appointment.hospital.logo, "PNG", 10, 2, 16, 16);
+    try {
+      doc.addImage(data.appointment.hospital.logo, "PNG", 10, 2, 16, 16);
+    } catch (error) {
+      console.warn("Could not load hospital logo:", error);
+    }
   }
 
   // Hospital name
   doc.setFont("helvetica", "bold");
-doc.setFontSize(18);
+  doc.setFontSize(18);
   doc.setTextColor(255, 255, 255);
   doc.text(data.appointment?.hospital.HospitalName || "", 30, 12);
 
@@ -62,12 +67,18 @@ doc.setFontSize(18);
   doc.setTextColor(60);
   doc.setFontSize(12);
   const hospitalAddress = data.appointment?.hospital.address || "";
-  const splitAddress = doc.splitTextToSize(hospitalAddress, 160); // 160px width for wrapping
-  doc.text(splitAddress, 35, 27); // Will auto-wrap
-  // Divider
+  const splitAddress = doc.splitTextToSize(hospitalAddress, 160);
+
+  const addressY = 27;
+  doc.text(splitAddress, 35, addressY);
+
+  // Divider positioning
+  const addressHeight = splitAddress.length * 5; // Adjusted line height
+  const dividerY = addressY + addressHeight + 3;
+
   doc.setDrawColor(200);
   doc.setLineWidth(0.3);
-  doc.line(10, 30, pageWidth - 10, 30);
+  doc.line(10, dividerY, pageWidth - 10, dividerY);
 
   // ---------------- PATIENT & DOCTOR INFO ----------------
   const patientInfo = formatKeyValueRows({
@@ -90,10 +101,15 @@ doc.setFontSize(18);
   });
 
   autoTable(doc, {
-    startY: 35,
+    startY: dividerY + 10,
     head: [["Patient Info", "Doctor Info"]],
     body: [[patientInfo, doctorInfo]],
-    styles: { fontSize: 10, cellPadding: 2, valign: "top", overflow: 'linebreak' },
+    styles: {
+      fontSize: 10,
+      cellPadding: 2,
+      valign: "top",
+      overflow: "linebreak",
+    },
     headStyles: { fillColor: [0, 121, 107], textColor: 255 },
   });
 
@@ -118,7 +134,7 @@ doc.setFontSize(18);
         "Allergies",
         data.appointment?.patient.allergies?.length
           ? data.appointment.patient.allergies
-              .map((a) => a.AllergyName)
+              .map((a: any) => a.AllergyName)
               .join(", ")
           : "None",
       ],
@@ -126,7 +142,7 @@ doc.setFontSize(18);
         "Medical History",
         data.appointment?.patient?.medicalHistory?.length
           ? data.appointment.patient.medicalHistory
-              .map((m) => m.MedicalHistoryName)
+              .map((m: any) => m.MedicalHistoryName)
               .join(", ")
           : "None",
       ],
@@ -148,21 +164,21 @@ doc.setFontSize(18);
       "Chief Complaint",
       data.ConsultationCheifComplaint?.length
         ? data.ConsultationCheifComplaint.map(
-            (c) => c.chiefComplaint?.ChiefComplainTagName
+            (c: any) => c.chiefComplaint?.ChiefComplainTagName
           ).join(", ")
         : "None",
     ],
     [
       "Clinical Notes",
       data.ConsultationclinicalNotes?.length
-        ? data.ConsultationclinicalNotes.map((n) => n.content).join("\n")
+        ? data.ConsultationclinicalNotes.map((n: any) => n.content).join("\n")
         : "None",
     ],
     [
       "Investigations",
       data.ConsultationInvestigation?.length
         ? data.ConsultationInvestigation.map(
-            (i) =>
+            (i: any) =>
               `${i.InvestigationType?.InvestigationTypeName || ""} - ${
                 i.InvestigationSubType?.InvestigationSubTypename || ""
               }\nRemark: ${i.ConsultationInvestigatRemark || ""}`
@@ -173,7 +189,7 @@ doc.setFontSize(18);
       "Diagnosis",
       data.ConsultationDiagnosis?.length
         ? data.ConsultationDiagnosis.map(
-            (d) =>
+            (d: any) =>
               `${d.diagnosis?.DiagnosisName || ""} (${d.diagnosis?.icdCode || ""})\nRemark: ${d.DiagnosisRemark || ""}`
           ).join("\n\n")
         : "None",
@@ -181,14 +197,16 @@ doc.setFontSize(18);
     [
       "Treatment & Instructions",
       data.ConsultationTreatment?.length
-        ? data.ConsultationTreatment.map((t) => t.treatmentText).join("\n\n")
+        ? data.ConsultationTreatment.map((t: any) => t.treatmentText).join(
+            "\n\n"
+          )
         : "None",
     ],
     [
       "Follow-Up Plan",
       data.ConsultationFollowUpPlan?.length
         ? data.ConsultationFollowUpPlan.map(
-            (f) =>
+            (f: any) =>
               `${f.followUpText || ""}\nNext Date: ${
                 f.nextDate ? new Date(f.nextDate).toLocaleDateString() : ""
               } (${f.duration} ${f.unit})`
@@ -218,7 +236,7 @@ doc.setFontSize(18);
           "Remarks",
         ],
       ],
-      body: data.ConsultationMedication.map((med) => [
+      body: data.ConsultationMedication.map((med: any) => [
         med.medicationName || "",
         med.dosage || "",
         med.frequency || "",
@@ -232,23 +250,66 @@ doc.setFontSize(18);
 
   // ---------------- FOOTER ----------------
   doc.setFontSize(10);
+  doc.setTextColor(0);
   doc.text(
-    `Doctor: ${data.appointment?.doctor?.firstName || ""} ${data.appointment?.doctor?.lastName || ""}`,
+    `Doctor: ${data.appointment?.doctor?.firstName || ""} ${
+      data.appointment?.doctor?.lastName || ""
+    }`,
     14,
-    doc.internal.pageSize.height - 20
-  );
-  doc.text(
-    "Signature: ____________________",
-    14,
-    doc.internal.pageSize.height - 15
+    pageHeight - 35 // Moved up to make room for signature
   );
 
+  // Draw the signature line first (so we know the reference position)
+  const lineY = pageHeight - 15;
+  doc.text("Signature: ____________________", 14, lineY);
+
+  // Add doctor signature if available (positioned above the line, right after "Signature:")
+  if (patient?.doctor?.SignatureOfUser) {
+    try {
+      const apiBase =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+      let signatureUrl = patient.doctor.SignatureOfUser;
+      if (signatureUrl.startsWith("/uploads")) {
+        signatureUrl = `${apiBase}${signatureUrl}`;
+      }
+
+      console.log("Resolved Signature URL:", signatureUrl);
+
+      // Fetch image
+      const response = await fetch(signatureUrl);
+      const blob = await response.blob();
+
+      // Convert to Base64
+      const base64data: string = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+      });
+
+      // Measure where the text "Signature:" ends
+      const signatureLabelWidth = doc.getTextWidth("Signature:");
+
+      // Position the signature right after the label
+      const sigX = 14 + signatureLabelWidth + 2; // +2px padding
+      const sigY = lineY - 12; // place slightly above the line
+      const sigWidth = 40; // adjust if needed
+      const sigHeight = 15;
+
+      doc.addImage(base64data, "PNG", sigX, sigY, sigWidth, sigHeight);
+    } catch (err) {
+      console.error("Error loading signature:", err);
+    }
+  }
+
+  // Footer note (removed duplicate)
   doc.setFontSize(8);
   doc.setTextColor(150);
   doc.text(
     "This clinic is powered by LightningQ — www.lightningq.com",
     pageWidth / 2,
-    doc.internal.pageSize.height - 5,
+    pageHeight - 5,
     { align: "center" }
   );
 

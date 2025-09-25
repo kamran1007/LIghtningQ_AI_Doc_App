@@ -15,15 +15,18 @@ import { PatientcareModule } from './patientcare/patientcare.module';
 import { AppointmentModule } from './appointment/appointment.module';
 import { ConsultationModule } from './consultation/consultation.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     // ✅ Static module for serving uploads
     ServeStaticModule.forRoot({
-  rootPath: join(__dirname, '..', '..', 'uploads'), // ✅ This resolves correctly at runtime
-  serveRoot: '/uploads',
-}),
+      rootPath: join(__dirname, '..', '..', 'uploads'), // ✅ This resolves correctly at runtime
+      serveRoot: '/uploads',
+    }),
 
+    // ✅ Schedule module (must be here for cron jobs to work)
+    ScheduleModule.forRoot(),
 
     ConfigModule.forRoot({
       isGlobal: true,

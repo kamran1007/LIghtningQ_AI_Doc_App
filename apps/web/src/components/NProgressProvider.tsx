@@ -1,4 +1,3 @@
-// app/components/NProgressProvider.tsx
 "use client";
 
 import { useEffect } from "react";
@@ -15,17 +14,11 @@ export default function NProgressProvider() {
   useEffect(() => {
     NProgress.start();
 
-    // Give a small delay so it's visible before finishing
     const timer = setTimeout(() => {
       NProgress.done();
     }, 300);
-    console.log("CLIENT: Navigated to", pathname); // 👈 shows in browser console
-    const time = new Date().toLocaleTimeString();
-    console.log(`[${time}] CLIENT: Navigated to ${pathname}`);
 
-    return () => {
-      clearTimeout(timer);
-    };
+    return () => clearTimeout(timer);
   }, [pathname, searchParams]);
 
   return null;
