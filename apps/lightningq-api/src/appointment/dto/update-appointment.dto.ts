@@ -7,7 +7,13 @@ import {
   IsBoolean,
 } from 'class-validator';
 
-import { AppointmentStatus } from '@prisma/client';
+// import { AppointmentStatus } from '@prisma/client';
+enum AppointmentStatus {
+  SCHEDULED = 'SCHEDULED',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
+  RESCHEDULED = 'RESCHEDULED',
+}
 
 export class UpdateAppointmentDto {
   @IsInt()

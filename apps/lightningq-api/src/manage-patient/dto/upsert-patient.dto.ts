@@ -7,8 +7,33 @@ import {
   IsEnum,
   IsBoolean,
 } from 'class-validator';
-import { Title, BloodGroup,GenderType } from '@prisma/client';
+// import { Title, BloodGroup, GenderType } from '@prisma/client';
+enum BloodGroup {
+  A_POS = 'A_POS',
+  A_NEG = 'A_NEG',
+  B_POS = 'B_POS',
+  B_NEG = 'B_NEG',
+  O_POS = 'O_POS',
+  O_NEG = 'O_NEG',
+  AB_POS = 'AB_POS',
+  AB_NEG = 'AB_NEG',
+}
 
+enum GenderType {
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
+  OTHER = 'OTHER',
+}
+
+enum Title {
+  Mr = 'Mr',
+  Mrs = 'Mrs',
+  Miss = 'Miss',
+  Ms = 'Ms',
+  Dr = 'Dr',
+  Prof = 'Prof',
+  Other = 'Other',
+}
 export class UpsertPatientDto {
   // System fields
   @IsOptional()
@@ -51,7 +76,9 @@ export class UpsertPatientDto {
   dateOfBirth!: Date;
 
   @IsOptional()
-  @IsEnum(GenderType, { message: 'gender must be one of the following values: MALE, FEMALE, OTHER' })
+  @IsEnum(GenderType, {
+    message: 'gender must be one of the following values: MALE, FEMALE, OTHER',
+  })
   gender?: GenderType;
 
   // Contact Info
@@ -152,7 +179,7 @@ export class UpsertPatientDto {
   @IsOptional()
   languages?: string[]; // array of LanguageId as string
   @IsOptional()
-  MedicalHistory ?: string[]; // array of MedicalHistoryId as string
+  MedicalHistory?: string[]; // array of MedicalHistoryId as string
 
   // @IsOptional()
   // TagPatient?: string[]
