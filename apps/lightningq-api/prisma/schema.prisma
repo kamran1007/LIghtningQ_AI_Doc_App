@@ -5,7 +5,9 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+
   // ❌ DO NOT add `output` here
 }
 
@@ -122,10 +124,10 @@ model Organization {
   industryType     String // Optional, e.g. "Healthcare", "Diagnostics"
   status           Hospital_Org_status @default(ACTIVE) // Enum for status
   description      String? // Optional about/description field
-  isActive         Boolean?  @default(true)
+  isActive         Boolean?            @default(true)
   // Relations
-  hospitals Hospital[]
-  users     User[]
+  hospitals        Hospital[]
+  users            User[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())

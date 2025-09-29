@@ -7,10 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      LightningQ:
-        specifier: 'file:'
-        version: 'file:'
     devDependencies:
       prettier:
         specifier: ^3.5.3
@@ -81,9 +77,6 @@ importers:
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.2
-      lightningq-api:
-        specifier: 'file:'
-        version: 'link:'
       multer:
         specifier: ^2.0.0
         version: 2.0.0
@@ -124,9 +117,6 @@ importers:
       '@nestjs/testing':
         specifier: ^11.0.1
         version: 11.1.1(@nestjs/common@11.1.1(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.1(@nestjs/common@11.1.1(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.1(@nestjs/common@11.1.1(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.1))
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
       '@swc/cli':
         specifier: ^0.6.0
         version: 0.6.0(@swc/core@1.11.24(@swc/helpers@0.5.15))(chokidar@4.0.3)
@@ -3377,10 +3367,6 @@ packages:
 
   '@yr/monotone-cubic-spline@1.0.3':
     resolution: {integrity: sha512-FQXkOta0XBSUPHndIKON2Y9JeQz5ZeMqLYZVVK93FliNBFm7LNMIZmY6FrMEB9XPcDbE2bekMbZD6kzDkxwYjA==}
-
-  'LightningQ@file:':
-    resolution: {directory: '', type: directory}
-    engines: {node: '>=18'}
 
   accepts@2.0.0:
     resolution: {integrity: sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==}
@@ -10441,8 +10427,6 @@ snapshots:
   '@xtuc/long@4.2.2': {}
 
   '@yr/monotone-cubic-spline@1.0.3': {}
-
-  'LightningQ@file:': {}
 
   accepts@2.0.0:
     dependencies:

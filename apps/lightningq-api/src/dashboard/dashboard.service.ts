@@ -1268,7 +1268,13 @@ export class DashboardService {
       //   paymentHistory?: PaymentHistoryItem | PaymentHistoryItem[] | null;
       // };
 
-      const historyArray = Array.isArray(appt.paymentHistory)
+      type PaymentHistoryItem = {
+        AppointmentChargesPaid: number | null;
+      };
+
+      const historyArray: PaymentHistoryItem[] = Array.isArray(
+        appt.paymentHistory,
+      )
         ? appt.paymentHistory
         : appt.paymentHistory
           ? [appt.paymentHistory]
@@ -1350,20 +1356,23 @@ export class DashboardService {
 
       if (!grouped[groupLabel]) grouped[groupLabel] = [];
 
-      // Calculate revenue from paymentHistory array
-      const historyArray = Array.isArray(r.paymentHistory)
+      // Normalize paymentHistory to always be an array
+      // Ensure historyArray is typed as array of objects with number|null
+      type PaymentHistoryItem = { AppointmentChargesPaid: number | null };
+
+      const historyArray: PaymentHistoryItem[] = Array.isArray(r.paymentHistory)
         ? r.paymentHistory
         : r.paymentHistory
           ? [r.paymentHistory]
           : [];
 
       const revenue = historyArray.reduce(
-        (sum, ph) => sum + (ph.AppointmentChargesPaid ?? 0),
+        (sum: number, ph) => sum + (ph.AppointmentChargesPaid ?? 0),
         0,
       );
 
       grouped[groupLabel].push({
-        specialization: `${r.doctor.Specialization?.SpecializationName}`,
+        specialization: `${r.doctor.Specialization?.SpecializationName ?? ''}`,
         appointments: 1, // each findMany row is one appointment
         revenue,
       });
