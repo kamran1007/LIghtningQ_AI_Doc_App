@@ -1,0 +1,13 @@
+# Node deps and build artifacts
+node_modules
+**/node_modules
+dist
+**/dist
+.turbo
+**/.turbo
+.next
+**/.next
+.pnpm-store
+**/.pnpm-store
+.cache
+**/.cache
