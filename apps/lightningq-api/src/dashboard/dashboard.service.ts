@@ -234,8 +234,16 @@ export class DashboardService {
     );
 
     const topSpecializations = Object.entries(specializationCounts)
-      .map(([id, count]) => ({ SpecializationId: Number(id), count }))
-      .sort((a, b) => b.count - a.count)
+      .map(([id, count]) => ({
+        SpecializationId: Number(id),
+        count: count as number,
+      }))
+      .sort(
+        (
+          a: { SpecializationId: number; count: number },
+          b: { SpecializationId: number; count: number },
+        ) => b.count - a.count,
+      )
       .slice(0, 5);
 
     const specializationDetails = await this.prisma.specialization.findMany({
@@ -298,11 +306,11 @@ export class DashboardService {
       totalDuration: number;
     }
 
-    const result = consultations.reduce<Record<number, DoctorPerformance>>(
-      (acc, c) => {
+    const result: Record<number, DoctorPerformance> = consultations.reduce(
+      (acc: Record<number, DoctorPerformance>, c) => {
         if (!c.appointment?.doctor) return acc;
 
-        const docId = c.appointment.DoctorId;
+        const docId = c.appointment.DoctorId!;
         const duration =
           (new Date(c.consultationEndDateTime!).getTime() -
             new Date(c.consultationDatTime).getTime()) /
@@ -323,15 +331,17 @@ export class DashboardService {
 
         return acc;
       },
-      {},
+      {} as Record<number, DoctorPerformance>, // ✅ cast accumulator
     );
 
-    const performanceList = Object.values(result).map((doc) => ({
-      name: doc.name,
-      specialization: doc.specialization,
-      completed: doc.completed,
-      avgMin: (doc.totalDuration / doc.completed).toFixed(1),
-    }));
+    const performanceList = Object.values(result).map(
+      (doc: DoctorPerformance) => ({
+        name: doc.name,
+        specialization: doc.specialization,
+        completed: doc.completed,
+        avgMin: (doc.totalDuration / doc.completed).toFixed(1),
+      }),
+    );
 
     function transformBigInt(obj: any): any {
       if (Array.isArray(obj)) {

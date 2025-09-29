@@ -5,16 +5,32 @@ import {
   IsEnum,
   IsInt,
   IsOptional,
-  isString,
   IsString,
 } from 'class-validator';
-import { BloodGroup, GenderType } from '@prisma/client';
 import { Expose, Type } from 'class-transformer';
+
+// ✅ Local enums instead of relying on @prisma/client
+export enum GenderType {
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
+  OTHER = 'OTHER',
+}
+
+export enum BloodGroup {
+  A_POS = 'A_POS',
+  A_NEG = 'A_NEG',
+  B_POS = 'B_POS',
+  B_NEG = 'B_NEG',
+  O_POS = 'O_POS',
+  O_NEG = 'O_NEG',
+  AB_POS = 'AB_POS',
+  AB_NEG = 'AB_NEG',
+}
 
 export class QuickAppointmentDto {
   // Patient fields
   @IsEnum(['Mr', 'Mrs', 'Miss', 'Ms', 'Prof', 'Other'])
-  Prefix?: 'Mr' | 'Mrs' | 'Miss' | 'Ms' | 'Prof' | 'Other'; // ✅ required
+  Prefix?: 'Mr' | 'Mrs' | 'Miss' | 'Ms' | 'Prof' | 'Other';
 
   @IsString()
   firstName?: string;
@@ -33,9 +49,6 @@ export class QuickAppointmentDto {
 
   @IsString()
   hospitalCode!: string;
-
-  // @IsInt()
-  // HospitalId!: number;
 
   @IsInt()
   organizationId!: number;
@@ -70,9 +83,6 @@ export class QuickAppointmentDto {
 
   @IsString()
   VisitReason?: string;
-
-  // @IsInt()
-  // TagPatientId?: number;
 
   @IsOptional()
   @IsInt({ each: true })
@@ -117,7 +127,10 @@ export class QuickAppointmentDto {
   PatientId?: number;
 
   @IsOptional()
-  @IsEnum(BloodGroup)
+  @IsEnum(BloodGroup, {
+    message:
+      'bloodGroup must be one of: A_POS, A_NEG, B_POS, B_NEG, O_POS, O_NEG, AB_POS, AB_NEG',
+  })
   bloodGroup?: BloodGroup;
 
   @IsOptional()
@@ -151,7 +164,4 @@ export class QuickAppointmentDto {
   @IsOptional()
   @Type(() => Number)
   SpecializationId?: number;
-
-  // @IsString()
-  // appointmentDate?: string;
 }

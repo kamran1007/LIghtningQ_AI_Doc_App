@@ -10,11 +10,32 @@ import {
   IsArray,
 } from 'class-validator';
 import {} from '@prisma/client';
-import {
-  Hospital_Org_status,
-  HospitalLevel,
-  SpecializationType,
-} from '@prisma/client';
+// import {
+//   Hospital_Org_status,
+//   HospitalLevel,
+//   SpecializationType,
+// } from '@prisma/client';
+
+enum Hospital_Org_status {
+    INACTIVE= "INACTIVE",
+    SUSPENDED= "SUSPENDED",
+}
+
+enum HospitalLevel {
+ SUPER= "SUPER",
+    CHILD= "CHILD",
+    SUB_CHILD="SUB_CHILD"
+}
+
+enum SpecializationType {
+GENERAL= "GENERAL",
+    OPHTHALMOLOGY= "OPHTHALMOLOGY",
+    DENTAL= "DENTAL",
+    ENT= "ENT",
+    ORTHOPEDIC= "ORTHOPEDIC",
+    MULTISPECIALITY= "MULTISPECIALITY",
+    OTHER= "OTHER"
+}
 
 export class CreateHospitalDto {
   @IsString()
