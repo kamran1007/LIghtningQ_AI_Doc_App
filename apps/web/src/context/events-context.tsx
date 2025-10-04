@@ -10,7 +10,37 @@ interface Event {
   end: Date;
   color: string;
 }
-
+interface Patient {
+  PatientId: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth?: string;
+  gender?: string;
+  mobile: string;
+  altContactNumber?: string;
+  email: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  area?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postalCode?: string | number;
+  landmark?: string;
+  taluka?: string;
+  bloodGroup?: string;
+  emergencyName?: string;
+  emergencyContact?: string;
+  emergencyRelation?: string;
+  kinName?: string;
+  kinContact?: string;
+  kinRelation?: string;
+  allergies?: { AllergyId: number }[];
+  languages?: { LanguageId: number }[];
+  medicalHistory?: { MedicalHistoryId: number }[];
+  profileImageUrl?: string;
+  Prefix?: string;
+}
 interface EventsContextType {
   events: CalendarEvent[];
   addEvent: (event: Event) => void;
@@ -23,15 +53,14 @@ interface EventsContextType {
   setRegisterPatientOpen: (value: boolean) => void;
   eventEditOpen: boolean;
   setEventEditOpen: (value: boolean) => void;
-  editingPatient: boolean;
-  setEditingPatient: (value: boolean) => void;
+  editingPatient: Patient | null;
+  setEditingPatient: (value: Patient | null) => void;
   eventDeleteOpen: boolean;
   setEventDeleteOpen: (value: boolean) => void;
   availabilityCheckerEventAddOpen: boolean;
   setAvailabilityCheckerEventAddOpen: (value: boolean) => void;
-  editingEvent: boolean,
-  setEditingEvent:  (value: boolean) => void;
-  
+  editingEvent: any | null;
+  setEditingEvent: (value: any | null) => void;
 }
 
 const EventsContext = createContext<EventsContextType | undefined>(undefined);
@@ -55,10 +84,10 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({
     }))
   );
   const [eventViewOpen, setEventViewOpen] = useState(false);
-  const[editingEvent,setEditingEvent] = useState(false)
+  const [editingEvent, setEditingEvent] = useState<any | null>(null);
   const [eventAddOpen, setEventAddOpen] = useState(false);
   const [isRegisterPatientOpen, setRegisterPatientOpen] = useState(false);
-  const [editingPatient, setEditingPatient] = useState(false);
+const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [eventEditOpen, setEventEditOpen] = useState(false);
   const [eventDeleteOpen, setEventDeleteOpen] = useState(false);
   const [availabilityCheckerEventAddOpen, setAvailabilityCheckerEventAddOpen] =
@@ -95,7 +124,7 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({
         availabilityCheckerEventAddOpen,
         setAvailabilityCheckerEventAddOpen,
         editingEvent,
-        setEditingEvent
+        setEditingEvent,
       }}
     >
       {children}

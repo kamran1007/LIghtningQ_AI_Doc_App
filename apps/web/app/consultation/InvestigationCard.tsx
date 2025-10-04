@@ -16,14 +16,12 @@ import {
   Microscope,
   MicOff,
   Mic,
-  Trash2,
   MessageCirclePlus,
 } from "lucide-react";
 import { AddUpdateInvestigation, FetchInvestigation } from "@/lib/consultation";
 import { getProfile } from "@/lib/action";
 import Select from "react-select";
 import { useFieldSpeechRecognition } from "./useFieldSpeechRecognition";
-import chroma from "chroma-js";
 
 const InvestigationCard = ({
   disabled,
@@ -218,14 +216,21 @@ const InvestigationCard = ({
             ...customStyles,
             menuPortal: (base) => ({ ...base, zIndex: 9999 }),
             menu: (base) => ({ ...base, zIndex: 9999, position: "absolute" }),
-            menuList: (base, state) => ({
+            menuList: (base) => ({
               ...base,
               maxHeight: "200px",
               overflowY: "auto",
-              borderColor: state.isFocused ? "#f9a8d4" : "#fbcfe8", // pink-300 on focus, pink-200 default
+              borderColor: "#fbcfe8",
+              "&:hover": {
+                borderColor: "#f9a8d4",
+              },
+            }),
+            control: (provided, state) => ({
+              ...provided,
+              borderColor: state.isFocused ? "#f9a8d4" : "#fbcfe8",
               boxShadow: state.isFocused ? "0 0 0 1px #f9a8d4" : "none",
               "&:hover": {
-                borderColor: "#f9a8d4", // keep pink on hover
+                borderColor: "#f9a8d4",
               },
             }),
           }}
@@ -257,7 +262,7 @@ const InvestigationCard = ({
             options={investigationCategories}
             isDisabled={disabled}
             value={investigationCategories.find(
-              (c) => c.value === customCategory
+              (c:any) => c.value === customCategory
             )}
             onChange={(selectedOption) =>
               setCustomCategory(selectedOption?.value || "")
@@ -325,12 +330,12 @@ const InvestigationCard = ({
               <div className="w-full">
                 <div className="relative">
                   <Textarea
-                  disabled={disabled}
+                    disabled={disabled}
                     className="mt-1 pr-10 resize-none rounded-2xl border-2 border-pink-200 hover:border-pink-300 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all duration-300 no-scrollbar bg-gradient-to-br from-pink-50/50 to-rose-50/30 placeholder:text-gray-400 placeholder:font-light text-gray-700 leading-relaxed tracking-wide shadow-sm hover:shadow-md focus:shadow-lg backdrop-blur-sm min-h-[100px] p-4"
                     placeholder={`Enter remark for ${inv.label}...`}
                     value={remarkValue}
                     onChange={(e) => {
-                      setForm((prev) => ({
+                      setForm((prev: any) => ({
                         ...prev,
                         investigationRemarks: {
                           ...prev.investigationRemarks,

@@ -1,4 +1,12 @@
 import jsPDF from "jspdf";
+declare module "jspdf" {
+  interface jsPDF {
+    lastAutoTable: {
+      finalY: number;
+      [key: string]: any;
+    };
+  }
+}
 import autoTable from "jspdf-autotable";
 
 export async function generateConsultationPDF(data: any, patient: any) {

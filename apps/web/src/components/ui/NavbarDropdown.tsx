@@ -33,19 +33,24 @@ import Image from "next/image";
 
 type ProfileProps = {
   profile: {
-    title?: string;
-    firstName: string;
-    lastName: string;
-    RoleName?: string;
-    mobile?: string;
-    email?: string;
-
-    // add other fields if needed
+    message?: string;
+    include?: any;
+    user: {
+      imageUrl?: string | null;
+      title?: string;
+      firstName: string;
+      lastName: string;
+      RoleName?: string;
+      mobile?: string;
+      email?: string;
+      // ...other user fields
+    };
   };
 };
 
 function NavbarDropdown({ profile }: ProfileProps) {
-  const userProfile = profile?.user ?? {}; // 🟢 unwrap here
+  const userProfile = profile.user ?? {};
+  // console.log("NavbarDropdown UserProfile:", userProfile);
 
   const [userHospital, setUserHospital] = useState<any>(null);
   const selectedHospital = useSelector(

@@ -42,6 +42,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { ConsultationFormValues } from "@/types/consultation"; // or wherever you defined it
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,6 +62,7 @@ interface ConsultationDrawerProps {
   patient: any;
   initialTab?: string;
 }
+import { Medication } from "@/types/consultation";
 
 // import { MultiSelect } from "@/components/multi-select";
 
@@ -102,6 +104,7 @@ import Lottie from "lottie-react";
 import successAnimation from "@/assets/Success.json";
 import { useSelector } from "react-redux";
 import PatientCaseHistory from "app/patientvisithistory/CaseHistory";
+import { Procedure } from "@/types/consultation";
 
 export default function ConsultationDrawer({
   open,
@@ -192,7 +195,7 @@ export default function ConsultationDrawer({
     BMIStatus: string;
     complaint: string;
     notes: string;
-    investigations: string[];
+    investigations: Investigation[];
     investigationRemarks: Record<string, string>;
     diagnosis: string;
     treatment: string;
@@ -249,12 +252,25 @@ export default function ConsultationDrawer({
 
   const handleMedicationChange = (
     index: number,
-    field: string,
+    field: keyof Medication,
     value: string
   ) => {
-    const updated = [...form.medications];
-    updated[index][field] = value;
-    setForm((prev) => ({ ...prev, medications: updated }));
+    setForm((prev) => {
+      const current = prev.medications[index];
+      if (!current) return prev; // ✅ bail early
+
+      const updated = [...prev.medications];
+      updated[index] = {
+        drug: current.drug,
+        dosage: current.dosage,
+        frequency: current.frequency,
+        duration: current.duration,
+        notes: current.notes,
+        [field]: value, // ✅ overwrite safely
+      };
+
+      return { ...prev, medications: updated };
+    });
   };
 
   const handleAddMedication = () => {
@@ -273,6 +289,40 @@ export default function ConsultationDrawer({
       setSelectedTab(initialTab);
     }
   }, [initialTab]);
+  // Chief Complaints
+  type ChiefComplaint = {
+    ChiefComplaintTagId: number;
+    label: string;
+    value: string;
+  };
+
+  // Investigations
+  type Investigation = {
+    InvestigationTypeId: number;
+    InvestigationSubTypeId: number;
+    value: string; // for select mapping
+  };
+
+  // Diagnosis
+  type Diagnosis = {
+    DiagnosisId: number;
+    label: string;
+  };
+
+
+
+  interface MedicationHistory {
+    consultationId: number;
+    date: string;
+    medications: Medication[];
+  }
+
+  interface PatientMedicineHistory {
+    history: MedicationHistory[];
+  }
+
+  const [patientMedicineHistory, setPatientMedicineHistory] =
+    useState<PatientMedicineHistory | null>(null);
 
   const [customCategory, setCustomCategory] = useState("Others"); // default
   const [chiefComplaints, setChiefComplaints] = useState<string[]>([]); // for tags
@@ -281,19 +331,19 @@ export default function ConsultationDrawer({
     form.clinicalnotesText || ""
   );
   const [diagnosisInput, setDiagnosisInput] = useState("");
-  const [diagnoses, setDiagnoses] = useState<string[]>([]);
+  const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
   const [listenings, setListenings] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [vitalsLoading, setVitalsLoading] = useState(false);
   const [vitalsHistory, setVitalsHistory] = useState<any[]>([]);
-  const [patientMedicineHistory, setPatientMedicineHistory] = useState<any[]>(
-    []
-  );
+
   const [patientMedicineLoading, setPatientMedicineLoading] = useState(false);
 
   const [vitalsHistoryOpen, setVitalsHistoryOpen] = useState(false);
   const [vitalsData, setVitalsData] = useState<any[]>([]);
-  const [selectedChiefComplaints, setSelectedChiefComplaints] = useState([]);
+  const [selectedChiefComplaints, setSelectedChiefComplaints] = useState<
+    ChiefComplaint[]
+  >([]);
   const [investigationCategories, setInvestigationCategories] = useState([]);
   const [InvestigationSubTypename, setCustomInvestigation] =
     useState<string>("");
@@ -314,7 +364,7 @@ export default function ConsultationDrawer({
   const [procedureremarkMap, setProcedureremarkMap] = useState<{
     [key: string]: string;
   }>({});
-  const [procedures, setProcedures] = useState([]);
+  const [procedures, setProcedures] = useState<Procedure[]>([]);
   const [isSaving, setIsSaving] = useState(false);
 
   const [consultationComleted, SetConsultationComlete] = useState(false);
@@ -411,19 +461,18 @@ export default function ConsultationDrawer({
 
   useEffect(() => {
     if (!listening && listeningInvestigation && transcript) {
-      setForm((prev) => ({
-        ...prev,
-        investigationRemarks: {
-          ...prev.investigationRemarks,
-          [selectedInvestigationKey]: prev.investigationRemarks?.[
-            selectedInvestigationKey
-          ]
-            ? prev.investigationRemarks[selectedInvestigationKey] +
+      if (selectedInvestigationKey) {
+        setForm((prev) => ({
+          ...prev,
+          investigationRemarks: {
+            ...prev.investigationRemarks,
+            [selectedInvestigationKey]:
+              (prev.investigationRemarks?.[selectedInvestigationKey] ?? "") +
               " " +
-              transcript
-            : transcript,
-        },
-      }));
+              transcript,
+          },
+        }));
+      }
       resetTranscript();
       setListeningInvestigation(false);
     }
@@ -542,15 +591,16 @@ export default function ConsultationDrawer({
     const match = code.match(/^(\d+)([DWMY])$/);
     if (!match) return;
 
-    const value = match[1];
-    const unit = match[2];
+    const value = match[1] ?? ""; // always string
+    const unit = match[2] as "D" | "W" | "M" | "Y"; // narrow to valid keys
 
-    const mappedUnit = {
-      D: "Days",
-      W: "Weeks",
-      M: "Months",
-      Y: "Years",
-    }[unit];
+    const mappedUnit: string =
+      {
+        D: "Days",
+        W: "Weeks",
+        M: "Months",
+        Y: "Years",
+      }[unit] ?? "";
 
     setForm((prev) => ({
       ...prev,
@@ -601,7 +651,7 @@ export default function ConsultationDrawer({
       label: "Complete Consultation",
       icon: "pi pi-file-check",
       title: "Complete Consultation",
-      template: (item, options) => (
+      template: (item: any, options: any) => (
         <div {...options} title="Complete Consultation">
           <i className={item.icon} />
           {/* <span>{item.label}</span> */}
@@ -614,7 +664,7 @@ export default function ConsultationDrawer({
     {
       label: "Save",
       icon: "pi pi-save",
-      template: (item, options) => (
+      template: (item: any, options: any) => (
         <div {...options} title="Save Consultation">
           <i className={item.icon} />
           {/* <span>{item.label}</span> */}
@@ -633,7 +683,7 @@ export default function ConsultationDrawer({
       label: "Case History",
       icon: "pi pi-file-export",
       title: "Case history",
-      template: (item, options) => (
+      template: (item: any, options: any) => (
         <div {...options} title="Case History">
           <i className={item.icon} />
           {/* <span>{item.label}</span> */}
@@ -804,9 +854,38 @@ export default function ConsultationDrawer({
     control,
     formState: { errors, isSubmitting },
     watch,
-  } = useForm({
+  } = useForm<ConsultationFormValues>({
     defaultValues: {
-      bloodgroup: undefined, // ✅ don't use ""
+      bloodgroup: "", // ✅ must be a string
+      followUpDuration: "",
+      followUpUnit: "",
+      clinicalnotesText: "",
+      systolic: "",
+      diastolic: "",
+      weight: "",
+      temperature: "",
+      heartRate: "",
+      oxygen: "",
+      height: "",
+      BMI: "",
+      BMIStatus: "",
+      complaint: "",
+      notes: "",
+      investigations: [],
+      investigationRemarks: {},
+      diagnosis: "",
+      treatment: "",
+      followUp: "",
+      complaints: [],
+      medications: [
+        {
+          drug: "",
+          dosage: "",
+          frequency: "",
+          duration: "",
+          notes: "",
+        },
+      ],
     },
   });
 
@@ -852,8 +931,8 @@ export default function ConsultationDrawer({
   // }, [appointmentId]);
 
   useEffect(() => {
-    if (form.bloodgroup) {
-      setValue("bloodgroup", form.bloodgroup); // set react-hook-form value
+    if (form.bloodgroup !== undefined) {
+      setValue("bloodgroup", form.bloodgroup ?? "");
     }
   }, [form.bloodgroup, setValue]);
 
@@ -876,9 +955,9 @@ export default function ConsultationDrawer({
           })
         ),
 
-        ConsultationInvestigation: (form.investigations || []).map((inv) => ({
-          InvestigationTypeId: inv?.InvestigationTypeId,
-          InvestigationSubTypeId: inv?.InvestigationSubTypeId,
+        ConsultationInvestigation: form.investigations.map((inv) => ({
+          InvestigationTypeId: inv.InvestigationTypeId,
+          InvestigationSubTypeId: inv.InvestigationSubTypeId,
           ConsultationInvestigatRemark:
             form.investigationRemarks?.[inv.value] || "",
         })),
@@ -2037,7 +2116,6 @@ export default function ConsultationDrawer({
                             form={form}
                             setForm={setForm}
                             handleChange={handleChange}
-                            // handleFollowUpMicClick={handleFollowUpMicClick}
                             handleFollowUpShortcut={handleFollowUpShortcut}
                           />
                           <PatientCaseHistory
@@ -2068,7 +2146,7 @@ export default function ConsultationDrawer({
 
                           <div className="space-y-8">
                             {patientMedicineHistory?.history?.length ? (
-                              patientMedicineHistory.history.map((h: any) => (
+                              patientMedicineHistory.history?.map((h: any) => (
                                 <div
                                   key={h.consultationId}
                                   className="relative pl-12"

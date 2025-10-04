@@ -178,7 +178,6 @@ const HospitalList = () => {
         <MaterialReactTable
           columns={columns}
           data={hospitalData}
-          enableSorting
           enablePagination
           enableSorting={false} // ✅ disables sorting completely
           enableColumnActions={false} // ✅ removes column action menu
@@ -195,14 +194,6 @@ const HospitalList = () => {
           sx: {
             '&:hover': {
               backgroundColor: '#8AFFFF !important',
-            },
-          },
-        }}
-        muiTableToolbarButtonProps={{
-          sx: {
-            color: 'teal',
-            '&:hover': {
-              color: '#2EFFFF', // slightly darker blue
             },
           },
         }}

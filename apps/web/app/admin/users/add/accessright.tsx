@@ -23,7 +23,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { X, Loader2Icon, ChevronDown, ChevronRight } from "lucide-react";
-import { User } from "app/admin/hospitaluserlist";
+import { User as HospitalUser } from "app/admin/hospitaluserlist";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { Card, CardContent } from "@/components/ui/card";
@@ -49,6 +49,22 @@ const PERM_KEYS = [
   "CanDelete",
   "CanAI_Assist",
 ] as const;
+
+export interface User {
+  UserId: number;
+  roleId: number;
+  organizationId: number; // ✅ add this
+  firstName: string;
+  lastName: string;
+  email: string;
+  AdminAccess?: {
+    hospital: {
+      HospitalId: number;
+      HospitalName: string;
+    };
+  }[];
+}
+
 
 interface AccessRightProps {
   open: boolean;
@@ -82,7 +98,7 @@ const AccessRight: React.FC<AccessRightProps> = ({
   } = useForm();
 
   const hospitalOptions =
-    user?.AdminAccess.map((h: any) => ({
+    user?.AdminAccess?.map((h: any) => ({
       id: h.hospital.HospitalId,
       name: h.hospital.HospitalName,
     })) ?? [];
@@ -371,7 +387,7 @@ const AccessRight: React.FC<AccessRightProps> = ({
         user.roleId,
         user.UserId,
         userHospital?.hospitalId || selectedHospitalId,
-        user.organizationId
+        user?.organizationId
       );
 
       // 🟢 Union of both: always include allModules + rolePermResp

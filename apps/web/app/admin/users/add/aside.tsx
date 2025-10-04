@@ -8,7 +8,7 @@ import {
 import Link from "next/link";
 import React, { useState } from "react";
 import Timeslot from "./timeslot";
-import { User } from "app/admin/hospitaluserlist";
+import { User } from "@/types/user";
 import Costing from "./costing";
 import { set } from "zod";
 import toast from "react-hot-toast";
