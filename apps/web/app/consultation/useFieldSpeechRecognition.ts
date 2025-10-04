@@ -15,7 +15,6 @@ const useFieldSpeechRecognition = ({
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const lastTranscriptRef = useRef<{ [key: string]: string }>({});
 
-
   useEffect(() => {
     if (
       !("webkitSpeechRecognition" in window || "SpeechRecognition" in window)
@@ -39,10 +38,12 @@ const useFieldSpeechRecognition = ({
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
+        if (!result) continue; // ✅ safety check
+
         if (result.isFinal) {
-          finalText += result[0].transcript;
+          finalText += result[0]?.transcript ?? ""; // ✅ safe access
         } else {
-          interimText += result[0].transcript;
+          interimText += result[0]?.transcript ?? "";
         }
       }
 
@@ -114,8 +115,7 @@ const useFieldSpeechRecognition = ({
     startListening,
     stopListening,
     resetTranscript,
-    lastTranscriptRef 
-
+    lastTranscriptRef,
   };
 };
 

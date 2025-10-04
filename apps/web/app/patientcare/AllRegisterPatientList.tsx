@@ -50,13 +50,14 @@ import {
   SheetFooter,
 } from "@/components/ui/sheet";
 
-import "react-date-range/dist/styles.css";
-import "react-date-range/dist/theme/default.css";
+// import "react-date-range/dist/styles.css";
+// import "react-date-range/dist/theme/default.css";
 
 import { DateRangePicker } from "react-date-range";
 import { FetchHospital } from "@/lib/dashboard";
 import toast from "react-hot-toast";
 import { Input } from "@/components/ui/input";
+import { RootState } from "@/store";
 const getInitials = (firstName: string, lastName: string) => {
   return `${firstName?.[0] ?? ""}${lastName?.[0] ?? ""}`.toUpperCase();
 };
@@ -90,10 +91,15 @@ function calculateAge(dob: string): string {
   return `${age} Years`;
 }
 
+interface Hospital {
+  HospitalId: number;
+  HospitalName: string;
+}
+
 export default function AllRegisterPatientList() {
   const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [hospitalData, setHospitalData] = useState([]);
+  const [hospitalData, setHospitalData] = useState<Hospital[]>([]);
 
   const [selectedHospitals, setSelectedHospitals] = useState<
     string | undefined
@@ -102,8 +108,9 @@ export default function AllRegisterPatientList() {
 
   const dispatch = useAppDispatch();
   const { data, total, loading, page, limit } = useAppSelector(
-    (state) => state.patientData
+    (state: RootState) => state.patientData
   );
+
   const [currentPage, setCurrentPage] = useState(page || 1);
   const { setRegisterPatientOpen, setEditingPatient } = useEvents();
 
@@ -312,7 +319,7 @@ export default function AllRegisterPatientList() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100 bg-white">
-                  {data.map((p, idx) => {
+                  {data.map((p: any, idx) => {
                     const imageUrl = p.profileImageUrl
                       ? `${BACKEND_URL}${p.profileImageUrl}`
                       : null;
@@ -326,7 +333,6 @@ export default function AllRegisterPatientList() {
                         className="hover:bg-[#EFFFFD] cursor-pointer"
                       >
                         <td className="px-4 py-3">{idx + 1}</td>
-
                         <td className="flex items-center gap-3 px-4 py-3 font-medium text-zinc-800">
                           <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
                             {!imageError && imageUrl ? (
@@ -382,12 +388,12 @@ export default function AllRegisterPatientList() {
                               <DropdownMenuItem>View Record</DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => {
-                                  setEditingPatient(p); // set selected patient
-                                  setRegisterPatientOpen(true); // open modal
+                                  setEditingPatient(p); // ✅ now stores full patient
+                                  setRegisterPatientOpen(true);
                                 }}
                               >
                                 Edit
-                              </DropdownMenuItem>{" "}
+                              </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </td>

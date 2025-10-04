@@ -3,18 +3,21 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 
+interface TreatmentInstructionsCardProps {
+  disabled: boolean; // ✅ keep this
+  form: any;
+  setForm: (value: any) => void;
+  handleTreatmentMicClick: () => void;
+  isListening: boolean;
+}
+
 const TreatmentInstructionsCard = ({
   disabled,
   form,
   setForm,
   handleTreatmentMicClick,
   isListening,
-}: {
-  form: any;
-  setForm: (value: any) => void;
-  handleTreatmentMicClick: () => void;
-  isListening: boolean;
-}) => {
+}: TreatmentInstructionsCardProps) => {
   const [loadingSuggestion, setLoadingSuggestion] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -43,7 +46,7 @@ const TreatmentInstructionsCard = ({
 
       <div className="relative">
         <Textarea
-        disabled={disabled}
+          disabled={disabled}
           placeholder="Enter treatment plan or advice to patient..."
           value={form.treatment}
           name="treatment"
@@ -82,7 +85,7 @@ const TreatmentInstructionsCard = ({
       <div className="flex flex-wrap gap-2 mt-2">
         {quickSnippets.map((text, idx) => (
           <button
-          disabled={disabled}
+            disabled={disabled}
             key={idx}
             onClick={() => insertSnippet(text)}
             className="text-xs px-2 py-1 rounded-md border border-gray-300 text-gray-700 hover:bg-yellow-50 transition"

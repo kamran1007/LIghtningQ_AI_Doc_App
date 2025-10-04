@@ -210,7 +210,7 @@ const LoginInForm = () => {
                     name="email"
                     type="email"
                     placeholder="User@Lightningq.com"
-                    autoComplete="new-email"
+                    // autoComplete="new-email"
                     autoComplete="email"
                     className="w-full pl-12 pr-12 py-4 bg-gray-50 border border-gray-200 rounded-xl 
                     focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent 

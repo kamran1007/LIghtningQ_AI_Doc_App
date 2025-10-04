@@ -211,9 +211,9 @@ export default function ReleaseNotes() {
                   © {new Date().getFullYear()} LightningQ. Transforming
                   healthcare with AI-powered solutions.
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                {/* <p className="text-xs text-gray-500 mt-1">
                   Built with passion for better healthcare outcomes.
-                </p>
+                </p> */}
               </div>
             </div>
           </div>

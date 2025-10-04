@@ -18,7 +18,7 @@ import {
   TableCell,
   TableHead,
 } from "@/components/ui/table";
-import { Plus, Trash2, Pencil, X } from "lucide-react";
+import { Plus, Trash2, Pencil, X, Loader2 } from "lucide-react";
 import { addupdateProcedure, FetchProcedure } from "@/lib/consultation";
 import { getUserSpecialization } from "@/lib/admin";
 import { Controller, useForm } from "react-hook-form";
@@ -44,6 +44,18 @@ type Procedure = {
   specializationId?: number;
   ProcedureId?: number;
 };
+interface DiagnosisFormValues {
+  DiagnosisName: string;
+  icdCode?: string;
+  specializationId?: number; // important for your Controller
+  DiagnosisId?: number;
+}
+interface ProcedureFormValues {
+  ProcedureName: string;
+  ProcedureCode?: string;
+  specializationId?: number;
+  ProcedureId?: number;
+}
 
 const ProcedureModal: React.FC<ProcedureModalProps> = ({ open, onClose }) => {
   const toast = useRef<Toast>(null);
@@ -60,11 +72,14 @@ const ProcedureModal: React.FC<ProcedureModalProps> = ({ open, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [proceduresList, setProceduresList] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const handleAdd = async () => {
     if (!form.ProcedureName) return alert("Procedure Name is required");
 
     try {
+      setIsLoading(true);
+
       // ✅ Prepare payload
       const payload = {
         ProcedureName: form.ProcedureName,
@@ -94,6 +109,8 @@ const ProcedureModal: React.FC<ProcedureModalProps> = ({ open, onClose }) => {
       });
       getProceduresdata();
     } catch (error) {
+      setIsLoading(true);
+
       console.error("Error adding procedure:", error);
       toast.current?.show({
         severity: "error",
@@ -116,7 +133,12 @@ const ProcedureModal: React.FC<ProcedureModalProps> = ({ open, onClose }) => {
         // ✅ Set user if editing
       } catch (error) {
         console.error("Failed to fetch data", error);
-        toast.error("Failed to fetch initial data");
+        toast.current?.show({
+          severity: "error",
+          summary: "failed",
+          detail: "Failed to fetch initial data",
+          life: 3000,
+        });
       } finally {
         setIsLoading(false);
       }
@@ -125,34 +147,34 @@ const ProcedureModal: React.FC<ProcedureModalProps> = ({ open, onClose }) => {
     fetchInitialData();
   }, []);
 
- const handleDelete = async (item: any) => {
-     const ProcedureId = item.ProcedureId || 0;
-     if (!ProcedureId) return;
- 
-     try {
-       await deleteprocedure(ProcedureId);
- 
-       // Remove from local state after successful delete
-       // setMedicines((prev) => prev.filter((_, i) => i !== index));
- 
-       toast.current?.show({
-         severity: "success",
-         summary: "Deleted",
-         detail: "Procedure deleted successfully",
-         life: 3000,
-       });
-       getProceduresdata();
-     } catch (error: any) {
-       toast.current?.show({
-         severity: "error",
-         summary: "Error",
-         detail: error.message || "Failed to delete Procedure",
-         life: 3000,
-       });
-     }
-   };
+  const handleDelete = async (item: any) => {
+    const ProcedureId = item.ProcedureId || 0;
+    if (!ProcedureId) return;
 
-  const { control, reset, handleSubmit } = useForm({
+    try {
+      await deleteprocedure(ProcedureId);
+
+      // Remove from local state after successful delete
+      // setMedicines((prev) => prev.filter((_, i) => i !== index));
+
+      toast.current?.show({
+        severity: "success",
+        summary: "Deleted",
+        detail: "Procedure deleted successfully",
+        life: 3000,
+      });
+      getProceduresdata();
+    } catch (error: any) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: error.message || "Failed to delete Procedure",
+        life: 3000,
+      });
+    }
+  };
+
+  const { control, reset, handleSubmit } = useForm<ProcedureFormValues>({
     defaultValues: {},
   });
 
@@ -172,7 +194,8 @@ const ProcedureModal: React.FC<ProcedureModalProps> = ({ open, onClose }) => {
     getProceduresdata();
   }, []);
 
-  const handleEdit = (item: any) => {
+  const handleEdit = (item: any, index: number) => {
+    setSelectedIndex(index); // ✅ store the index number
     setForm({
       ProcedureName: item.ProcedureName,
       ProcedureCode: item.ProcedureCode,
@@ -282,10 +305,17 @@ const ProcedureModal: React.FC<ProcedureModalProps> = ({ open, onClose }) => {
                     Cancel
                   </Button>
                   <Button
-                    className="px-4 py-2 bg-green-400 hover:bg-green-500"
+                    className="px-4 py-2 bg-green-400 hover:bg-green-500 flex items-center gap-2"
                     onClick={handleAdd}
+                    disabled={isLoading}
                   >
-                    Save
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="animate-spin w-4 h-4" />
+                      </>
+                    ) : (
+                      <span>{selectedIndex !== null ? "Update" : "Save"}</span>
+                    )}
                   </Button>
                 </div>
               </div>
@@ -339,7 +369,7 @@ const ProcedureModal: React.FC<ProcedureModalProps> = ({ open, onClose }) => {
                             <Button
                               size="icon"
                               variant="ghost"
-                              onClick={() => handleEdit(proc)}
+                              onClick={() => handleEdit(proc, idx)}
                             >
                               <Pencil className="w-4 h-4" />
                             </Button>

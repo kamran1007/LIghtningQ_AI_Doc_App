@@ -64,7 +64,7 @@ export function PatientSearchDrawer({
   useEffect(() => {
     SetOnSelectedHospital(selectedHospital?.hospital?.organizationId ?? []);
   }, [selectedHospital]);
-  
+
   const debouncedQuery = useDebounce(query, 1000);
   const { setEventAddOpen } = useEvents();
   const router = useRouter();
@@ -199,7 +199,7 @@ export function PatientSearchDrawer({
                         src={imageUrl}
                         alt={p.firstName}
                         initials={initials}
-                        colorClass={colorClass}
+                        colorClass={colorClass ?? "bg-gray-100 text-gray-600"} // ✅ safe default
                       />
                     </div>
 

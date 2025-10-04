@@ -36,38 +36,27 @@ export default function Page() {
   >("dashboard");
 
   const canViewDashboard = dashboardReportPerm?.Permissions?.CanView ?? false;
-
+  type TabId = "dashboard" | "advanced" | "additional";
+  type Tab = { id: TabId; label: string; canView: boolean };
 
   // const tabs = [
   //   { id: "dashboard", label: "Dashboard Report" },
   //   { id: "advanced", label: "Advanced Report" },
   //   { id: "additional", label: "Additional Report" },
   // ] as const;
-  const tabs = [
-    {
-      id: "dashboard",
-      label: "Dashboard Report",
-      canView: canViewDashboard,
-    },
-    {
-      id: "advanced",
-      label: "Advanced Report",
-      canView: true,
-    },
-    {
-      id: "additional",
-      label: "Additional Report",
-      canView: true,
-    },
-  ].filter((t) => t.canView); // 👈 only show allowed tabs
+  const rawTabs = [
+  { id: "dashboard", label: "Dashboard Report", canView: canViewDashboard },
+  { id: "advanced", label: "Advanced Report", canView: true },
+  { id: "additional", label: "Additional Report", canView: true },
+] as const;
+
+const tabs: Tab[] = rawTabs.filter((t) => t.canView) as Tab[];
 
   useEffect(() => {
-  if (!tabs.find((t) => t.id === activeTab)) {
-    if (tabs.length > 0) {
-      setActiveTab(tabs[0].id as typeof activeTab);
+    if (!tabs.find((t) => t.id === activeTab)) {
+      setActiveTab((tabs[0]?.id as typeof activeTab) ?? "dashboard");
     }
-  }
-}, [tabs, activeTab]);
+  }, [tabs, activeTab]);
 
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const [pillStyle, setPillStyle] = useState<{ left: number; width: number }>({
@@ -78,7 +67,7 @@ export default function Page() {
   useEffect(() => {
     const el = tabRefs.current[activeTab];
     if (el) {
-      setPillStyle({ left: el.offsetLeft, width: el.offsetWidth });
+      setPillStyle({ left: el.offsetLeft ?? 0, width: el.offsetWidth ?? 0 });
     }
   }, [activeTab]);
 
@@ -99,7 +88,9 @@ export default function Page() {
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            ref={(el) => (tabRefs.current[tab.id] = el)}
+            ref={(el) => {
+              tabRefs.current[tab.id] = el;
+            }}
             onClick={() => setActiveTab(tab.id)}
             className={`relative z-10 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
               activeTab === tab.id ? "text-white" : "text-gray-600"

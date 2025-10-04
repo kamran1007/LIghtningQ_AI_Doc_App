@@ -55,7 +55,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import image from "/fast-time";
 import { CalendarClock, Plus, X } from "lucide-react";
 import Lottie from "lottie-react";
 import successAnimation from "@/assets/success-animation.json";
@@ -141,6 +140,67 @@ const InfoColumn = ({ title, value }: { title: string; value: string }) => (
 );
 
 type EventAddForm = z.infer<typeof quickAppointmentSchema>;
+export type AppointmentEvent = {
+  AppointmentId: number;
+  mode?: string;
+  DoctorId?: number;
+  SpecializationId?: number;
+  appointmentDate?: string; // stored as ISO string
+  reason?: string;
+  acuity?: string;
+  visitTypeId?: number | string;
+  paymentTypeId?: number | string;
+  fasttrackpatient?: boolean;
+  TotalAppointmentCharges?: number;
+
+  patient?: {
+    Prefix?: string;
+    firstName?: string;
+    lastName?: string;
+    dateOfBirth?: string;
+    gender?: string;
+    mobile?: string;
+    email?: string;
+  };
+
+  doctor?: {
+    SpecializationId?: number;
+    DoctorSlot?: {
+      DoctorSlotId: number;
+      appointmentId: number;
+    }[];
+    DoctorCosting?: {
+      walkInFee?: number;
+      discount?: number;
+      fastTrackFee?: number;
+      followupValidityDays?: number;
+      freeFollowupCount?: number;
+      discountedFee?: number;
+    }[];
+  };
+
+  TagPatients?: { TagPatientId: number }[];
+};
+
+type EventsContextType = {
+  editingEvent: AppointmentEvent | null;
+  setEditingEvent: (event: AppointmentEvent | null) => void;
+  eventAddOpen: boolean;
+  setEventAddOpen: (open: boolean) => void;
+  // ... other context values
+};
+type QuickAppointmentForm = {
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  gender: "MALE" | "FEMALE" | "OTHER";
+  mobile: string;
+  visitTypeId: string;
+  VisitReason: string;
+  paymentTypeId: string;
+  appointmentTime: string;
+  // etc...
+};
 
 export function EventAddForm({
   start,
@@ -149,6 +209,10 @@ export function EventAddForm({
 }: EventAddFormProps) {
   const { editingEvent, setEditingEvent, setEventAddOpen, eventAddOpen } =
     useEvents();
+  // const [editingEvent, setEditingEvent] = useState<AppointmentEvent | null>(
+  //   null
+  // ); // ✅ not boolean anymore
+  // const [eventAddOpen, setEventAddOpen] = useState(false);
 
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [booked, setBooked] = useState(false);
@@ -169,7 +233,7 @@ export function EventAddForm({
   const toast = useRef<Toast>(null);
   const [open, setOpen] = useState(false);
 
-  const DoctorIcons: Record<string, JSX.Element> = {
+  const DoctorIcons: Record<string, React.ReactElement> = {
     general: <Stethoscope className="w-5 h-5 text-blue-500" />,
     cardiologist: <HeartPulse className="w-5 h-5 text-red-500" />,
     neurologist: <BrainCircuit className="w-5 h-5 text-purple-500" />,
@@ -198,23 +262,24 @@ export function EventAddForm({
     return `${age} Years`;
   }
   type Specialization = {
-    SpecializationId: string;
-    SpecializationName: string;
+    id: string;
+    name: string;
   };
   const [doctorSpecializationData, setDoctorSpecializationData] = useState<
     Specialization[]
   >([]);
 
   type PaymentType = {
-    PaymentTypeId: number;
-    PaymentTypeName: string;
+    id: number;
+    name: string;
   };
   const [paymentType, setPaymentType] = useState<PaymentType[]>([]);
 
   type AppointmentType = {
-    AppointmentTypeId: number;
-    AppointmentTypeName: string;
+    id: string | number;
+    name: string;
   };
+
   const [appointmentType, setAppointmentType] = useState<AppointmentType[]>([]);
 
   type TagPatientType = {
@@ -228,9 +293,11 @@ export function EventAddForm({
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   type DoctorData = {
-    UserId: string;
+    UserId: number;
+    DoctorId: string;
     firstName: string;
     lastName: string;
+    DoctorName: string;
     imageUrl?: string;
     Specialization?: {
       SpecializationName: string;
@@ -280,8 +347,8 @@ export function EventAddForm({
   useEffect(() => {
     if (!eventAddOpen) {
       setSearchQuery("");
-      setValue("start", start);
-      setValue("end", end);
+      setValue("start" as any, start);
+      setValue("end" as any, end);
     }
   }, [eventAddOpen]);
 
@@ -399,7 +466,9 @@ export function EventAddForm({
   useEffect(() => {
     if (selectedSpecializationId) {
       const filtered = doctorData.filter(
-        (doc) => doc.SpecializationId.toString() === selectedSpecializationId
+        (doc) =>
+          doc.Specialization?.SpecializationId?.toString() ===
+          selectedSpecializationId
       );
       setFilteredDoctors(filtered);
     } else {
@@ -433,6 +502,7 @@ export function EventAddForm({
 
   const formDefaultValues: quickAppointmentSchema = {
     Prefix: "Mr", // must match enum or be undefined
+
     firstName: "",
     lastName: "",
     gender: "MALE", // ✅ valid enum
@@ -590,7 +660,7 @@ export function EventAddForm({
     }
 
     const freeFollowupCount = (selectedPatient.Appointment || []).filter(
-      (a) =>
+      (a: any) =>
         a.DoctorId === Number(doctorId) &&
         new Date(a.appointmentDate) >= new Date(firstVisitDate) &&
         new Date(a.appointmentDate) <= new Date(appointmentDate) &&
@@ -604,7 +674,7 @@ export function EventAddForm({
     }
   }, [selectedPatient, appointmentDate, selectedDoctorData, setValue]);
 
-  const [totalToPay, setTotalToPay] = useState<number>(0);
+  const [totalToPay, setTotalToPay] = useState<number | null>(null);
 
   // const fastTrackFee = fastTrackSelected
   //   ? editingEvent?.AppointmentId
@@ -688,6 +758,7 @@ export function EventAddForm({
       ...form,
       PatientId: selectedPatient?.PatientId || null,
       appointmentTime: selectedTime.time,
+
       DoctorTimeSlotId: selectedTime.slotId,
       appointmentDate: selectedSlotDate,
 
@@ -912,61 +983,53 @@ export function EventAddForm({
 
   const weekDays = getWeekDates();
 
-  const getTimeSlotsForDay = (doctor: any, day: string) => {
-    if (!doctor) return [];
+  // const getTimeSlotsForDay = (doctor: any, day: string) => {
+  //   if (!doctor) return [];
 
-    const slot = doctor.DoctorTimeSlot?.find(
-      (s: any) => s.DayOfWeek === day && s.isAvailable && !s.is_SlotCancelled
-    );
+  //   const slot = doctor.DoctorTimeSlot?.find(
+  //     (s: any) => s.DayOfWeek === day && s.isAvailable && !s.is_SlotCancelled
+  //   );
 
-    const slots: { time: string; slotId: number }[] = [];
+  //   const slots: { time: string; slotId: number }[] = [];
 
-    const pushTimes = (from: string, to: string, interval: number) => {
-      if (!from || !to) return;
-      let start = from;
-      while (start < to) {
-        slots.push(start);
-        const [h, m] = start.split(":").map(Number);
-        const newMinutes = m + interval;
-        const newH = h + Math.floor(newMinutes / 60);
-        const newM = newMinutes % 60;
-        start = `${String(newH).padStart(2, "0")}:${String(newM).padStart(2, "0")}`;
-        if (start >= to) break;
-      }
-    };
+  //   const pushTimes = (from: string, to: string, interval: number) => {
+  //     if (!from || !to) return;
+  //     let start = from;
+  //     while (start < to) {
+  //       slots.push(start);
+  //       const [h, m] = start.split(":").map(Number);
+  //       const newMinutes = m + interval;
+  //       const newH = h + Math.floor(newMinutes / 60);
+  //       const newM = newMinutes % 60;
+  //       start = `${String(newH).padStart(2, "0")}:${String(newM).padStart(2, "0")}`;
+  //       if (start >= to) break;
+  //     }
+  //   };
 
-    const consultMin = Number(slot?.consult_Time_InMin || 15);
-    pushTimes(slot.Morning_From, slot.Morning_To, consultMin);
-    pushTimes(slot.Evening_From, slot.Evening_To, consultMin);
+  //   const consultMin = Number(slot?.consult_Time_InMin || 15);
+  //   pushTimes(slot.Morning_From, slot.Morning_To, consultMin);
+  //   pushTimes(slot.Evening_From, slot.Evening_To, consultMin);
 
-    return slots;
-  };
+  //   return slots;
+  // };
   const selectedDateStr = selectedSlotDate;
 
-  const bookedSet = new Set(
-    (selectedDoctorData?.DoctorSlot ?? [])
-      .filter(
-        (s: any) =>
-          s.isBooked &&
-          new Date(s.slotDate).toISOString().split("T")[0] === selectedDateStr
-      )
-      .map((s: any) => `${selectedDateStr}|${s.slotTime}`)
-  );
+  
 
-  const appendSlots = (from: string, to: string) => {
-    const generated = generateTimeSlots(
-      from,
-      to,
-      slot.DoctorTimeSlotId,
-      interval,
-      selectedSlotDay,
-      selectedSlotDate
-    ).map((s) => ({
-      ...s,
-      isBooked: bookedSet.has(`${selectedDateStr}|${s.time}`),
-    }));
-    slots.push(...generated);
-  };
+  // const appendSlots = (from: string, to: string) => {
+  //   const generated = generateTimeSlots(
+  //     from,
+  //     to,
+  //     slot.DoctorTimeSlotId,
+  //     interval,
+  //     selectedSlotDay,
+  //     selectedSlotDate
+  //   ).map((s) => ({
+  //     ...s,
+  //     isBooked: bookedSet.has(`${selectedDateStr}|${s.time}`),
+  //   }));
+  //   slots.push(...generated);
+  // };
 
   const ACUITY_OPTIONS = [
     {
@@ -993,21 +1056,34 @@ export function EventAddForm({
 
   const selectedAcuity = watch("acuity");
   const inputBorderColor =
-    ACUITY_BORDER_COLORS[selectedAcuity] || "border-gray-300";
+    ACUITY_BORDER_COLORS[selectedAcuity ?? ""] || "border-gray-300";
 
   useEffect(() => {
     if (!eventAddOpen) {
-      // Reset form fields
       reset({
-        Title: "",
+        Prefix: "Mr",
         firstName: "",
         lastName: "",
-        mobilenumber: "",
-        Email: "",
-        DateofBirth: "",
-        country: "",
-        Taluka: "",
-        gender: "",
+        mobile: "",
+        email: "",
+        dateOfBirth: "",
+        gender: "MALE",
+        visitTypeId: "",
+        VisitReason: "",
+        paymentTypeId: "",
+        appointmentTime: "",
+        cancellationReason: "",
+        AppointmentChargesPaid: 0,
+        ActualAppointmentCharges: 0,
+        DiscountOnAppointment: 0,
+        FastTrackCharges: 0,
+        TotalAppointmentCharges: 0,
+        isAmountPaid: true,
+        sendEmailMessage: false,
+        sendSmsMessage: false,
+        sendWhatsappMessage: false,
+        fasttrackpatient: false,
+        TagPatientIds: [],
       });
 
       // Reset editingEvent and any local state
@@ -1059,7 +1135,7 @@ export function EventAddForm({
   // console.log("Form values after reset:", watch());
 
   useEffect(() => {
-    if (editingEvent) {
+    if (editingEvent?.appointmentDate) {
       const appointmentDate = new Date(editingEvent.appointmentDate);
       const slotDate = appointmentDate.toISOString().split("T")[0];
       const timeString = appointmentDate.toTimeString().slice(0, 5);
@@ -1069,26 +1145,42 @@ export function EventAddForm({
 
       // 1. Pre-fill form fields
       reset({
-        Prefix: editingEvent?.patient?.Prefix || "",
-        firstName: editingEvent?.patient?.firstName || "",
-        lastName: editingEvent?.patient?.lastName || "",
-        dateOfBirth: editingEvent?.patient?.dateOfBirth?.split("T")[0] || "",
-        gender: editingEvent?.patient?.gender || "",
-        mobile: editingEvent?.patient?.mobile || "",
-        email: editingEvent?.patient?.email || "",
-        VisitReason: editingEvent?.reason || "",
-        acuity: editingEvent?.acuity || "",
+        Prefix:
+          (editingEvent?.patient?.Prefix as
+            | "Mr"
+            | "Mrs"
+            | "Miss"
+            | "Ms"
+            | "Prof"
+            | "Other"
+            | undefined) ?? "Mr",
+
+        firstName: editingEvent?.patient?.firstName ?? "",
+        lastName: editingEvent?.patient?.lastName ?? "",
+        dateOfBirth: editingEvent?.patient?.dateOfBirth?.split("T")[0] ?? "",
+        gender:
+          (editingEvent?.patient?.gender as
+            | "MALE"
+            | "FEMALE"
+            | "OTHER"
+            | undefined) ?? "MALE", // 👈 fix: cast to enum union
+
+        mobile: editingEvent?.patient?.mobile ?? "",
+        email: editingEvent?.patient?.email ?? "",
+        VisitReason: editingEvent?.reason ?? "",
+        acuity: editingEvent?.acuity ?? "",
         appointmentDate: slotDate,
         appointmentTime: timeString,
         TagPatientIds:
-          editingEvent?.TagPatients?.map((t) => String(t.TagPatientId)) || [],
+          editingEvent?.TagPatients?.map((t:any) => String(t.TagPatientId)) ?? [],
 
-        visitTypeId: editingEvent?.visitTypeId?.toString() || "",
-        paymentTypeId: editingEvent?.paymentTypeId?.toString() || "",
+        visitTypeId: editingEvent?.visitTypeId?.toString() ?? "",
+        paymentTypeId: editingEvent?.paymentTypeId?.toString() ?? "",
         fasttrackpatient: editingEvent?.fasttrackpatient ?? false,
       });
+
       const matchedSlot = editingEvent.doctor?.DoctorSlot?.find(
-        (slot) => slot.appointmentId === editingEvent.AppointmentId
+        (slot:any) => slot.appointmentId === editingEvent.AppointmentId
       );
 
       const slotId = matchedSlot?.DoctorSlotId ?? null;
@@ -1099,7 +1191,7 @@ export function EventAddForm({
       );
       setSelectedDoctorId(editingEvent.DoctorId?.toString() ?? null);
       setSelectedDoctorData(editingEvent.doctor);
-      setSelectedSlotDate(slotDate);
+      setSelectedSlotDate(slotDate ?? null);
       setSelectedSlotDay(weekday);
       setSelectedPatient(editingEvent?.patient);
       setSelectedDate(appointmentDate); // helpful for highlighting
@@ -1107,7 +1199,7 @@ export function EventAddForm({
       // 3. Also set selected time slot
       setSelectedTime({
         time: timeString,
-        slotId: slotId ?? null,
+        slotId: slotId ?? 0,
       });
     }
   }, [editingEvent, selectedDoctorData, reset]);
@@ -1115,7 +1207,9 @@ export function EventAddForm({
   useEffect(() => {
     if (!editingEvent || !selectedDoctorData?.DoctorSlot) return;
 
-    const appointmentDate = new Date(editingEvent.appointmentDate);
+    const appointmentDate = new Date(
+      editingEvent.appointmentDate ?? Date.now()
+    );
     const slotDate = appointmentDate.toISOString().split("T")[0];
     const timeString = appointmentDate.toTimeString().slice(0, 5);
     const weekday = appointmentDate
@@ -1123,24 +1217,27 @@ export function EventAddForm({
       .toUpperCase();
 
     const matchedSlot = editingEvent.doctor?.DoctorSlot?.find(
-      (slot) => slot.appointmentId === editingEvent.AppointmentId
+      (slot:any) => slot.appointmentId === editingEvent.AppointmentId
     );
 
-    const slotId = matchedSlot?.DoctorTimeSlotId ?? null;
+    // const slotId = matchedSlot?.DoctorTimeSlotId ?? null;
+    const slotId = matchedSlot?.DoctorSlotId ?? null;
 
-    setSelectedSlotDate(slotDate);
+    setSelectedSlotDate(slotDate ?? null);
     setSelectedSlotDay(weekday);
     setSelectedDate(appointmentDate); // helpful for day button highlighting
     setSelectedTime({
       time: timeString,
-      slotId: slotId ?? null,
+      slotId: slotId ?? 0,
     });
 
     // Also update form again (if needed)
   }, [editingEvent, selectedDoctorData]);
 
   interface TagOption {
-    value: number;
+    // value: number;
+    value: string; // ✅ string, not number
+
     label: string;
   }
 
@@ -1355,23 +1452,24 @@ export function EventAddForm({
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {doctorSpecializationData.map((specialization, idx) => {
-                        const key = specialization.name
-                          .toLowerCase()
-                          .replace(/\s+/g, "");
+                        const name = specialization?.name ?? ""; // fallback
+                        const key = name.toLowerCase().replace(/\s+/g, "");
                         const icon = DoctorIcons[key] || (
                           <Stethoscope className="w-5 h-5 text-gray-400" />
                         );
 
                         const isSelected =
                           selectedSpecializationId ===
-                          specialization.id.toString();
+                          specialization.id?.toString();
 
                         return (
                           <button
-                            key={idx}
+                            key={specialization.id ?? idx} // ✅ use id if available, fallback to idx
                             type="button"
                             onClick={() =>
-                              setSelectedSpecializationId(specialization.id)
+                              setSelectedSpecializationId(
+                                specialization.id.toString()
+                              )
                             }
                             className={`flex items-center gap-2 px-4 py-2 text-sm flex-shrink-0 border rounded-3xl p-4 shadow cursor-pointer transition
           ${
@@ -1381,7 +1479,8 @@ export function EventAddForm({
           }
         `}
                           >
-                            <span>{icon}</span> {specialization.name}
+                            <span>{icon}</span>{" "}
+                            {specialization.name || "Unknown"}
                           </button>
                         );
                       })}
@@ -1595,10 +1694,10 @@ export function EventAddForm({
                             return `${yyyy}-${mm}-${dd}`;
                           }
 
-                          function normalizeTime(time: string) {
-                            const [hh, mm] = time.split(":");
-                            return `${hh.padStart(2, "0")}:${mm.padStart(2, "0")}`;
-                          }
+                          // function normalizeTime(time: string) {
+                          //   const [hh, mm] = time.split(":");
+                          //   return `${hh.padStart(2, "0")}:${mm.padStart(2, "0")}`;
+                          // }
 
                           const selectedDateStr = selectedSlotDate
                             ? getLocalDateString(new Date(selectedSlotDate))
@@ -1611,7 +1710,7 @@ export function EventAddForm({
                           // ✅ Fix bookedSet: compare normalized dates and log
                           const bookedSet = new Set(
                             (selectedDoctorData?.DoctorSlot ?? []).flatMap(
-                              (s) => {
+                              (s: any) => {
                                 const slotDateStr = getLocalDateString(
                                   new Date(s.slotDate)
                                 );
@@ -2179,8 +2278,11 @@ export function EventAddForm({
                       <input
                         type="checkbox"
                         id="fasttrackpatient"
-                        {...field}
-                        checked={field.value}
+                        checked={field.value} // ✅ boolean binding
+                        onChange={(e) => field.onChange(e.target.checked)} // ✅ map to boolean
+                        onBlur={field.onBlur}
+                        ref={field.ref}
+                        name={field.name}
                         className="h-4 w-4 accent-green-600 border-gray-300 rounded focus:ring-green-300"
                       />
                       <span className="flex items-center gap-1 text-sm font-medium">
@@ -2188,7 +2290,7 @@ export function EventAddForm({
                           <Image
                             src="/fast-time.png"
                             alt="Fast Track"
-                            width={20} // or 40 for slightly larger
+                            width={20}
                             height={20}
                             className="object-contain"
                             priority={false}
@@ -2209,7 +2311,7 @@ export function EventAddForm({
                     <p className="text-base font-semibold text-gray-900">
                       {/* ₹{walkInFee} */}₹
                       {editingEvent?.AppointmentId
-                        ? editingEvent?.doctor?.DoctorCosting[0]?.walkInFee
+                        ? editingEvent?.doctor?.DoctorCosting?.[0]?.walkInFee
                         : walkInFee}
                     </p>
                   </div>
@@ -2218,7 +2320,7 @@ export function EventAddForm({
                     <p className="text-sm font-medium">
                       Discount (
                       {(editingEvent?.AppointmentId
-                        ? editingEvent?.doctor?.DoctorCosting[0]?.discount
+                        ? editingEvent?.doctor?.DoctorCosting?.[0]?.discount
                         : discountPercent) ?? 0}
                       %)
                     </p>
@@ -2227,7 +2329,7 @@ export function EventAddForm({
                       {(
                         (walkInFee *
                           ((editingEvent?.AppointmentId
-                            ? editingEvent?.doctor?.DoctorCosting[0]?.discount
+                            ? editingEvent?.doctor?.DoctorCosting?.[0]?.discount
                             : discountPercent) ?? 0)) /
                         100
                       ).toFixed(0)}
@@ -2242,7 +2344,8 @@ export function EventAddForm({
                       <p className="text-base font-semibold text-gray-900">
                         ₹
                         {editingEvent?.AppointmentId
-                          ? editingEvent?.doctor?.DoctorCosting[0]?.fastTrackFee
+                          ? editingEvent?.doctor?.DoctorCosting?.[0]
+                              ?.fastTrackFee
                           : fasttrackpatient}
                       </p>
                     </div>
@@ -2281,6 +2384,8 @@ export function EventAddForm({
                   <p className="text-sm font-medium mb-1">
                     Send Notification To:
                   </p>
+
+                  {/* SMS */}
                   <Controller
                     name="sendSmsMessage"
                     control={control}
@@ -2293,8 +2398,11 @@ export function EventAddForm({
                         <input
                           type="checkbox"
                           id="sendSmsMessage"
-                          {...field}
                           checked={field.value}
+                          onChange={(e) => field.onChange(e.target.checked)} // ✅ convert to boolean
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
                           className="h-4 w-4 accent-green-600 border-gray-300 rounded focus:ring-green-300"
                         />
                         <span className="flex items-center gap-1 text-sm font-medium">
@@ -2304,6 +2412,8 @@ export function EventAddForm({
                       </label>
                     )}
                   />
+
+                  {/* WhatsApp */}
                   <Controller
                     name="sendWhatsappMessage"
                     control={control}
@@ -2316,18 +2426,22 @@ export function EventAddForm({
                         <input
                           type="checkbox"
                           id="sendWhatsappMessage"
-                          {...field}
                           checked={field.value}
+                          onChange={(e) => field.onChange(e.target.checked)} // ✅
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
                           className="h-4 w-4 accent-green-600 border-gray-300 rounded focus:ring-green-300"
                         />
                         <span className="flex items-center gap-1 text-sm font-medium">
                           <i className="pi pi-whatsapp w-4 h-4" />
-                          whatsapp
+                          Whatsapp
                         </span>
                       </label>
                     )}
                   />
 
+                  {/* Email */}
                   <Controller
                     name="sendEmailMessage"
                     control={control}
@@ -2340,8 +2454,11 @@ export function EventAddForm({
                         <input
                           type="checkbox"
                           id="sendEmailMessage"
-                          {...field}
                           checked={field.value}
+                          onChange={(e) => field.onChange(e.target.checked)} // ✅
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
                           className="h-4 w-4 accent-green-600 border-gray-300 rounded focus:ring-green-300"
                         />
                         <span className="flex items-center gap-1 text-sm font-medium">
@@ -2352,6 +2469,7 @@ export function EventAddForm({
                     )}
                   />
                 </div>
+
                 <div className="border-t border-blue-200 pt-3">
                   <p className="text-sm font-medium text-gray-600 mb-2">
                     print Summary

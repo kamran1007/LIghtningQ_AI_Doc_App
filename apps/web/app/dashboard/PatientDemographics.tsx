@@ -1,5 +1,6 @@
 // components/dashboard/PatientDemographics.tsx
 "use client";
+import { ApexOptions } from "apexcharts";
 
 import React from "react";
 import dynamic from "next/dynamic";
@@ -21,8 +22,8 @@ interface PatientDemographicsProps {
 }
 
 export default function PatientDemographics({ data }: PatientDemographicsProps) {
-  const chartOptions = {
-    chart: { type: "bar" },
+  const chartOptions: ApexOptions = {
+    chart: { type: "pie" }, // 👈 must match actual chart type
     labels: ["Male", "Female", "Other"],
     colors: ["#87dbeb", "#df78ec", "#FEB019"],
     legend: { position: "bottom" },

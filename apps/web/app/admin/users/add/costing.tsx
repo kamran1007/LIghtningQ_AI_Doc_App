@@ -31,7 +31,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import { User } from "app/admin/hospitaluserlist";
+import { User } from "@/types/user";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { AddUpdateDoctorCosting, fetchDoctorCosting } from "@/lib/admin";
@@ -52,7 +52,7 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const hospitalOptions =
-    user?.AdminAccess.map((h: any) => ({
+    user?.AdminAccess?.map((h: any) => ({
       id: h.hospital.HospitalId,
       name: h.hospital.HospitalName,
     })) ?? [];

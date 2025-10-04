@@ -18,6 +18,7 @@ import { BulkUpdateDoctorSlotDto } from './dto/BulkUpdateDoctorSlotDto';
 import { CreateDoctorCostingDto } from './dto/create-doctor-costing.dto';
 import { AddUpdateTimeSlotDto } from './dto/AddUpdateTimeSlot.dto';
 import { AddUpdateAccessRightDto } from './dto/AddUpdateAccessRight.dto';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class ManageHospitalService {
@@ -475,6 +476,109 @@ export class ManageHospitalService {
     });
   }
   //AddUpdate Doctor Slot
+  // async addUpdateTimeSlot(dto: AddUpdateTimeSlotDto, userId: number) {
+  //   if (!dto.userId || !dto.timeSlots || dto.timeSlots.length === 0) {
+  //     throw new Error('userId and timeSlots are required.');
+  //   }
+
+  //   const affectedHospitals: number[] = dto.timeSlots
+  //     .map((s) => s.hospitalId)
+  //     .filter((id): id is number => typeof id === 'number');
+
+  //   // Step 1: Archive
+  //   const existingSlots = await this.prisma.doctorTimeSlot.findMany({
+  //     where: {
+  //       DoctorId: dto.userId,
+  //       HospitalId: { in: affectedHospitals },
+  //       isDeleted: false,
+  //     },
+  //   });
+
+  //   if (existingSlots.length > 0) {
+  //     const historyData = existingSlots.map((slot) => ({
+  //       DoctorTimeSlotId: slot.DoctorTimeSlotId,
+  //       userId: slot.DoctorId, // ✅ explicitly mapped
+  //       HospitalId: slot.HospitalId,
+  //       DayOfWeek: slot.DayOfWeek,
+  //       Morning_From: slot.Morning_From,
+  //       Morning_To: slot.Morning_To,
+  //       Evening_From: slot.Evening_From,
+  //       Evening_To: slot.Evening_To,
+  //       consult_Time_InMin: slot.consult_Time_InMin,
+  //       Accept_Appointment_Selected_Date: slot.Accept_Appointment_Selected_Date,
+  //       is_DND: slot.is_DND,
+  //       is_SlotCancelled: slot.is_SlotCancelled,
+  //       isPermanentCancelled: slot.isPermanentCancelled,
+  //       DNDremarks: slot.DNDremarks,
+  //       Slot_cancellation_remarks: slot.Slot_cancellation_remarks,
+  //       isDeleted: slot.isDeleted,
+  //       isAvailable: slot.isAvailable,
+  //       isBooked: slot.isBooked,
+  //       isConfirmed: slot.isConfirmed,
+  //       isRejected: slot.isRejected,
+  //       createdAt: slot.createdAt,
+  //       updatedAt: slot.updatedAt,
+  //       changedBy: userId,
+  //       changedAt: new Date(),
+  //       isSlotChanged: slot.isSlotChanged,
+  //       isActive: slot.isActive,
+  //       createdBy: slot.createdBy,
+  //     }));
+
+  //     await this.prisma.doctorTimeSlotHistory.createMany({
+  //       data: historyData,
+  //     });
+  //   }
+
+  //   // Step 2: Delete old
+  //   await this.prisma.doctorTimeSlot.deleteMany({
+  //     where: {
+  //       DoctorId: dto.userId,
+  //       HospitalId: { in: affectedHospitals },
+  //       isDeleted: false,
+  //     },
+  //   });
+
+  //   // Step 3: Insert new
+  //   const now = new Date();
+  //   const newSlotData = dto.timeSlots.map((slot) => ({
+  //     DoctorId: dto.userId!,
+  //     HospitalId: slot.hospitalId!,
+  //     DayOfWeek: slot.DayOfWeek!,
+  //     Morning_From: slot.Morning_From ?? null,
+  //     Morning_To: slot.Morning_To ?? null,
+  //     Evening_From: slot.Evening_From ?? null,
+  //     Evening_To: slot.Evening_To ?? null,
+  //     consult_Time_InMin: slot.consult_Time_InMin ?? 15,
+  //     Accept_Appointment_Selected_Date:
+  //       dto.Accept_Appointment_Selected_Date ?? true,
+  //     DNDremarks: slot.DNDremarks ?? null,
+  //     Slot_cancellation_remarks: slot.Slot_cancellation_remarks ?? null,
+  //     is_DND: slot.is_DND ?? false,
+  //     is_SlotCancelled: slot.is_SlotCancelled ?? false,
+  //     isPermanentCancelled: slot.isPermanentCancelled ?? false,
+  //     isDeleted: slot.isDeleted ?? false,
+  //     isSlotChanged: slot.isSlotChanged ?? false,
+  //     isActive: true,
+  //     isAvailable: true,
+  //     isBooked: false,
+  //     isConfirmed: false,
+  //     isRejected: false,
+  //     createdBy: userId,
+  //     createdAt: now,
+  //     updatedAt: now,
+  //   }));
+
+  //   const inserted = await this.prisma.doctorTimeSlot.createMany({
+  //     data: newSlotData,
+  //   });
+
+  //   return {
+  //     message: 'Time slots replaced with history logging.',
+  //     count: inserted.count,
+  //     HttpCode: 201,
+  //   };
+  // }
   async addUpdateTimeSlot(dto: AddUpdateTimeSlotDto, userId: number) {
     if (!dto.userId || !dto.timeSlots || dto.timeSlots.length === 0) {
       throw new Error('userId and timeSlots are required.');
@@ -484,7 +588,7 @@ export class ManageHospitalService {
       .map((s) => s.hospitalId)
       .filter((id): id is number => typeof id === 'number');
 
-    // Step 1: Archive
+    // Step 1: Fetch existing slots
     const existingSlots = await this.prisma.doctorTimeSlot.findMany({
       where: {
         DoctorId: dto.userId,
@@ -493,10 +597,11 @@ export class ManageHospitalService {
       },
     });
 
+    // Step 2: Archive existing before change
     if (existingSlots.length > 0) {
       const historyData = existingSlots.map((slot) => ({
         DoctorTimeSlotId: slot.DoctorTimeSlotId,
-        userId: slot.DoctorId, // ✅ explicitly mapped
+        userId: slot.DoctorId,
         HospitalId: slot.HospitalId,
         DayOfWeek: slot.DayOfWeek,
         Morning_From: slot.Morning_From,
@@ -524,57 +629,107 @@ export class ManageHospitalService {
         createdBy: slot.createdBy,
       }));
 
-      await this.prisma.doctorTimeSlotHistory.createMany({
-        data: historyData,
-      });
+      await this.prisma.doctorTimeSlotHistory.createMany({ data: historyData });
     }
 
-    // Step 2: Delete old
-    await this.prisma.doctorTimeSlot.deleteMany({
-      where: {
-        DoctorId: dto.userId,
-        HospitalId: { in: affectedHospitals },
-        isDeleted: false,
-      },
-    });
-
-    // Step 3: Insert new
     const now = new Date();
-    const newSlotData = dto.timeSlots.map((slot) => ({
-      DoctorId: dto.userId!,
-      HospitalId: slot.hospitalId!,
-      DayOfWeek: slot.DayOfWeek!,
-      Morning_From: slot.Morning_From ?? null,
-      Morning_To: slot.Morning_To ?? null,
-      Evening_From: slot.Evening_From ?? null,
-      Evening_To: slot.Evening_To ?? null,
-      consult_Time_InMin: slot.consult_Time_InMin ?? 15,
-      Accept_Appointment_Selected_Date:
-        dto.Accept_Appointment_Selected_Date ?? true,
-      DNDremarks: slot.DNDremarks ?? null,
-      Slot_cancellation_remarks: slot.Slot_cancellation_remarks ?? null,
-      is_DND: slot.is_DND ?? false,
-      is_SlotCancelled: slot.is_SlotCancelled ?? false,
-      isPermanentCancelled: slot.isPermanentCancelled ?? false,
-      isDeleted: slot.isDeleted ?? false,
-      isSlotChanged: slot.isSlotChanged ?? false,
-      isActive: true,
-      isAvailable: true,
-      isBooked: false,
-      isConfirmed: false,
-      isRejected: false,
-      createdBy: userId,
-      createdAt: now,
-      updatedAt: now,
-    }));
+    const results: { updated: number; inserted: number; cancelled: number } = {
+      updated: 0,
+      inserted: 0,
+      cancelled: 0,
+    };
 
-    const inserted = await this.prisma.doctorTimeSlot.createMany({
-      data: newSlotData,
-    });
+    // Step 3: Process incoming slots
+    for (const slot of dto.timeSlots) {
+      const existing = existingSlots.find(
+        (s) =>
+          s.HospitalId === slot.hospitalId &&
+          s.DayOfWeek === slot.DayOfWeek &&
+          !s.isDeleted,
+      );
+
+      if (existing) {
+        // Update existing slot
+        await this.prisma.doctorTimeSlot.update({
+          where: { DoctorTimeSlotId: existing.DoctorTimeSlotId },
+          data: {
+            Morning_From: slot.Morning_From ?? null,
+            Morning_To: slot.Morning_To ?? null,
+            Evening_From: slot.Evening_From ?? null,
+            Evening_To: slot.Evening_To ?? null,
+            consult_Time_InMin: slot.consult_Time_InMin ?? 15,
+            Accept_Appointment_Selected_Date:
+              dto.Accept_Appointment_Selected_Date ?? true,
+            DNDremarks: slot.DNDremarks ?? null,
+            Slot_cancellation_remarks: slot.Slot_cancellation_remarks ?? null,
+            is_DND: slot.is_DND ?? false,
+            is_SlotCancelled: slot.is_SlotCancelled ?? false,
+            isPermanentCancelled: slot.isPermanentCancelled ?? false,
+            isSlotChanged: slot.isSlotChanged ?? false,
+            updatedAt: now,
+          },
+        });
+        results.updated++;
+      } else {
+        // Insert new slot
+        await this.prisma.doctorTimeSlot.create({
+          data: {
+            DoctorId: dto.userId!,
+            HospitalId: slot.hospitalId!,
+            DayOfWeek: slot.DayOfWeek!,
+            Morning_From: slot.Morning_From ?? null,
+            Morning_To: slot.Morning_To ?? null,
+            Evening_From: slot.Evening_From ?? null,
+            Evening_To: slot.Evening_To ?? null,
+            consult_Time_InMin: slot.consult_Time_InMin ?? 15,
+            Accept_Appointment_Selected_Date:
+              dto.Accept_Appointment_Selected_Date ?? true,
+            DNDremarks: slot.DNDremarks ?? null,
+            Slot_cancellation_remarks: slot.Slot_cancellation_remarks ?? null,
+            is_DND: slot.is_DND ?? false,
+            is_SlotCancelled: slot.is_SlotCancelled ?? false,
+            isPermanentCancelled: slot.isPermanentCancelled ?? false,
+            isDeleted: false,
+            isSlotChanged: slot.isSlotChanged ?? false,
+            isActive: true,
+            isAvailable: true,
+            isBooked: false,
+            isConfirmed: false,
+            isRejected: false,
+            createdBy: userId,
+            createdAt: now,
+            updatedAt: now,
+          },
+        });
+        results.inserted++;
+      }
+    }
+
+    // Step 4: Mark removed slots as cancelled (soft delete / slot cancelled)
+    const incomingKeys = dto.timeSlots.map(
+      (s) => `${s.hospitalId}_${s.DayOfWeek}`,
+    );
+    const removed = existingSlots.filter(
+      (s) => !incomingKeys.includes(`${s.HospitalId}_${s.DayOfWeek}`),
+    );
+
+    if (removed.length > 0) {
+      await this.prisma.doctorTimeSlot.updateMany({
+        where: {
+          DoctorTimeSlotId: { in: removed.map((r) => r.DoctorTimeSlotId) },
+        },
+        data: {
+          is_SlotCancelled: true,
+          Slot_cancellation_remarks: 'Cancelled by system update',
+          updatedAt: now,
+        },
+      });
+      results.cancelled = removed.length;
+    }
 
     return {
-      message: 'Time slots replaced with history logging.',
-      count: inserted.count,
+      message: 'Time slots synced with history logging.',
+      stats: results,
       HttpCode: 201,
     };
   }
@@ -873,7 +1028,7 @@ export class ManageHospitalService {
     day?: string;
   }) {
     const whereClause: any = {
-      DoctorId: userId, // ✅ this matches your model
+      DoctorId: userId,
       isDeleted: false,
     };
 
@@ -885,15 +1040,11 @@ export class ManageHospitalService {
       whereClause.DayOfWeek = day;
     }
 
-    // Optional access check
+    // Access check
     if (hospitalId) {
       const access = await this.prisma.userHospitalAccess.findFirst({
-        where: {
-          UserId: userId,
-          hospitalId,
-        },
+        where: { UserId: userId, hospitalId },
       });
-
       if (!access) {
         throw new ForbiddenException('User is not mapped to this hospital.');
       }
@@ -901,12 +1052,10 @@ export class ManageHospitalService {
 
     const slots = await this.prisma.doctorTimeSlot.findMany({
       where: whereClause,
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: { createdAt: 'desc' },
     });
 
-    // To reset temporary cancellations after midnight of that day
+    // 🕒 Inline reset logic
     const now = new Date();
     const todayIndex = now.getDay(); // 0 = Sunday, ..., 6 = Saturday
 
@@ -920,47 +1069,24 @@ export class ManageHospitalService {
       SATURDAY: 6,
     };
 
-    // const adjustedSlots = slots.map((slot) => {
-    //   const slotDay = slot.DayOfWeek?.toUpperCase();
-    //   const slotDayIndex = dayIndexMap[slotDay ?? ''];
-
-    //   // Proceed if all values are valid
-    //   if (
-    //     slot.is_SlotCancelled &&
-    //     slot.isPermanentCancelled === false &&
-    //     typeof slotDayIndex === 'number'
-    //   ) {
-    //     // Check if today is the NEXT DAY of the slot's day
-    //     const isNextDay = (todayIndex - slotDayIndex + 7) % 7 === 1; // today is one day after the slot day
-
-    //     if (isNextDay) {
-    //       return {
-    //         ...slot,
-    //         is_SlotCancelled: false,
-    //         Slot_cancellation_remarks: '',
-    //       };
-    //     }
-    //   }
-
-    //   return slot;
-    // });
+    const slotsToReset: number[] = [];
 
     const adjustedSlots = slots.map((slot) => {
       const slotDay = slot.DayOfWeek?.toUpperCase();
       const slotDayIndex = dayIndexMap[slotDay ?? ''];
 
-      // If invalid day, just return original slot
       if (typeof slotDayIndex !== 'number') return slot;
 
-      // If permanently cancelled, always keep it cancelled
+      // Keep permanent cancellations
       if (slot.is_SlotCancelled && slot.isPermanentCancelled) {
         return slot;
       }
 
-      // If temporarily cancelled, reset on the *next calendar day* or later
+      // Reset temporary cancellations once the day is passed
       if (slot.is_SlotCancelled && !slot.isPermanentCancelled) {
-        const isDayPassed = todayIndex !== slotDayIndex; // ✅ any day after that slot day
+        const isDayPassed = todayIndex !== slotDayIndex;
         if (isDayPassed) {
+          slotsToReset.push(slot.DoctorTimeSlotId);
           return {
             ...slot,
             is_SlotCancelled: false,
@@ -972,11 +1098,47 @@ export class ManageHospitalService {
       return slot;
     });
 
+    // ✅ Persist reset in DB immediately if needed
+    if (slotsToReset.length > 0) {
+      await this.prisma.doctorTimeSlot.updateMany({
+        where: { DoctorTimeSlotId: { in: slotsToReset } },
+        data: {
+          is_SlotCancelled: false,
+          Slot_cancellation_remarks: '',
+          updatedAt: new Date(),
+        },
+      });
+    }
+
     return {
       message: `Slots fetched successfully.`,
       count: adjustedSlots.length,
       slots: adjustedSlots,
     };
+  }
+
+  // ✅ Scheduled midnight reset (backup to inline reset)
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async resetTemporaryCancellations() {
+    const today = new Date();
+    const todayDay = today
+      .toLocaleString('en-US', { weekday: 'long' })
+      .toUpperCase();
+
+    await this.prisma.doctorTimeSlot.updateMany({
+      where: {
+        is_SlotCancelled: true,
+        isPermanentCancelled: false,
+        DayOfWeek: { not: todayDay }, // reset if not today's day
+      },
+      data: {
+        is_SlotCancelled: false,
+        Slot_cancellation_remarks: '',
+        updatedAt: new Date(),
+      },
+    });
+
+    console.log('✅ Temporary cancellations reset at midnight');
   }
 
   async createOrUpdateDoctorCosting(

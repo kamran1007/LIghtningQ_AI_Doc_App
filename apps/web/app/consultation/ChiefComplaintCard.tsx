@@ -13,6 +13,7 @@ interface ComplaintOption {
   value: string;
   id: number;
 }
+import { MultiValue, ActionMeta } from "react-select";
 
 export const ChiefComplaintCard = ({
   disabled,
@@ -25,7 +26,7 @@ export const ChiefComplaintCard = ({
   handleChiefComplaintMicClick,
   listening,
   customsStyles,
-}) => {
+}: any) => {
   const [chiefComplaintOptions, setChiefComplaintOptions] = useState<
     ComplaintOption[]
   >([]);
@@ -63,29 +64,33 @@ export const ChiefComplaintCard = ({
     try {
       const result = await AddUpdatechiefComplaint(newTag);
 
-      const newOption = {
+      const newOption: ComplaintOption = {
         label: result?.ChiefComplainTagName || inputValue,
         value: result?.ChiefComplainTagName || inputValue,
-        ChiefComplaintTagId: result?.ChiefComplaintTagId || 0,
+        id: result?.ChiefComplaintTagId || 0, // ✅ use "id"
       };
 
       // Add to master options
       setChiefComplaintOptions((prev) => [...prev, newOption]);
 
       // Add to selected
-      setSelectedChiefComplaints((prev) => [...prev, newOption]);
+      setSelectedChiefComplaints((prev: any) => [...prev, newOption]);
     } catch (error) {
       console.error("Error creating chief complaint:", error);
     }
   };
 
-  const handleChange = (selected: any) => {
-    const updated = selected.map((s: any) => {
+  //
+  const handleChange = (
+    selected: MultiValue<ComplaintOption>,
+    _actionMeta: ActionMeta<ComplaintOption>
+  ) => {
+    const updated: ComplaintOption[] = selected.map((s) => {
       const found = chiefComplaintOptions.find((opt) => opt.value === s.value);
       return {
-        label: s?.label,
-        value: s?.value,
-        ChiefComplaintTagId: found ? found?.ChiefComplaintTagId : 0, // fallback if not matched
+        label: s.label,
+        value: s.value,
+        id: found ? found.id : 0,
       };
     });
 
@@ -110,10 +115,12 @@ export const ChiefComplaintCard = ({
         isDisabled={disabled}
         options={chiefComplaintOptions}
         styles={customsStyles}
-        value={(selectedChiefComplaints || []).map((c) => ({
-          label: c?.label,
-          value: c?.value,
-        }))}
+        value={(selectedChiefComplaints || []).map(
+          (c: { label: any; value: any }) => ({
+            label: c?.label,
+            value: c?.value,
+          })
+        )}
         onChange={handleChange}
         inputValue={inputValue}
         onInputChange={(val) => setInputValue(val)}

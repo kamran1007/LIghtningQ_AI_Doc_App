@@ -18,7 +18,7 @@ import {
   TableCell,
   TableHead,
 } from "@/components/ui/table";
-import { Plus, Trash2, Pencil, X } from "lucide-react";
+import { Plus, Trash2, Pencil, X, Loader2 } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { getUserSpecialization } from "@/lib/admin";
 import toast from "react-hot-toast";
@@ -45,7 +45,15 @@ type ChiefComplaint = {
   ChiefComplainTagName: string;
   SpecializationId?: number;
   ChiefComplaintTagId?: number;
+  ChiefComplaintId?: number;
 };
+interface ChiefComplaintForm {
+  ChiefComplainTagName: string;
+  SpecializationId?: number | string; // RHF often treats selects as string
+  ChiefComplaintId?: number;
+  ChiefComplaintTagId?: number;
+  medicineType?: string; // example additional field
+}
 
 const ChiefComplaintModal: React.FC<ChiefComplaintModalProps> = ({
   open,
@@ -66,12 +74,19 @@ const ChiefComplaintModal: React.FC<ChiefComplaintModalProps> = ({
     ChiefComplainTagName: "",
     SpecializationId: 0,
     ChiefComplaintTagId: 0,
+    ChiefComplaintId: 0,
   });
 
   const handleAdd = async () => {
+    // ✅ Validation: Stop execution if invalid
     if (!form.ChiefComplainTagName.trim() || !form.SpecializationId) {
-      toast.error("Please fill all required fields");
-      return;
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Please fill all required fields",
+        life: 4000,
+      });
+      return; // prevent continuing
     }
 
     try {
@@ -80,37 +95,36 @@ const ChiefComplaintModal: React.FC<ChiefComplaintModalProps> = ({
       // Call API
       await AddUpdatechiefComplaint({
         ChiefComplainTagName: form.ChiefComplainTagName,
-        SpecializationId: form.SpecializationId,
+        specializationId: form.SpecializationId,
         ChiefComplaintTagId: form?.ChiefComplaintTagId,
       });
 
-      const Action = form.ChiefComplaintId
+      const actionMessage = form.ChiefComplaintTagId
         ? "Chief complaint updated successfully"
         : "Chief complaint added successfully";
 
       toast.current?.show({
         severity: "success",
         summary: "Success",
-        detail: Action,
+        detail: actionMessage,
         life: 4000,
-        // className: "custom-toast-container",
       });
+
+      // Refresh list from backend
       getchiefcomplainttag();
 
-      // Update local state
-      if (form.ChiefComplaintId) {
-        // update existing row
+      // ✅ Update local state optimistically
+      if (form.ChiefComplaintTagId) {
         setComplaints((prev) =>
           prev.map((c) =>
-            c.ChiefComplaintId === form.ChiefComplaintId ? form : c
+            c.ChiefComplaintTagId === form.ChiefComplaintTagId ? form : c
           )
         );
       } else {
-        // append new row
         setComplaints((prev) => [...prev, form]);
       }
 
-      // Reset form
+      // ✅ Reset form
       setForm({
         ChiefComplainTagName: "",
         SpecializationId: undefined,
@@ -118,7 +132,14 @@ const ChiefComplaintModal: React.FC<ChiefComplaintModalProps> = ({
       });
       setShowForm(false);
     } catch (err: any) {
-      toast.error(err.message || "Failed to save chief complaint");
+      console.error("❌ Error saving chief complaint:", err);
+
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: err.message || "Failed to save chief complaint",
+        life: 4000,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -188,11 +209,21 @@ const ChiefComplaintModal: React.FC<ChiefComplaintModalProps> = ({
       });
     }
   };
-  const { control, reset, handleSubmit } = useForm({
+  // const { control, reset, handleSubmit } = useForm({
+  //   defaultValues: {
+  //     medicineType: "", // default field
+  //   },
+  // });
+  const { control, reset, handleSubmit } = useForm<ChiefComplaintForm>({
     defaultValues: {
-      medicineType: "", // default field
+      ChiefComplainTagName: "",
+      SpecializationId: "",
+      ChiefComplaintId: 0,
+      ChiefComplaintTagId: 0,
+      medicineType: "",
     },
   });
+
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
@@ -205,7 +236,12 @@ const ChiefComplaintModal: React.FC<ChiefComplaintModalProps> = ({
         // ✅ Set user if editing
       } catch (error) {
         console.error("Failed to fetch data", error);
-        toast.error("Failed to fetch initial data");
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Failed to fetch initial data",
+          life: 3000,
+        });
       } finally {
         setIsLoading(false);
       }
@@ -303,10 +339,17 @@ const ChiefComplaintModal: React.FC<ChiefComplaintModalProps> = ({
                     Cancel
                   </Button>
                   <Button
-                    className="px-4 py-2 bg-green-400 hover:bg-green-500"
+                    className="px-4 py-2 bg-green-400 hover:bg-green-500 flex items-center gap-2"
                     onClick={handleAdd}
+                    disabled={isLoading}
                   >
-                    Save
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="animate-spin w-4 h-4" />
+                      </>
+                    ) : (
+                      <span>{selectedIndex !== null ? "Update" : "Save"}</span>
+                    )}
                   </Button>
                 </div>
               </div>

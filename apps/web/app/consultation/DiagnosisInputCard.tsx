@@ -25,16 +25,16 @@ interface Option {
 }
 interface Diagnosis {
   label: string;
-  DiagnosisId?: string;
+  DiagnosisId: number; // ✅ must match parent
 }
 interface DiagnosisInputCardProps {
-  disabled: boolean,
+  disabled: boolean;
   diagnoses: Diagnosis[];
-  setDiagnoses: (val: Diagnosis[]) => void;
+  setDiagnoses: React.Dispatch<React.SetStateAction<Diagnosis[]>>;
   inputValue: string;
   setInputValue: (val: string) => void;
-  remarkMap: { [key: string]: string };
-  setRemarkMap: React.Dispatch<React.SetStateAction<{ [key: string]: string }>>;
+  remarkMap: Record<string, string>; // ✅ all keys coerced to string
+  setRemarkMap: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 }
 
 export default function DiagnosisInputCard({
@@ -90,14 +90,14 @@ export default function DiagnosisInputCard({
 
   useEffect(() => {
     if (!listening && transcript && activeKey) {
-      const newContent = transcript.replace(prevTranscript, "").trim(); // ✨ Only new part
+      const key = Number(activeKey); // ✅ cast string → number
+
+      const newContent = transcript.replace(prevTranscript, "").trim();
 
       if (newContent) {
         setRemarkMap((prev) => ({
           ...prev,
-          [activeKey]: prev[activeKey]
-            ? `${prev[activeKey]} ${newContent}`.trim()
-            : newContent,
+          [key]: prev[key] ? `${prev[key]} ${newContent}`.trim() : newContent,
         }));
       }
 
@@ -157,7 +157,6 @@ export default function DiagnosisInputCard({
       <CreatableSelect
         isMulti
         isDisabled={disabled}
-
         options={options}
         value={selectedOptions}
         onChange={(selected) => {
@@ -165,7 +164,7 @@ export default function DiagnosisInputCard({
           setDiagnoses(
             values.map((opt) => ({
               label: opt.label,
-              DiagnosisId: opt.DiagnosisId?.toString() || "",
+              DiagnosisId: Number(opt.DiagnosisId) || 0, // ✅ enforce number
             }))
           );
         }}
@@ -180,7 +179,7 @@ export default function DiagnosisInputCard({
       {diagnoses.length > 0 && (
         <ul className="space-y-2">
           {diagnoses.map((item, index: number) => {
-            const key = item.DiagnosisId || item.label;
+            const key = String(item.DiagnosisId || item.label); // always string
             const remarkValue = remarkMap[key] ?? "";
 
             return (
@@ -232,7 +231,7 @@ export default function DiagnosisInputCard({
                     {/* relative wrapper */}
                     <div className="relative">
                       <Textarea
-                      disabled={disabled}
+                        disabled={disabled}
                         className="mt-1 pr-10 resize-none rounded-2xl border-2 border-green-200 hover:border-green-300 focus:border-green-400 focus:ring-4 focus:ring-green-100 transition-all duration-300 no-scrollbar bg-gradient-to-br from-green-50/50 to-emerald-50/30 placeholder:text-gray-400 placeholder:font-light text-gray-700 leading-relaxed tracking-wide shadow-sm hover:shadow-md focus:shadow-lg backdrop-blur-sm min-h-[100px] p-4"
                         placeholder={`Enter remark for ${item.label}...`}
                         value={remarkValue}

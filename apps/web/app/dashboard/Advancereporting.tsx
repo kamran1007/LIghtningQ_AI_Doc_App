@@ -11,9 +11,11 @@ import {
   Stethoscope,
   X,
 } from "lucide-react";
-import { DateRangePicker } from "react-date-range";
-import "react-date-range/dist/styles.css";
-import "react-date-range/dist/theme/default.css";
+import {
+  DateRange,
+  DateRangePicker,
+  DateRangePickerProps,
+} from "react-date-range";
 import {
   Select,
   SelectContent,
@@ -31,9 +33,17 @@ import ReportExport from "./ReportExport";
 import AdvanceDashboard from "@/components/ui/skeletonloader/AdvanceDashboard";
 
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
+interface Hospital {
+  HospitalId: number;
+  HospitalName: string;
+  HospitalCode: string;
+  address: string;
+  email: string;
+  contactNumber: string;
+}
 
 export default function Advancereporting() {
-  const [dateRange, setDateRange] = useState([
+  const [dateRange, setDateRange] = useState<DateRange[]>([
     {
       startDate: new Date(),
       endDate: new Date(),
@@ -44,22 +54,23 @@ export default function Advancereporting() {
   const [isLoading, setIsLoading] = useState(false);
 
   const [loading, setLoading] = useState(true);
-  const [revenueTrend, setRevenueTrend] = useState<{
-    categories: any[];
-    series: any[];
-  }>({ categories: [], series: [] });
-  const [doctorPerformance, setDoctorPerformance] = useState<{
-    categories: any[];
-    series: any[];
-  }>({ categories: [], series: [] });
+  const [revenueTrend, setRevenueTrend] = useState<
+    { month: string; revenue: number }[]
+  >([]);
+
+  const [doctorPerformance, setDoctorPerformance] = useState<
+    { doctorName: string; appointments: number }[]
+  >([]);
 
   const [doctors, setDoctors] = useState([]);
   const [specializations, setSpecializations] = useState([]);
-  const [hospitalData, setHospitalData] = useState([]);
+  const [hospitalData, setHospitalData] = useState<Hospital[]>([]);
 
-  const [selectedHospital, setSelectedHospital] = useState("");
-  const [selectedDoctor, setSelectedDoctor] = useState("");
-  const [selectedSpecialization, setSelectedSpecialization] = useState("");
+  const [selectedDoctor, setSelectedDoctor] = useState<string>("");
+  const [selectedHospital, setSelectedHospital] = useState<string>("");
+  const [selectedSpecialization, setSelectedSpecialization] =
+    useState<string>("");
+
   const [dashboardCards, setDashboardCards] = useState<any[]>([]);
   const [showPicker, setShowPicker] = useState(false);
 
@@ -76,6 +87,9 @@ export default function Advancereporting() {
   // const chartSeries = [
   //   { name: "Appointments", data: [30, 40, 35, 50, 49, 60, 70] },
   // ];
+  type FixedDateRangePickerProps = DateRangePickerProps & {
+    rangeColors?: string[];
+  };
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -118,24 +132,16 @@ export default function Advancereporting() {
         const data = await FetchAdvancedReport(
           startDate,
           endDate,
-          selectedDoctor || "",
-          selectedHospital || "",
-          selectedSpecialization || ""
+          selectedDoctor ? Number(selectedDoctor) : undefined,
+          selectedHospital ? Number(selectedHospital) : undefined,
+          selectedSpecialization ? Number(selectedSpecialization) : undefined
         );
 
         setReportData(data);
 
         // ✅ Trends: Month vs Revenue
-        setRevenueTrend({
-          categories: data.revenueTrend.map((t: any) => t.month),
-          series: data.revenueTrend.map((t: any) => t.revenue),
-        });
-
-        // ✅ Doctor Performance: Doctor Name vs Appointments
-        setDoctorPerformance({
-          categories: data.doctorPerformance.map((d: any) => d.doctorName),
-          series: data.doctorPerformance.map((d: any) => d.appointments),
-        });
+        setRevenueTrend(data.revenueTrend ?? []);
+        setDoctorPerformance(data.doctorPerformance ?? []);
 
         // Summary Cards
         setDashboardCards(data.summaryCards || []);
@@ -271,10 +277,14 @@ export default function Advancereporting() {
                 {/* Date Range Picker aligned LEFT of the icon */}
                 {showPicker && (
                   <div className="absolute z-50 mt-2 shadow-lg bg-white rounded-lg p-2 right-full mr-2">
+                    // 👇 Tell TS: this component accepts
+                    FixedDateRangePickerProps
                     <DateRangePicker
-                      ranges={dateRange}
-                      onChange={(item) => setDateRange([item.selection])}
-                      rangeColors={["#22E0D4"]}
+                      {...({
+                        ranges: dateRange,
+                        onChange: (item: any) => setDateRange([item.selection]),
+                        rangeColors: ["#22E0D4"],
+                      } as FixedDateRangePickerProps)}
                     />
                   </div>
                 )}
@@ -343,7 +353,7 @@ export default function Advancereporting() {
                       </SelectTrigger>
                       <SelectContent className="border-gray-300 shadow-2xl rounded-2xl">
                         <SelectItem value="all-doctors">All Doctors</SelectItem>
-                        {doctors.map((doc) => (
+                        {doctors.map((doc: any) => (
                           <SelectItem
                             key={doc.UserId}
                             value={String(doc.UserId)}
@@ -367,7 +377,7 @@ export default function Advancereporting() {
                         <SelectItem value="all-specializations">
                           All Specializations
                         </SelectItem>
-                        {specializations.map((spec) => (
+                        {specializations.map((spec: any) => (
                           <SelectItem
                             key={spec.SpecializationId}
                             value={String(spec.SpecializationId)}
@@ -391,7 +401,7 @@ export default function Advancereporting() {
                         <SelectItem value="all-hospitals">
                           All Hospitals
                         </SelectItem>
-                        {hospitalData.map((hospital) => (
+                        {hospitalData.map((hospital: any) => (
                           <SelectItem
                             key={hospital.HospitalId}
                             value={String(hospital.HospitalId)}
@@ -405,10 +415,14 @@ export default function Advancereporting() {
 
                   {/* Date Range Picker */}
                   <div className="ml-8 mt-6 justify-center-safe">
+                    // 👇 Tell TS: this component accepts
+                    FixedDateRangePickerProps
                     <DateRangePicker
-                      ranges={dateRange}
-                      onChange={(item: any) => setDateRange([item.selection])}
-                      rangeColors={["#22E0D4"]}
+                      {...({
+                        ranges: dateRange,
+                        onChange: (item: any) => setDateRange([item.selection]),
+                        rangeColors: ["#22E0D4"],
+                      } as FixedDateRangePickerProps)}
                     />
                   </div>
                 </div>
@@ -591,10 +605,10 @@ export default function Advancereporting() {
                   reportData={reportData}
                   hospitalInfo={{
                     name: hospitalData[0]?.HospitalName || "City Hospital",
-                    address: hospitalData[0]?.address,
-                    code: hospitalData[0]?.HospitalCode,
-                    email: hospitalData[0]?.email,
-                    contact: hospitalData[0]?.contactNumber,
+                    address: hospitalData[0]?.address ?? "N/A",
+                    code: hospitalData[0]?.HospitalCode ?? "N/A",
+                    email: hospitalData[0]?.email ?? "N/A",
+                    contact: hospitalData[0]?.contactNumber ?? "N/A",
                   }}
                 />
               </Dialog.Panel>
@@ -603,7 +617,8 @@ export default function Advancereporting() {
           <AnalyticalHistoricalReports
             revenueTrend={revenueTrend}
             doctorPerformance={doctorPerformance}
-          />{" "}
+          />
+
           <ScheduledReports />
         </div>
       )}

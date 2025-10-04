@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import {
   MessageCirclePlus,
   Mic,
@@ -17,6 +16,7 @@ import { getProfile } from "@/lib/action";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
+import { MultiValue } from "react-select";
 
 interface Option {
   ProcedureId: any;
@@ -24,20 +24,17 @@ interface Option {
   value: string;
 }
 
-interface Procedure {
-  label: string;
-  ProcedureId?: string;
-}
+import { Procedure } from "@/types/consultation";
 
 interface ProcedureInputCardProps {
-  disabled: boolean,
+  disabled: boolean;
   procedures: Procedure[];
-  setProcedures: (val: Procedure[]) => void;
+  setProcedures: React.Dispatch<React.SetStateAction<Procedure[]>>;
   inputValue: string;
   setInputValue: (val: string) => void;
-  procedureremarkMap: { [key: string]: string };
+  procedureremarkMap: Record<string, string>;
   setProcedureremarkMap: React.Dispatch<
-    React.SetStateAction<{ [key: string]: string }>
+    React.SetStateAction<Record<string, string>>
   >;
 }
 
@@ -166,11 +163,10 @@ export default function ProcedureInputCard({
         options={options}
         value={selectedOptions}
         onChange={(selected) => {
-          const values = (selected || []) as Option[];
           setProcedures(
-            values.map((opt) => ({
+            [...(selected || [])].map((opt) => ({
               label: opt.label,
-              ProcedureId: opt.ProcedureId?.toString() || "",
+              ProcedureId: Number(opt.ProcedureId) || 0,
             }))
           );
         }}
@@ -197,7 +193,7 @@ export default function ProcedureInputCard({
       {procedures.length > 0 && (
         <ul className="space-y-2">
           {procedures.map((item, index) => {
-            const key = item.ProcedureId || item.label;
+            const key = String(item.ProcedureId || item.label); // ✅ always string
             const hasRemark = procedureremarkMap?.[key] !== undefined;
             const remarkValue = procedureremarkMap?.[key] ?? "";
 

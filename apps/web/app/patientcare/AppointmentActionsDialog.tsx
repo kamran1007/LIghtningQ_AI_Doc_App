@@ -15,13 +15,14 @@ import { useRef, useState } from "react";
 import { Toast } from "primereact/toast";
 import { Sidebar } from "primereact/sidebar";
 import PatientCaseHistory from "app/patientvisithistory/CaseHistory";
+import { useEvents } from "@/context/events-context";
 
 interface AppointmentActionsDialogProps {
   patient: any;
-  onCancel: () => void;
-  onReschedule: () => void;
-  onViewCaseHistory: (patient: any) => void; // Keep if you still want to trigger callback
-  onStartConsultation: (patient: any) => void; // 👈 fix here
+  onCancel: (patient: any) => void; // 👈 takes patient
+  onReschedule: (patient: any) => void; // 👈 takes patient
+  onViewCaseHistory: (patient: any) => void;
+  onStartConsultation: (patient: any) => void;
 }
 
 export default function AppointmentActionsDialog({
@@ -34,6 +35,7 @@ export default function AppointmentActionsDialog({
   const [open, setOpen] = useState(false);
   const [isCaseHistoryOpen, setIsCaseHistoryOpen] = useState(false);
   const toast = useRef<Toast>(null);
+  const { setEventAddOpen, setEditingEvent } = useEvents();
 
   const isPastDate = (dateStr: string) => {
     const today = new Date();
@@ -107,20 +109,20 @@ export default function AppointmentActionsDialog({
                       variant="ghost"
                       className={hoverchange}
                       onClick={() => {
-                        if (
-                          isPastDate(patient.appointmentDate) ||
-                          patient.IsConsultationCompleted
-                        ) {
-                          toast.current?.show({
-                            severity: "error",
-                            summary: "Error",
-                            detail: patient.IsConsultationCompleted
-                              ? "You can't reschedule a completed consultation."
-                              : "You can't reschedule a past appointment.",
-                            life: 4000,
-                          });
-                          return;
-                        }
+                        // if (
+                        //   isPastDate(patient.appointmentDate) ||
+                        //   patient.IsConsultationCompleted
+                        // ) {
+                        //   toast.current?.show({
+                        //     severity: "error",
+                        //     summary: "Error",
+                        //     detail: patient.IsConsultationCompleted
+                        //       ? "You can't reschedule a completed consultation."
+                        //       : "You can't reschedule a past appointment.",
+                        //     life: 4000,
+                        //   });
+                        //   return;
+                        // }
                         onReschedule(patient);
                         setOpen(false);
                       }}

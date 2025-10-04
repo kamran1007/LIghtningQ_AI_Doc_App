@@ -18,6 +18,7 @@ import { Toast } from "primereact/toast";
 interface DrugAutocompleteInputProps {
   value: string;
   onChange: (value: string) => void;
+  disabled?: boolean; // ✅ make it optional
 }
 
 interface Medicine {
@@ -51,6 +52,7 @@ const addMedicineSchema = z.object({
 export default function DrugAutocompleteInput({
   value,
   onChange,
+  disabled = false,
 }: DrugAutocompleteInputProps) {
   const [options, setOptions] = useState<Medicine[]>([]);
   const [filtered, setFiltered] = useState<Medicine[]>([]);
@@ -59,21 +61,21 @@ export default function DrugAutocompleteInput({
   const toast = useRef<Toast>(null);
 
   // Fetch medication list on mount
-// ✅ Define it outside so it's accessible
-const fetchDrugs = async () => {
-  try {
-    const res = await FetchMedication();
-    console.log("Fetched drugs:", res);
-    setOptions(res?.return || []);
-  } catch (err) {
-    console.error("Failed to fetch medicine list:", err);
-  }
-};
+  // ✅ Define it outside so it's accessible
+  const fetchDrugs = async () => {
+    try {
+      const res = await FetchMedication();
+      console.log("Fetched drugs:", res);
+      setOptions(res?.return || []);
+    } catch (err) {
+      console.error("Failed to fetch medicine list:", err);
+    }
+  };
 
-// 📦 Call inside useEffect
-useEffect(() => {
-  fetchDrugs();
-}, []);
+  // 📦 Call inside useEffect
+  useEffect(() => {
+    fetchDrugs();
+  }, []);
 
   // Update filtered suggestions whenever value changes
   useEffect(() => {
@@ -119,8 +121,10 @@ useEffect(() => {
   const onSubmit = async (formData: any) => {
     try {
       const cleanedData = Object.fromEntries(
-      Object.entries(formData).filter(([_, v]) => v !== "" && v !== null && v !== undefined)
-    );
+        Object.entries(formData).filter(
+          ([_, v]) => v !== "" && v !== null && v !== undefined
+        )
+      );
       const result = await addupdateMedicine(cleanedData);
       toast.current?.show({
         severity: "success",
@@ -150,6 +154,7 @@ useEffect(() => {
       <div className="relative w-full">
         <Input
           value={value}
+          disabled={disabled}
           placeholder="Drug Name"
           onChange={(e) => {
             onChange(e.target.value);
