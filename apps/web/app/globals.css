@@ -9,7 +9,8 @@
 @import "primereact/resources/primereact.min.css";
 @import "primeicons/primeicons.css";
 
-
+@import "react-date-range/dist/styles.css";
+@import "react-date-range/dist/theme/default.css";
 
 @custom-variant dark (&:is(.dark *));
 

@@ -58,6 +58,63 @@ interface CaseHistoryProps {
   onHide: () => void;
   patient: any;
 }
+type RecentVisitResponse = {
+  return: Array<{
+    AppointmentId: number;
+    // add other fields here...
+  }>;
+};
+
+// Patient related
+interface Allergy {
+  AllergyName: string;
+}
+
+interface MedicalHistory {
+  MedicalHistoryName: string;
+}
+
+interface PatientData {
+  allergies?: Allergy[];
+  medicalHistory?: MedicalHistory[];
+}
+
+// Case sheet related
+interface Medication {
+  medicationName: string;
+}
+
+interface ChiefComplaint {
+  ChiefComplainTagName: string;
+}
+
+interface ConsultationChiefComplaint {
+  chiefComplaint: ChiefComplaint;
+}
+
+interface Vitals {
+  HeartRate?: number;
+  Temperature?: number;
+  Systolic?: number;
+  Diastolic?: number;
+  Weight?: number;
+  Height?: number;
+  OxygenSaturation?: number;
+  BloodGroup?: string;
+  BMI?: number;
+}
+
+interface Appointment {
+  Vitals: Vitals[];
+}
+
+interface AppointmentCaseSheet {
+  ConsultationMedication?: Medication[];
+  ConsultationCheifComplaint?: ConsultationChiefComplaint[];
+  appointment?: Appointment;
+  IsconsultationCompleted?: boolean;
+  updatedAt?: string;
+}
 
 export default function PatientCaseHistory({
   visible,
@@ -65,21 +122,23 @@ export default function PatientCaseHistory({
   patient,
 }: CaseHistoryProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // starts collapsed
-  const [recentVisit, SetRecentVisit] = useState<any[]>([]);
+  const [recentVisit, SetRecentVisit] = useState<RecentVisitResponse | null>(
+    null
+  );
   const [lastFetchedPatientId, setLastFetchedPatientId] = useState<
     number | null
   >(null);
   const [consultationloadingId, setConsultationLoading] = useState<
     number | null
   >(null);
-  const [appointmentcasesheet, setAppointmentcasesheet] = useState<any[]>([]);
+  const [appointmentcasesheet, setAppointmentcasesheet] =
+    useState<AppointmentCaseSheet | null>(null);
   const [selectedSection, setSelectedSection] = useState("Overview");
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(
     recentVisit?.return?.[0]?.AppointmentId ?? null
   );
   const [recentVisitLoading, setRecentVisitLoading] = useState(false);
 
-  
   const bloodGroupMap: Record<string, string> = {
     A_POS: "A+",
     A_NEG: "A-",
@@ -166,8 +225,8 @@ export default function PatientCaseHistory({
   }, [visible, PatientId]);
 
   useEffect(() => {
-    if (recentVisit?.return?.length > 0 && !selectedAppointmentId) {
-      setSelectedAppointmentId(recentVisit.return[0].AppointmentId);
+    if (recentVisit?.return?.length && !selectedAppointmentId) {
+      setSelectedAppointmentId(recentVisit.return[0]?.AppointmentId ?? null);
     }
   }, [recentVisit, selectedAppointmentId]);
 
@@ -206,9 +265,9 @@ export default function PatientCaseHistory({
         key: "chiefComplaint",
         title: "Chief Complaint",
         icon: ClipboardList,
-        tag: `${consultationData.ConsultationCheifComplaint?.length ?? 0} complaints`,
-        remark: consultationData.CheifcomplaintNotes,
-        content: consultationData.ConsultationCheifComplaint?.map((cc: any) => (
+        tag: `${consultationData?.ConsultationCheifComplaint?.length ?? 0} complaints`,
+        remark: consultationData?.CheifcomplaintNotes,
+        content: consultationData?.ConsultationCheifComplaint?.map((cc: any) => (
           <div
             key={cc.ConsultationComplaintId}
             className="px-2 py-1 bg-teal-50 dark:bg-slate-700 rounded-md mb-1"
@@ -223,11 +282,11 @@ export default function PatientCaseHistory({
         key: "clinicalNote",
         title: "Clinical Note",
         icon: FileText,
-        tag: consultationData.ConsultationclinicalNotes?.length
+        tag: consultationData?.ConsultationclinicalNotes?.length
           ? "Available"
           : "N/A",
         remark: null,
-        content: consultationData.ConsultationclinicalNotes?.map(
+        content: consultationData?.ConsultationclinicalNotes?.map(
           (note: any) => <p key={note.ClinicalNoteId}>{note.content}</p>
         ),
       },
@@ -235,9 +294,9 @@ export default function PatientCaseHistory({
         key: "investigation",
         title: "Investigations",
         icon: FlaskConical,
-        tag: `${consultationData.ConsultationInvestigation?.length ?? 0} entries`,
+        tag: `${consultationData?.ConsultationInvestigation?.length ?? 0} entries`,
         remark: null,
-        content: consultationData.ConsultationInvestigation?.map((inv: any) => (
+        content: consultationData?.ConsultationInvestigation?.map((inv: any) => (
           <div
             key={inv.ConsultationInvestigationId}
             className="mb-2 space-y-1 p-2 rounded-md bg-slate-100 dark:bg-slate-700"
@@ -258,9 +317,9 @@ export default function PatientCaseHistory({
         key: "diagnosis",
         title: "Diagnosis",
         icon: Stethoscope,
-        tag: `${consultationData.ConsultationDiagnosis?.length ?? 0} entries`,
+        tag: `${consultationData?.ConsultationDiagnosis?.length ?? 0} entries`,
         remark: null,
-        content: consultationData.ConsultationDiagnosis?.map((dx: any) => (
+        content: consultationData?.ConsultationDiagnosis?.map((dx: any) => (
           <div
             key={dx.ConsultationDiagnosisId}
             className="mb-2 p-2 bg-emerald-50 dark:bg-slate-700 rounded-md"
@@ -283,7 +342,7 @@ export default function PatientCaseHistory({
         icon: ClipboardSignature,
         tag: "Typed",
         remark: null,
-        content: consultationData.ConsultationTreatment?.map((tx: any) => (
+        content: consultationData?.ConsultationTreatment?.map((tx: any) => (
           <pre
             key={tx.ConsultationTreatmentId}
             className="whitespace-pre-wrap bg-gray-100 dark:bg-slate-800 p-3 rounded-md text-sm"
@@ -296,9 +355,9 @@ export default function PatientCaseHistory({
         key: "medication",
         title: "Medications",
         icon: Pill,
-        tag: `${consultationData.ConsultationMedication?.length ?? 0} prescribed`,
+        tag: `${consultationData?.ConsultationMedication?.length ?? 0} prescribed`,
         remark: null,
-        content: consultationData.ConsultationMedication?.map((med: any) => (
+        content: consultationData?.ConsultationMedication?.map((med: any) => (
           <div
             key={med.ConsultationMedicationId}
             className="mb-2 p-2 bg-indigo-50 dark:bg-slate-700 rounded-md"
@@ -323,24 +382,23 @@ export default function PatientCaseHistory({
         icon: CalendarCheck,
         tag: "Next Visit",
         remark:
-          consultationData.ConsultationFollowUpPlan?.[0]?.followUpText || "",
+          consultationData?.ConsultationFollowUpPlan?.[0]?.followUpText || "",
         content: (
           <div className="text-sm font-medium">
             Next Visit:{" "}
             <span className="text-blue-700 dark:text-blue-300">
               {dayjs(
-                consultationData.ConsultationFollowUpPlan?.[0]?.nextDate
+                consultationData?.ConsultationFollowUpPlan?.[0]?.nextDate
               ).format("DD MMM, YYYY")}
             </span>{" "}
-            ({consultationData.ConsultationFollowUpPlan?.[0]?.duration}{" "}
-            {consultationData.ConsultationFollowUpPlan?.[0]?.unit})
+            ({consultationData?.ConsultationFollowUpPlan?.[0]?.duration}{" "}
+            {consultationData?.ConsultationFollowUpPlan?.[0]?.unit})
           </div>
         ),
       },
     ];
   };
   const sections = createConsultationSections(appointmentcasesheet);
-
 
   return (
     <Sidebar
@@ -497,13 +555,13 @@ export default function PatientCaseHistory({
                       <p className="font-medium mb-1">Allergies:</p>
                       {patient?.patient?.allergies?.length ? (
                         <div className="flex flex-wrap gap-2">
-                          {patient?.patient.allergies.map(
-                            (a: string, idx: number) => (
+                          {patient.patient.allergies.map(
+                            (a: Allergy, idx: number) => (
                               <span
                                 key={idx}
                                 className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-600 dark:bg-red-700/30 dark:text-red-300"
                               >
-                                {a?.AllergyName}
+                                {a.AllergyName}
                               </span>
                             )
                           )}
@@ -517,13 +575,13 @@ export default function PatientCaseHistory({
                       <p className="font-medium mb-1">Medical History:</p>
                       {patient?.patient?.medicalHistory?.length ? (
                         <ul className="list-disc list-inside">
-                          {patient?.patient?.medicalHistory.map(
-                            (c: string, idx: number) => (
+                          {patient.patient.medicalHistory.map(
+                            (c: MedicalHistory, idx: number) => (
                               <span
                                 key={idx}
                                 className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-600 dark:bg-green-700/30 dark:text-green-300"
                               >
-                                {c?.MedicalHistoryName}
+                                {c.MedicalHistoryName}
                               </span>
                             )
                           )}
@@ -537,13 +595,13 @@ export default function PatientCaseHistory({
                       <p className="font-medium mb-1">Medications:</p>
                       {appointmentcasesheet?.ConsultationMedication?.length ? (
                         <ul className="list-disc list-inside">
-                          {appointmentcasesheet?.ConsultationMedication.map(
-                            (m: string, idx: number) => (
+                          {appointmentcasesheet.ConsultationMedication.map(
+                            (m: Medication, idx: number) => (
                               <span
                                 key={idx}
                                 className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-600 dark:bg-blue-700/30 dark:text-blue-300"
                               >
-                                {m?.medicationName}
+                                {m.medicationName}
                               </span>
                             )
                           )}
@@ -558,13 +616,13 @@ export default function PatientCaseHistory({
                       {appointmentcasesheet?.ConsultationCheifComplaint
                         ?.length ? (
                         <ul className="list-disc list-inside">
-                          {appointmentcasesheet?.ConsultationCheifComplaint.map(
-                            (p: string, idx: number) => (
+                          {appointmentcasesheet.ConsultationCheifComplaint.map(
+                            (p: ConsultationChiefComplaint, idx: number) => (
                               <span
                                 key={idx}
                                 className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-600 dark:bg-yellow-700/30 dark:text-yellow-300"
                               >
-                                {p?.chiefComplaint?.ChiefComplainTagName}
+                                {p.chiefComplaint.ChiefComplainTagName}
                               </span>
                             )
                           )}

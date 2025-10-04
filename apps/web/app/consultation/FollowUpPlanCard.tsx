@@ -10,23 +10,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ConsultationFormValues } from "@/types/consultation";
 
 type FollowUpPlanProps = {
-  form: {
-    followUp: string;
-    followUpDuration: string;
-    followUpUnit: string;
-  };
-  setForm: React.Dispatch<
-    React.SetStateAction<{
-      followUp: string;
-      followUpDuration: string;
-      followUpUnit: string;
-    }>
-  >;
+  disabled: boolean; // you were also missing this in the type!
+  form: ConsultationFormValues;
+  setForm: React.Dispatch<React.SetStateAction<ConsultationFormValues>>;
   handleChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   handleFollowUpShortcut: (val: string) => void;
 };
+
 
 export default function FollowUpPlanCard({
   disabled,

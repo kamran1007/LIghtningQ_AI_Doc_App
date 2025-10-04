@@ -1,7 +1,11 @@
 // SearchBox.tsx
 import React, { useState, useEffect, useRef } from "react";
 
-export default React.memo(function SearchBox({ onSearch }) {
+interface SearchBoxProps {
+  onSearch: (query: string) => void;  // define type for the prop
+}
+
+export default React.memo(function SearchBox({ onSearch }: SearchBoxProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);

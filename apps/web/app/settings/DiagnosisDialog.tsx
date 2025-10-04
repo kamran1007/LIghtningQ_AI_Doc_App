@@ -18,7 +18,7 @@ import {
   TableHead,
 } from "@/components/ui/table";
 import { motion } from "framer-motion";
-import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import {
   Select,
   SelectTrigger,
@@ -44,6 +44,19 @@ interface DiagnosisDialogProps {
   onClose: () => void;
 }
 
+interface DiagnosisPayload {
+  DiagnosisName: string;
+  specializationId?: number; // <-- optional
+  icdCode?: string;
+  DiagnosisId?: number;
+}
+interface DiagnosisFormValues {
+  DiagnosisName: string;
+  icdCode?: string;
+  specializationId?: number; // must match your Controller field
+  DiagnosisId?: number;
+}
+
 export default function DiagnosisDialog({
   open,
   onClose,
@@ -62,7 +75,7 @@ export default function DiagnosisDialog({
   const [isLoading, setIsLoading] = useState(false);
   const [diagonasisList, setDiagonasisList] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const handleAdd = async () => {
     if (!form.DiagnosisName.trim()) return;
 
@@ -70,15 +83,15 @@ export default function DiagnosisDialog({
       setIsLoading(true);
 
       // Prepare payload
-      const payload = {
+      const payload: DiagnosisPayload = {
         DiagnosisName: form.DiagnosisName.trim(),
-        specializationId: form.specializationId ?? undefined,
+        specializationId: form.specializationId, // guaranteed number now
         icdCode: form.icdCode?.trim() || undefined,
-        DiagnosisId: form.DiagnosisId,
+        DiagnosisId: form.DiagnosisId || undefined,
       };
 
       // Call API
-      const saved = await AddUpdateDiagnosis(payload);
+      const saved = await AddUpdateDiagnosis(payload as any);
 
       // Update local state
       setDiagnoses((prev) => [...prev, saved?.data ?? payload]);
@@ -106,7 +119,8 @@ export default function DiagnosisDialog({
     }
   };
 
-  const handleEdit = (item: any) => {
+  const handleEdit = (item: any,index: number) => {
+    setSelectedIndex(index); // ✅ store the index number
     setForm({
       DiagnosisName: item.DiagnosisName,
       DiagnosisId: item.DiagnosisId,
@@ -151,8 +165,13 @@ export default function DiagnosisDialog({
     }
   };
 
-  const { control, reset, handleSubmit } = useForm({
-    defaultValues: {},
+  const { control, reset, handleSubmit } = useForm<DiagnosisFormValues>({
+    defaultValues: {
+      DiagnosisName: "",
+      icdCode: "",
+      specializationId: undefined,
+      DiagnosisId: undefined,
+    },
   });
 
   useEffect(() => {
@@ -167,7 +186,12 @@ export default function DiagnosisDialog({
         // ✅ Set user if editing
       } catch (error) {
         console.error("Failed to fetch data", error);
-        toast.error("Failed to fetch initial data");
+        toast.current?.show({
+          severity: "error",
+          summary: "failed",
+          detail: "Failed to fetch initial data",
+          life: 3000,
+        });
       } finally {
         setIsLoading(false);
       }
@@ -291,10 +315,17 @@ export default function DiagnosisDialog({
                     Cancel
                   </Button>
                   <Button
-                    className="px-4 py-2 bg-green-400 hover:bg-green-500"
+                    className="px-4 py-2 bg-green-400 hover:bg-green-500 flex items-center gap-2"
                     onClick={handleAdd}
+                    disabled={isLoading}
                   >
-                    Save
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="animate-spin w-4 h-4" />
+                      </>
+                    ) : (
+                      <span>{selectedIndex !== null ? "Update" : "Save"}</span>
+                    )}
                   </Button>
                 </div>
               </div>
@@ -339,7 +370,7 @@ export default function DiagnosisDialog({
                               <Button
                                 size="icon"
                                 variant="ghost"
-                                onClick={() => handleEdit(diag)} // Pass item instead of index
+                                onClick={() => handleEdit(diag,idx)} // Pass item instead of index
                               >
                                 <Pencil className="w-4 h-4" />
                               </Button>

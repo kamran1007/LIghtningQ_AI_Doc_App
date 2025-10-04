@@ -75,8 +75,14 @@ const UserList = () => {
   console.log("user data", users);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [hospitalrole, setRole] = useState([]);
-  const [hospitalData, setHospitalData] = useState([]);
+  type Hospital = {
+    HospitalId: number;
+    HospitalName: string;
+    // Add other properties if needed
+  };
+
+  const [hospitalrole, setRole] = useState<any[]>([]);
+  const [hospitalData, setHospitalData] = useState<Hospital[]>([]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedHospital, setSelectedHospital] = useState<"all" | number>(
@@ -206,7 +212,7 @@ const UserList = () => {
       header: "Name",
       size: 60,
       muiTableHeadCellProps: {
-        sx: { textAlign: "center" },
+        sx: { textAlign: "center" as const },
       },
     },
     {
@@ -214,7 +220,7 @@ const UserList = () => {
       header: "Employee ID",
       size: 60,
       muiTableHeadCellProps: {
-        sx: { textAlign: "center" },
+        sx: { textAlign: "center" as const },
       },
       Cell: ({ row }: { row: any }) => {
         const empId = row.getValue("Employee_ID");
@@ -227,7 +233,7 @@ const UserList = () => {
       header: "Mobile",
       size: 60,
       muiTableHeadCellProps: {
-        sx: { textAlign: "center" },
+        sx: { textAlign: "center" as const },
       },
     },
     {
@@ -235,7 +241,7 @@ const UserList = () => {
       header: "Gender",
       size: 60,
       muiTableHeadCellProps: {
-        sx: { textAlign: "center" },
+        sx: { textAlign: "center" as const },
       },
     },
     {
@@ -244,10 +250,8 @@ const UserList = () => {
       size: 60,
       muiTableHeadCellProps: {
         sx: {
-          textAlign: "center", // ⬅️ center text
-          justifyContent: "center", // ⬅️ center if using flex
-          alignItems: "center", // ⬅️ vertical align center
-          padding: "18px", // ⬅️ padding
+          textAlign: "center" as const, // ⬅️ center text
+          padding: "18px",
           margin: "0 auto",
         },
       },
@@ -257,14 +261,14 @@ const UserList = () => {
       header: "Role Name",
       size: 60,
       muiTableHeadCellProps: {
-        sx: { textAlign: "center" },
+        sx: { textAlign: "center" as const },
       },
     },
     {
       accessorKey: "Experience",
       header: "Experience",
       size: 60,
-      Cell: ({ row }) => {
+      Cell: ({ row }: { row: any }) => {
         const exp = row.getValue("Experience") as number | string | null;
         if (!exp) return "-";
         return `${exp} ${Number(exp) > 1 ? "years" : "year"}`;
@@ -346,12 +350,7 @@ const UserList = () => {
               },
             },
           }}
-          muiTableToolbarButtonProps={{
-            sx: {
-              color: "teal",
-              "&:hover": { color: "#13D4D4" },
-            },
-          }}
+       
           muiTopToolbarProps={{
             sx: {
               "& .MuiButtonBase-root": {

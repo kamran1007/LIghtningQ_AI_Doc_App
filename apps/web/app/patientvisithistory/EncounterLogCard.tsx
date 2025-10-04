@@ -12,7 +12,8 @@ const statusColors = {
   InCompleted: "bg-yellow-100 text-yellow-800",
   Cancelled: "bg-red-100 text-red-700",
   Rescheduled: "bg-blue-100 text-blue-700",
-};
+} as const;
+type StatusKey = keyof typeof statusColors;
 
 export default function EncounterLogCard({
   appointmentcasesheet,
@@ -31,9 +32,9 @@ export default function EncounterLogCard({
     appointmentcasesheet?.CheifcomplaintNotes || "No summary provided.";
   const nextAction =
     appointmentcasesheet?.ConsultationFollowUpPlan?.[0]?.followUpText || "—";
-  const displayStatus = appointmentcasesheet?.IsconsultationCompleted
+  const displayStatus: StatusKey = appointmentcasesheet?.IsconsultationCompleted
     ? "Completed"
-    : status || "InCompleted";
+    : "InCompleted";
   return (
     <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300 p-6 mb-4">
       {/* Header */}

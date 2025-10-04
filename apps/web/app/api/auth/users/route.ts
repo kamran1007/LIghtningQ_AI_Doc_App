@@ -5,7 +5,7 @@ export async function POST(req: Request) {
 
     const payload: Record<string, any> = {};
 
-    for (const [key, value] of formData.entries()) {
+    for (const [key, value] of (formData as FormData).entries()) {
       if (value instanceof File) {
         payload[key] = {
           name: value.name,

@@ -99,13 +99,43 @@ const inputbox =
 
 const formData = new FormData();
 
+interface Patient {
+  PatientId: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth?: string;
+  gender?: string;
+  mobile: string;
+  altContactNumber?: string;
+  email: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  area?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postalCode?: string | number;
+  landmark?: string;
+  taluka?: string;
+  bloodGroup?: string;
+  emergencyName?: string;
+  emergencyContact?: string;
+  emergencyRelation?: string;
+  kinName?: string;
+  kinContact?: string;
+  kinRelation?: string;
+  allergies?: { AllergyId: number }[];
+  languages?: { LanguageId: number }[];
+  medicalHistory?: { MedicalHistoryId: number }[];
+  profileImageUrl?: string;
+  Prefix?: string;
+}
+
 type RegisterPatient = z.infer<typeof eventAddPatientRegistrationFormSchema>;
+type WebcamInstance = InstanceType<typeof Webcam>;
 
 export function RegisterPatient() {
-  const { events, addEvent } = useEvents();
-  const { eventAddOpen, setEventAddOpen } = useEvents();
-
-  const { isRegisterPatientOpen, setRegisterPatientOpen } = useEvents(); // updated context
+  const [patientId, setPatientId] = useState<string | null>(null);
 
   const [registerAnimation, setRegisterAnimation] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -114,7 +144,8 @@ export function RegisterPatient() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const shouldOpen = searchParams.get("openRegister") === "true";
-  const webcamRef = useRef<Webcam>(null);
+  const webcamRef = useRef<WebcamInstance | null>(null);
+
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
@@ -125,7 +156,7 @@ export function RegisterPatient() {
   const [state, setState] = useState("");
   const [states, setStates] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
-  const [openSection, setOpenSection] = useState<string | null>("");
+  const [openSection, setOpenSection] = useState<string | undefined>(undefined);
   type Allergy = { id: string; name: string };
   const [allergies, setAllergies] = useState<Allergy[]>([]);
   type Language = { id: string; name: string };
@@ -135,12 +166,21 @@ export function RegisterPatient() {
     []
   );
   const [userdata, setUserdata] = useState<any>(null);
-  const { editingPatient, setEditingPatient } = useEvents();
+
   const [countdown, setCountdown] = useState(5);
   const [isLoadingAllergies, setIsLoadingAllergies] = useState(true);
   const [appointmentData, setAppointmrntData] = useState<any>(null);
   const toast = useRef<Toast>(null);
-
+  const {
+    events,
+    addEvent,
+    eventAddOpen,
+    setEventAddOpen,
+    isRegisterPatientOpen,
+    setRegisterPatientOpen,
+    editingPatient,
+    setEditingPatient, // ✅ use from context, not local useState
+  } = useEvents();
   const dispatch = useAppDispatch();
 
   const {
@@ -156,7 +196,7 @@ export function RegisterPatient() {
     resolver: zodResolver(eventAddPatientRegistrationFormSchema),
   });
 
-  const watchedFields = watch([
+  const watchedValues = watch([
     "Title",
     "firstName",
     "lastName",
@@ -168,17 +208,20 @@ export function RegisterPatient() {
     "Area",
   ]);
 
+  const getStr = (val: unknown) => (typeof val === "string" ? val : "");
+
   const isPartialValid = Boolean(
-    watchedFields[0]?.trim() && // Title
-      watchedFields[1]?.trim() && // firstName
-      watchedFields[2]?.trim() && // lastName
-      watchedFields[3]?.length >= 10 && // mobilenumber
-      watchedFields[4]?.includes("@") && // Email (basic)
-      watchedFields[5]?.trim() && // DateofBirth
-      watchedFields[6]?.trim() && // postalCode
-      watchedFields[7]?.trim() && // bloodgroup
-      watchedFields[8]?.trim()
+    getStr(watchedValues[0]).trim() &&
+      getStr(watchedValues[1]).trim() &&
+      getStr(watchedValues[2]).trim() &&
+      getStr(watchedValues[3]).length >= 10 &&
+      getStr(watchedValues[4]).includes("@") &&
+      getStr(watchedValues[5]).trim() &&
+      getStr(watchedValues[6]).trim() &&
+      getStr(watchedValues[7]).trim() &&
+      getStr(watchedValues[8]).trim()
   );
+
   //KIN and Emergency
   const relations = [
     "Father",
@@ -229,7 +272,7 @@ export function RegisterPatient() {
     a.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  console.log("allergies", filteredAllergies);
+  // console.log("allergies", filteredAllergies);
   const [selectedAllergies, setSelectedAllergies] = useState<string[]>([]); // Only selected
 
   const toggleAllergy = (id: string) => {
@@ -284,9 +327,9 @@ export function RegisterPatient() {
             fetchPastMedical(),
           ]);
 
-        console.log("Allergies API Response:", allergyData);
-        console.log("Languages API Response:", languageData);
-        console.log("Medical History API Response:", MedicalhistoryData);
+        // console.log("Allergies API Response:", allergyData);
+        // console.log("Languages API Response:", languageData);
+        // console.log("Medical History API Response:", MedicalhistoryData);
 
         setIsLoadingAllergies(true);
 
@@ -326,7 +369,7 @@ export function RegisterPatient() {
   }, [shouldOpen]);
 
   useEffect(() => {
-    if (editingPatient) {
+    if (isRegisterPatientOpen && editingPatient) {
       const {
         PatientId,
         firstName,
@@ -356,41 +399,42 @@ export function RegisterPatient() {
         languages,
         medicalHistory,
         profileImageUrl,
+        Prefix,
       } = editingPatient;
 
-      // Set basic form fields
+      setPatientId(PatientId);
+
       reset({
-        PatientId: PatientId,
-        Title: editingPatient?.Prefix ?? "",
+        Title: Prefix ?? "",
         firstName,
         lastName,
-        DateofBirth: dateOfBirth?.slice(0, 10),
+        DateofBirth: dateOfBirth?.slice(0, 10) ?? "",
         gender,
         mobilenumber: mobile,
-        alternativemobilenumber: altContactNumber,
-        Email: email,
-        doorNumber: addressLine1,
-        street: addressLine2,
-        Area: area,
-        city,
-        state,
-        country,
-        postalCode: postalCode?.toString(),
-        Landmark: landmark,
-        Taluka: taluka,
-        bloodgroup: bloodGroup,
+        alternativemobilenumber: altContactNumber ?? "",
+        Email: email ?? "",
+        doorNumber: addressLine1 ?? "",
+        street: addressLine2 ?? "",
+        Area: area ?? "",
+        city: city ?? "",
+        state: state ?? "",
+        country: country ?? "",
+        postalCode: postalCode?.toString() ?? "",
+        Landmark: landmark ?? "",
+        Taluka: taluka ?? "",
+        bloodgroup: bloodGroup ?? "",
       });
 
       setEmergency({
-        name: emergencyName,
-        contact: emergencyContact,
-        relation: emergencyRelation,
+        name: emergencyName ?? "",
+        contact: emergencyContact ?? "",
+        relation: emergencyRelation ?? "",
       });
 
       setKin({
-        name: kinName,
-        contact: kinContact,
-        relation: kinRelation,
+        name: kinName ?? "",
+        contact: kinContact ?? "",
+        relation: kinRelation ?? "",
       });
 
       setSelectedAllergies(
@@ -400,19 +444,19 @@ export function RegisterPatient() {
         (languages ?? []).map((l) => l.LanguageId.toString())
       );
       setSelectedMedicalHistory(
-        (medicalHistory ?? []).map((MH) => MH.MedicalHistoryId.toString())
+        (medicalHistory ?? []).map((mh) => mh.MedicalHistoryId.toString())
       );
 
-      // Set image if exists
       if (profileImageUrl) {
         setImageUrl(`${BACKEND_URL}${profileImageUrl}`);
       }
     }
-  }, [editingPatient, reset]);
+    console.log("editingPatient changed:", editingPatient);
+  }, [editingPatient, isRegisterPatientOpen, reset]);
 
+  // Cleanup only resets the form UI — not editingPatient
   useEffect(() => {
     if (!isRegisterPatientOpen) {
-      // Always reset form when closing
       reset({
         Title: "",
         firstName: "",
@@ -445,11 +489,12 @@ export function RegisterPatient() {
       setImageUrl(null);
       setImageFile(null);
 
-      // Clear editing patient so next open is fresh
-      if (editingPatient) {
+      // ✅ Clear editingPatient with a small delay to ensure cleanup happens after dialog closes
+      setTimeout(() => {
         setEditingPatient(null);
-      }
+      }, 100);
     }
+    console.log("isRegisterPatientOpen:", isRegisterPatientOpen);
   }, [isRegisterPatientOpen]);
 
   const buildFormPayload = async (
@@ -520,7 +565,7 @@ export function RegisterPatient() {
   };
 
   const onSubmit = async (data: RegisterPatient) => {
-    console.log("watchedFields", watchedFields);
+    // console.log("watchedFields", watchedFields);
 
     try {
       const payload = await buildFormPayload(data, imageUrl, imageFile); // 👈 pass it
@@ -562,7 +607,14 @@ export function RegisterPatient() {
 
       console.log("✅ Patient registered:", result);
       setAppointmrntData(result?.return);
-
+      dispatch(
+        fetchAllRegisterPatient({
+          organizationId: selectedHospital?.hospital?.organizationId,
+          hospitalId: selectedHospital?.hospitalId,
+          page: 1,
+          limit: 10,
+        })
+      );
       setTimeout(() => {
         setRegisterAnimation(true);
         setCountdown(5); // Start from 10
@@ -580,14 +632,7 @@ export function RegisterPatient() {
         setTimeout(() => {
           setRegisterPatientOpen(false);
           setRegisterAnimation(false);
-          dispatch(
-            fetchAllRegisterPatient({
-              organizationId: selectedHospital?.organizationId,
-              hospitalId: selectedHospital?.hospitalId,
-              page: 1,
-              limit: 10,
-            })
-          );
+
           reset();
           setImageUrl(null);
         }, 5000);
@@ -650,7 +695,7 @@ export function RegisterPatient() {
   //     dispatch(fetchHospitals());
   //   }
   // }, [dispatch]);
-  console.log("Hospital data in Register patient sceren ", selectedHospital);
+  // console.log("Hospital data in Register patient sceren ", selectedHospital);
 
   // const { setSelectedPatient } = useEvents();
 
@@ -675,7 +720,7 @@ export function RegisterPatient() {
         <div className="w-full flex justify-end pr-4">
           <div className="flex-none">
             <Button
-        className="register-patient-btn inline-flex items-center gap-2"
+              className="register-patient-btn inline-flex items-center gap-2"
               onClick={() => setRegisterPatientOpen(true)}
             >
               <UserPlus className="w-5 h-5 inline-block mr-2" />
@@ -1602,6 +1647,7 @@ export function RegisterPatient() {
             </form>
 
             <PatientSearchDrawer
+              selectedHospital={selectedHospital}
               query={searchQuery}
               onSelect={(patient) => {
                 setSelectedPatient(patient);
@@ -1617,12 +1663,12 @@ export function RegisterPatient() {
               }}
             />
             <div className="hidden">
-              <EventAddForm
+              {/* <EventAddForm
                 key={appointmentData?.PatientId ?? "new"}
                 selectedPatient={selectedPatient}
-                start={undefined}
-                end={undefined}
-              />
+                start={new Date()}
+                end={new Date()}
+              /> */}
             </div>
           </AlertDialogContent>
         </div>

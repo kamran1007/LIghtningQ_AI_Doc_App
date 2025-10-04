@@ -20,7 +20,7 @@ import {
   TableCell,
   TableHead,
 } from "@/components/ui/table";
-import { Plus, Trash2, Pencil, X } from "lucide-react";
+import { Plus, Trash2, Pencil, X, Loader2 } from "lucide-react";
 import { addupdateMedicine, FetchMedication } from "@/lib/consultation";
 import { Controller, useForm } from "react-hook-form";
 
@@ -59,12 +59,28 @@ const initialForm: Medicine = {
   HSNCode: "",
   Instructions: "",
 };
+interface MedicineFormValues {
+  medicineType: string;
+  unit?: string;
+  ScheduleType?: string;
+  MedicineType?: string;
+  // add other fields if needed, e.g. Strength, Instructions...
+}
 
 const MedicineModal: React.FC<MedicineModalProps> = ({ open, onClose }) => {
   const toast = useRef<Toast>(null);
-  const { control, handleSubmit } = useForm({
+  const {
+    control,
+    reset,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm<MedicineFormValues>({
     defaultValues: {
       medicineType: "", // default field
+      unit: "",
+      ScheduleType: "",
+      MedicineType: "",
+      // add other fields if needed
     },
   });
   const [showForm, setShowForm] = useState(false);
@@ -79,7 +95,7 @@ const MedicineModal: React.FC<MedicineModalProps> = ({ open, onClose }) => {
     try {
       setLoading(true);
       const { ConsultationMedication, createdAt, updatedAt, ...cleanForm } =
-        form;
+        form as any; // Exclude unwanted fields
 
       const payload = {
         ...form,
@@ -127,7 +143,7 @@ const MedicineModal: React.FC<MedicineModalProps> = ({ open, onClose }) => {
     }
   };
 
-  const handleDelete = async (item: any) => {
+  const handleDelete = async (item: any, index: number) => {
     const medicineId = item?.MedicineId;
     if (!medicineId) return;
 
@@ -356,10 +372,17 @@ const MedicineModal: React.FC<MedicineModalProps> = ({ open, onClose }) => {
                     Cancel
                   </Button>
                   <Button
-                    className="px-4 py-2 bg-green-400 hover:bg-green-500"
+                    className="px-4 py-2 bg-green-400 hover:bg-green-500 flex items-center gap-2"
                     onClick={handleSave}
+                    disabled={loading}
                   >
-                    {selectedIndex !== null ? "Update" : "Save"}
+                    {loading ? (
+                      <>
+                        <Loader2 className="animate-spin w-4 h-4" />
+                      </>
+                    ) : (
+                      <span>{selectedIndex !== null ? "Update" : "Save"}</span>
+                    )}
                   </Button>
                 </div>
               </div>
@@ -424,7 +447,7 @@ const MedicineModal: React.FC<MedicineModalProps> = ({ open, onClose }) => {
                             <Button
                               size="icon"
                               variant="ghost"
-                              onClick={() => handleDelete(med)}
+                              onClick={() => handleDelete(med, idx)}
                             >
                               <Trash2 className="w-4 h-4 text-red-500" />
                             </Button>

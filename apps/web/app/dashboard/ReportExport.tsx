@@ -16,7 +16,10 @@ interface ReportExportProps {
   };
 }
 
-const ReportExport: React.FC<ReportExportProps> = ({ reportData, hospitalInfo }) => {
+const ReportExport: React.FC<ReportExportProps> = ({
+  reportData,
+  hospitalInfo,
+}) => {
   // -------------------- Export PDF --------------------
   const exportPDF = () => {
     const doc = new jsPDF("p", "pt");
@@ -35,7 +38,10 @@ const ReportExport: React.FC<ReportExportProps> = ({ reportData, hospitalInfo })
     doc.setFont("helvetica", "normal");
 
     const wrapText = (text: string, yStart: number) => {
-      const splitText = doc.splitTextToSize(text, pageWidth - leftMargin - rightMargin);
+      const splitText = doc.splitTextToSize(
+        text,
+        pageWidth - leftMargin - rightMargin
+      );
       doc.text(splitText, pageWidth / 2, yStart, { align: "center" });
       return yStart + splitText.length * 12; // 12pt line height
     };
@@ -69,11 +75,17 @@ const ReportExport: React.FC<ReportExportProps> = ({ reportData, hospitalInfo })
         head: [columns.map((c) => c.label)],
         body: data.map((row) => columns.map((c) => row[c.key] ?? "")),
         theme: "grid",
-        headStyles: { fillColor: [0, 180, 180], textColor: 255, fontStyle: "bold" },
+        headStyles: {
+          fillColor: [0, 180, 180],
+          textColor: 255,
+          fontStyle: "bold",
+        },
         styles: { fontSize: 9, cellPadding: 4 },
         margin: { left: leftMargin, right: rightMargin },
         didDrawPage: (dataArg) => {
-          yOffset = dataArg.cursor.y + 20;
+          if (dataArg.cursor) {
+            yOffset = dataArg.cursor.y + 20;
+          }
         },
       });
     };
@@ -140,9 +152,16 @@ const ReportExport: React.FC<ReportExportProps> = ({ reportData, hospitalInfo })
   const exportExcel = () => {
     const wb = XLSX.utils.book_new();
 
-    const addSheet = (sheetName: string, data: any[], columns: { key: string; label: string }[]) => {
+    const addSheet = (
+      sheetName: string,
+      data: any[],
+      columns: { key: string; label: string }[]
+    ) => {
       if (!data?.length) return;
-      const wsData = [columns.map((c) => c.label), ...data.map((row) => columns.map((c) => row[c.key] ?? ""))];
+      const wsData = [
+        columns.map((c) => c.label),
+        ...data.map((row) => columns.map((c) => row[c.key] ?? "")),
+      ];
       const ws = XLSX.utils.aoa_to_sheet(wsData);
       XLSX.utils.book_append_sheet(wb, ws, sheetName);
     };
@@ -165,12 +184,16 @@ const ReportExport: React.FC<ReportExportProps> = ({ reportData, hospitalInfo })
       { key: "revenue", label: "Revenue" },
     ]);
 
-    addSheet("Specialization Performance", reportData?.specializationPerformance, [
-      { key: "date", label: "Date" },
-      { key: "specializationName", label: "Specialist" },
-      { key: "appointments", label: "No. of Appointments" },
-      { key: "revenue", label: "Revenue" },
-    ]);
+    addSheet(
+      "Specialization Performance",
+      reportData?.specializationPerformance,
+      [
+        { key: "date", label: "Date" },
+        { key: "specializationName", label: "Specialist" },
+        { key: "appointments", label: "No. of Appointments" },
+        { key: "revenue", label: "Revenue" },
+      ]
+    );
 
     XLSX.writeFile(wb, `Hospital_Report_${hospitalInfo.name}.xlsx`);
   };

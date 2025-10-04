@@ -18,7 +18,7 @@ import {
   TableCell,
   TableHead,
 } from "@/components/ui/table";
-import { Plus, Trash2, Pencil, X } from "lucide-react";
+import { Plus, Trash2, Pencil, X, Loader2 } from "lucide-react";
 import {
   addupdatemedicalhistory,
   deleteMedicalHistory,
@@ -55,7 +55,7 @@ const MedicalHistoryModal: React.FC<MedicalHistoryModalProps> = ({
   });
   const [loading, setLoading] = useState(false);
   const [medicalhistoryList, setMedicalhistoryList] = useState<any[]>([]);
-
+ const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const { control, reset, handleSubmit } = useForm({
     defaultValues: {},
   });
@@ -88,7 +88,8 @@ const MedicalHistoryModal: React.FC<MedicalHistoryModalProps> = ({
     }
   };
 
-  const handleEdit = (item: any) => {
+  const handleEdit = (item: any,index:number) => {
+    setSelectedIndex(index); // ✅ store the index number
     setForm({
       MedicalHistoryName: item.MedicalHistoryName,
       MedicalHistoryId: item.MedicalHistoryId,
@@ -212,10 +213,17 @@ const MedicalHistoryModal: React.FC<MedicalHistoryModalProps> = ({
                     Cancel
                   </Button>
                   <Button
-                    className="px-4 py-2 bg-green-400 hover:bg-green-500"
+                    className="px-4 py-2 bg-green-400 hover:bg-green-500 flex items-center gap-2"
                     onClick={handleAdd}
+                    disabled={loading}
                   >
-                    Save
+                    {loading ? (
+                      <>
+                        <Loader2 className="animate-spin w-4 h-4" />
+                      </>
+                    ) : (
+                      <span>{selectedIndex !== null ? "Update" : "Save"}</span>
+                    )}
                   </Button>
                 </div>
               </div>
@@ -268,7 +276,7 @@ const MedicalHistoryModal: React.FC<MedicalHistoryModalProps> = ({
                             <Button
                               size="icon"
                               variant="ghost"
-                              onClick={() => handleEdit(h)} // Pass full item
+                              onClick={() => handleEdit(h,idx)} // Pass full item
                             >
                               <Pencil className="w-4 h-4" />
                             </Button>
