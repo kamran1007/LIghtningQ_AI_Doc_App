@@ -471,7 +471,7 @@ export default function AddUserPage() {
       setValue("dateOfBirth", formattedDOB || "");
       setValue("roleId", user.roleId);
       setValue("SpecializationId", user.SpecializationId ?? 0);
-      setImageUrl(user.imageUrl ? `http://localhost:8000${user.imageUrl}` : "");
+      setImageUrl(user.imageUrl ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${user.imageUrl}` : "");
       // setImageUrl(user.imageUrl || "");
       // setSignatureFileSelected(!!user?.SignatureOfUser);
       //     const rawSignature = user?.SignatureOfUser;
@@ -493,7 +493,7 @@ export default function AddUserPage() {
       //     }
       const rawSignature = user?.SignatureOfUser;
       const fullSignatureUrl = rawSignature
-        ? `http://localhost:8000${rawSignature}`
+        ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${rawSignature}`
         : null;
 
       setPreviewUrl(fullSignatureUrl);

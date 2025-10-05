@@ -139,7 +139,7 @@ importers:
         specifier: ^1.4.12
         version: 1.4.12
       '@types/node':
-        specifier: ^22.10.7
+        specifier: ^22.15.3
         version: 22.15.3
       '@types/passport-local':
         specifier: ^1.0.38
@@ -187,7 +187,7 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0
       typescript:
-        specifier: ^5.7.3
+        specifier: ^5.8.2
         version: 5.8.2
       typescript-eslint:
         specifier: ^8.20.0

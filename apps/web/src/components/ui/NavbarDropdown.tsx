@@ -67,7 +67,7 @@ function NavbarDropdown({ profile }: ProfileProps) {
       setUserHospital(selectedHospital);
     }
     setImageUrl(
-      userProfile.imageUrl ? `http://localhost:8000${userProfile.imageUrl}` : ""
+      userProfile.imageUrl ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${userProfile.imageUrl}` : ""
     );
   }, [selectedHospital, userProfile.imageUrl]);
   const handleLogout = () => {

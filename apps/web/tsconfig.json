@@ -1,26 +1,12 @@
 {
   "extends": "@repo/typescript-config/nextjs.json",
   "compilerOptions": {
-    "jsx": "preserve", // ✅ enable JSX types
-    "types": [
-      "react",
-      "react-dom"
-    ], // ✅ load React typings
-    "lib": [
-      "dom",
-      "esnext"
-    ],
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
+    "jsx": "preserve",
+    "types": ["react", "react-dom"],
+    "lib": ["dom", "esnext"],
+    "plugins": [{ "name": "next" }],
     "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    }
+    "paths": { "@/*": ["./src/*"] }
   },
   "include": [
     "**/*.ts",
@@ -32,7 +18,5 @@
     "src/types/pdfmake.d.ts",
     "global.d.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

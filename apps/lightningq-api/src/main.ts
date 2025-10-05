@@ -25,7 +25,12 @@ async function bootstrap() {
   app.use(cookieParser());
 
   app.enableCors({
-    origin: 'http://localhost:3000', // Replace with your frontend URL
+    origin: [
+      'http://localhost:3000', // local dev
+      'https://dev.lightningq.com', // dev frontend (Vercel)
+      'https://ai.lightningq.com', // production frontend
+    ], 
+     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
   });
 
