@@ -3,5 +3,6 @@
     {
       "mode": "auto"
     }
-  ]
+  ],
+  "typescript.ignoreDeprecations": "6.0"
 }

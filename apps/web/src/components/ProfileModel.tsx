@@ -61,7 +61,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
         console.log("ProfileModel working", result);
         setImageUrl(
           result.user.imageUrl
-            ? `http://localhost:8000${result.user.imageUrl}`
+            ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${result.user.imageUrl}`
             : ""
         );
         setFirstName(result.user.firstName || "");

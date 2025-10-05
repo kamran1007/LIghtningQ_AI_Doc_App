@@ -282,7 +282,7 @@ export default function CalendarNav({
 
         {/* Add event button  */}
 
-        <EventAddForm start={start} end={end} />
+        <EventAddForm start={start} end={end} selectedPatient={undefined} />
       </div>
     </div>
   );

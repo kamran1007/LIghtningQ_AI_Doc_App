@@ -24,7 +24,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { deleteinvestigation, getInvestigationType } from "@/lib/setting";
 import toast from "react-hot-toast";
@@ -42,6 +42,12 @@ type Investigation = {
   InvestigationSubTypename?: string;
   InvestigationSubTypeId?: number;
 };
+interface InvestigationSubTypeForm {
+  InvestigationSubTypename: string;
+  InvestigationTypeId?: number | string; // RHF often works with string for Select
+  InvestigationSubTypeId?: number;
+  medicineType?: string; // default field
+}
 
 const InvestigationModal: React.FC<InvestigationModalProps> = ({
   open,
@@ -60,10 +66,16 @@ const InvestigationModal: React.FC<InvestigationModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [investigationList, setInvestigationList] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const handleAdd = async () => {
     if (!form.InvestigationTypeId || !form.InvestigationSubTypename?.trim()) {
-      toast.error("Please select type and enter subtype name");
+      toast.current?.show({
+        severity: "error",
+        summary: "failed",
+        detail: "Please select type and enter subtype name",
+        life: 3000,
+      });
       return;
     }
 
@@ -108,7 +120,8 @@ const InvestigationModal: React.FC<InvestigationModalProps> = ({
       setIsLoading(false);
     }
   };
-  const handleEdit = (item: any) => {
+  const handleEdit = (item: any,index: number) => {
+        setSelectedIndex(index); // ✅ store the index number
 
     setForm({
       InvestigationSubTypename: item.InvestigationSubTypename,
@@ -151,7 +164,7 @@ const InvestigationModal: React.FC<InvestigationModalProps> = ({
       });
     }
   };
-  const { control, reset, handleSubmit } = useForm({
+  const { control, reset, handleSubmit } = useForm<InvestigationSubTypeForm>({
     defaultValues: {
       medicineType: "", // default field
     },
@@ -169,7 +182,12 @@ const InvestigationModal: React.FC<InvestigationModalProps> = ({
         // ✅ Set user if editing
       } catch (error) {
         console.error("Failed to fetch data", error);
-        toast.error("Failed to fetch initial data");
+        toast.current?.show({
+          severity: "error",
+          summary: "failed",
+          detail: "Failed to fetch initial data",
+          life: 3000,
+        });
       } finally {
         setIsLoading(false);
       }
@@ -312,10 +330,17 @@ const InvestigationModal: React.FC<InvestigationModalProps> = ({
                     Cancel
                   </Button>
                   <Button
-                    className="px-4 py-2 bg-green-400 hover:bg-green-500"
+                    className="px-4 py-2 bg-green-400 hover:bg-green-500 flex items-center gap-2"
                     onClick={handleAdd}
+                    disabled={isLoading}
                   >
-                    Save
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="animate-spin w-4 h-4" />
+                      </>
+                    ) : (
+                      <span>{selectedIndex !== null ? "Update" : "Save"}</span>
+                    )}
                   </Button>
                 </div>
               </div>
@@ -366,7 +391,7 @@ const InvestigationModal: React.FC<InvestigationModalProps> = ({
                             <Button
                               size="icon"
                               variant="ghost"
-                              onClick={() => handleEdit(item)} // Pass whole item
+                              onClick={() => handleEdit(item,idx)} // Pass whole item
                             >
                               <Pencil className="w-4 h-4" />
                             </Button>

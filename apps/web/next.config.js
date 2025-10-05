@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["localhost", "dummyimage.com", "cdn.sunrisehospital.com"],
+    domains: ["localhost", "dummyimage.com", "cdn.sunrisehospital.com","dev.api.lightningq.com"],
   },
   experimental: {
     serverActions: {
@@ -16,7 +16,7 @@ const nextConfig = {
     return [
       {
         source: "/api/:path*", // Frontend route prefix
-        destination: "http://localhost:8000/:path*", // Backend server
+        destination: "https://dev.api.lightningq.com/:path*", // Backend server
       },
     ];
   },

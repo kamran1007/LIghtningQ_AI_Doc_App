@@ -43,7 +43,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 
-import { User } from "app/admin/hospitaluserlist";
+import { User } from "@/types/user";
 import { RootState } from "@/store";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
@@ -738,7 +738,7 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
               <SelectValue placeholder="Select Hospital" />
             </SelectTrigger>
             <SelectContent className="border-white shadow-2xl rounded-2xl data-[state=checked]:bg-white data-[highlighted]:bg-white">
-              {user?.AdminAccess.map((hosp: any) => (
+              {user?.AdminAccess?.map((hosp: any) => (
                 <SelectItem
                   key={hosp.hospital.HospitalId}
                   value={hosp.hospital.HospitalId.toString()}

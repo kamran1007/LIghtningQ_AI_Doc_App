@@ -30,7 +30,7 @@ export const generateAppointmentPDF = async (appointmentData: any) => {
 
   const numberToWords = (num: number) => {
     if (!num) return "Zero";
-    return toWords(num).replace(/^\w/, (c) => c.toUpperCase()); // Capitalize first letter
+    return toWords(num).replace(/^\w/, (c:any) => c.toUpperCase()); // Capitalize first letter
   };
 
   // const formatDateTime = (date: string) =>

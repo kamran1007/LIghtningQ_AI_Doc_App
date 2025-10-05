@@ -1,31 +1,72 @@
 // components/ui/table.tsx
-import React from "react";
+import * as React from "react";
+import { cn } from "@/lib/utils"; // optional utility for merging classNames
 
-export function Table({ children }: { children: React.ReactNode }) {
-  return (
-    <table className="w-full text-sm text-left text-gray-500 border border-gray-300 rounded-md">
-      {children}
-    </table>
-  );
-}
+// Table
+export const Table = React.forwardRef<
+  HTMLTableElement,
+  React.TableHTMLAttributes<HTMLTableElement>
+>(({ className, ...props }, ref) => (
+  <table
+    ref={ref}
+    className={cn(
+      "w-full text-sm text-left text-gray-500 border border-gray-300 rounded-md",
+      className
+    )}
+    {...props}
+  />
+));
+Table.displayName = "Table";
 
-export function TableHeader({ children }: { children: React.ReactNode }) {
-  return <thead className="bg-gray-100 text-gray-700">{children}</thead>;
-}
+// TableHeader
+export const TableHeader = React.forwardRef<
+  HTMLTableSectionElement,
+  React.HTMLAttributes<HTMLTableSectionElement>
+>(({ className, ...props }, ref) => (
+  <thead
+    ref={ref}
+    className={cn("bg-gray-100 text-gray-700", className)}
+    {...props}
+  />
+));
+TableHeader.displayName = "TableHeader";
 
-export function TableBody({ children }: { children: React.ReactNode }) {
-  return <tbody className="divide-y">{children}</tbody>;
-}
+// TableBody
+export const TableBody = React.forwardRef<
+  HTMLTableSectionElement,
+  React.HTMLAttributes<HTMLTableSectionElement>
+>(({ className, ...props }, ref) => (
+  <tbody ref={ref} className={cn("divide-y", className)} {...props} />
+));
+TableBody.displayName = "TableBody";
 
-export function TableRow({ children }: { children: React.ReactNode }) {
-  return <tr>{children}</tr>;
-}
+// TableRow
+export const TableRow = React.forwardRef<
+  HTMLTableRowElement,
+  React.HTMLAttributes<HTMLTableRowElement>
+>(({ className, ...props }, ref) => (
+  <tr ref={ref} className={cn("", className)} {...props} />
+));
+TableRow.displayName = "TableRow";
 
-export function TableHead({ children }: { children: React.ReactNode }) {
-  return <th className="px-4 py-2 font-medium text-gray-700">{children}</th>;
-}
+// TableHead
+export const TableHead = React.forwardRef<
+  HTMLTableCellElement,
+  React.ThHTMLAttributes<HTMLTableCellElement>
+>(({ className, ...props }, ref) => (
+  <th
+    ref={ref}
+    className={cn("px-4 py-2 font-medium text-gray-700", className)}
+    {...props}
+  />
+));
+TableHead.displayName = "TableHead";
 
-// ✅ Rename TD → TableCell
-export function TableCell({ children }: { children: React.ReactNode }) {
-  return <td className="px-4 py-2">{children}</td>;
-}
+// TableCell
+export const TableCell = React.forwardRef<
+  HTMLTableCellElement,
+  React.TdHTMLAttributes<HTMLTableCellElement>
+>(({ className, ...props }, ref) => (
+  <td ref={ref} className={cn("px-4 py-2", className)} {...props} />
+));
+TableCell.displayName = "TableCell";

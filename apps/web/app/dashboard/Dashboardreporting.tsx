@@ -52,6 +52,8 @@ import { DateRangePicker } from "react-date-range";
 import { FetchDoctorRole } from "@/lib/bookappointment";
 import toast from "react-hot-toast";
 import CombinedSkeleton from "@/components/ui/skeletonloader/DashboardSkeleton";
+import { DateRange } from "react-date-range";
+
 /*
   AIHealthDashboard.tsx
 
@@ -103,7 +105,49 @@ const kpiMock = [
 ];
 
 const colors = ["#2563eb", "#06b6d4", "#10b981", "#f59e0b", "#ef4444"];
+interface RevenueBreakdownItem {
+  paymentTypePaymentTypeId: 1 | 2 | 3; // restrict to known values
+  _sum?: {
+    AppointmentChargesPaid?: number;
+  };
+}
+interface AppointmentTrend {
+  date: string; // ISO date string from backend
+  count: number; // number of appointments
+}
 
+// Summary card type
+interface SummaryCard {
+  id: string;
+  title: string;
+  value: number | string;
+  subtitle?: string;
+}
+
+// Top specialization type
+interface TopSpecialization {
+  name: string;
+  count: number;
+}
+
+interface DoctorPerformance {
+  name: string;
+  avgMin: number;
+  completed: number;
+}
+interface Specialization {
+  SpecializationId: number;
+  SpecializationName: string;
+}
+interface Hospital {
+  HospitalId: number;
+  HospitalName: string;
+}
+interface Doctor {
+  UserId: number;
+  firstName: string;
+  lastName: string;
+}
 // ----- Dashboard component -----
 export default function Dashboard({
   initialFilter = null,
@@ -113,11 +157,19 @@ export default function Dashboard({
   const [selectedKpi, setSelectedKpi] = useState<string | null>(null);
   const [filter, setFilter] = useState<string | null>(initialFilter);
   const [modalOpen, setModalOpen] = useState(false);
-  const [summaryCards, setSummaryCards] = useState([]);
-  const [appointmentTrends, setAppointmentTrends] = useState([]);
-  const [topSpecializations, setTopSpecializations] = useState([]);
-  const [topDoctor, setTopDoctor] = useState([]);
-  const [revenueBreakdown, setRevenueBreakdown] = useState([]);
+  const [summaryCards, setSummaryCards] = useState<SummaryCard[]>([]);
+  const [topSpecializations, setTopSpecializations] = useState<
+    TopSpecialization[]
+  >([]);
+  const [revenueBreakdown, setRevenueBreakdown] = useState<
+    RevenueBreakdownItem[]
+  >([]);
+  const [appointmentTrends, setAppointmentTrends] = useState<
+    AppointmentTrend[]
+  >([]);
+
+  const [topDoctor, setTopDoctor] = useState<DoctorPerformance[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -140,13 +192,14 @@ export default function Dashboard({
     }));
   }, [appointmentTrends]);
 
-  const [doctors, setDoctors] = useState([]);
-  const [specializations, setSpecializations] = useState([]);
-  const [hospitalData, setHospitalData] = useState([]);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [specializations, setSpecializations] = useState<Specialization[]>([]);
+  const [hospitalData, setHospitalData] = useState<Hospital[]>([]);
 
-  const [selectedHospital, setSelectedHospital] = useState("");
-  const [selectedDoctor, setSelectedDoctor] = useState("");
-  const [selectedSpecialization, setSelectedSpecialization] = useState("");
+  const [selectedDoctor, setSelectedDoctor] = useState<string>("");
+  const [selectedSpecialization, setSelectedSpecialization] =
+    useState<string>("");
+  const [selectedHospital, setSelectedHospital] = useState<string>("");
 
   const filteredLineData = useMemo(() => {
     if (!filter) return lineData;
@@ -180,12 +233,27 @@ export default function Dashboard({
       const percentage = total ? ((value / total) * 100).toFixed(0) : 0;
 
       return {
-        name: typeInfo?.name || "Unknown",
+        name: typeInfo.name,
         value: Number(percentage),
-        color: typeInfo?.color || "#ccc",
+        color: typeInfo.color,
       };
     });
   }, [revenueBreakdown]);
+
+  const doctorId =
+    selectedDoctor && selectedDoctor !== "all-doctors"
+      ? Number(selectedDoctor)
+      : undefined;
+
+  const specializationId =
+    selectedSpecialization && selectedSpecialization !== "all-specializations"
+      ? Number(selectedSpecialization)
+      : undefined;
+
+  const hospitalId =
+    selectedHospital && selectedHospital !== "all-hospitals"
+      ? Number(selectedHospital)
+      : undefined;
 
   useEffect(() => {
     (async () => {
@@ -201,9 +269,9 @@ export default function Dashboard({
         const data = await FetchDashboardsummary(
           startDate,
           endDate,
-          selectedDoctor || "",
-          selectedHospital || "", // hospitalId can be added if needed  '',
-          selectedSpecialization || ""
+          doctorId,
+          hospitalId,
+          specializationId
         );
 
         setSummaryCards(data.summaryCards || []);
@@ -234,11 +302,11 @@ export default function Dashboard({
       const data = await FetchDashboardsummary(
         startDate,
         endDate,
-        selectedDoctor || "",
-        selectedHospital || "", // hospitalId placeholder
-        selectedSpecialization || ""
+        doctorId,
+        hospitalId,
+        specializationId
       );
-
+      console.log("API response for DashboardSummary:", data);
       setSummaryCards(data.summaryCards || []);
       setAppointmentTrends(data.appointmentTrends || []);
       setTopSpecializations(data.topSpecializations || []);
@@ -258,7 +326,7 @@ export default function Dashboard({
     setSelectedKpi(kpiId);
     setModalOpen(true);
   }
-  const [dateRange, setDateRange] = useState([
+  const [dateRange, setDateRange] = useState<DateRange[]>([
     {
       startDate: new Date(),
       endDate: new Date(),
@@ -307,10 +375,11 @@ export default function Dashboard({
       const res = await FetchPatientDemographics(
         startDate,
         endDate,
-        selectedDoctor || "",
-        "", // hospitalId placeholder
-        selectedSpecialization || ""
+        doctorId,
+        hospitalId,
+        specializationId
       );
+      console.log("API response:", res);
 
       setPatientData({
         male: res.genderStats.find((g: any) => g.label === "Male")?.value || 0,
@@ -326,7 +395,7 @@ export default function Dashboard({
         newAppointments: res.summary.newAppointments || 0,
       });
       // console.log("Patient data:", res);
-      // console.log("Processed patient data:", patientData);
+      console.log("Processed patient data:", patientData);
       setLoading(true);
     } catch (err) {
       console.error("Error fetching dashboard summary", err);
@@ -361,38 +430,38 @@ export default function Dashboard({
     <div className="min-h-screen bg-gray-50 p-6">
       <>
         {loading ? (
-          <CombinedSkeleton/>
+          <CombinedSkeleton />
         ) : (
           <div className="max-w-7xl mx-auto">
-          <header className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-semibold text-slate-800">
-                Dashboard
-              </h2>
-              {/* <p className="text-sm text-slate-500">Dashboard / Reports</p> */}
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="hidden sm:flex flex-col text-right">
-                {/* <span className="text-sm font-medium">Welcome back</span>
-              <span className="text-xs text-slate-500">Kamran</span> */}
+            <header className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-semibold text-slate-800">
+                  Dashboard
+                </h2>
+                {/* <p className="text-sm text-slate-500">Dashboard / Reports</p> */}
               </div>
-              <FunnelPlus
-                className="w-6 h-6 text-teal-300 cursor-pointer"
-                onClick={() => setIsDialogOpen(true)}
-              />
-            </div>
-          </header>
+              <div className="flex items-center gap-4">
+                <div className="hidden sm:flex flex-col text-right">
+                  {/* <span className="text-sm font-medium">Welcome back</span>
+              <span className="text-xs text-slate-500">Kamran</span> */}
+                </div>
+                <FunnelPlus
+                  className="w-6 h-6 text-teal-300 cursor-pointer"
+                  onClick={() => setIsDialogOpen(true)}
+                />
+              </div>
+            </header>
 
-          {/* KPI Row */}
+            {/* KPI Row */}
 
-          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            {summaryCards.map((k) => (
-              <motion.button
-                key={k?.id}
-                onClick={() => handleCardClick(k?.id)}
-                whileHover={{ y: -4 }}
-                whileTap={{ scale: 0.98 }}
-                className="
+            <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              {summaryCards.map((k) => (
+                <motion.button
+                  key={k?.id}
+                  onClick={() => handleCardClick(k?.id)}
+                  whileHover={{ y: -4 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="
   bg-white 
   rounded-2xl 
   p-5 
@@ -407,133 +476,205 @@ export default function Dashboard({
   text-left 
   w-full
 "
-                aria-label={`Open report for ${k.title}`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-sm font-medium text-slate-600">
-                      {k.title}
-                    </h3>
-                    <div className="mt-2 text-2xl font-bold text-slate-900">
-                      {k.value}
+                  aria-label={`Open report for ${k.title}`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-medium text-slate-600">
+                        {k.title}
+                      </h3>
+                      <div className="mt-2 text-2xl font-bold text-slate-900">
+                        {k.value}
+                      </div>
+                      <div className="text-xs text-slate-400 mt-1">
+                        {k.subtitle}
+                      </div>
                     </div>
-                    <div className="text-xs text-slate-400 mt-1">
-                      {k.subtitle}
-                    </div>
-                  </div>
-                  <div className="w-20 h-12 flex items-center justify-center opacity-60">
-                    {/* small sparkline using SVG */}
-                    <svg
-                      width="60"
-                      height="36"
-                      viewBox="0 0 60 36"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M2 28 L12 20 L22 22 L32 12 L42 14 L52 8 L58 6"
-                        stroke="#22E0D4"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
+                    <div className="w-20 h-12 flex items-center justify-center opacity-60">
+                      {/* small sparkline using SVG */}
+                      <svg
+                        width="60"
+                        height="36"
+                        viewBox="0 0 60 36"
                         fill="none"
-                      />
-                    </svg>
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M2 28 L12 20 L22 22 L32 12 L42 14 L52 8 L58 6"
+                          stroke="#22E0D4"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          fill="none"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </motion.button>
+              ))}
+            </section>
+
+            {/* Controls + charts */}
+            <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+              <div className="lg:col-span-2 bg-white border-gray-300 rounded-2xl p-4 shadow-sm border">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-lg font-medium">Appointment Trends</h4>
+
+                  <div className="flex items-center gap-2">
+                    <Controller
+                      control={control}
+                      name="Title"
+                      render={({ field }) => (
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger className="h-9">
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
+                            {" "}
+                            <SelectItem value="low">Lower Volume</SelectItem>
+                            <SelectItem value="high">Higher Volume</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+
+                    <button
+                      onClick={() => {
+                        // quick export hook example
+                        const csv = filteredLineData
+                          .map((d) => `${d.day},${d.appointments}`)
+                          .join("\n");
+                        const blob = new Blob(["day,appointments\n" + csv], {
+                          type: "text/csv",
+                        });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = "appointments.csv";
+                        a.click();
+                        URL.revokeObjectURL(url);
+                      }}
+                      className="text-sm px-3 py-1 border rounded border-gray-300"
+                    >
+                      Export
+                    </button>
                   </div>
                 </div>
-              </motion.button>
-            ))}
-          </section>
 
-          {/* Controls + charts */}
-          <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            <div className="lg:col-span-2 bg-white border-gray-300 rounded-2xl p-4 shadow-sm border">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="text-lg font-medium">Appointment Trends</h4>
+                <div style={{ height: 260 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={filteredLineData}>
+                      <XAxis dataKey="day" tick={{ fontSize: 12 }} />
+                      <YAxis />
+                      <Tooltip />
+                      <Line
+                        type="monotone"
+                        dataKey="appointments"
+                        stroke="#22E0D4"
+                        strokeWidth={3}
+                        dot={false}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
 
-                <div className="flex items-center gap-2">
-                  <Controller
-                    control={control}
-                    name="Title"
-                    render={({ field }) => (
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <SelectTrigger className="h-9">
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                        <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
-                          {" "}
-                          <SelectItem value="low">Lower Volume</SelectItem>
-                          <SelectItem value="high">Higher Volume</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-white rounded-lg p-3 border shadow-sm border-gray-300">
+                    <h5 className="text-sm font-medium text-slate-700">
+                      Top Specializations
+                    </h5>
+                    <div className="mt-3 space-y-3">
+                      {topSpecializations.map((s, i) => (
+                        <div key={s.name} className="flex items-center gap-3">
+                          <div
+                            className="w-2.5 h-8 rounded-full"
+                            style={{ background: colors[i % colors.length] }}
+                          />
+                          <div className="flex-1">
+                            <div className="flex justify-between text-sm">
+                              <span>{s.name}</span>
+                              <span className="font-medium">{s.count}%</span>
+                            </div>
+                            <div className="h-2 bg-slate-100 rounded mt-2 overflow-hidden">
+                              <div
+                                style={{ width: `${s.count}%` }}
+                                className="h-2 rounded bg-gradient-to-r from-sky-500 to-emerald-400"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
-                  <button
-                    onClick={() => {
-                      // quick export hook example
-                      const csv = filteredLineData
-                        .map((d) => `${d.day},${d.appointments}`)
-                        .join("\n");
-                      const blob = new Blob(["day,appointments\n" + csv], {
-                        type: "text/csv",
-                      });
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement("a");
-                      a.href = url;
-                      a.download = "appointments.csv";
-                      a.click();
-                      URL.revokeObjectURL(url);
-                    }}
-                    className="text-sm px-3 py-1 border rounded border-gray-300"
-                  >
-                    Export
-                  </button>
+                  <div className="bg-white rounded-lg p-3 border shadow-sm border-gray-300">
+                    <h5 className="text-sm font-medium text-slate-700">
+                      Revenue Breakdown
+                    </h5>
+                    <div className="mt-2 flex items-center gap-4">
+                      <div style={{ width: 140, height: 120 }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={pieData}
+                              dataKey="value"
+                              innerRadius={24}
+                              outerRadius={36}
+                            >
+                              {pieData.map((entry, index) => (
+                                <Cell
+                                  key={`cell-${index}`}
+                                  fill={entry.color}
+                                />
+                              ))}
+                            </Pie>
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+
+                      <div className="text-sm">
+                        {pieData.map((item, index) => (
+                          <div
+                            className="flex items-center gap-2 mt-2"
+                            key={index}
+                          >
+                            <div
+                              className="w-2 h-2 rounded"
+                              style={{ backgroundColor: item.color }}
+                            />
+                            <span>
+                              {item.name} - {item.value}%
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div style={{ height: 260 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={filteredLineData}>
-                    <XAxis dataKey="day" tick={{ fontSize: 12 }} />
-                    <YAxis />
-                    <Tooltip />
-                    <Line
-                      type="monotone"
-                      dataKey="appointments"
-                      stroke="#22E0D4"
-                      strokeWidth={3}
-                      dot={false}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-
-              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-white rounded-lg p-3 border shadow-sm border-gray-300">
-                  <h5 className="text-sm font-medium text-slate-700">
-                    Top Specializations
-                  </h5>
-                  <div className="mt-3 space-y-3">
-                    {topSpecializations.map((s, i) => (
-                      <div key={s.name} className="flex items-center gap-3">
-                        <div
-                          className="w-2.5 h-8 rounded-full"
-                          style={{ background: colors[i % colors.length] }}
-                        />
-                        <div className="flex-1">
-                          <div className="flex justify-between text-sm">
-                            <span>{s.name}</span>
-                            <span className="font-medium">{s.count}%</span>
+              <aside className="space-y-4">
+                <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-300">
+                  <h4 className="text-lg font-medium">Doctor Performance</h4>
+                  <div className="mt-3 divide-y">
+                    {topDoctor.map((d) => (
+                      <div
+                        key={d.name}
+                        className="py-3 flex items-center justify-between"
+                      >
+                        <div>
+                          <div className="font-medium">Dr. {d.name}</div>
+                          <div className="text-xs text-slate-400">
+                            Avg {d.avgMin} min
                           </div>
-                          <div className="h-2 bg-slate-100 rounded mt-2 overflow-hidden">
-                            <div
-                              style={{ width: `${s.count}%` }}
-                              className="h-2 rounded bg-gradient-to-r from-sky-500 to-emerald-400"
-                            />
+                        </div>
+                        <div className="text-right ">
+                          <div className="font-semibold">{d.completed}</div>
+                          <div className="text-xs text-slate-400">
+                            Completed
                           </div>
                         </div>
                       </div>
@@ -541,99 +682,31 @@ export default function Dashboard({
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg p-3 border shadow-sm border-gray-300">
-                  <h5 className="text-sm font-medium text-slate-700">
-                    Revenue Breakdown
-                  </h5>
-                  <div className="mt-2 flex items-center gap-4">
-                    <div style={{ width: 140, height: 120 }}>
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={pieData}
-                            dataKey="value"
-                            innerRadius={24}
-                            outerRadius={36}
-                          >
-                            {pieData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                          </Pie>
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-
-                    <div className="text-sm">
-                      {pieData.map((item, index) => (
-                        <div
-                          className="flex items-center gap-2 mt-2"
-                          key={index}
-                        >
-                          <div
-                            className="w-2 h-2 rounded"
-                            style={{ backgroundColor: item.color }}
-                          />
-                          <span>
-                            {item.name} - {item.value}%
-                          </span>
-                        </div>
-                      ))}
-                    </div>
+                <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-300">
+                  <h4 className="text-lg font-medium">Quick Actions</h4>
+                  <div className="mt-3 grid grid-cols-2 gap-2 border-gray-300">
+                    <button className="px-3 py-2 rounded text-sm border border-gray-300">
+                      New Appointment
+                    </button>
+                    <button className="px-3 py-2 rounded text-sm border border-gray-300">
+                      Export
+                    </button>
+                    <button className="px-3 py-2 rounded text-sm border border-gray-300">
+                      Reports
+                    </button>
+                    <button className="px-3 py-2 rounded text-sm border border-gray-300">
+                      Settings
+                    </button>
                   </div>
                 </div>
-              </div>
-            </div>
+              </aside>
+            </section>
 
-            <aside className="space-y-4">
-              <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-300">
-                <h4 className="text-lg font-medium">Doctor Performance</h4>
-                <div className="mt-3 divide-y">
-                  {topDoctor.map((d) => (
-                    <div
-                      key={d.name}
-                      className="py-3 flex items-center justify-between"
-                    >
-                      <div>
-                        <div className="font-medium">Dr. {d.name}</div>
-                        <div className="text-xs text-slate-400">
-                          Avg {d.avgMin} min
-                        </div>
-                      </div>
-                      <div className="text-right ">
-                        <div className="font-semibold">{d.completed}</div>
-                        <div className="text-xs text-slate-400">Completed</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            {/* {Patient demography} */}
 
-              <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-300">
-                <h4 className="text-lg font-medium">Quick Actions</h4>
-                <div className="mt-3 grid grid-cols-2 gap-2 border-gray-300">
-                  <button className="px-3 py-2 rounded text-sm border border-gray-300">
-                    New Appointment
-                  </button>
-                  <button className="px-3 py-2 rounded text-sm border border-gray-300">
-                    Export
-                  </button>
-                  <button className="px-3 py-2 rounded text-sm border border-gray-300">
-                    Reports
-                  </button>
-                  <button className="px-3 py-2 rounded text-sm border border-gray-300">
-                    Settings
-                  </button>
-                </div>
-              </div>
-            </aside>
-          </section>
-
-          {/* {Patient demography} */}
-
-          <PatientDemographics data={patientData} />
-        </div>
-        )}  
-        
+            <PatientDemographics data={patientData} />
+          </div>
+        )}
       </>
 
       {/* Dialog */}
@@ -659,7 +732,7 @@ export default function Dashboard({
             <DateRangePicker
               ranges={dateRange}
               onChange={(item) => setDateRange([item.selection])}
-              rangeColors={["#22E0D4"]}
+              {...({ rangeColors: ["#22E0D4"] } as any)}
             />
           </div>
 
@@ -733,11 +806,12 @@ export default function Dashboard({
             className="bg-teal-300 hover:bg-teal-400 text-white px-4 py-2 rounded"
             onClick={() => {
               console.log({
-                startDate: dateRange[0].startDate,
-                endDate: dateRange[0].endDate,
+                startDate: dateRange[0]?.startDate ?? null,
+                endDate: dateRange[0]?.endDate ?? null,
                 doctor: selectedDoctor,
                 specialization: selectedSpecialization,
               });
+
               fetchDashboardData(); // ✅ Manually trigger
               fetchDashboardDemographyData();
               setIsDialogOpen(false);

@@ -17,29 +17,30 @@ import {} from '@prisma/client';
 // } from '@prisma/client';
 
 enum Hospital_Org_status {
-    INACTIVE= "INACTIVE",
-    SUSPENDED= "SUSPENDED",
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  SUSPENDED = 'SUSPENDED',
 }
 
 enum HospitalLevel {
- SUPER= "SUPER",
-    CHILD= "CHILD",
-    SUB_CHILD="SUB_CHILD"
+  SUPER = 'SUPER',
+  CHILD = 'CHILD',
+  SUB_CHILD = 'SUB_CHILD',
 }
 
 enum SpecializationType {
-GENERAL= "GENERAL",
-    OPHTHALMOLOGY= "OPHTHALMOLOGY",
-    DENTAL= "DENTAL",
-    ENT= "ENT",
-    ORTHOPEDIC= "ORTHOPEDIC",
-    MULTISPECIALITY= "MULTISPECIALITY",
-    OTHER= "OTHER"
+  GENERAL = 'GENERAL',
+  OPHTHALMOLOGY = 'OPHTHALMOLOGY',
+  DENTAL = 'DENTAL',
+  ENT = 'ENT',
+  ORTHOPEDIC = 'ORTHOPEDIC',
+  MULTISPECIALITY = 'MULTISPECIALITY',
+  OTHER = 'OTHER',
 }
 
 export class CreateHospitalDto {
   @IsString()
-  HospitalName !: string;
+  HospitalName!: string;
 
   @IsString()
   HospitalCode!: string;
@@ -107,7 +108,6 @@ export class CreateHospitalDto {
 
   @IsNumber()
   organizationId!: number;
-
 
   @IsOptional()
   @IsNumber()

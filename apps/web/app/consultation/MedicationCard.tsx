@@ -12,17 +12,10 @@ import {
 import { X, Pill } from "lucide-react";
 import DrugAutocompleteInput from "@/components/DrugAutocompleteInput";
 
-interface Medication {
-  drug: string;
-  dosage: string;
-  frequency: string;
-  duration: string;
-  durationUnit?: string;
-  notes: string;
-}
+import { Medication } from "@/types/consultation";
 
 interface MedicationCardProps {
-  disabled: boolean,
+  disabled: boolean;
   medications: Medication[];
   handleMedicationChange: (
     index: number,
@@ -65,15 +58,15 @@ export default function MedicationCard({
           {/* Drug */}
           <DrugAutocompleteInput
             value={med.drug}
-            disabled={disabled}
             onChange={(val) => handleMedicationChange(index, "drug", val)}
+            disabled={disabled}
+
           />
 
           {/* Dosage */}
           <Select
             value={med.dosage}
             disabled={disabled}
-
             onValueChange={(value) =>
               handleMedicationChange(index, "dosage", value)
             }

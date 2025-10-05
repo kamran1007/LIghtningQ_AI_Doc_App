@@ -37,25 +37,33 @@ export function AppSidebar() {
 
   type AccessRight = {
     ModuleId: number;
-    ModuleName: string;
+    ModuleName: keyof typeof moduleNavMap;
     enabled: boolean;
     Submodules?: { SubModuleName: string; [key: string]: any }[];
   };
 
-  const accessRights = useSelector(
-    (state: RootState) => state.hospitalAccessRight.data
-  ) as AccessRight[];
+  type NavItem = {
+    name: string;
+    path: string; // <-- must always exist
+    icon: React.ElementType; // safe icon type
+  };
+
+const accessRights: AccessRight[] =
+  useSelector((state: RootState) => state.hospitalAccessRight.data) ?? [];
+
 
   // console.log("Access Rights from Redux AppBar:", accessRights);
 
   // ✅ filter only enabled modules
-  const enabledNavItems = accessRights
-    ?.filter((m) => m.enabled && moduleNavMap[m.ModuleName])
-    .map((m) => ({
-      name: m.ModuleName,
-      icon: moduleNavMap[m.ModuleName]?.icon,
-      path: moduleNavMap[m.ModuleName]?.path,
-    }));
+// Add type guard and safe access
+const enabledNavItems: NavItem[] = (accessRights ?? [])
+  .filter((m) => m.enabled && m.ModuleName in moduleNavMap)
+  .map((m) => ({
+    name: m.ModuleName,
+    icon: moduleNavMap[m.ModuleName as keyof typeof moduleNavMap]!.icon,
+    path: moduleNavMap[m.ModuleName as keyof typeof moduleNavMap]!.path,
+  }));
+
 
   return (
     <div className="relative h-full">
@@ -118,26 +126,29 @@ export function AppSidebar() {
         {/* Navigation Links */}
         <nav className="flex-1 p-3 space-y-5">
           {enabledNavItems?.map((item) => {
+            if (!item.path) return null; // skip items without path
+
             const isActive = pathname.startsWith(item.path);
             const Icon = item.icon;
+
             return (
               <div key={item.name} className="relative group">
                 <button
                   onClick={() => {
                     setIsExpanded(false);
-                    router.push(item.path);
+                    router.push(item.path); // now safe
                   }}
                   className={`cursor-pointer flex items-center w-full px-4 py-3 rounded-lg text-sm font-medium transition 
-              ${
-                isExpanded
-                  ? isActive
-                    ? "bg-teal-100 text-teal-400"
-                    : "hover:bg-gray-100 text-teal-400"
-                  : isActive
-                    ? "bg-white text-black shadow-md"
-                    : "text-teal-500"
-              }
-              shadow hover:shadow-2xl transition-shadow duration-300 ease-in-out`}
+            ${
+              isExpanded
+                ? isActive
+                  ? "bg-teal-100 text-teal-400"
+                  : "hover:bg-gray-100 text-teal-400"
+                : isActive
+                  ? "bg-white text-black shadow-md"
+                  : "text-teal-500"
+            }
+            shadow hover:shadow-2xl transition-shadow duration-300 ease-in-out`}
                 >
                   <Icon
                     className={`min-w-[18px] transition-all transform duration-300 group-hover:scale-110 group-hover:text-teal-400 ${

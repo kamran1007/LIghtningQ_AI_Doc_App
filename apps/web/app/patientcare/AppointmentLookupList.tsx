@@ -35,7 +35,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
-import { DateRangePicker } from "react-date-range";
+import { DateRangePicker, DateRange } from "react-date-range";
+
 import Image from "next/image";
 
 import {
@@ -57,6 +58,7 @@ import { Slider } from "@/components/ui/slider";
 import { getUserSpecialization } from "@/lib/admin";
 import { useSelector } from "react-redux";
 import NoAppointmentsIllustration from "@/components/ui/illustration/NoAppointment";
+import { RootState } from "@/store";
 
 const getAcuityColor = (acuity: string) => {
   switch (acuity?.toLowerCase()) {
@@ -70,30 +72,90 @@ const getAcuityColor = (acuity: string) => {
       return "bg-gray-50 text-gray-600";
   }
 };
+export interface Patient {
+  PatientId: number;
+  Patient_Medical_Record_No: string;
+
+  firstName: string;
+  lastName: string;
+  mobile: string;
+  email: string;
+
+  // ✅ optional backend fields
+  profileImageUrl?: string | null;
+  dateOfBirth?: string | null;
+  gender?: string;
+  area?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+
+  Prefix?: string | null;
+}
+
+interface TagPatient {
+  TagPatientId: string | number;
+  TagPatientName: string;
+}
+
+interface VisitType {
+  AppointmentTypeName: string;
+}
+
+interface Specialization {
+  SpecializationName: string;
+}
+
+interface Doctor {
+  firstName: string;
+  lastName: string;
+  Specialization?: Specialization;
+}
+
+export interface Appointment {
+  appointmentId: string | number;
+  appointmentDate: string;
+  status?: string;
+  patient: Patient;
+  TagPatients?: TagPatient[];
+  visitType?: VisitType;
+  doctor?: Doctor;
+  reason?: string;
+  acuity?: string;
+  IsConsultationCompleted?: boolean;
+}
 
 export default function AppointmentLookupList() {
+  
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [fullScreen, setFullScreen] = useState(false);
   const [filter, setFilter] = useState("all");
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [filterData, setFilterData] = useState({ gender: "", date: "" });
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
   const [patientGender, setPatientGender] = useState<string | undefined>();
   const [specializations, setSpecializations] = useState([]);
   const [activeChip, setActiveChip] = useState("All Appointments"); // ✅ default
 
-  const filterRef = useRef(null);
+  const filterRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const calendarPopup = document.querySelector(".p-datepicker");
-      const multiSelectPanel = document.querySelector(".p-multiselect-panel");
+      const calendarPopup = document.querySelector(
+        ".p-datepicker"
+      ) as HTMLElement | null;
+      const multiSelectPanel = document.querySelector(
+        ".p-multiselect-panel"
+      ) as HTMLElement | null;
 
       if (
         filterRef.current &&
         !filterRef.current.contains(event.target as Node) &&
-        !(calendarPopup && calendarPopup.contains(event.target as Node)) &&
-        !(multiSelectPanel && multiSelectPanel.contains(event.target as Node))
+        !calendarPopup?.contains(event.target as Node) &&
+        !multiSelectPanel?.contains(event.target as Node)
       ) {
         setShowFilter(false);
       }
@@ -145,9 +207,14 @@ export default function AppointmentLookupList() {
   }, [charIndex, msgIndex]);
 
   const dispatch = useAppDispatch();
-  const { data, total, loading, page, limit } = useAppSelector(
-    (state) => state.AppointmentData
-  );
+  const {
+    data: appointments,
+    total,
+    loading,
+    page,
+    limit,
+  } = useAppSelector((state) => state.AppointmentData);
+
   const [currentPage, setCurrentPage] = useState(1);
 
   // fetch appointments whenever page or limit changes
@@ -165,21 +232,34 @@ export default function AppointmentLookupList() {
     {}
   );
   const { setEventAddOpen, setEditingEvent } = useEvents(); // 👈 get from context
-  const [appointments, setAppointments] = useState([]);
+  // const [appointments, setAppointments] = useState<Appointment[]>([]);
+  useEffect(() => {
+    if (!selectedDate) return;
 
-  async function fetchAppointments(filters: any) {
-    try {
-      const data = await GetFilterSearchappointment(filters);
-      setAppointments(data?.data);
-    } catch (err) {
-      console.error("Failed to fetch appointments", err);
-    }
-  }
+    const today = toLocalDateString(selectedDate); // safe, selectedDate is initialized
 
-  const filteredAppointments = data?.filter((a) =>
-    filter === "all" ? true : a.status?.toLowerCase() === filter
-  );
-  // console.log("All Appointment data",filteredAppointments)
+    const filters = {
+      ...filterData,
+      appointmentDate: today,
+      page: 1,
+      limit: 10,
+    };
+
+    dispatch(fetchAllAppointmentPatient(filters));
+  }, [dispatch, filterData, selectedDate]);
+
+  // 3️⃣ Filtering logic
+  const filteredAppointments = Array.isArray(appointments)
+    ? appointments.filter((appointment) => {
+        if (filter === "all") return true;
+        return appointment.status?.toLowerCase() === filter.toLowerCase();
+      })
+    : [];
+
+  // console.log("All Appointment data", filteredAppointments);
+  // console.log("Filter:", filter);
+  // console.log("Raw appointments:", appointments);
+
   const closeSheet = () => {
     setDrawerOpen(false);
     setSelectedPatient(null);
@@ -188,7 +268,6 @@ export default function AppointmentLookupList() {
   const [showFilter, setShowFilter] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterData, setFilterData] = useState({ gender: "", date: "" });
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -219,17 +298,6 @@ export default function AppointmentLookupList() {
       );
     }, 500);
   }
-  useEffect(() => {
-    const today = toLocalDateString(new Date()); // ⬅️ Use local-adjusted date
-    setSelectedDate(new Date());
-
-    fetchAppointments({
-      ...filterData,
-      appointmentDate: today,
-      page: 1,
-      limit: 10,
-    });
-  }, []);
 
   function toLocalDateString(date: Date) {
     const offsetDate = new Date(
@@ -305,7 +373,7 @@ export default function AppointmentLookupList() {
 
   const todayStr = formatDateLocal(new Date());
 
-  const [dateRange, setDateRange] = useState([
+  const [dateRange, setDateRange] = useState<DateRange[]>([
     {
       startDate: new Date(todayStr), // local today
       endDate: new Date(todayStr), // local today
@@ -340,7 +408,7 @@ export default function AppointmentLookupList() {
             : undefined,
           page: currentPage,
           limit,
-          ...chipFilters[activeChip], // merge chip filter here
+          ...chipFilters[activeChip],
         };
 
         if (startDate && !endDate) {
@@ -350,10 +418,8 @@ export default function AppointmentLookupList() {
           filters.appointmentDateTo = endDate;
         }
 
-        const data = await dispatch(
-          fetchAllAppointmentPatient(filters)
-        ).unwrap();
-        setAppointments(data);
+        // Just dispatch - data will be available in Redux state
+        await dispatch(fetchAllAppointmentPatient(filters)).unwrap();
       } catch (err) {
         console.error("Failed to fetch appointments:", err);
       }
@@ -480,7 +546,7 @@ export default function AppointmentLookupList() {
                 <DateRangePicker
                   ranges={dateRange}
                   onChange={(item) => setDateRange([item.selection])}
-                  rangeColors={["#22E0D4"]}
+                  {...({ rangeColors: ["#22E0D4"] } as any)} // 👈 bypass TS error
                 />
               </div>
             )}
@@ -540,8 +606,8 @@ export default function AppointmentLookupList() {
               <tbody className="divide-y divide-zinc-100 bg-white">
                 {filteredAppointments && filteredAppointments.length > 0 ? (
                   filteredAppointments.map((p, idx) => {
-                    const imageUrl = p?.patient?.profileImageUrl
-                      ? `${BACKEND_URL}${p?.patient?.profileImageUrl}`
+                    const imageUrl = (p?.patient as any)?.profileImageUrl
+                      ? `${BACKEND_URL}${(p.patient as any).profileImageUrl}`
                       : null;
                     const initials = getInitials(
                       p?.patient?.firstName,
@@ -549,6 +615,13 @@ export default function AppointmentLookupList() {
                     );
                     const fallbackColor = getColorByInitials(initials);
                     const imageError = imageErrorMap?.[idx]; // make sure imageErrorMap is defined via useState
+                    const specializationName =
+                      p?.doctor?.Specialization?.SpecializationName ?? "-";
+                    const specializationDisplay =
+                      specializationName !== "-" &&
+                      specializationName.length > 7
+                        ? specializationName.slice(0, 7) + "..."
+                        : specializationName;
 
                     return (
                       <tr
@@ -632,39 +705,41 @@ export default function AppointmentLookupList() {
                                     )
                                   )}
 
-                                  {p?.TagPatients?.length > 2 && (
-                                    <TooltipProvider>
-                                      <Tooltip>
-                                        <TooltipTrigger asChild>
-                                          <span className="text-xs font-medium text-gray-600 cursor-pointer">
-                                            +{p.TagPatients.length - 2}
-                                          </span>
-                                        </TooltipTrigger>
-                                        <TooltipContent
-                                          side="top"
-                                          className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg space-y-1"
-                                        >
-                                          {p.TagPatients.slice(2).map(
-                                            (extraTag: any) => (
-                                              <div
-                                                key={extraTag.TagPatientId}
-                                                className="flex items-center gap-1"
-                                              >
-                                                {tagIconMap[
-                                                  extraTag.TagPatientName
-                                                ] || (
-                                                  <Circle className="w-3 h-3 text-gray-400" />
-                                                )}
-                                                <span>
-                                                  {extraTag.TagPatientName}
-                                                </span>
-                                              </div>
-                                            )
-                                          )}
-                                        </TooltipContent>
-                                      </Tooltip>
-                                    </TooltipProvider>
-                                  )}
+                                  {p.TagPatients &&
+                                    p.TagPatients.length > 2 && (
+                                      <TooltipProvider>
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <span className="text-xs font-medium text-gray-600 cursor-pointer">
+                                              +
+                                              {(p.TagPatients?.length ?? 0) - 2}
+                                            </span>
+                                          </TooltipTrigger>
+                                          <TooltipContent
+                                            side="top"
+                                            className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg space-y-1"
+                                          >
+                                            {p.TagPatients?.slice(2).map(
+                                              (extraTag) => (
+                                                <div
+                                                  key={extraTag.TagPatientId}
+                                                  className="flex items-center gap-1"
+                                                >
+                                                  {tagIconMap[
+                                                    extraTag.TagPatientName
+                                                  ] || (
+                                                    <Circle className="w-3 h-3 text-gray-400" />
+                                                  )}
+                                                  <span>
+                                                    {extraTag.TagPatientName}
+                                                  </span>
+                                                </div>
+                                              )
+                                            )}
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </TooltipProvider>
+                                    )}
                                 </div>
                               </div>
 
@@ -699,11 +774,14 @@ export default function AppointmentLookupList() {
                               <TooltipTrigger asChild>
                                 <p className="truncate cursor-default">
                                   {p?.patient?.mobile}
-                                  {p?.patient?.area
+                                  {(p?.patient as any)?.area
                                     ? ` | ${
-                                        p.patient.area.length > 12
-                                          ? p.patient.area.slice(0, 12) + "..."
-                                          : p.patient.area
+                                        (p.patient as any).area.length > 12
+                                          ? (p.patient as any).area.slice(
+                                              0,
+                                              12
+                                            ) + "..."
+                                          : (p.patient as any).area
                                       }`
                                     : ""}
                                 </p>
@@ -713,7 +791,9 @@ export default function AppointmentLookupList() {
                                 className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg"
                               >
                                 {p?.patient?.mobile}
-                                {p?.patient?.area ? ` | ${p.patient.area}` : ""}
+                                {(p?.patient as any)?.area
+                                  ? ` | ${(p.patient as any).area}`
+                                  : ""}
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
@@ -740,19 +820,21 @@ export default function AppointmentLookupList() {
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <span className="truncate max-w-[120px] cursor-default">
-                                  {p?.visitType?.AppointmentTypeName?.length > 9
-                                    ? p.visitType.AppointmentTypeName.slice(
-                                        0,
-                                        9
-                                      ) + "..."
-                                    : p?.visitType?.AppointmentTypeName || "-"}
+                                  {p?.visitType?.AppointmentTypeName
+                                    ? p.visitType.AppointmentTypeName.length > 9
+                                      ? p.visitType.AppointmentTypeName.slice(
+                                          0,
+                                          9
+                                        ) + "..."
+                                      : p.visitType.AppointmentTypeName
+                                    : "-"}
                                 </span>
                               </TooltipTrigger>
                               <TooltipContent
                                 side="top"
                                 className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg"
                               >
-                                {p?.visitType?.AppointmentTypeName || "-"}
+                                {p?.visitType?.AppointmentTypeName ?? "-"}
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
@@ -763,26 +845,20 @@ export default function AppointmentLookupList() {
                           ? calculateAge(p?.patient?.dateOfBirth)
                           : "-"}
                       </td> */}
+
                         <td className="px-2 py-3 max-w-[100px]">
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <div className="truncate cursor-default">
-                                  {p?.doctor?.Specialization?.SpecializationName
-                                    ?.length > 7
-                                    ? p?.doctor?.Specialization?.SpecializationName.slice(
-                                        0,
-                                        7
-                                      ) + "..."
-                                    : p?.doctor?.Specialization
-                                        ?.SpecializationName}
+                                  {specializationDisplay}
                                 </div>
                               </TooltipTrigger>
                               <TooltipContent
                                 side="top"
                                 className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg"
                               >
-                                {p?.doctor?.Specialization?.SpecializationName}
+                                {specializationName}
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
@@ -793,16 +869,16 @@ export default function AppointmentLookupList() {
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <span className="truncate max-w-[120px] cursor-default">
-                                  {p?.reason?.length > 10
+                                  {p?.reason && p.reason.length > 10
                                     ? p.reason.slice(0, 10) + "..."
-                                    : p?.reason}
+                                    : (p?.reason ?? "-")}
                                 </span>
                               </TooltipTrigger>
                               <TooltipContent
                                 side="top"
                                 className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg"
                               >
-                                {p?.reason || "-"}
+                                {p?.reason ?? "-"}
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
@@ -811,12 +887,13 @@ export default function AppointmentLookupList() {
                         <td className="px-2 py-3">
                           <span
                             className={`px-2 py-0.5 text-xs font-semibold rounded-xl ${getAcuityColor(
-                              p?.acuity
+                              p?.acuity ?? "" // 👈 fallback empty string
                             )}`}
                           >
-                            {p?.acuity}
+                            {p?.acuity ?? "-"}
                           </span>
                         </td>
+
                         <td className="px-2 py-3 whitespace-nowrap">
                           <TooltipProvider>
                             <Tooltip>

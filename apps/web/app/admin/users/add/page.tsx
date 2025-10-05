@@ -38,7 +38,7 @@ import {
 
 import { useSearchParams } from "next/navigation";
 import { getallusers } from "@/lib/admin";
-import { User } from "app/admin/hospitaluserlist";
+import { User } from "@/types/user";
 import { useRouter } from "next/navigation"; // App Router
 import { zodResolver } from "@hookform/resolvers/zod";
 import { userFormSchema } from "@/helper/userFormSchema";
@@ -177,6 +177,8 @@ export default function AddUserPage() {
       setUploadedFile(null);
     }
   };
+  const password = watch("passwordHash") ?? "";
+  const confirmPassword = watch("confirmPassword") ?? "";
 
   const handleClearSignature = () => {
     sigRef.current?.clear();
@@ -204,10 +206,14 @@ export default function AddUserPage() {
   };
   const handleCancel = () => {
     reset({
-      setRoles: getValues("roleId"), // retain current selected role
-      setSpecializations: getValues("SpecializationId"), // retain current selected specialization
+      roleId: getValues("roleId"), // retain current selected role
+      SpecializationId: getValues("SpecializationId"), // retain current selected specialization
     });
   };
+  interface PasswordStrengthMeterProps {
+    password?: string; // ✅ optional instead of strictly string
+  }
+
   // function handleClearSignature(
   //   event: React.MouseEvent<HTMLButtonElement>
   // ): void {
@@ -464,8 +470,8 @@ export default function AddUserPage() {
         .split("T")[0];
       setValue("dateOfBirth", formattedDOB || "");
       setValue("roleId", user.roleId);
-      setValue("SpecializationId", user.SpecializationId);
-      setImageUrl(user.imageUrl ? `http://localhost:8000${user.imageUrl}` : "");
+      setValue("SpecializationId", user.SpecializationId ?? 0);
+      setImageUrl(user.imageUrl ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${user.imageUrl}` : "");
       // setImageUrl(user.imageUrl || "");
       // setSignatureFileSelected(!!user?.SignatureOfUser);
       //     const rawSignature = user?.SignatureOfUser;
@@ -487,7 +493,7 @@ export default function AddUserPage() {
       //     }
       const rawSignature = user?.SignatureOfUser;
       const fullSignatureUrl = rawSignature
-        ? `http://localhost:8000${rawSignature}`
+        ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${rawSignature}`
         : null;
 
       setPreviewUrl(fullSignatureUrl);
@@ -949,8 +955,9 @@ export default function AddUserPage() {
                           }
                         />
                         <PasswordStrengthMeter
-                          password={watch("passwordHash")}
+                          password={watch("passwordHash") ?? ""}
                         />
+
                         {errors.passwordHash && (
                           <p className="text-red-500 text-sm">
                             {errors.passwordHash.message}
@@ -981,10 +988,10 @@ export default function AddUserPage() {
                           )}
 
                         {/* Show success message when passwords match */}
-                        {watch("passwordHash") &&
-                          watch("confirmPassword") &&
-                          watch("passwordHash") === watch("confirmPassword") &&
-                          watch("confirmPassword").length > 0 && (
+                        {password &&
+                          confirmPassword &&
+                          password === confirmPassword &&
+                          confirmPassword.length > 0 && (
                             <p className="text-green-600 text-sm mb-2 flex items-center">
                               <svg
                                 className="w-4 h-4 mr-1"
@@ -1003,7 +1010,6 @@ export default function AddUserPage() {
                             </p>
                           )}
 
-                        {/* Form validation errors */}
                         {errors.confirmPassword && (
                           <p className="text-red-500 text-sm">
                             {errors.confirmPassword.message}
