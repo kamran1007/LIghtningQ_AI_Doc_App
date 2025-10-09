@@ -48,10 +48,10 @@ const LoginInForm = () => {
         dispatch(startLoading());
         const result = await login(prevState, formData);
 
-        // if login successful → fetch hospitals
+        // if login successful → fetch profile
         const profile = await getProfile();
         if (profile) {
-          dispatch(setProfile(profile)); // <-- You need this in authSlice
+          dispatch(setProfile(profile));
         }
         const session = await getSession();
         console.log("Session in login page:", session);
@@ -69,31 +69,43 @@ const LoginInForm = () => {
           return result; // stop login flow
         }
 
-        if (profile?.user?.AssignHospital?.length) {
-          const list = profile.user.AssignHospital;
-          setHospitals(list);
+        // ✅ Check hospital assignment
+        const hospitalAssignments = profile?.user?.AssignHospital ?? [];
 
-          if (list.length === 1) {
-            const hospital = list[0]?.hospital; // ✅ correctly reference first hospital
+        if (hospitalAssignments.length === 0) {
+          toast.current?.show({
+            severity: "warn",
+            summary: "No Access",
+            detail:
+              "You do not have access to any hospital. Please contact the admin.",
+            life: 4000,
+            className: "custom-toast-container",
+          });
+          return result; // stop login flow
+        }
 
-            if (!hospital?.isActive || hospital?.status !== "ACTIVE") {
-              toast.current?.show({
-                severity: "error",
-                summary: "Error",
-                detail: "This hospital is inactive. Please contact admin.",
-                life: 4000,
-                className: "custom-toast-container", // for blur
-              });
-              return;
-            }
+        // ✅ Continue if hospitals exist
+        setHospitals(hospitalAssignments);
 
-            dispatch(setSelectedHospital(list[0]));
-            dispatch(fetchAccessRight());
+        if (hospitalAssignments.length === 1) {
+          const hospital = hospitalAssignments[0]?.hospital;
 
-            router.push("/dashboard");
-          } else {
-            setStage("hospital");
+          if (!hospital?.isActive || hospital?.status !== "ACTIVE") {
+            toast.current?.show({
+              severity: "error",
+              summary: "Error",
+              detail: "This hospital is inactive. Please contact admin.",
+              life: 4000,
+              className: "custom-toast-container",
+            });
+            return;
           }
+
+          dispatch(setSelectedHospital(hospitalAssignments[0]));
+          dispatch(fetchAccessRight());
+          router.push("/dashboard");
+        } else {
+          setStage("hospital"); // multiple hospitals, ask user to choose
         }
 
         return result;

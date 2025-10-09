@@ -21,8 +21,8 @@ const orbitron = Orbitron({
 });
 
 export const metadata: Metadata = {
-  title: "Lightning Queue",
-  description: "Solution At Lightning Speed",
+  title: "LightningQ | Revolutionizing healthcare",
+  description: "Revolutionizing healthcare",
   icons: {
     icon: "/favicon.png",
     apple: "/apple-touch-icon.png",

@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["localhost", "dummyimage.com", "cdn.sunrisehospital.com","dev.api.lightningq.com"],
+    domains: ["localhost","dev.api.lightningq.com"],
   },
   experimental: {
     serverActions: {
