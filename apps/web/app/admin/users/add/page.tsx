@@ -26,6 +26,7 @@ import {
   getUserSpecialization,
   Updateuserinfo,
 } from "@/lib/admin";
+import { BACKEND_URL } from "@l";
 
 import { Label } from "@/components/ui/label";
 import {
@@ -455,7 +456,7 @@ export default function AddUserPage() {
   // 🔁 2. Once user is loaded, prefill the form
   useEffect(() => {
     if (user) {
-      setValue("Prefix", user.Prefix);
+      setValue("Prefix", user.Prefix || "");
       setValue("firstName", user.firstName);
       setValue("lastName", user.lastName);
       setValue(
@@ -463,15 +464,19 @@ export default function AddUserPage() {
         user.Employee_ID && user.Employee_ID !== "null" ? user.Employee_ID : ""
       );
       setValue("mobile", user.mobile);
-      setValue("gender", user.gender);
+      setValue("gender", user.gender?.toUpperCase() || "");
       setValue("email", user.email);
       const formattedDOB = new Date(user.dateOfBirth)
         .toISOString()
         .split("T")[0];
       setValue("dateOfBirth", formattedDOB || "");
-      setValue("roleId", user.roleId);
+      setValue("roleId", user.roleId ?? undefined);
       setValue("SpecializationId", user.SpecializationId ?? 0);
-      setImageUrl(user.imageUrl ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${user.imageUrl}` : "");
+      setImageUrl(
+        user.imageUrl
+          ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${user.imageUrl}`
+          : ""
+      );
       // setImageUrl(user.imageUrl || "");
       // setSignatureFileSelected(!!user?.SignatureOfUser);
       //     const rawSignature = user?.SignatureOfUser;
@@ -769,15 +774,15 @@ export default function AddUserPage() {
                     control={control}
                     render={({ field }) => (
                       <Select
-                        {...register("roleId")}
                         value={field.value?.toString() ?? ""}
-                        onValueChange={(value) => field.onChange(value)}
+                        onValueChange={(value) => field.onChange(Number(value))} // ✅ Convert string → number
                       >
                         <SelectTrigger
                           className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
                         >
                           <SelectValue placeholder="Select Role" />
                         </SelectTrigger>
+
                         <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
                           {roles.map((role: any) => (
                             <SelectItem
@@ -1138,13 +1143,25 @@ export default function AddUserPage() {
                       </label>
                       <div className="w-72 h-32 border rounded bg-gray-100 flex items-center justify-center text-gray-400">
                         {previewUrl ? (
-                          <Image
-                            src={previewUrl}
-                            alt="Signature Preview"
-                            width={150}
-                            height={80}
-                            className="w-full h-full object-contain"
-                          />
+                          previewUrl.startsWith("blob:") ? (
+                            <img
+                              src={previewUrl}
+                              alt="Signature Preview"
+                              className="w-full h-full object-contain"
+                            />
+                          ) : (
+                            <Image
+                              src={
+                                previewUrl.startsWith("http")
+                                  ? previewUrl
+                                  : `${process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, "")}/${previewUrl.replace(/^\//, "")}`
+                              }
+                              alt="Signature Preview"
+                              width={150}
+                              height={80}
+                              className="w-full h-full object-contain"
+                            />
+                          )
                         ) : (
                           "No signature yet"
                         )}
