@@ -26,7 +26,6 @@ import {
   getUserSpecialization,
   Updateuserinfo,
 } from "@/lib/admin";
-import { BACKEND_URL } from "@l";
 
 import { Label } from "@/components/ui/label";
 import {
