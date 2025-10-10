@@ -434,48 +434,15 @@ export default function AddUserPage() {
   };
 
   useEffect(() => {
-    const fetchInitialData = async () => {
-      try {
-        setOrgLoading(true);
-        setIsLoading(true);
-
-        const [orgRes, roleRes, specRes, allUsersRes] = await Promise.all([
-          getOrganizationByUser(),
-          getUserRole(),
-          getUserSpecialization(),
-          getallusers(),
-        ]);
-
-        const userList = allUsersRes?.return?.data ?? [];
-
-        setOrganizations(orgRes?.return?.data ?? []);
-        setRoles(roleRes?.return?.data ?? []);
-        setSpecializations(specRes?.return?.data ?? []);
-
-        // ✅ Set user if editing
-        if (userId) {
-          const foundUser = userList.find(
-            (u: { UserId: number }) => u.UserId === Number(userId)
-          );
-          setUser(foundUser ?? null);
-          // console.log("Found user for editing:", foundUser);
-          // console.log("Editing user:", user);
-        }
-      } catch (error) {
-        console.error("Failed to fetch data", error);
-        toast.error("Failed to fetch initial data");
-      } finally {
-        setOrgLoading(false);
-        setIsLoading(false);
-      }
-    };
-
-    fetchInitialData();
-  }, [userId]);
-
-  // 🔁 2. Once user is loaded, prefill the form
-  useEffect(() => {
     if (user) {
+      console.log({
+        apiPrefix: user.Prefix,
+        normalizedPrefix: normalizePrefix(user.Prefix),
+        gender: user.gender,
+        normalizedGender: normalizeGender(user.gender),
+        roleId: user.roleId,
+      });
+
       setValue("Prefix", normalizePrefix(user.Prefix));
       setValue("firstName", user.firstName);
       setValue("lastName", user.lastName);
@@ -539,7 +506,47 @@ export default function AddUserPage() {
 
       setUserBranchArray(hospitalsFromAccess);
     }
-  }, [user, setValue]); // ✅ dependency should be `user`, not `selectedUser`
+  }, [user, setValue]);
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        setOrgLoading(true);
+        setIsLoading(true);
+
+        const [orgRes, roleRes, specRes, allUsersRes] = await Promise.all([
+          getOrganizationByUser(),
+          getUserRole(),
+          getUserSpecialization(),
+          getallusers(),
+        ]);
+
+        const userList = allUsersRes?.return?.data ?? [];
+
+        setOrganizations(orgRes?.return?.data ?? []);
+        setRoles(roleRes?.return?.data ?? []);
+        setSpecializations(specRes?.return?.data ?? []);
+
+        // ✅ Set user if editing
+        if (userId) {
+          const foundUser = userList.find(
+            (u: { UserId: number }) => u.UserId === Number(userId)
+          );
+          setUser(foundUser ?? null);
+          // console.log("Found user for editing:", foundUser);
+          // console.log("Editing user:", user);
+        }
+      } catch (error) {
+        console.error("Failed to fetch data", error);
+        toast.error("Failed to fetch initial data");
+      } finally {
+        setOrgLoading(false);
+        setIsLoading(false);
+      }
+    };
+
+    fetchInitialData();
+  }, [userId]);
 
   return (
     <div className="flex h-full">
