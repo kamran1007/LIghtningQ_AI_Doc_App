@@ -433,6 +433,31 @@ export default function AddUserPage() {
     return "OTHER";
   };
 
+  const UserAvatar = ({ imageUrl }: { imageUrl?: string }) => {
+    const [imgSrc, setImgSrc] = useState("/default-avatar.png");
+
+    useEffect(() => {
+      if (imageUrl) {
+        // Add cache-busting param to avoid stale images from Vercel CDN
+        setImgSrc(`${imageUrl}?v=${Date.now()}`);
+      } else {
+        setImgSrc("/default-avatar.png");
+      }
+    }, [imageUrl]);
+
+    return (
+      <Image
+        src={imgSrc}
+        alt="User avatar"
+        width={80}
+        height={80}
+        unoptimized
+        className="object-cover h-full w-full transition-transform duration-300 group-hover:scale-105"
+        onError={() => setImgSrc("/default-avatar.png")}
+      />
+    );
+  };
+
   useEffect(() => {
     if (user) {
       console.log({
@@ -509,6 +534,17 @@ export default function AddUserPage() {
   }, [user, setValue]);
 
   useEffect(() => {
+    if (!user) return;
+    const timer = setTimeout(() => {
+      setValue("Prefix", normalizePrefix(user.Prefix));
+      setValue("gender", normalizeGender(user.gender));
+      setValue("roleId", user.roleId ?? undefined);
+      setValue("SpecializationId", user.SpecializationId ?? 0);
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [user, setValue]);
+
+  useEffect(() => {
     const fetchInitialData = async () => {
       try {
         setOrgLoading(true);
@@ -566,194 +602,195 @@ export default function AddUserPage() {
               </h2>
             </div>
 
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="space-y-6"
-              encType="multipart/form-data"
-            >
-              {/* Image Upload & Prefix */}
-              <div className="flex items-center gap-4">
-                <div className="relative h-20 w-20 rounded-full overflow-hidden group cursor-pointer">
-                  {imageUrl ? (
-                    <Image
-                      src={imageUrl}
-                      alt="User avatar"
-                      width={80}
-                      height={80}
-                      className="object-cover h-full w-full transition-transform duration-300 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center h-full w-full bg-teal-100">
+            {!isLoading && user && roles.length > 0 && (
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="space-y-6"
+                encType="multipart/form-data"
+              >
+                {/* Image Upload & Prefix */}
+                <div className="flex items-center gap-4">
+                  <div className="relative h-20 w-20 rounded-full overflow-hidden group cursor-pointer">
+                    {imageUrl ? (
+                      <UserAvatar
+                        imageUrl={
+                          user?.imageUrl
+                            ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${user.imageUrl}`
+                            : ""
+                        }
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full w-full bg-teal-100">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-10 w-10 text-teal-400"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
+                          <path d="M12 12c2.67 0 8 1.34 8 4v2H4v-2c0-2.66 5.33-4 8-4Zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
+                        </svg>
+                      </div>
+                    )}
+
+                    <div
+                      onClick={handleImageClick}
+                      title="Edit profile image"
+                      aria-label="Edit profile image"
+                      className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-10 w-10 text-teal-400"
+                        className="h-6 w-6 text-white"
+                        fill="none"
                         viewBox="0 0 24 24"
-                        fill="currentColor"
+                        stroke="currentColor"
                       >
-                        <path d="M12 12c2.67 0 8 1.34 8 4v2H4v-2c0-2.66 5.33-4 8-4Zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15.232 5.232l3.536 3.536M9 11l6-6 3.536 3.536a2 2 0 010 2.828l-6 6H9v-2.828a2 2 0 01.586-1.414z"
+                        />
                       </svg>
                     </div>
-                  )}
+                  </div>
 
-                  <div
-                    onClick={handleImageClick}
-                    title="Edit profile image"
-                    aria-label="Edit profile image"
-                    className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6 text-white"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15.232 5.232l3.536 3.536M9 11l6-6 3.536 3.536a2 2 0 010 2.828l-6 6H9v-2.828a2 2 0 01.586-1.414z"
-                      />
-                    </svg>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+
+                  <div className="mb-1">
+                    <Controller
+                      name="Prefix"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger
+                            className={`${inputbox} py-1 px-4 text-sm leading-tight h-10`}
+                          >
+                            <SelectValue placeholder="Select Prefix" />
+                            <span className="text-red-500">*</span>
+                          </SelectTrigger>
+                          <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
+                            <SelectItem value="Mr">MR</SelectItem>
+                            <SelectItem value="Mrs">MRS</SelectItem>
+                            <SelectItem value="Miss">MISS</SelectItem>
+                            <SelectItem value="Ms">MS</SelectItem>
+                            <SelectItem value="Dr">DR</SelectItem>
+                            <SelectItem value="Prof">PROF</SelectItem>
+                            <SelectItem value="Other">OTHER</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
                   </div>
                 </div>
 
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
+                <div className="grid grid-cols-4 gap-4">
+                  {/* First Name */}
+                  <div className="flex flex-col">
+                    <Label className="mb-2 block text-sm">
+                      First Name <span className="text-red-500">*</span>
+                    </Label>
 
-                <div className="mb-1">
-                  <Controller
-                    name="Prefix"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <SelectTrigger
-                          className={`${inputbox} py-1 px-4 text-sm leading-tight h-10`}
-                        >
-                          <SelectValue placeholder="Select Prefix" />
-                          <span className="text-red-500">*</span>
-                        </SelectTrigger>
-                        <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
-                          <SelectItem value="Mr">MR</SelectItem>
-                          <SelectItem value="Mrs">MRS</SelectItem>
-                          <SelectItem value="Miss">MISS</SelectItem>
-                          <SelectItem value="Ms">MS</SelectItem>
-                          <SelectItem value="Dr">DR</SelectItem>
-                          <SelectItem value="Prof">PROF</SelectItem>
-                          <SelectItem value="Other">OTHER</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <Input
+                      {...register("firstName")}
+                      placeholder="First Name"
+                      className={`${inputbox} mb-2 py-4`}
+                    />
+                    {errors.firstName && (
+                      <p className="text-red-500 text-sm">
+                        {errors.firstName.message}
+                      </p>
                     )}
-                  />
-                </div>
-              </div>
+                  </div>
 
-              <div className="grid grid-cols-4 gap-4">
-                {/* First Name */}
-                <div className="flex flex-col">
-                  <Label className="mb-2 block text-sm">
-                    First Name <span className="text-red-500">*</span>
-                  </Label>
+                  {/* Last Name */}
+                  <div className="flex flex-col">
+                    <Label className="mb-2 block text-sm">
+                      Last Name <span className="text-red-500">*</span>
+                    </Label>
 
-                  <Input
-                    {...register("firstName")}
-                    placeholder="First Name"
-                    className={`${inputbox} mb-2 py-4`}
-                  />
-                  {errors.firstName && (
-                    <p className="text-red-500 text-sm">
-                      {errors.firstName.message}
-                    </p>
-                  )}
-                </div>
+                    <Input
+                      {...register("lastName")}
+                      placeholder="Last Name"
+                      className={`${inputbox} mb-2 py-4`}
+                    />
+                    {errors.lastName && (
+                      <p className="text-red-500 text-sm">
+                        {errors.lastName.message}
+                      </p>
+                    )}
+                  </div>
 
-                {/* Last Name */}
-                <div className="flex flex-col">
-                  <Label className="mb-2 block text-sm">
-                    Last Name <span className="text-red-500">*</span>
-                  </Label>
+                  {/* Employee ID */}
+                  <div className="flex flex-col">
+                    <Label className="mb-2 block text-sm">Employee ID </Label>
 
-                  <Input
-                    {...register("lastName")}
-                    placeholder="Last Name"
-                    className={`${inputbox} mb-2 py-4`}
-                  />
-                  {errors.lastName && (
-                    <p className="text-red-500 text-sm">
-                      {errors.lastName.message}
-                    </p>
-                  )}
-                </div>
+                    <Input
+                      {...register("Employee_ID")}
+                      defaultValue={
+                        user?.Employee_ID && user.Employee_ID !== "null"
+                          ? user.Employee_ID
+                          : ""
+                      }
+                      placeholder="Employee ID"
+                      className={`${inputbox} mb-2 py-4`}
+                    />
+                    {errors.Employee_ID && (
+                      <p className="text-red-500 text-sm">
+                        {errors.Employee_ID.message}
+                      </p>
+                    )}
+                  </div>
 
-                {/* Employee ID */}
-                <div className="flex flex-col">
-                  <Label className="mb-2 block text-sm">Employee ID </Label>
+                  {/* Mobile */}
+                  <div className="flex flex-col">
+                    <Label className="mb-2 block text-sm">
+                      Mobile <span className="text-red-500">*</span>
+                    </Label>
 
-                  <Input
-                    {...register("Employee_ID")}
-                    defaultValue={
-                      user?.Employee_ID && user.Employee_ID !== "null"
-                        ? user.Employee_ID
-                        : ""
-                    }
-                    placeholder="Employee ID"
-                    className={`${inputbox} mb-2 py-4`}
-                  />
-                  {errors.Employee_ID && (
-                    <p className="text-red-500 text-sm">
-                      {errors.Employee_ID.message}
-                    </p>
-                  )}
-                </div>
+                    <Input
+                      {...register("mobile")}
+                      placeholder="Mobile"
+                      maxLength={10}
+                      className={`${inputbox} mb-2 py-4`}
+                    />
+                    {errors.mobile && (
+                      <p className="text-red-500 text-sm">
+                        {errors.mobile.message}
+                      </p>
+                    )}
+                  </div>
+                  {/* DOB */}
+                  <div className="flex flex-col">
+                    <Label className="mb-2 block text-sm">
+                      Date Of Birth <span className="text-red-500">*</span>
+                    </Label>
 
-                {/* Mobile */}
-                <div className="flex flex-col">
-                  <Label className="mb-2 block text-sm">
-                    Mobile <span className="text-red-500">*</span>
-                  </Label>
+                    <Input
+                      {...register("dateOfBirth")}
+                      type="date"
+                      placeholder="Date of Birth"
+                      className={`${inputbox} mb-2 py-4`}
+                    />
+                    {errors.dateOfBirth && (
+                      <p className="text-red-500 text-sm">
+                        {errors.dateOfBirth.message}
+                      </p>
+                    )}
+                  </div>
 
-                  <Input
-                    {...register("mobile")}
-                    placeholder="Mobile"
-                    maxLength={10}
-                    className={`${inputbox} mb-2 py-4`}
-                  />
-                  {errors.mobile && (
-                    <p className="text-red-500 text-sm">
-                      {errors.mobile.message}
-                    </p>
-                  )}
-                </div>
-                {/* DOB */}
-                <div className="flex flex-col">
-                  <Label className="mb-2 block text-sm">
-                    Date Of Birth <span className="text-red-500">*</span>
-                  </Label>
-
-                  <Input
-                    {...register("dateOfBirth")}
-                    type="date"
-                    placeholder="Date of Birth"
-                    className={`${inputbox} mb-2 py-4`}
-                  />
-                  {errors.dateOfBirth && (
-                    <p className="text-red-500 text-sm">
-                      {errors.dateOfBirth.message}
-                    </p>
-                  )}
-                </div>
-
-                <input type="hidden" {...register("SignatureOfUser")} />
-                {/* Gender */}
-                {/* <div className="flex flex-col">
+                  <input type="hidden" {...register("SignatureOfUser")} />
+                  {/* Gender */}
+                  {/* <div className="flex flex-col">
               <Input
                 {...register("gender")}
                 placeholder="Gender"
@@ -763,143 +800,145 @@ export default function AddUserPage() {
                 <p className="text-red-500 text-sm">{errors.gender.message}</p>
               )}
             </div> */}
-                <div className="mb-1">
-                  <Label className="mb-1 block text-sm">
-                    Gender <span className="text-red-500">*</span>
-                  </Label>
-                  <Controller
-                    name="gender"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <SelectTrigger
-                          className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
+                  <div className="mb-1">
+                    <Label className="mb-1 block text-sm">
+                      Gender <span className="text-red-500">*</span>
+                    </Label>
+                    <Controller
+                      name="gender"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
                         >
-                          <SelectValue placeholder="Select a Gender" />
-                        </SelectTrigger>
-                        <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
-                          <SelectItem value="MALE">MALE</SelectItem>
-                          <SelectItem value="FEMALE">FEMALE</SelectItem>
-                          <SelectItem value="OTHER">OTHER</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </div>
+                          <SelectTrigger
+                            className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
+                          >
+                            <SelectValue placeholder="Select a Gender" />
+                          </SelectTrigger>
+                          <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
+                            <SelectItem value="MALE">MALE</SelectItem>
+                            <SelectItem value="FEMALE">FEMALE</SelectItem>
+                            <SelectItem value="OTHER">OTHER</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
 
-                {/* Role */}
-                <div className="mb-1">
-                  <Label className="mb-1 block text-sm">
-                    Role <span className="text-red-500">*</span>
-                  </Label>
+                  {/* Role */}
+                  <div className="mb-1">
+                    <Label className="mb-1 block text-sm">
+                      Role <span className="text-red-500">*</span>
+                    </Label>
 
-                  <Controller
-                    name="roleId"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        value={field.value?.toString() ?? ""}
-                        onValueChange={(value) => field.onChange(Number(value))} // ✅ Convert string → number
-                      >
-                        <SelectTrigger
-                          className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
+                    <Controller
+                      name="roleId"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          value={field.value?.toString() ?? ""}
+                          onValueChange={(value) =>
+                            field.onChange(Number(value))
+                          } // ✅ Convert string → number
                         >
-                          <SelectValue placeholder="Select Role" />
-                        </SelectTrigger>
+                          <SelectTrigger
+                            className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
+                          >
+                            <SelectValue placeholder="Select Role" />
+                          </SelectTrigger>
 
-                        <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
-                          {roles.map((role: any) => (
-                            <SelectItem
-                              key={role.RoleId}
-                              value={role.RoleId.toString()}
-                            >
-                              {role.Rolename}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                          <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
+                            {roles.map((role: any) => (
+                              <SelectItem
+                                key={role.RoleId}
+                                value={role.RoleId.toString()}
+                              >
+                                {role.Rolename}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+
+                    {errors.roleId && (
+                      <p className="text-red-500 text-sm">
+                        {errors.roleId.message}
+                      </p>
                     )}
-                  />
+                  </div>
 
-                  {errors.roleId && (
-                    <p className="text-red-500 text-sm">
-                      {errors.roleId.message}
-                    </p>
-                  )}
-                </div>
+                  {/* Specialization */}
+                  <div className="mb-1">
+                    <Label className="mb-1 block text-sm">Specialization</Label>
 
-                {/* Specialization */}
-                <div className="mb-1">
-                  <Label className="mb-1 block text-sm">Specialization</Label>
-
-                  <Controller
-                    name="SpecializationId"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        {...register("SpecializationId")}
-                        value={field.value?.toString() ?? ""}
-                        onValueChange={(value) => field.onChange(value)}
-                      >
-                        <SelectTrigger
-                          className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
+                    <Controller
+                      name="SpecializationId"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...register("SpecializationId")}
+                          value={field.value?.toString() ?? ""}
+                          onValueChange={(value) => field.onChange(value)}
                         >
-                          <SelectValue placeholder="Select Specialization" />
-                        </SelectTrigger>
-                        <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
-                          {specializations.map((spec: any) => (
-                            <SelectItem
-                              key={spec.SpecializationId}
-                              value={spec.SpecializationId.toString()}
-                            >
-                              {spec.SpecializationName}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                          <SelectTrigger
+                            className={`${inputbox} py-1 px-2 text-sm leading-tight h-10`}
+                          >
+                            <SelectValue placeholder="Select Specialization" />
+                          </SelectTrigger>
+                          <SelectContent className="border-gray-300 shadow-2xl rounded-2xl focus:outline-none data-[state=checked]:bg-white data-[highlighted]:bg-white">
+                            {specializations.map((spec: any) => (
+                              <SelectItem
+                                key={spec.SpecializationId}
+                                value={spec.SpecializationId.toString()}
+                              >
+                                {spec.SpecializationName}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+
+                    {errors.SpecializationId && (
+                      <p className="text-red-500 text-sm">
+                        {errors.SpecializationId.message}
+                      </p>
                     )}
-                  />
+                  </div>
 
-                  {errors.SpecializationId && (
-                    <p className="text-red-500 text-sm">
-                      {errors.SpecializationId.message}
-                    </p>
-                  )}
+                  {/* Experience */}
+                  <div className="flex flex-col">
+                    <Label className="mb-1 block text-sm">
+                      Year Of Experiance
+                    </Label>
+
+                    <Input
+                      {...register("Experience")}
+                      type="number"
+                      placeholder="Year Of Experience"
+                      className={`${inputbox} mb-2 py-4`}
+                    />
+                    {errors.Experience && (
+                      <p className="text-red-500 text-sm">
+                        {errors.Experience.message}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
-                {/* Experience */}
-                <div className="flex flex-col">
-                  <Label className="mb-1 block text-sm">
-                    Year Of Experiance
-                  </Label>
-
-                  <Input
-                    {...register("Experience")}
-                    type="number"
-                    placeholder="Year Of Experience"
-                    className={`${inputbox} mb-2 py-4`}
-                  />
-                  {errors.Experience && (
-                    <p className="text-red-500 text-sm">
-                      {errors.Experience.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Credentials */}
-              <div className="space-y-8">
-                <div className="flex items-center gap-x-4 mb-4">
-                  <LockKeyholeOpen className="w-5 h-5 text-teal-500" />
-                  <h2 className="text-lg font-semibold text-gray-800">
-                    Credentials
-                  </h2>
-                </div>
-                {/* === Credentials Section === */}
-                {/* <div className="grid grid-cols-3 gap-4">
+                {/* Credentials */}
+                <div className="space-y-8">
+                  <div className="flex items-center gap-x-4 mb-4">
+                    <LockKeyholeOpen className="w-5 h-5 text-teal-500" />
+                    <h2 className="text-lg font-semibold text-gray-800">
+                      Credentials
+                    </h2>
+                  </div>
+                  {/* === Credentials Section === */}
+                  {/* <div className="grid grid-cols-3 gap-4">
               <div className="flex flex-col">
                 <Input
                   {...register("email")}
@@ -939,164 +978,164 @@ export default function AddUserPage() {
                 )}
               </div>
             </div> */}
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="flex flex-col">
-                    <Label className="mb-1 block text-sm">
-                      Email <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      {...register("email")}
-                      placeholder="Email"
-                      className={`${inputbox} mb-2 py-4`}
-                    />
-                    {errors.email && (
-                      <p className="text-red-500 text-sm">
-                        {errors.email.message}
-                      </p>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="flex flex-col">
+                      <Label className="mb-1 block text-sm">
+                        Email <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        {...register("email")}
+                        placeholder="Email"
+                        className={`${inputbox} mb-2 py-4`}
+                      />
+                      {errors.email && (
+                        <p className="text-red-500 text-sm">
+                          {errors.email.message}
+                        </p>
+                      )}
+                    </div>
+
+                    {!showPasswordFields && user?.UserId ? (
+                      <div className="flex justify-end mt-4">
+                        <button
+                          type="button"
+                          onClick={handleResetPasswordToggle}
+                          className="flex items-center gap-2 text-sm text-teal-600 hover:text-teal-800 underline transition duration-200 cursor-pointer"
+                        >
+                          <div className="flex items-center gap-x-4 mb-2">
+                            <RotateCcwKey className="w-5 h-5 text-teal-500" />
+                            <h2 className="text-md font-semibold text-teal-500">
+                              Reset Password?
+                            </h2>
+                          </div>
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex flex-col">
+                          <Label className="mb-1 block text-sm">
+                            Password <span className="text-red-500">*</span>
+                          </Label>
+                          <Input
+                            {...register("passwordHash")}
+                            type="password"
+                            placeholder="New Password"
+                            className={`${inputbox} mb-2 py-4`}
+                            onChange={(e) =>
+                              setValue("passwordHash", e.target.value)
+                            }
+                          />
+                          <PasswordStrengthMeter
+                            password={watch("passwordHash") ?? ""}
+                          />
+
+                          {errors.passwordHash && (
+                            <p className="text-red-500 text-sm">
+                              {errors.passwordHash.message}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex flex-col">
+                          <Label className="mb-1 block text-sm">
+                            Confirm Password
+                            <span className="text-red-500">*</span>
+                          </Label>
+                          <Input
+                            {...register("confirmPassword")}
+                            type="password"
+                            placeholder="Confirm New Password"
+                            className={`${inputbox} mb-2 py-4`}
+                          />
+
+                          {/* Real-time password match validation */}
+                          {watch("passwordHash") &&
+                            watch("confirmPassword") &&
+                            watch("passwordHash") !==
+                              watch("confirmPassword") && (
+                              <p className="text-red-500 text-sm mb-2">
+                                Passwords do not match
+                              </p>
+                            )}
+
+                          {/* Show success message when passwords match */}
+                          {password &&
+                            confirmPassword &&
+                            password === confirmPassword &&
+                            confirmPassword.length > 0 && (
+                              <p className="text-green-600 text-sm mb-2 flex items-center">
+                                <svg
+                                  className="w-4 h-4 mr-1"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M5 13l4 4L19 7"
+                                  ></path>
+                                </svg>
+                                Passwords match
+                              </p>
+                            )}
+
+                          {errors.confirmPassword && (
+                            <p className="text-red-500 text-sm">
+                              {errors.confirmPassword.message}
+                            </p>
+                          )}
+                        </div>
+                      </>
                     )}
                   </div>
 
-                  {!showPasswordFields && user?.UserId ? (
-                    <div className="flex justify-end mt-4">
-                      <button
-                        type="button"
-                        onClick={handleResetPasswordToggle}
-                        className="flex items-center gap-2 text-sm text-teal-600 hover:text-teal-800 underline transition duration-200 cursor-pointer"
-                      >
-                        <div className="flex items-center gap-x-4 mb-2">
-                          <RotateCcwKey className="w-5 h-5 text-teal-500" />
-                          <h2 className="text-md font-semibold text-teal-500">
-                            Reset Password?
-                          </h2>
-                        </div>
-                      </button>
+                  {/* === User Signature Section === */}
+                  <div className="p-0">
+                    <div className="flex items-center gap-x-4 mb-4">
+                      <Signature className="w-5 h-5 text-teal-500" />
+                      <h2 className="text-lg font-semibold text-gray-800">
+                        User Signature
+                      </h2>
                     </div>
-                  ) : (
-                    <>
-                      <div className="flex flex-col">
-                        <Label className="mb-1 block text-sm">
-                          Password <span className="text-red-500">*</span>
-                        </Label>
-                        <Input
-                          {...register("passwordHash")}
-                          type="password"
-                          placeholder="New Password"
-                          className={`${inputbox} mb-2 py-4`}
-                          onChange={(e) =>
-                            setValue("passwordHash", e.target.value)
-                          }
+
+                    {/* Signature Input Section */}
+                    {/* Radio Selection */}
+                    <div className="flex gap-4 mb-4">
+                      <label className="flex items-center gap-2 text-sm text-gray-700">
+                        <input
+                          type="radio"
+                          name="signatureMethod"
+                          value="upload"
+                          className="w-4 h-4 accent-teal-400"
+                          checked={signatureMethod === "upload"}
+                          onChange={() => {
+                            setSignatureMethod("upload");
+                            setPreviewUrl(null);
+                            // sigRef.current?.clear();
+                          }}
                         />
-                        <PasswordStrengthMeter
-                          password={watch("passwordHash") ?? ""}
+                        Upload
+                      </label>
+                      <label className="flex items-center gap-2 text-sm text-gray-700">
+                        <input
+                          type="radio"
+                          name="signatureMethod"
+                          value="draw"
+                          className="w-4 h-4 accent-teal-400"
+                          checked={signatureMethod === "draw"}
+                          onChange={() => {
+                            setSignatureMethod("draw");
+                            setPreviewUrl(null);
+                          }}
                         />
+                        Draw
+                      </label>
+                    </div>
 
-                        {errors.passwordHash && (
-                          <p className="text-red-500 text-sm">
-                            {errors.passwordHash.message}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="flex flex-col">
-                        <Label className="mb-1 block text-sm">
-                          Confirm Password
-                          <span className="text-red-500">*</span>
-                        </Label>
-                        <Input
-                          {...register("confirmPassword")}
-                          type="password"
-                          placeholder="Confirm New Password"
-                          className={`${inputbox} mb-2 py-4`}
-                        />
-
-                        {/* Real-time password match validation */}
-                        {watch("passwordHash") &&
-                          watch("confirmPassword") &&
-                          watch("passwordHash") !==
-                            watch("confirmPassword") && (
-                            <p className="text-red-500 text-sm mb-2">
-                              Passwords do not match
-                            </p>
-                          )}
-
-                        {/* Show success message when passwords match */}
-                        {password &&
-                          confirmPassword &&
-                          password === confirmPassword &&
-                          confirmPassword.length > 0 && (
-                            <p className="text-green-600 text-sm mb-2 flex items-center">
-                              <svg
-                                className="w-4 h-4 mr-1"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M5 13l4 4L19 7"
-                                ></path>
-                              </svg>
-                              Passwords match
-                            </p>
-                          )}
-
-                        {errors.confirmPassword && (
-                          <p className="text-red-500 text-sm">
-                            {errors.confirmPassword.message}
-                          </p>
-                        )}
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                {/* === User Signature Section === */}
-                <div className="p-0">
-                  <div className="flex items-center gap-x-4 mb-4">
-                    <Signature className="w-5 h-5 text-teal-500" />
-                    <h2 className="text-lg font-semibold text-gray-800">
-                      User Signature
-                    </h2>
-                  </div>
-
-                  {/* Signature Input Section */}
-                  {/* Radio Selection */}
-                  <div className="flex gap-4 mb-4">
-                    <label className="flex items-center gap-2 text-sm text-gray-700">
-                      <input
-                        type="radio"
-                        name="signatureMethod"
-                        value="upload"
-                        className="w-4 h-4 accent-teal-400"
-                        checked={signatureMethod === "upload"}
-                        onChange={() => {
-                          setSignatureMethod("upload");
-                          setPreviewUrl(null);
-                          // sigRef.current?.clear();
-                        }}
-                      />
-                      Upload
-                    </label>
-                    <label className="flex items-center gap-2 text-sm text-gray-700">
-                      <input
-                        type="radio"
-                        name="signatureMethod"
-                        value="draw"
-                        className="w-4 h-4 accent-teal-400"
-                        checked={signatureMethod === "draw"}
-                        onChange={() => {
-                          setSignatureMethod("draw");
-                          setPreviewUrl(null);
-                        }}
-                      />
-                      Draw
-                    </label>
-                  </div>
-
-                  {/* Upload Section */}
-                  {/* {signatureMethod === "upload" && (
+                    {/* Upload Section */}
+                    {/* {signatureMethod === "upload" && (
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-gray-700">
                     Upload Signature
@@ -1110,97 +1149,97 @@ export default function AddUserPage() {
                 </div>
               )} */}
 
-                  {/* Draw Section */}
-                  <div className="flex flex-col md:flex-row gap-8">
-                    {/* Left Side: Upload or Draw */}
-                    <div className="flex flex-col gap-2">
-                      {signatureMethod === "upload" ? (
-                        <>
-                          <label className="text-sm font-medium text-gray-700">
-                            Upload Signature
-                          </label>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleSignatureFileChange}
-                            className="border px-2 py-1 w-72"
-                          />
-                        </>
-                      ) : (
-                        <>
-                          <label className="text-sm font-medium text-gray-700">
-                            Draw Signature
-                          </label>
-                          <div className="border border-gray-400 w-72 h-32 bg-white">
-                            <SignaturePadCanvas
-                              ref={sigRef}
-                              penColor="black"
-                              onEnd={handleDrawEnd}
-                              canvasProps={{
-                                width: 288,
-                                height: 128,
-                                className: "bg-white",
-                              }}
+                    {/* Draw Section */}
+                    <div className="flex flex-col md:flex-row gap-8">
+                      {/* Left Side: Upload or Draw */}
+                      <div className="flex flex-col gap-2">
+                        {signatureMethod === "upload" ? (
+                          <>
+                            <label className="text-sm font-medium text-gray-700">
+                              Upload Signature
+                            </label>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleSignatureFileChange}
+                              className="border px-2 py-1 w-72"
                             />
-                          </div>
-                          <div className="flex gap-4 mt-2">
-                            <button
-                              type="button"
-                              onClick={handleClearSignature}
-                              className="text-sm text-teal-600 hover:underline"
-                            >
-                              Clear
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => sigRef.current?.undo()}
-                              className="text-sm text-teal-600 hover:underline"
-                            >
-                              Undo
-                            </button>
-                          </div>
-                        </>
-                      )}
-                    </div>
-
-                    {/* Right Side: Preview */}
-                    <div className="flex flex-col">
-                      <label className="text-sm font-medium text-gray-700 mb-1">
-                        Preview
-                      </label>
-                      <div className="w-72 h-32 border rounded bg-gray-100 flex items-center justify-center text-gray-400">
-                        {previewUrl ? (
-                          previewUrl.startsWith("blob:") ? (
-                            <img
-                              src={previewUrl}
-                              alt="Signature Preview"
-                              className="w-full h-full object-contain"
-                            />
-                          ) : (
-                            <Image
-                              src={
-                                previewUrl.startsWith("http")
-                                  ? previewUrl
-                                  : `${process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, "")}/${previewUrl.replace(/^\//, "")}`
-                              }
-                              alt="Signature Preview"
-                              width={150}
-                              height={80}
-                              className="w-full h-full object-contain"
-                            />
-                          )
+                          </>
                         ) : (
-                          "No signature yet"
+                          <>
+                            <label className="text-sm font-medium text-gray-700">
+                              Draw Signature
+                            </label>
+                            <div className="border border-gray-400 w-72 h-32 bg-white">
+                              <SignaturePadCanvas
+                                ref={sigRef}
+                                penColor="black"
+                                onEnd={handleDrawEnd}
+                                canvasProps={{
+                                  width: 288,
+                                  height: 128,
+                                  className: "bg-white",
+                                }}
+                              />
+                            </div>
+                            <div className="flex gap-4 mt-2">
+                              <button
+                                type="button"
+                                onClick={handleClearSignature}
+                                className="text-sm text-teal-600 hover:underline"
+                              >
+                                Clear
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => sigRef.current?.undo()}
+                                className="text-sm text-teal-600 hover:underline"
+                              >
+                                Undo
+                              </button>
+                            </div>
+                          </>
                         )}
+                      </div>
+
+                      {/* Right Side: Preview */}
+                      <div className="flex flex-col">
+                        <label className="text-sm font-medium text-gray-700 mb-1">
+                          Preview
+                        </label>
+                        <div className="w-72 h-32 border rounded bg-gray-100 flex items-center justify-center text-gray-400">
+                          {previewUrl ? (
+                            previewUrl.startsWith("blob:") ? (
+                              <img
+                                src={previewUrl}
+                                alt="Signature Preview"
+                                className="w-full h-full object-contain"
+                              />
+                            ) : (
+                              <Image
+                                src={
+                                  previewUrl.startsWith("http")
+                                    ? previewUrl
+                                    : `${process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, "")}/${previewUrl.replace(/^\//, "")}`
+                                }
+                                alt="Signature Preview"
+                                width={150}
+                                height={80}
+                                className="w-full h-full object-contain"
+                              />
+                            )
+                          ) : (
+                            "No signature yet"
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Hospital Assignment */}
-              {/* Organization Assignment */}
-              {/* <div className="mt-6">
+                {/* Hospital Assignment */}
+                {/* Organization Assignment */}
+                {/* <div className="mt-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
               Assign Organization
             </h2>
@@ -1223,93 +1262,94 @@ export default function AddUserPage() {
               )}
             </div>
           </div> */}
-              <div>
-                <div className="flex items-center gap-x-4 mb-4">
-                  <Hospital className="w-5 h-5 text-teal-500" />
-                  <h2 className="text-lg font-semibold text-gray-800">
-                    Assign Hospital <span className="text-red-500">*</span>
-                  </h2>
-                </div>
+                <div>
+                  <div className="flex items-center gap-x-4 mb-4">
+                    <Hospital className="w-5 h-5 text-teal-500" />
+                    <h2 className="text-lg font-semibold text-gray-800">
+                      Assign Hospital <span className="text-red-500">*</span>
+                    </h2>
+                  </div>
 
-                <div className="flex flex-wrap gap-4">
-                  {hospitalLoading ? (
-                    <p className="text-gray-500">Loading hospitals...</p>
-                  ) : hospitals?.length > 0 ? (
-                    hospitals.map((hospital: any) => {
-                      const roleId = Number(getValues("roleId"));
+                  <div className="flex flex-wrap gap-4">
+                    {hospitalLoading ? (
+                      <p className="text-gray-500">Loading hospitals...</p>
+                    ) : hospitals?.length > 0 ? (
+                      hospitals.map((hospital: any) => {
+                        const roleId = Number(getValues("roleId"));
 
-                      const isChecked = userBranchArray.some(
-                        (item) =>
-                          item.HospitalId === hospital.HospitalId &&
-                          item.RoleId === roleId
-                      );
+                        const isChecked = userBranchArray.some(
+                          (item) =>
+                            item.HospitalId === hospital.HospitalId &&
+                            item.RoleId === roleId
+                        );
 
-                      return (
-                        <label
-                          key={hospital.HospitalId}
-                          className="flex items-center gap-2 cursor-pointer"
-                        >
-                          <Checkbox
-                            checked={isChecked}
-                            onCheckedChange={(checked) =>
-                              handleHospitalCheck(Boolean(checked), hospital)
-                            }
-                            className="data-[state=checked]:bg-teal-400 data-[state=checked]:border-teal-400"
-                          />
-                          <span
-                            className={`${
-                              isChecked
-                                ? "text-gray-900 font-medium"
-                                : "text-gray-700"
-                            }`}
+                        return (
+                          <label
+                            key={hospital.HospitalId}
+                            className="flex items-center gap-2 cursor-pointer"
                           >
-                            {hospital.HospitalName}- {hospital.city}
-                          </span>
-                        </label>
-                      );
-                    })
-                  ) : (
-                    <p className="text-gray-500">No hospitals found.</p>
-                  )}
+                            <Checkbox
+                              checked={isChecked}
+                              onCheckedChange={(checked) =>
+                                handleHospitalCheck(Boolean(checked), hospital)
+                              }
+                              className="data-[state=checked]:bg-teal-400 data-[state=checked]:border-teal-400"
+                            />
+                            <span
+                              className={`${
+                                isChecked
+                                  ? "text-gray-900 font-medium"
+                                  : "text-gray-700"
+                              }`}
+                            >
+                              {hospital.HospitalName}- {hospital.city}
+                            </span>
+                          </label>
+                        );
+                      })
+                    ) : (
+                      <p className="text-gray-500">No hospitals found.</p>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Submit Button */}
-              <div className="flex justify-end mt-4">
-                <div className="flex space-x-4">
-                  <button
-                    type="button"
-                    onClick={handleCancel}
-                    className="bg-red-400 hover:bg-red-500 text-white px-5 py-2 rounded-4xl shadow-2xl transition disabled:opacity-50 cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full shadow-2xl transition duration-200 ease-in-out cursor-pointer"
-                  >
-                    {isSubmitting ? (
-                      <Loader2Icon className="animate-spin" />
-                    ) : (
-                      "Submit"
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={isSubmitting}
-                    onClick={handleSaveAndContinue}
-                    className="bg-sky-500 hover:bg-sky-600 text-white px-6 py-2 rounded-full shadow-2xl transition duration-200 ease-in-out cursor-pointer"
-                  >
-                    {isSubmitting ? (
-                      <Loader2Icon className="animate-spin" />
-                    ) : (
-                      "Save and Continue"
-                    )}
-                  </button>
+                {/* Submit Button */}
+                <div className="flex justify-end mt-4">
+                  <div className="flex space-x-4">
+                    <button
+                      type="button"
+                      onClick={handleCancel}
+                      className="bg-red-400 hover:bg-red-500 text-white px-5 py-2 rounded-4xl shadow-2xl transition disabled:opacity-50 cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full shadow-2xl transition duration-200 ease-in-out cursor-pointer"
+                    >
+                      {isSubmitting ? (
+                        <Loader2Icon className="animate-spin" />
+                      ) : (
+                        "Submit"
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isSubmitting}
+                      onClick={handleSaveAndContinue}
+                      className="bg-sky-500 hover:bg-sky-600 text-white px-6 py-2 rounded-full shadow-2xl transition duration-200 ease-in-out cursor-pointer"
+                    >
+                      {isSubmitting ? (
+                        <Loader2Icon className="animate-spin" />
+                      ) : (
+                        "Save and Continue"
+                      )}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </form>
+              </form>
+            )}
           </main>
         </>
       )}

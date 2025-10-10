@@ -67,7 +67,9 @@ function NavbarDropdown({ profile }: ProfileProps) {
       setUserHospital(selectedHospital);
     }
     setImageUrl(
-      userProfile.imageUrl ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${userProfile.imageUrl}` : ""
+      userProfile.imageUrl
+        ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${userProfile.imageUrl}`
+        : ""
     );
   }, [selectedHospital, userProfile.imageUrl]);
   const handleLogout = () => {
@@ -93,6 +95,31 @@ function NavbarDropdown({ profile }: ProfileProps) {
   };
   if (!profile) return null; // ⛔️ avoid accessing null
 
+  const UserAvatar = ({ imageUrl }: { imageUrl?: string }) => {
+    const [imgSrc, setImageUrl] = useState("/default-avatar.png");
+
+    useEffect(() => {
+      if (imageUrl) {
+        // Add cache-busting param to avoid stale images from Vercel CDN
+        setImageUrl(`${imageUrl}?v=${Date.now()}`);
+      } else {
+        setImageUrl("/default-avatar.png");
+      }
+    }, [imageUrl]);
+
+    return (
+      <Image
+        src={imgSrc}
+        alt="User avatar"
+        width={80}
+        height={80}
+        unoptimized
+        className="object-cover h-full w-full transition-transform duration-300 group-hover:scale-105"
+        onError={() => setImageUrl("/default-avatar.png")}
+      />
+    );
+  };
+
   return (
     <>
       <ProfileModal open={profileOpen} setOpen={setProfileOpen} />
@@ -100,12 +127,12 @@ function NavbarDropdown({ profile }: ProfileProps) {
         <DropdownMenuTrigger className="focus:outline-none focus:ring-0 focus:shadow-none cursor-pointer">
           <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-teal-300 flex items-center justify-center">
             {imageUrl ? (
-              <Image
-                src={imageUrl}
-                alt="User avatar"
-                width={48}
-                height={48}
-                className="object-cover h-full w-full transition-transform duration-300 hover:scale-105"
+              <UserAvatar
+                imageUrl={
+                  imageUrl
+                    ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${imageUrl}`
+                    : ""
+                }
               />
             ) : (
               // <div className="flex items-center justify-center h-full w-full bg-teal-100">
@@ -132,11 +159,15 @@ function NavbarDropdown({ profile }: ProfileProps) {
               <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-teal-300 flex items-center justify-center">
                 {imageUrl ? (
                   <Image
-                    src={imageUrl}
+                    src={`${imageUrl}?v=${Date.now()}`}
                     alt="User avatar"
                     width={48}
                     height={48}
                     className="object-cover h-full w-full transition-transform duration-300 hover:scale-105"
+                    onError={(e) =>
+                      (e.currentTarget.src = "/default-avatar.png")
+                    }
+                    unoptimized
                   />
                 ) : (
                   <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
