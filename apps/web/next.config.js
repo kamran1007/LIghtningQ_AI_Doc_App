@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  productionBrowserSourceMaps: true,
+
   images: {
-    domains: ["localhost","dev.api.lightningq.com"],
+    domains: ["localhost", "dev.api.lightningq.com"],
   },
   experimental: {
     serverActions: {
