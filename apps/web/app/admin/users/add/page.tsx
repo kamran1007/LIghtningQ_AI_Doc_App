@@ -411,6 +411,27 @@ export default function AddUserPage() {
       console.log(res);
     }
   };
+  const normalizePrefix = (prefix?: string) => {
+    if (!prefix) return "";
+    const map: Record<string, string> = {
+      MR: "Mr",
+      MRS: "Mrs",
+      MISS: "Miss",
+      MS: "Ms",
+      DR: "Dr",
+      PROF: "Prof",
+      OTHER: "Other",
+    };
+    return map[prefix.toUpperCase()] || prefix;
+  };
+
+  const normalizeGender = (gender?: string) => {
+    if (!gender) return "";
+    const g = gender.toUpperCase();
+    if (["MALE", "M"].includes(g)) return "MALE";
+    if (["FEMALE", "F"].includes(g)) return "FEMALE";
+    return "OTHER";
+  };
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -455,7 +476,7 @@ export default function AddUserPage() {
   // 🔁 2. Once user is loaded, prefill the form
   useEffect(() => {
     if (user) {
-      setValue("Prefix", user.Prefix || "");
+      setValue("Prefix", normalizePrefix(user.Prefix));
       setValue("firstName", user.firstName);
       setValue("lastName", user.lastName);
       setValue(
@@ -463,7 +484,7 @@ export default function AddUserPage() {
         user.Employee_ID && user.Employee_ID !== "null" ? user.Employee_ID : ""
       );
       setValue("mobile", user.mobile);
-      setValue("gender", user.gender?.toUpperCase() || "");
+      setValue("gender", normalizeGender(user.gender));
       setValue("email", user.email);
       const formattedDOB = new Date(user.dateOfBirth)
         .toISOString()
