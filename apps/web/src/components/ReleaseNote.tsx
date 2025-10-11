@@ -20,7 +20,7 @@ export default function ReleaseNotes() {
 
   const releaseData = {
     appName: "LightningQ",
-    tagline: "AI-powered Healthcare Platform",
+    tagline: "Revolutionizing healthcare",
     version: "v1.0.0",
     releaseDate: "October 1, 2025",
     highlights: [

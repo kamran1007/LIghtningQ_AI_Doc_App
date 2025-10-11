@@ -128,11 +128,12 @@ export default function AddUserPage() {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => setImageUrl(reader.result as string);
-      setValue("imageUrl", file);
+      reader.onloadend = () => setImageUrl(reader.result as string); // ✅ For preview
+      setValue("imageUrl", file); // ✅ For backend
       reader.readAsDataURL(file);
     }
   };
+
   type SignaturePadExtended = SignaturePad & {
     isEmpty: () => boolean;
     toDataURL: (type: string) => string;
@@ -434,20 +435,26 @@ export default function AddUserPage() {
   };
 
   const UserAvatar = ({ imageUrl }: { imageUrl?: string }) => {
-    const [imgSrc, setImgSrc] = useState("/default-avatar.png");
+    const [imgSrc, setImgSrc] = useState<string>("");
 
     useEffect(() => {
-      if (imageUrl) {
-        // Add cache-busting param to avoid stale images from Vercel CDN
-        setImgSrc(`${imageUrl}?v=${Date.now()}`);
-      } else {
+      if (!imageUrl) {
         setImgSrc("/default-avatar.png");
+        return;
+      }
+
+      if (imageUrl.startsWith("data:") || imageUrl.startsWith("blob:")) {
+        // local upload preview
+        setImgSrc(imageUrl);
+      } else {
+        // backend-hosted image
+        setImgSrc(`${imageUrl}?v=${Date.now()}`);
       }
     }, [imageUrl]);
 
     return (
       <Image
-        src={imgSrc}
+        src={imgSrc} // ✅ always a string fallback
         alt="User avatar"
         width={80}
         height={80}
@@ -458,6 +465,7 @@ export default function AddUserPage() {
     );
   };
 
+  // ✅ Normalize & populate user fields
   useEffect(() => {
     if (user) {
       console.log({
@@ -478,60 +486,52 @@ export default function AddUserPage() {
       setValue("mobile", user.mobile);
       setValue("gender", normalizeGender(user.gender));
       setValue("email", user.email);
-      const formattedDOB = new Date(user.dateOfBirth)
-        .toISOString()
-        .split("T")[0];
-      setValue("dateOfBirth", formattedDOB || "");
+
+      const formattedDOB =
+        user?.dateOfBirth && !isNaN(new Date(user.dateOfBirth).getTime())
+          ? new Date(user.dateOfBirth).toISOString().split("T")[0]
+          : "";
+
+      setValue("dateOfBirth", formattedDOB as string);
+
       setValue("roleId", user.roleId ?? undefined);
       setValue("SpecializationId", user.SpecializationId ?? 0);
+      setValue("Experience", user.Experience);
+
       setImageUrl(
         user.imageUrl
           ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${user.imageUrl}`
           : ""
       );
-      // setImageUrl(user.imageUrl || "");
-      // setSignatureFileSelected(!!user?.SignatureOfUser);
-      //     const rawSignature = user?.SignatureOfUser;
-      // const fullSignatureUrl = rawSignature
-      //   ? `http://localhost:8000${rawSignature}`
-      //   : null;
 
-      // setPreviewUrl(fullSignatureUrl);
-
-      //     // Optionally determine upload vs draw
-      //     if (
-      //       user?.SignatureOfUser?.endsWith(".png") ||
-      //       user?.SignatureOfUser?.endsWith(".jpg") ||
-      //       user?.SignatureOfUser?.endsWith(".jpeg")
-      //     ) {
-      //       setSignatureMethod("upload");
-      //     } else {
-      //       setSignatureMethod("draw");
-      //     }
       const rawSignature = user?.SignatureOfUser;
       const fullSignatureUrl = rawSignature
         ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${rawSignature}`
         : null;
-
       setPreviewUrl(fullSignatureUrl);
 
-      // ✅ File extension match
       const extMatch = rawSignature?.match(/\.(png|jpg|jpeg)$/i);
       setSignatureMethod(extMatch ? "upload" : "draw");
-      setValue("Experience", user.Experience);
+    }
+  }, [user, setValue]);
+
+  // ✅ Hospital binding moved OUTSIDE
+  useEffect(() => {
+    if (user && user.roleId && hospitals?.length > 0) {
       const hospitalsFromAccess =
         user?.AdminAccess?.map((access: any) => ({
           OrganizationId: access.hospital.organizationId,
-          RoleId: access.roleId,
-          HospitalId: access.hospital.HospitalId,
+          RoleId: Number(access.roleId),
+          HospitalId: Number(access.hospital.HospitalId),
           BranchName: access.hospital.HospitalName,
           ActiveInd: "Y",
           DeleteInd: "N",
         })) || [];
 
+      console.log("✅ Assigning hospitals from access:", hospitalsFromAccess);
       setUserBranchArray(hospitalsFromAccess);
     }
-  }, [user, setValue]);
+  }, [user, hospitals]);
 
   useEffect(() => {
     if (!user) return;
@@ -557,20 +557,18 @@ export default function AddUserPage() {
           getallusers(),
         ]);
 
-        const userList = allUsersRes?.return?.data ?? [];
-
         setOrganizations(orgRes?.return?.data ?? []);
         setRoles(roleRes?.return?.data ?? []);
         setSpecializations(specRes?.return?.data ?? []);
 
-        // ✅ Set user if editing
         if (userId) {
-          const foundUser = userList.find(
-            (u: { UserId: number }) => u.UserId === Number(userId)
+          const foundUser = allUsersRes?.return?.data?.find(
+            (u: any) => u.UserId === Number(userId)
           );
           setUser(foundUser ?? null);
-          // console.log("Found user for editing:", foundUser);
-          // console.log("Editing user:", user);
+        } else {
+          // creating a new user
+          setUser({} as User);
         }
       } catch (error) {
         console.error("Failed to fetch data", error);
@@ -602,7 +600,7 @@ export default function AddUserPage() {
               </h2>
             </div>
 
-            {!isLoading && user && roles.length > 0 && (
+            {!isLoading && roles.length > 0 && (
               <form
                 onSubmit={handleSubmit(onSubmit)}
                 className="space-y-6"
@@ -611,26 +609,14 @@ export default function AddUserPage() {
                 {/* Image Upload & Prefix */}
                 <div className="flex items-center gap-4">
                   <div className="relative h-20 w-20 rounded-full overflow-hidden group cursor-pointer">
-                    {imageUrl ? (
-                      <UserAvatar
-                        imageUrl={
-                          user?.imageUrl
-                            ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${user.imageUrl}`
-                            : ""
-                        }
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full w-full bg-teal-100">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-10 w-10 text-teal-400"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                        >
-                          <path d="M12 12c2.67 0 8 1.34 8 4v2H4v-2c0-2.66 5.33-4 8-4Zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
-                        </svg>
-                      </div>
-                    )}
+                    <UserAvatar
+                      imageUrl={
+                        imageUrl ||
+                        (user?.imageUrl
+                          ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${user.imageUrl}`
+                          : "")
+                      }
+                    />
 
                     <div
                       onClick={handleImageClick}
@@ -1275,12 +1261,15 @@ export default function AddUserPage() {
                       <p className="text-gray-500">Loading hospitals...</p>
                     ) : hospitals?.length > 0 ? (
                       hospitals.map((hospital: any) => {
-                        const roleId = Number(getValues("roleId"));
+                        const roleId = Number(
+                          watch("roleId") || user?.roleId || 0
+                        );
 
                         const isChecked = userBranchArray.some(
                           (item) =>
-                            item.HospitalId === hospital.HospitalId &&
-                            item.RoleId === roleId
+                            Number(item.HospitalId) ===
+                              Number(hospital.HospitalId) &&
+                            Number(item.RoleId) === Number(roleId)
                         );
 
                         return (
