@@ -1040,7 +1040,7 @@ export class ManageHospitalService {
       whereClause.DayOfWeek = day;
     }
 
-    // Access check
+    // ✅ Access check
     if (hospitalId) {
       const access = await this.prisma.userHospitalAccess.findFirst({
         where: { UserId: userId, hospitalId },
@@ -1055,10 +1055,11 @@ export class ManageHospitalService {
       orderBy: { createdAt: 'desc' },
     });
 
-    // 🕒 Inline reset logic
+    // 🕒 Logic: Only reset if the cancelled day was *yesterday*
     const now = new Date();
-    const todayIndex = now.getDay(); // 0 = Sunday, ..., 6 = Saturday
+    const todayIndex = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 
+    // Map day names to numbers
     const dayIndexMap: Record<string, number> = {
       SUNDAY: 0,
       MONDAY: 1,
@@ -1069,6 +1070,9 @@ export class ManageHospitalService {
       SATURDAY: 6,
     };
 
+    // ✅ Determine "yesterday" index properly
+    const yesterdayIndex = (todayIndex - 1 + 7) % 7;
+
     const slotsToReset: number[] = [];
 
     const adjustedSlots = slots.map((slot) => {
@@ -1077,15 +1081,15 @@ export class ManageHospitalService {
 
       if (typeof slotDayIndex !== 'number') return slot;
 
-      // Keep permanent cancellations
+      // 🔒 Keep permanent cancellations
       if (slot.is_SlotCancelled && slot.isPermanentCancelled) {
         return slot;
       }
 
-      // Reset temporary cancellations once the day is passed
+      // 🧠 Reset only if the cancelled day was *yesterday*
       if (slot.is_SlotCancelled && !slot.isPermanentCancelled) {
-        const isDayPassed = todayIndex !== slotDayIndex;
-        if (isDayPassed) {
+        const shouldReset = slotDayIndex === yesterdayIndex;
+        if (shouldReset) {
           slotsToReset.push(slot.DoctorTimeSlotId);
           return {
             ...slot,
@@ -1098,7 +1102,7 @@ export class ManageHospitalService {
       return slot;
     });
 
-    // ✅ Persist reset in DB immediately if needed
+    // ✅ Persist the reset in DB if any
     if (slotsToReset.length > 0) {
       await this.prisma.doctorTimeSlot.updateMany({
         where: { DoctorTimeSlotId: { in: slotsToReset } },
@@ -1108,6 +1112,10 @@ export class ManageHospitalService {
           updatedAt: new Date(),
         },
       });
+
+      console.log(
+        `✅ Auto-reset ${slotsToReset.length} slots cancelled yesterday (${Object.keys(dayIndexMap).find((k) => dayIndexMap[k] === yesterdayIndex)}).`,
+      );
     }
 
     return {
@@ -1120,8 +1128,10 @@ export class ManageHospitalService {
   // ✅ Scheduled midnight reset (backup to inline reset)
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async resetTemporaryCancellations() {
-    const today = new Date();
-    const todayDay = today
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const yesterdayDay = yesterday
       .toLocaleString('en-US', { weekday: 'long' })
       .toUpperCase();
 
@@ -1129,7 +1139,7 @@ export class ManageHospitalService {
       where: {
         is_SlotCancelled: true,
         isPermanentCancelled: false,
-        DayOfWeek: { not: todayDay }, // reset if not today's day
+        DayOfWeek: yesterdayDay, // ✅ reset only yesterday's day
       },
       data: {
         is_SlotCancelled: false,
@@ -1138,7 +1148,7 @@ export class ManageHospitalService {
       },
     });
 
-    console.log('✅ Temporary cancellations reset at midnight');
+    console.log(`✅ Reset temporary cancellations for ${yesterdayDay}`);
   }
 
   async createOrUpdateDoctorCosting(
