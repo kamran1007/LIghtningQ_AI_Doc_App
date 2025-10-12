@@ -918,12 +918,10 @@ export class ConsultationService {
             lastName: true,
           },
         },
-        specialist: {
+        specialization: {
           select: {
-            UserId: true,
-            firstName: true,
-            lastName: true,
-          },
+          SpecializationName: true,
+        },
         },
         visitType: true,
         hospital: true,

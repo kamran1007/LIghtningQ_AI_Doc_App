@@ -208,7 +208,8 @@ const UserList = () => {
 
   const columns = [
     {
-      accessorKey: "firstName",
+      accessorFn: (row: any) => `${row.firstName || ""} ${row.lastName || ""}`,
+      id: "fullName",
       header: "Name",
       size: 60,
       muiTableHeadCellProps: {
@@ -350,7 +351,6 @@ const UserList = () => {
               },
             },
           }}
-       
           muiTopToolbarProps={{
             sx: {
               "& .MuiButtonBase-root": {
