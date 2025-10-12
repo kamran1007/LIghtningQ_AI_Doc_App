@@ -784,28 +784,29 @@ export function EventAddForm({
       VisitReason: form.VisitReason || "", // fixed
       // status: editingEvent.mode || 'SCHEDULED',
     };
-    const updatePayload = {
-      AppointmentId: editingEvent?.AppointmentId,
-      DoctorTimeSlotId: selectedTime.slotId,
-      appointmentTime: selectedTime.time,
-      appointmentDate: selectedSlotDate,
-      DoctorId: Number(selectedDoctorId),
-      // RescheduleReason: form.reason || "",
-      cancellationReason: form.cancellationReason,
-      SpecializationId: Number(selectedSpecializationId),
-
-      firstName: form.firstName,
-      lastName: form.lastName,
-      email: form.email,
-      mobile: form.mobile,
-      status: editingEvent?.mode,
-      updatedBy: Number(userprofiledata?.user?.UserId) || 0,
-      updatedAt: Date.now(), // ✅ fixed
-      sendWhatsappMessage: Boolean(form.sendWhatsappMessage),
-      fasttrackpatient: Boolean(form.fasttrackpatient),
-      sendSmsMessage: Boolean(form.sendSmsMessage),
-      sendEmailMessage: Boolean(form.sendEmailMessage),
-    };
+    // ✅ Separate update payload (for rescheduling or cancellation)
+    const updatePayload = isUpdate
+      ? {
+          AppointmentId: editingEvent?.AppointmentId,
+          DoctorTimeSlotId: selectedTime.slotId,
+          appointmentTime: selectedTime.time,
+          appointmentDate: selectedSlotDate,
+          DoctorId: Number(selectedDoctorId),
+          cancellationReason: form.cancellationReason,
+          SpecializationId: Number(selectedSpecializationId),
+          firstName: form.firstName,
+          lastName: form.lastName,
+          email: form.email,
+          mobile: form.mobile,
+          status: editingEvent?.mode,
+          updatedBy: Number(userprofiledata?.user?.UserId) || 0,
+          updatedAt: new Date().toISOString(),
+          sendWhatsappMessage: Boolean(form.sendWhatsappMessage),
+          fasttrackpatient: Boolean(form.fasttrackpatient),
+          sendSmsMessage: Boolean(form.sendSmsMessage),
+          sendEmailMessage: Boolean(form.sendEmailMessage),
+        }
+      : null;
 
     try {
       setIsLoading(true);
@@ -1014,8 +1015,6 @@ export function EventAddForm({
   // };
   const selectedDateStr = selectedSlotDate;
 
-  
-
   // const appendSlots = (from: string, to: string) => {
   //   const generated = generateTimeSlots(
   //     from,
@@ -1172,7 +1171,8 @@ export function EventAddForm({
         appointmentDate: slotDate,
         appointmentTime: timeString,
         TagPatientIds:
-          editingEvent?.TagPatients?.map((t:any) => String(t.TagPatientId)) ?? [],
+          editingEvent?.TagPatients?.map((t: any) => String(t.TagPatientId)) ??
+          [],
 
         visitTypeId: editingEvent?.visitTypeId?.toString() ?? "",
         paymentTypeId: editingEvent?.paymentTypeId?.toString() ?? "",
@@ -1180,7 +1180,7 @@ export function EventAddForm({
       });
 
       const matchedSlot = editingEvent.doctor?.DoctorSlot?.find(
-        (slot:any) => slot.appointmentId === editingEvent.AppointmentId
+        (slot: any) => slot.appointmentId === editingEvent.AppointmentId
       );
 
       const slotId = matchedSlot?.DoctorSlotId ?? null;
@@ -1217,7 +1217,7 @@ export function EventAddForm({
       .toUpperCase();
 
     const matchedSlot = editingEvent.doctor?.DoctorSlot?.find(
-      (slot:any) => slot.appointmentId === editingEvent.AppointmentId
+      (slot: any) => slot.appointmentId === editingEvent.AppointmentId
     );
 
     // const slotId = matchedSlot?.DoctorTimeSlotId ?? null;

@@ -85,6 +85,10 @@ export class QuickAppointmentDto {
   VisitReason?: string;
 
   @IsOptional()
+  @IsString()
+  cancellationReason?: string;
+
+  @IsOptional()
   @IsInt({ each: true })
   TagPatientIds?: number[];
 
