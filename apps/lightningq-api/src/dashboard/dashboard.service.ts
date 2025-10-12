@@ -293,7 +293,9 @@ export class DashboardService {
                 },
               },
             },
-            specialist: { select: { Specialization: true } },
+            specialization: {
+              select: { SpecializationName: true },
+            },
           },
         },
       },

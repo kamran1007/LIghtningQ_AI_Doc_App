@@ -184,7 +184,7 @@ async function seedHospitals() {
   const hospitals = [
     {
       HospitalName: 'Sunrise Multispecialty Hospital',
-      HospitalCode: 'SUN001',
+      HospitalCode: 'SN1',
       ParentHospitalCode: 'ROOT',
       Organizationcode: organization.Organizationcode,
       SpecializationType: SpecializationType.GENERAL,
@@ -207,7 +207,7 @@ async function seedHospitals() {
     },
     {
       HospitalName: 'Sunrise Diagnostics Center',
-      HospitalCode: 'SUN002',
+      HospitalCode: 'SN2',
       ParentHospitalCode: 'SUN001',
       Organizationcode: organization.Organizationcode,
       SpecializationType: SpecializationType.MULTISPECIALITY,

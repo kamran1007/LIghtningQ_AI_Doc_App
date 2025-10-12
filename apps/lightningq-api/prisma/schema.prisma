@@ -409,6 +409,8 @@ model Specialization {
   Diagnosis Diagnosis[]
 
   Procedure Procedure[]
+
+  Appointment Appointment[]
 }
 
 //Appointmrnt Screen    
@@ -520,7 +522,6 @@ model Appointment {
   acuity             AcuityLevel
   AssignedProviderId Int?
   SpecializationId   Int?
-  // specialization   Specialization? @relation(fields: [SpecializationId], references: [SpecializationId])
 
   appointmentDate    DateTime
   reason             String?
@@ -532,7 +533,7 @@ model Appointment {
   createdAt               DateTime     @default(now())
   createdBy               Int?
   rescheduledAt           DateTime?
-  rescheduledDate         DateTime? // ✅ New field
+  rescheduledDate         DateTime?
   // rescheduleReason String?
   rescheduledBy           Int?
   // TagPatientId      Int?
@@ -545,28 +546,29 @@ model Appointment {
   patient                 Patient      @relation(fields: [PatientId], references: [PatientId])
   doctor                  User         @relation("Doctor", fields: [DoctorId], references: [UserId])
   assignedProvider        User?        @relation("AssignedProvider", fields: [AssignedProviderId], references: [UserId])
-  specialist              User?        @relation("Specialist", fields: [SpecializationId], references: [UserId])
   createdByUser           User?        @relation("CreatedBy", fields: [createdBy], references: [UserId])
   rescheduledByUser       User?        @relation("RescheduledBy", fields: [rescheduledBy], references: [UserId])
+  hospital                Hospital     @relation(fields: [hospitalId], references: [HospitalId])
+  visitType               AppointmentType @relation(fields: [visitTypeId], references: [AppointmentTypeId])
 
-  hospital         Hospital        @relation(fields: [hospitalId], references: [HospitalId])
-  visitType        AppointmentType @relation(fields: [visitTypeId], references: [AppointmentTypeId])
-  paymentHistoryId Int? // ✅ Add this missing field
+  paymentHistoryId Int?
   paymentTypeId    Int
+  PaymentType      PaymentType     @relation(fields: [paymentTypeId], references: [PaymentTypeId])
+  paymentHistory   PaymentHistory? @relation(fields: [paymentHistoryId], references: [PaymentHistoryId])
 
-  PaymentType    PaymentType     @relation(fields: [paymentTypeId], references: [PaymentTypeId])
-  paymentHistory PaymentHistory? @relation(fields: [paymentHistoryId], references: [PaymentHistoryId])
+  specialization   Specialization? @relation(fields: [SpecializationId], references: [SpecializationId])
 
-  sendWhatsappMessage Boolean                   @default(false)
-  sendSmsMessage      Boolean                   @default(false)
-  sendEmailMessage    Boolean                   @default(false)
+  sendWhatsappMessage Boolean @default(false)
+  sendSmsMessage      Boolean @default(false)
+  sendEmailMessage    Boolean @default(false)
   consultation        Consultation?
-  isDraft             Boolean                   @default(false)
-  // New relation
+  isDraft             Boolean @default(false)
   notifications       AppointmentNotification[]
+  Vitals              Vitals[]
 
-  Vitals Vitals[]
+  User User[] @relation("Specialist")
 }
+
 
 model AppointmentNotification {
   id            Int                @id @default(autoincrement())

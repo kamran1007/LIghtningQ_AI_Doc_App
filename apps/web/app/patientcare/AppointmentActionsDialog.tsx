@@ -109,20 +109,20 @@ export default function AppointmentActionsDialog({
                       variant="ghost"
                       className={hoverchange}
                       onClick={() => {
-                        // if (
-                        //   isPastDate(patient.appointmentDate) ||
-                        //   patient.IsConsultationCompleted
-                        // ) {
-                        //   toast.current?.show({
-                        //     severity: "error",
-                        //     summary: "Error",
-                        //     detail: patient.IsConsultationCompleted
-                        //       ? "You can't reschedule a completed consultation."
-                        //       : "You can't reschedule a past appointment.",
-                        //     life: 4000,
-                        //   });
-                        //   return;
-                        // }
+                        if (
+                          isPastDate(patient.appointmentDate) ||
+                          patient.IsConsultationCompleted
+                        ) {
+                          toast.current?.show({
+                            severity: "error",
+                            summary: "Error",
+                            detail: patient.IsConsultationCompleted
+                              ? "You can't reschedule a completed consultation."
+                              : "You can't reschedule a past appointment.",
+                            life: 4000,
+                          });
+                          return;
+                        }
                         onReschedule(patient);
                         setOpen(false);
                       }}
@@ -156,16 +156,16 @@ export default function AppointmentActionsDialog({
                       variant="ghost"
                       className={hoverchange}
                       onClick={() => {
-                        // if (isPastDate(patient.appointmentDate)) {
-                        //   toast.current?.show({
-                        //     severity: "error",
-                        //     summary: "Error",
-                        //     detail:
-                        //       "You can't add vitals for a past appointment.",
-                        //     life: 4000,
-                        //   });
-                        //   return;
-                        // }
+                        if (isPastDate(patient.appointmentDate)) {
+                          toast.current?.show({
+                            severity: "error",
+                            summary: "Error",
+                            detail:
+                              "You can't add vitals for a past appointment.",
+                            life: 4000,
+                          });
+                          return;
+                        }
                         onStartConsultation({
                           ...patient,
                           initialTab: "vitals",
@@ -181,16 +181,16 @@ export default function AppointmentActionsDialog({
                       variant="ghost"
                       className={hoverchange}
                       onClick={() => {
-                        // if (isPastDate(patient.appointmentDate)) {
-                        //   toast.current?.show({
-                        //     severity: "error",
-                        //     summary: "Error",
-                        //     detail:
-                        //       "You can't start consultation for a past appointment.",
-                        //     life: 4000,
-                        //   });
-                        //   return;
-                        // }
+                        if (isPastDate(patient.appointmentDate)) {
+                          toast.current?.show({
+                            severity: "error",
+                            summary: "Error",
+                            detail:
+                              "You can't start consultation for a past appointment.",
+                            life: 4000,
+                          });
+                          return;
+                        }
                         onStartConsultation({
                           ...patient,
                           initialTab: "consultation",
