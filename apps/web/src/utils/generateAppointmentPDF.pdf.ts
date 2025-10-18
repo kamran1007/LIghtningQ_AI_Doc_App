@@ -6,7 +6,7 @@ import { toWords } from "number-to-words";
 dayjs.extend(advancedFormat);
 
 export const generateAppointmentPDF = async (appointmentData: any) => {
-  console.log("Patient Data for PDF", appointmentData)
+  console.log("Patient Data for PDF", appointmentData);
   const pdfMakeModule = await import("pdfmake/build/pdfmake");
   const pdfFontsModule = await import("pdfmake/build/vfs_fonts");
 
@@ -30,7 +30,7 @@ export const generateAppointmentPDF = async (appointmentData: any) => {
 
   const numberToWords = (num: number) => {
     if (!num) return "Zero";
-    return toWords(num).replace(/^\w/, (c:any) => c.toUpperCase()); // Capitalize first letter
+    return toWords(num).replace(/^\w/, (c: any) => c.toUpperCase()); // Capitalize first letter
   };
 
   // const formatDateTime = (date: string) =>
@@ -316,7 +316,7 @@ export const generateAppointmentPDF = async (appointmentData: any) => {
                         appointmentData?.patient?.city,
                         appointmentData?.patient?.postalCode,
                         appointmentData?.patient?.state,
-                        'India'
+                        "India",
                       ]
                         .filter(Boolean)
                         .join(", ")
@@ -377,7 +377,7 @@ export const generateAppointmentPDF = async (appointmentData: any) => {
       {
         columns: [
           {
-            text: `Consultation Date: ${formatDate(appointmentData?.appointmentDate)}`,
+            text: `Appointment Date: ${formatDate(appointmentData?.appointmentDate)}`,
           },
           {
             text: `Print Date & Time: ${formatDateTime(new Date().toISOString())}`,
@@ -388,7 +388,7 @@ export const generateAppointmentPDF = async (appointmentData: any) => {
       {
         columns: [
           {
-            text: `Consultation Time: ${formatTime(appointmentData?.appointmentTime)}`,
+            text: `Appointment Time: ${formatTime(appointmentData?.appointmentTime)}`,
           },
           {
             text: `Appot. Booked At: ${formatDateTime(appointmentData?.AppoitmentSummary?.bookedAt || new Date().toISOString())}`,
@@ -417,8 +417,17 @@ export const generateAppointmentPDF = async (appointmentData: any) => {
       // ✅ Summary
       { text: "Appointment Summary", style: "sectionHeader" },
       {
-        text: `Visit Type: ${appointmentData?.AppoitmentSummary?.visitType?.AppointmentTypeName}`,
+        text: `Visit Type: ${
+          appointmentData?.visitTypeId === 1
+            ? "New Appointment"
+            : appointmentData?.visitTypeId === 2
+              ? "Free Follow Up"
+              : appointmentData?.visitTypeId === 3
+                ? "Paid Follow Up"
+                : "Unknown"
+        }`,
       },
+
       { text: `Visit Reason: ${appointmentData?.VisitReason || ""}` },
 
       { text: "\n" },
@@ -467,8 +476,11 @@ export const generateAppointmentPDF = async (appointmentData: any) => {
             ],
             [
               "Mode of Payment",
-              appointmentData?.AppoitmentSummary?.PaymentType
-                ?.PaymentTypeName || "N/A",
+              appointmentData?.paymentTypeId === 1
+                ? "Cash"
+                : appointmentData?.visitTypeId === 2
+                  ? "UPI"
+                  : "Unknown",
             ],
           ],
         },

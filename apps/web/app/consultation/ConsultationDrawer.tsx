@@ -50,7 +50,7 @@ import { TabPanel, TabView } from "primereact/tabview";
 import { Maximize2, X } from "lucide-react";
 import { useState } from "react";
 import { BACKEND_URL } from "@/lib/constants";
-import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import Image from "next/image";
 
 import { Label, Separator } from "@radix-ui/react-dropdown-menu";
@@ -177,38 +177,40 @@ export default function ConsultationDrawer({
     }).format(date);
   }
 
-  const [form, setForm] = useState<{
-    // followUp: "",
-    followUpDuration: string;
-    followUpUnit: string;
-    clinicalnotesText: string;
-    // bloodPressure: string;
-    systolic: string;
-    diastolic: string;
-    weight: string;
-    temperature: string;
-    heartRate: string;
-    oxygen: string;
-    height: string;
-    bloodgroup: string;
-    BMI: string;
-    BMIStatus: string;
-    complaint: string;
-    notes: string;
-    investigations: Investigation[];
-    investigationRemarks: Record<string, string>;
-    diagnosis: string;
-    treatment: string;
-    followUp: string;
-    complaints: any[]; // Added complaints property
-    medications: {
-      drug: string;
-      dosage: string;
-      frequency: string;
-      duration: string;
-      notes: string;
-    }[];
-  }>({
+  const [form, setForm] = useState<ConsultationFormValues>({
+    followUpDuration: "",
+    followUpUnit: "",
+    clinicalnotesText: "",
+    systolic: "",
+    diastolic: "",
+    weight: "",
+    temperature: "",
+    heartRate: "",
+    oxygen: "",
+    height: "",
+    bloodgroup: "",
+    BMI: "",
+    BMIStatus: "",
+    complaint: "",
+    notes: "",
+    investigations: [],
+    investigationRemarks: {},
+    diagnosis: "",
+    treatment: "",
+    followUp: "",
+    complaints: [],
+    medications: [
+      {
+        medicationName: "",
+        dosage: "",
+        frequency: "",
+        duration: "",
+        unit: "", // ✅ still fine — empty string satisfies string | undefined
+        remarks: "",
+      },
+    ],
+  });
+  ({
     // followUp: "",
     followUpDuration: "",
     followUpUnit: "",
@@ -235,11 +237,12 @@ export default function ConsultationDrawer({
 
     medications: [
       {
-        drug: "",
+        medicationName: "", // ✅ Changed from 'drug'
         dosage: "",
         frequency: "",
         duration: "",
-        notes: "",
+        unit: "", // ✅ Added
+        remarks: "",
       },
     ],
   });
@@ -257,16 +260,17 @@ export default function ConsultationDrawer({
   ) => {
     setForm((prev) => {
       const current = prev.medications[index];
-      if (!current) return prev; // ✅ bail early
+      if (!current) return prev;
 
       const updated = [...prev.medications];
       updated[index] = {
-        drug: current.drug,
+        medicationName: current.medicationName,
         dosage: current.dosage,
         frequency: current.frequency,
         duration: current.duration,
-        notes: current.notes,
-        [field]: value, // ✅ overwrite safely
+        unit: current.unit,
+        remarks: current.remarks,
+        [field]: value,
       };
 
       return { ...prev, medications: updated };
@@ -278,7 +282,14 @@ export default function ConsultationDrawer({
       ...prev,
       medications: [
         ...prev.medications,
-        { drug: "", dosage: "", frequency: "", duration: "", notes: "" },
+        {
+          medicationName: "",
+          dosage: "",
+          frequency: "",
+          duration: "",
+          unit: "",
+          remarks: "",
+        },
       ],
     }));
   };
@@ -308,8 +319,6 @@ export default function ConsultationDrawer({
     DiagnosisId: number;
     label: string;
   };
-
-
 
   interface MedicationHistory {
     consultationId: number;
@@ -879,11 +888,12 @@ export default function ConsultationDrawer({
       complaints: [],
       medications: [
         {
-          drug: "",
+          medicationName: "",
           dosage: "",
           frequency: "",
           duration: "",
-          notes: "",
+          unit: "Days",
+          remarks: "",
         },
       ],
     },
@@ -940,56 +950,72 @@ export default function ConsultationDrawer({
     try {
       const isComplete = type?.toLowerCase() === "complete"; // case-insensitive check
       setIsSaving(true);
+
+      // 🕒 Prepare timestamps
+      const consultationStart =
+        patient?.consultationStartDateTime || new Date().toISOString();
+      const consultationEnd = isComplete ? new Date().toISOString() : "";
+
+      // 🧩 Build final payload
       const payload = {
-        ConsultationId: patient?.consultationId || 0,
-        AppointmentId: appointmentId, // Replace with your source
-        consultationDatTime:
-          patient?.consultationStartDateTime || new Date().toISOString(),
-        consultationEndDateTime: isComplete ? new Date().toISOString() : "",
-        CheifcomplaintNotes: form?.notes || complaintText,
+        ConsultationId: patient?.consultationId || undefined,
+        AppointmentId: appointmentId, // ✅ Still required (used for relation connect on backend)
+        consultationDatTime: consultationStart,
+        consultationEndDateTime: consultationEnd,
+        CheifcomplaintNotes: form?.notes || complaintText || "",
         IsSentCaseSheet: isComplete,
-        IsconsultationCompleted: isComplete,
+        IsConsultationCompleted: isComplete,
+
+        // ✅ Chief Complaints
         ConsultationCheifComplaint: (selectedChiefComplaints || []).map(
           (item) => ({
-            ChiefComplaintTagId: item?.ChiefComplaintTagId || 0,
+            ChiefComplaintTagId: Number(item?.ChiefComplaintTagId) || 0,
           })
         ),
 
-        ConsultationInvestigation: form.investigations.map((inv) => ({
-          InvestigationTypeId: inv.InvestigationTypeId,
-          InvestigationSubTypeId: inv.InvestigationSubTypeId,
+        // ✅ Investigations
+        ConsultationInvestigation: (form.investigations || []).map((inv) => ({
+          InvestigationTypeId: Number(inv.InvestigationTypeId),
+          InvestigationSubTypeId: Number(inv.InvestigationSubTypeId),
           ConsultationInvestigatRemark:
             form.investigationRemarks?.[inv.value] || "",
         })),
 
+        // ✅ Medications (mapped properly to DTO)
         ConsultationMedication: (form.medications || []).map((med) => ({
-          medicationName: med.drug,
-          dosage: med.dosage,
-          frequency: med.frequency,
-          duration: med.duration,
-          remarks: med.notes,
+          medicationName: med.medicationName || med.medicationName || "",
+          dosage: med.dosage || "",
+          frequency: med.frequency || "",
+          duration: med.duration || "",
+          remarks: med.remarks || med.remarks || "",
         })),
 
+        // ✅ Clinical Notes
         ConsultationclinicalNotes: clinicalnotesText
           ? [{ content: clinicalnotesText }]
           : [],
 
+        // ✅ Diagnosis
         ConsultationDiagnosis: (diagnoses || []).map((diag) => ({
-          diagnosisId: Number(diag?.DiagnosisId),
-          DiagnosisName: diag?.label,
+          diagnosisId: Number(diag?.DiagnosisId) || undefined,
+          DiagnosisName: diag?.label || "",
           DiagnosisRemark: remarkMap?.[diag?.DiagnosisId] || "",
         })),
 
+        // ✅ Treatment
         ConsultationTreatment: [
           {
-            treatmentText: form.treatment,
-            source: "TYPED", // Or DICTATED/SNIPPET if needed
+            treatmentText: form.treatment || "",
+            source: "TYPED",
           },
         ],
 
+        // ✅ Follow-Up Plan
         ConsultationFollowUpPlan: {
           followUpText: form.followUp || "",
-          duration: parseInt(form.followUpDuration, 10) || undefined,
+          duration: form.followUpDuration
+            ? parseInt(form.followUpDuration, 10)
+            : undefined,
           unit: form.followUpUnit || undefined,
           nextDate: calculateFollowUpDate(
             form.followUpDuration,
@@ -997,11 +1023,13 @@ export default function ConsultationDrawer({
           ),
         },
 
+        // ✅ followUpDate
         followUpDate: calculateFollowUpDate(
           form.followUpDuration,
           form.followUpUnit
         ),
 
+        // ✅ Procedures
         ConsultationProcedure: (procedures || [])
           .filter(
             (proc) => proc?.ProcedureId && !isNaN(Number(proc.ProcedureId))
@@ -1013,24 +1041,28 @@ export default function ConsultationDrawer({
           })),
       };
 
-      console.log("Submitting payload: ", payload);
+      console.log("🧠 Submitting payload:", payload);
 
+      // ✅ Send payload to backend
       await addupdateConsultation(payload);
 
       toast.current?.show({
         severity: "success",
         summary: "Saved",
-        detail: "Consultation successfully saved.",
+        detail: isComplete
+          ? "Consultation completed successfully."
+          : "Consultation draft saved.",
       });
+
+      // ✅ UI handling
       setTimeout(() => {
         SetConsultationComlete(true);
-
         setTimeout(() => {
           SetConsultationComlete(false);
           const today = new Date().toLocaleDateString("en-CA", {
-            timeZone: "Asia/Kolkata", // adjust if needed
+            timeZone: "Asia/Kolkata",
           });
-          onClose(); // ✅ Correctly calling the onClose function
+          onClose(); // Close modal or drawer
           dispatch(
             fetchAllAppointmentPatient({
               page: 1,
@@ -1049,7 +1081,7 @@ export default function ConsultationDrawer({
       toast.current?.show({
         severity: "error",
         summary: "Error",
-        detail: "Failed to save consultation.",
+        detail: "Failed to save consultation. Please try again.",
       });
     } finally {
       setIsSaving(false);
@@ -1172,11 +1204,12 @@ export default function ConsultationDrawer({
       // Medications
       const meds =
         consultation.ConsultationMedication?.map((m: any) => ({
-          drug: m?.medicationName || "",
+          medicationName: m?.medicationName || "", // ✅ Changed
           dosage: m?.dosage || "",
           frequency: m?.frequency || "",
           duration: m?.duration || "",
-          notes: m?.remarks || "",
+          unit: m?.unit || "", // ✅ Added
+          remarks: m?.remarks || "",
         })) || [];
       console.log("medicine", meds);
       setForm((prev: any) => ({
@@ -1248,19 +1281,19 @@ export default function ConsultationDrawer({
               <div className="flex items-center gap-4">
                 {/* Avatar */}
                 <Avatar className="h-12 w-12 rounded-full">
-                  {imageUrl ? (
-                    <AvatarImage
-                      src={imageUrl}
-                      alt={patient?.patient?.firstName}
-                      className="h-12 w-12 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div
-                      className={`h-12 w-12 flex items-center justify-center rounded-full text-sm font-medium ${colorClass}`}
-                    >
-                      {initials}
-                    </div>
-                  )}
+                  <AvatarImage
+                    src={imageUrl || undefined}
+                    alt={patient?.patient?.firstName || "User"}
+                    className="h-12 w-12 rounded-full object-cover"
+                    onError={(e) =>
+                      (e.currentTarget.src = "/default-avatar.png")
+                    }
+                  />
+                  <AvatarFallback
+                    className={`h-12 w-12 flex items-center justify-center rounded-full text-sm font-medium ${colorClass}`}
+                  >
+                    {initials || "?"}
+                  </AvatarFallback>
                 </Avatar>
 
                 {/* Patient Details */}
@@ -1755,8 +1788,14 @@ export default function ConsultationDrawer({
                               >
                                 <>
                                   <Toast ref={toast} position="top-right" />
-
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 p-4">
+                                  <div
+                                    className={`grid gap-6 p-2 transition-all duration-300 ${
+                                      fullScreen
+                                        ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-4 max-w-[1400px] mx-auto"
+                                        : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2"
+                                    }`}
+                                  >
+                                    {/* VitalCardInput components here */}
                                     <VitalCardInput
                                       icon={<Droplet size={18} />}
                                       label="Blood Pressure"
@@ -1911,6 +1950,10 @@ export default function ConsultationDrawer({
                                       }
                                     />
                                   </div>
+
+                                  {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 p-4">
+                                    
+                                  </div> */}
                                 </>
 
                                 <motion.div
@@ -1925,7 +1968,7 @@ export default function ConsultationDrawer({
                                   <Button
                                     type="submit"
                                     // onClick={handleSaveVitals}
-                                    className="px-6 py-2 text-base font-semibold rounded-2xl shadow-md  hover:bg-[#22E0D4] transition-colors duration-200 bg-[#6ce9e3] text-white"
+                                    className="px-6 py-2 text-base font-semibold rounded-2xl shadow-md cursor-pointer  hover:bg-[#22E0D4] transition-colors duration-200 bg-[#6ce9e3] text-white"
                                   >
                                     {isSubmitting ? (
                                       <Loader2Icon className="animate-spin" />

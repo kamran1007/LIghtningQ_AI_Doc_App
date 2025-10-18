@@ -32,56 +32,26 @@ export class DashboardService {
   }) {
     const { startDate, endDate, hospitalId, doctorId } = filters;
 
-    // Common appointment filter
-    const appointmentWhere: any = {};
-    if (startDate && endDate) {
-      appointmentWhere.appointmentDate = { gte: startDate, lte: endDate };
-    }
-    if (hospitalId) {
-      appointmentWhere.hospitalId = hospitalId;
-    }
-    if (doctorId) {
-      appointmentWhere.DoctorId = doctorId;
-    }
-
-    // Common consultation filter
-    const consultationWhere: any = {
-      IsconsultationCompleted: true,
-      consultationEndDateTime: { not: null },
+    // 🕒 Normalize once for full-day coverage
+    const normalizeDateRange = (start?: Date, end?: Date) => {
+      const gte = start ? new Date(start) : new Date();
+      const lte = end ? new Date(end) : new Date();
+      gte.setHours(0, 0, 0, 0);
+      lte.setHours(23, 59, 59, 999);
+      return { gte, lte };
     };
-    if (startDate && endDate) {
-      consultationWhere.consultationDatTime = { gte: startDate, lte: endDate };
-    }
-    if (doctorId) {
-      consultationWhere.appointment = {
-        ...(consultationWhere.appointment || {}),
-        DoctorId: doctorId,
-      };
-    }
-    if (hospitalId) {
-      consultationWhere.appointment = {
-        ...(consultationWhere.appointment || {}),
-        hospitalId: hospitalId,
-      };
-    }
 
-    // 1. Appointments count
-    if (startDate && endDate) {
-      appointmentWhere.appointmentDate = { gte: startDate, lte: endDate };
-    }
-    if (hospitalId) {
-      consultationWhere.appointments = {
-        some: {
-          hospitalId: hospitalId, // ✅ lowercase
-        },
-      };
-    }
+    const { gte, lte } = normalizeDateRange(startDate, endDate);
 
-    if (doctorId) {
-      appointmentWhere.DoctorId = doctorId; // ✅ correct
-    }
+    // -------------------------
+    // 1️⃣ Appointment Filters
+    // -------------------------
+    const appointmentWhere: any = {
+      appointmentDate: { gte, lte },
+      ...(hospitalId ? { hospitalId } : {}),
+      ...(doctorId ? { DoctorId: doctorId } : {}),
+    };
 
-    // Directly use appointmentWhere
     const todaysAppointments = await this.prisma.appointment.findMany({
       where: appointmentWhere,
       select: { status: true },
@@ -97,46 +67,56 @@ export class DashboardService {
       (a) => a.status === 'COMPLETED',
     ).length;
 
-    // 2. Revenue
-    const paymentWhere: any = {};
+    // -------------------------
+    // 2️⃣ Revenue
+    // -------------------------
+    const paymentWhere: any = {
+      isAmountPaid: true,
+      appointments: {
+        some: {
+          appointmentDate: { gte, lte },
+          ...(hospitalId ? { hospitalId } : {}),
+          ...(doctorId ? { DoctorId: doctorId } : {}),
+        },
+      },
+    };
 
-    if (startDate && endDate) {
-      paymentWhere.Transaction_DateTime = {
-        gte: new Date(startDate),
-        lte: new Date(endDate),
-      };
-    }
-
-    if (hospitalId || doctorId) {
-      paymentWhere.appointments = { some: {} }; // <-- correct relation filtering
-      if (hospitalId) paymentWhere.appointments.some.hospitalId = hospitalId;
-      if (doctorId) paymentWhere.appointments.some.DoctorId = doctorId;
-    }
-
-    const monthlyRevenue = await this.prisma.paymentHistory.aggregate({
+    const selectedRevenue = await this.prisma.paymentHistory.aggregate({
       _sum: { AppointmentChargesPaid: true },
       where: paymentWhere,
     });
 
-    const lastMonthRevenue = await this.prisma.paymentHistory.aggregate({
-      _sum: { AppointmentChargesPaid: true },
-      where: {
-        ...paymentWhere,
-        Transaction_DateTime: {
-          gte: startOfMonth(subMonths(new Date(), 1)),
-          lte: endOfMonth(subMonths(new Date(), 1)),
+    // 📆 Previous range for comparison
+    const diffMs = lte.getTime() - gte.getTime();
+    const previousStart = new Date(gte.getTime() - diffMs - 1);
+    const previousEnd = new Date(gte.getTime() - 1);
+
+    const previousRangeWhere = {
+      isAmountPaid: true,
+      appointments: {
+        some: {
+          appointmentDate: { gte: previousStart, lte: previousEnd },
+          ...(hospitalId ? { hospitalId } : {}),
+          ...(doctorId ? { DoctorId: doctorId } : {}),
         },
       },
+    };
+
+    const previousRangeRevenue = await this.prisma.paymentHistory.aggregate({
+      _sum: { AppointmentChargesPaid: true },
+      where: previousRangeWhere,
     });
 
-    const monthlyGrowth = lastMonthRevenue._sum.AppointmentChargesPaid
-      ? (((monthlyRevenue._sum.AppointmentChargesPaid || 0) -
-          (lastMonthRevenue._sum.AppointmentChargesPaid || 0)) /
-          lastMonthRevenue._sum.AppointmentChargesPaid) *
+    const dateRangeGrowth = previousRangeRevenue._sum.AppointmentChargesPaid
+      ? (((selectedRevenue._sum.AppointmentChargesPaid || 0) -
+          (previousRangeRevenue._sum.AppointmentChargesPaid || 0)) /
+          previousRangeRevenue._sum.AppointmentChargesPaid) *
         100
       : 0;
 
-    // 3. Completion rate
+    // -------------------------
+    // 3️⃣ Consultation Completion %
+    // -------------------------
     const completedAppointments = await this.prisma.appointment.count({
       where: { ...appointmentWhere, status: 'COMPLETED' },
     });
@@ -147,58 +127,34 @@ export class DashboardService {
       ? (completedAppointments / totalAppointments) * 100
       : 0;
 
-    // 4. Trends (raw SQL with filters)
-    let params: any[] = [];
-    let where = `WHERE 1=1`;
-
-    function formatDate(date: Date) {
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    }
-
-    if (startDate) {
-      where += ` AND "appointmentDate" >= $${params.length + 1}::date`;
-      params.push(formatDate(new Date(startDate)));
-    }
-
-    if (endDate) {
-      where += ` AND "appointmentDate" <= $${params.length + 1}::date`;
-      params.push(formatDate(new Date(endDate)));
-    }
-
-    if (hospitalId) {
-      where += ` AND "hospitalId" = $${params.length + 1}`;
-      params.push(hospitalId);
-    }
-
-    if (doctorId) {
-      where += ` AND "DoctorId" = $${params.length + 1}`;
-      params.push(doctorId);
-    }
-
+    // -------------------------
+    // 4️⃣ Appointment Trends
+    // -------------------------
     const trends = await this.prisma.$queryRawUnsafe(
       `
-  SELECT 
-    TO_CHAR(DATE("appointmentDate"), 'YYYY-MM-DD') as date, 
-    COUNT(*) as count
-  FROM "Appointment"
-  ${where}
-  GROUP BY DATE("appointmentDate")
-  ORDER BY date ASC
-  `,
-      ...params,
+    SELECT 
+      TO_CHAR(DATE("appointmentDate"), 'YYYY-MM-DD') as date,
+      COUNT(*) as count
+    FROM "Appointment"
+    WHERE "appointmentDate" BETWEEN $1 AND $2
+      ${hospitalId ? `AND "hospitalId" = ${hospitalId}` : ''}
+      ${doctorId ? `AND "DoctorId" = ${doctorId}` : ''}
+    GROUP BY DATE("appointmentDate")
+    ORDER BY date ASC;
+    `,
+      gte,
+      lte,
     );
 
-    const dateFilter: Record<string, Date> = {};
-
-    if (startDate) dateFilter.gte = new Date(String(startDate));
-    if (endDate) dateFilter.lte = new Date(String(endDate));
-    // 5. Top Specializations
+    // -------------------------
+    // 5️⃣ Top Specializations
+    // -------------------------
     const consultationsWithSpecialization =
       await this.prisma.consultation.findMany({
         where: {
-          IsconsultationCompleted: true,
+          IsConsultationCompleted: true,
           consultationEndDateTime: { not: null },
-          ...(startDate || endDate ? { consultationDatTime: dateFilter } : {}),
+          consultationDatTime: { gte, lte },
           appointment: {
             ...(hospitalId ? { hospitalId } : {}),
             ...(doctorId ? { DoctorId: doctorId } : {}),
@@ -225,9 +181,7 @@ export class DashboardService {
     const specializationCounts = consultationsWithSpecialization.reduce(
       (acc, c) => {
         const specId = c.appointment?.doctor.Specialization?.SpecializationId;
-        if (specId) {
-          acc[specId] = (acc[specId] || 0) + 1;
-        }
+        if (specId) acc[specId] = (acc[specId] || 0) + 1;
         return acc;
       },
       {} as Record<number, number>,
@@ -238,12 +192,7 @@ export class DashboardService {
         SpecializationId: Number(id),
         count: count as number,
       }))
-      .sort(
-        (
-          a: { SpecializationId: number; count: number },
-          b: { SpecializationId: number; count: number },
-        ) => b.count - a.count,
-      )
+      .sort((a, b) => b.count - a.count)
       .slice(0, 5);
 
     const specializationDetails = await this.prisma.specialization.findMany({
@@ -264,18 +213,18 @@ export class DashboardService {
       count: s.count,
     }));
 
-    // 6. Doctor Performance
+    // -------------------------
+    // 6️⃣ Doctor Performance
+    // -------------------------
     const consultations = await this.prisma.consultation.findMany({
       where: {
-        IsconsultationCompleted: true,
+        IsConsultationCompleted: true,
         consultationEndDateTime: { not: null },
-        consultationDatTime: {
-          gte: new Date(String(startDate)),
-          lte: new Date(String(endDate)),
-        },
+        consultationDatTime: { gte, lte },
         appointment: {
-          hospitalId: hospitalId ? Number(hospitalId) : undefined,
-          DoctorId: doctorId ? Number(doctorId) : undefined,
+          appointmentDate: { gte, lte }, // ✅ ensures same-day appointments only
+          ...(hospitalId ? { hospitalId } : {}),
+          ...(doctorId ? { DoctorId: doctorId } : {}),
         },
       },
       select: {
@@ -288,13 +237,8 @@ export class DashboardService {
               select: {
                 firstName: true,
                 lastName: true,
-                Specialization: {
-                  select: { SpecializationName: true },
-                },
+                Specialization: { select: { SpecializationName: true } },
               },
-            },
-            specialization: {
-              select: { SpecializationName: true },
             },
           },
         },
@@ -309,9 +253,8 @@ export class DashboardService {
     }
 
     const result: Record<number, DoctorPerformance> = consultations.reduce(
-      (acc: Record<number, DoctorPerformance>, c) => {
+      (acc, c) => {
         if (!c.appointment?.doctor) return acc;
-
         const docId = c.appointment.DoctorId!;
         const duration =
           (new Date(c.consultationEndDateTime!).getTime() -
@@ -321,47 +264,43 @@ export class DashboardService {
         if (!acc[docId]) {
           acc[docId] = {
             name: `${c.appointment.doctor.firstName} ${c.appointment.doctor.lastName}`,
-            completed: 0,
-            totalDuration: 0,
             specialization:
               c.appointment.doctor.Specialization?.SpecializationName ?? 'N/A',
+            completed: 0,
+            totalDuration: 0,
           };
         }
 
         acc[docId].completed += 1;
         acc[docId].totalDuration += duration;
-
         return acc;
       },
-      {} as Record<number, DoctorPerformance>, // ✅ cast accumulator
+      {},
     );
 
-    const performanceList = Object.values(result).map(
-      (doc: DoctorPerformance) => ({
-        name: doc.name,
-        specialization: doc.specialization,
-        completed: doc.completed,
-        avgMin: (doc.totalDuration / doc.completed).toFixed(1),
-      }),
-    );
+    const performanceList = Object.values(result).map((doc) => ({
+      name: doc.name,
+      specialization: doc.specialization,
+      completed: doc.completed,
+      avgMin: (doc.totalDuration / doc.completed).toFixed(1),
+    }));
 
-    function transformBigInt(obj: any): any {
-      if (Array.isArray(obj)) {
-        return obj.map(transformBigInt);
-      } else if (obj && typeof obj === 'object') {
+    // -------------------------
+    // 7️⃣ Transform BigInts
+    // -------------------------
+    const transformBigInt = (obj: any): any => {
+      if (Array.isArray(obj)) return obj.map(transformBigInt);
+      if (obj && typeof obj === 'object')
         return Object.fromEntries(
-          Object.entries(obj).map(([key, value]) => [
-            key,
-            transformBigInt(value),
-          ]),
+          Object.entries(obj).map(([k, v]) => [k, transformBigInt(v)]),
         );
-      } else if (typeof obj === 'bigint') {
-        return Number(obj); // ✅ fixed: use obj, not value
-      }
+      if (typeof obj === 'bigint') return Number(obj);
       return obj;
-    }
+    };
 
-    // Final response
+    // -------------------------
+    // ✅ Final Response
+    // -------------------------
     return transformBigInt({
       summaryCards: [
         {
@@ -373,19 +312,25 @@ export class DashboardService {
         {
           id: 'revenue',
           title: 'Revenue in Range',
-          value: `₹${(Number(monthlyRevenue._sum.AppointmentChargesPaid) || 0).toLocaleString()}`,
-          subtitle: `${monthlyGrowth >= 0 ? '+' : ''}${monthlyGrowth.toFixed(1)}% vs last period`,
+          value: `₹${(
+            Number(selectedRevenue._sum.AppointmentChargesPaid) || 0
+          ).toLocaleString()}`,
+          subtitle: `${dateRangeGrowth >= 0 ? '+' : ''}${dateRangeGrowth.toFixed(
+            1,
+          )}% vs previous range`,
         },
         {
           id: 'completion',
           title: 'Avg Consultation Completion',
           value: `${completionRate.toFixed(0)}%`,
-          subtitle: `Trend: ${completionRate >= 84 ? '+' : ''}${(completionRate - 84).toFixed(1)}%`,
+          subtitle: `Trend: ${
+            completionRate >= 84 ? '+' : ''
+          }${(completionRate - 84).toFixed(1)}%`,
         },
         {
           id: 'satisfaction',
           title: 'Patient Satisfaction',
-          value: `92%`,
+          value: '92%',
           subtitle: 'AI Sentiment',
         },
       ],
@@ -412,8 +357,14 @@ export class DashboardService {
     // Fetch appointments for today with patient info
     const appointmentWhere: any = {};
     if (startDate && endDate) {
-      appointmentWhere.appointmentDate = { gte: startDate, lte: endDate };
+      const gte = new Date(startDate);
+      const lte = new Date(endDate);
+      gte.setHours(0, 0, 0, 0);
+      lte.setHours(23, 59, 59, 999);
+
+      appointmentWhere.appointmentDate = { gte, lte };
     }
+
     if (hospitalId) {
       appointmentWhere.HospitalId = hospitalId;
     }
@@ -629,8 +580,8 @@ export class DashboardService {
   //ScheduledReport
 
   async getAdvancedReport(filters: {
-    startDate: string;
-    endDate: string;
+    startDate?: string;
+    endDate?: string;
     doctorId?: number;
     hospitalId?: number;
     specializationId?: number;
@@ -638,60 +589,62 @@ export class DashboardService {
     const { startDate, endDate, doctorId, hospitalId, specializationId } =
       filters;
 
-    const whereClause: any = {
-      appointmentDate: {
-        gte: new Date(startDate),
-        lte: new Date(endDate),
-      },
-    };
+    // -----------------------------
+    // 1️⃣ Flexible Date Filter Setup
+    // -----------------------------
+    const appointmentDateFilter: any = {};
+
+    if (startDate) {
+      appointmentDateFilter.gte = new Date(startDate);
+      appointmentDateFilter.gte.setHours(0, 0, 0, 0); // start of the day
+    }
+
+    if (endDate) {
+      appointmentDateFilter.lte = new Date(endDate);
+      appointmentDateFilter.lte.setHours(23, 59, 59, 999); // end of the day
+    }
+
+    // -----------------------------
+    // 2️⃣ Build Base Where Clause
+    // -----------------------------
+    const whereClause: any = {};
+
+    if (Object.keys(appointmentDateFilter).length > 0) {
+      whereClause.appointmentDate = appointmentDateFilter;
+    }
 
     if (doctorId) whereClause.DoctorId = Number(doctorId);
     if (hospitalId) whereClause.hospitalId = Number(hospitalId);
     if (specializationId)
-      whereClause.SpecializationId = Number(specializationId); // ✅ FIX
+      whereClause.SpecializationId = Number(specializationId);
 
-    // ------------------------
-    // Summary Cards
-    // ------------------------
+    console.log('🧩 Dynamic whereClause:', whereClause);
+
+    // -----------------------------
+    // 3️⃣ Summary Counts
+    // -----------------------------
     const totalAppointments = await this.prisma.appointment.count({
-      where: whereClause, // ✅ dynamic
+      where: whereClause,
     });
-    console.log('whereClause:', whereClause);
-    console.log('Total Appointments:', totalAppointments);
 
     const totalRevenue = await this.prisma.paymentHistory.aggregate({
       _sum: { AppointmentChargesPaid: true },
       where: {
         appointments: {
-          some: {
-            appointmentDate: {
-              gte: new Date(startDate),
-              lte: new Date(endDate),
-            },
-            DoctorId: doctorId ? Number(doctorId) : undefined,
-            hospitalId: hospitalId ? Number(hospitalId) : undefined,
-            SpecializationId: specializationId
-              ? Number(specializationId)
-              : undefined,
-          },
+          some: whereClause,
         },
       },
     });
 
+    // -----------------------------
+    // 4️⃣ Top Specialization & Doctor
+    // -----------------------------
     const topSpecialization = await this.prisma.specialization.findFirst({
       where: {
         Users: {
           some: {
             DoctorAppointments: {
-              some: {
-                appointmentDate: {
-                  gte: new Date(startDate),
-                  lte: new Date(endDate),
-                },
-                SpecializationId: specializationId
-                  ? Number(specializationId)
-                  : undefined,
-              },
+              some: whereClause,
             },
           },
         },
@@ -706,15 +659,7 @@ export class DashboardService {
     const topDoctor = await this.prisma.user.findFirst({
       where: {
         DoctorAppointments: {
-          some: {
-            appointmentDate: {
-              gte: new Date(startDate),
-              lte: new Date(endDate),
-            },
-            SpecializationId: specializationId
-              ? Number(specializationId)
-              : undefined,
-          },
+          some: whereClause,
         },
       },
       orderBy: {
@@ -724,21 +669,21 @@ export class DashboardService {
       },
     });
 
-    // ------------------------
-    // Trend Resolution (Hour / Day / Week)
-    // ------------------------
-    const diffDays =
-      differenceInDays(new Date(endDate), new Date(startDate)) + 1;
+    // -----------------------------
+    // 5️⃣ Calculate diffDays Safely
+    // -----------------------------
+    const safeStart = startDate ? new Date(startDate) : new Date();
+    const safeEnd = endDate ? new Date(endDate) : new Date();
+    const diffDays = Math.max(1, differenceInDays(safeEnd, safeStart) || 1);
 
     let groupByField: 'hour' | 'day' | 'week';
     if (diffDays === 1) groupByField = 'hour';
     else if (diffDays <= 7) groupByField = 'day';
     else groupByField = 'week';
 
-    // ------------------------
-    // Fetch raw data
-    // ------------------------
-
+    // -----------------------------
+    // 6️⃣ Trends (Appointments + Revenue)
+    // -----------------------------
     const appointments = await this.prisma.appointment.findMany({
       where: whereClause,
       select: { appointmentDate: true, AppointmentId: true },
@@ -749,15 +694,16 @@ export class DashboardService {
       select: { Transaction_DateTime: true, AppointmentChargesPaid: true },
     });
 
-    // ------------------------
-    // Helper: bucket by IST
-    // ------------------------
+    const groupAppointments: Record<string, number> = {};
+    const groupRevenue: Record<string, number> = {};
+
+    const TZ = 'Asia/Kolkata';
+
     function bucketLabel(
       dateUTC: Date | string,
       type: 'hour' | 'day' | 'week',
     ) {
       const z = toZonedTime(new Date(dateUTC), TZ);
-
       if (type === 'hour') return formatInTimeZone(z, TZ, 'HH:00');
       if (type === 'day') return formatInTimeZone(z, TZ, 'dd-MMM');
 
@@ -769,12 +715,6 @@ export class DashboardService {
         'dd-MMM',
       )}`;
     }
-
-    // ------------------------
-    // Grouping
-    // ------------------------
-    const groupAppointments: Record<string, number> = {};
-    const groupRevenue: Record<string, number> = {};
 
     for (const appt of appointments) {
       const key = bucketLabel(appt.appointmentDate, groupByField);
@@ -791,30 +731,14 @@ export class DashboardService {
       ([time, count]) => ({ time, appointments: count }),
     );
 
-    // ------------------------
-    // Revenue Trend with Month
-    // ------------------------
-    const revenueTrend = Object.entries(groupRevenue).map(([time, value]) => {
-      const sampleTx = revenue.find(
-        (r) => bucketLabel(r.Transaction_DateTime, groupByField) === time,
-      );
+    const revenueTrend = Object.entries(groupRevenue).map(([time, value]) => ({
+      time,
+      revenue: value,
+    }));
 
-      const month = sampleTx
-        ? new Date(sampleTx.Transaction_DateTime).toLocaleString('en-US', {
-            month: 'short',
-          })
-        : null;
-
-      return {
-        time, // e.g. "Week 11-Aug - 17-Aug"
-        month, // e.g. "Aug"
-        revenue: value, // ✅ raw number (no ₹)
-      };
-    });
-
-    // ------------------------
-    // Doctor Performance (Appointments + Revenue)
-    // ------------------------
+    // -----------------------------
+    // 7️⃣ Doctor Performance
+    // -----------------------------
     const doctorPerformanceRaw = await this.prisma.appointment.groupBy({
       by: ['DoctorId'],
       _count: { _all: true },
@@ -828,151 +752,17 @@ export class DashboardService {
       select: { UserId: true, firstName: true, lastName: true },
     });
 
-    // revenue by doctor
-    const paymentHistory = await this.prisma.paymentHistory.findMany({
-      where: {
-        appointments: {
-          some: {
-            appointmentDate: {
-              gte: new Date(startDate),
-              lte: new Date(endDate),
-            },
-          },
-        },
-      },
-      include: {
-        appointments: {
-          select: {
-            DoctorId: true,
-            appointmentDate: true, //  need it later
-          },
-        },
-      },
-    });
-
-    const doctorRevenueMap: Record<number, number> = {};
-
-    for (const p of paymentHistory) {
-      const doctorId =
-        p.appointments &&
-        Array.isArray(p.appointments) &&
-        p.appointments[0]?.DoctorId;
-      if (!doctorId) continue;
-      doctorRevenueMap[doctorId] =
-        (doctorRevenueMap[doctorId] || 0) + (p.AppointmentChargesPaid || 0);
-    }
-
-    const doctorRevenueRaw = Object.entries(doctorRevenueMap).map(
-      ([DoctorId, revenue]) => ({
-        DoctorId: Number(DoctorId),
-        revenue,
-      }),
-    );
-    const dateRange = `${format(new Date(startDate), 'dd-MM-yyyy')} to ${format(
-      new Date(endDate),
-      'dd-MM-yyyy',
-    )}`;
     const doctorPerformance = doctorPerformanceRaw.map((d) => {
-      const doc = doctors.find((doc) => doc.UserId === d.DoctorId);
-      const revenueEntry = doctorRevenueRaw.find(
-        (r) => r.DoctorId === d.DoctorId,
-      );
-
+      const doc = doctors.find((x) => x.UserId === d.DoctorId);
       return {
         doctorName: doc ? `Dr. ${doc.firstName} ${doc.lastName}` : 'Unknown',
         appointments: d._count._all,
-        revenue: revenueEntry?.revenue || 0,
-        date: dateRange,
       };
     });
 
-    // ------------------------
-    // Specialization Performance (Appointments + Revenue)
-    // ------------------------
-
-    // ✅ Step 1: Fetch all doctors with specialization
-    const doctorsList = await this.prisma.user.findMany({
-      where: {
-        role: {
-          Rolename: { in: ['Doctor', 'Admin Doctor'] },
-          RoleId: { in: [2, 3] },
-        },
-      },
-      select: {
-        UserId: true,
-        SpecializationId: true,
-      },
-    });
-
-    // Create a quick lookup for doctor → specialization
-    const doctorToSpec: Record<number, number | null> = {};
-    doctorsList.forEach((d) => {
-      doctorToSpec[d.UserId] = d.SpecializationId;
-    });
-
-    // ✅ Step 2: Count appointments per specialization
-    const specializationCountMap: Record<number, number> = {};
-
-    for (const p of paymentHistory) {
-      const appt =
-        p.appointments && Array.isArray(p.appointments)
-          ? p.appointments[0]
-          : null;
-      if (!appt?.DoctorId) continue;
-
-      const specializationId = doctorToSpec[appt.DoctorId];
-      if (!specializationId) continue;
-
-      // count appointment
-      specializationCountMap[specializationId] =
-        (specializationCountMap[specializationId] || 0) + 1;
-    }
-
-    // ✅ Step 3: Sum revenue per specialization
-    const specializationRevenueMap: Record<number, number> = {};
-
-    for (const p of paymentHistory) {
-      const appt =
-        p.appointments && Array.isArray(p.appointments)
-          ? p.appointments[0]
-          : null;
-      if (!appt?.DoctorId) continue;
-
-      const specializationId = doctorToSpec[appt.DoctorId];
-      if (!specializationId) continue;
-
-      specializationRevenueMap[specializationId] =
-        (specializationRevenueMap[specializationId] || 0) +
-        (p.AppointmentChargesPaid || 0);
-    }
-
-    // ✅ Step 4: Get specialization names
-    const specializationIds = [
-      ...new Set([
-        ...Object.keys(specializationCountMap).map(Number),
-        ...Object.keys(specializationRevenueMap).map(Number),
-      ]),
-    ];
-
-    const specializations = await this.prisma.specialization.findMany({
-      where: { SpecializationId: { in: specializationIds } },
-      select: { SpecializationId: true, SpecializationName: true },
-    });
-
-    // ✅ Step 5: Combine everything
-    const specializationPerformance = specializationIds.map((id) => {
-      const spec = specializations.find((s) => s.SpecializationId === id);
-      return {
-        specializationName: spec ? spec.SpecializationName : 'Unknown',
-        appointments: specializationCountMap[id] || 0,
-        revenue: specializationRevenueMap[id] || 0,
-        date: dateRange, // ✅ added
-      };
-    });
-
-    // ------------------------
-    // Final Return
-    // ------------------------
+    // -----------------------------
+    // 8️⃣ Final Response
+    // -----------------------------
     return {
       summaryCards: [
         {
@@ -995,7 +785,7 @@ export class DashboardService {
           value: topSpecialization?.SpecializationName || 'N/A',
         },
         {
-          id: 'doctors',
+          id: 'doctor',
           title: 'Top Performing Doctor',
           value: topDoctor
             ? `${topDoctor.firstName} ${topDoctor.lastName}`
@@ -1005,7 +795,6 @@ export class DashboardService {
       appointmentTrend,
       revenueTrend,
       doctorPerformance,
-      specializationPerformance,
     };
   }
 

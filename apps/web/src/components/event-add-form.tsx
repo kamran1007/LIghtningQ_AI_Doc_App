@@ -800,7 +800,7 @@ export function EventAddForm({
           mobile: form.mobile,
           status: editingEvent?.mode,
           updatedBy: Number(userprofiledata?.user?.UserId) || 0,
-          updatedAt: new Date().toISOString(),
+          updatedAt: Date.now(), // ✅ FIXED: use timestamp not ISO string
           sendWhatsappMessage: Boolean(form.sendWhatsappMessage),
           fasttrackpatient: Boolean(form.fasttrackpatient),
           sendSmsMessage: Boolean(form.sendSmsMessage),
@@ -826,7 +826,7 @@ export function EventAddForm({
             hospital: selectedHospital,
           };
 
-          if (form.fasttrackpatient) {
+          if (printEnabled) {
             generateAppointmentPDF(appointmentPayload);
           }
         }

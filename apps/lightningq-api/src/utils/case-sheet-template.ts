@@ -261,13 +261,35 @@ export function generateCaseSheetHtml(
       <div class="section">
         <h2>Follow-up</h2>
         <ul class="custom-bullets">
+  ${
+    consultation.ConsultationFollowUpPlan?.map(
+      (f: any) => `
+        <li>
+          ${f.followUpText || '-'}
+          <ul class="custom-bullets">
+  ${
+    consultation.ConsultationFollowUpPlan?.map(
+      (f: any) => `
+        <li>
+          ${f.followUpText || '-'}
           ${
-            consultation.ConsultationFollowUpPlan?.map(
-              (f: any) =>
-                `<li>${f.followUpText}, After ${f.duration} ${f.unit} - Next Date: ${new Date(f.nextDate).toLocaleDateString()}</li>`,
-            ).join('') || ''
+            f.followUpDate
+              ? ` — <strong>Follow-up Date:</strong> ${new Date(f.followUpDate).toLocaleDateString()}`
+              : ''
           }
-        </ul>
+        </li>
+      `,
+    ).join('') || ''
+  }
+</ul>
+
+
+        </li>
+      `,
+    ).join('') || ''
+  }
+</ul>
+
       </div>
 
       <div class="footer">

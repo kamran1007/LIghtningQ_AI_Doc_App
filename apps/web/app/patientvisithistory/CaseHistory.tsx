@@ -5,6 +5,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import Lottie from "lottie-react";
 import successAnimation from "@/assets/ECG.json";
+import * as AvatarPrimitive from "@radix-ui/react-avatar";
+
 import {
   User,
   FileText,
@@ -40,7 +42,6 @@ import dayjs from "dayjs";
 
 import { differenceInMonths, differenceInYears } from "date-fns";
 import { BACKEND_URL } from "@/lib/constants";
-import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
 import {
   FetchPatientAppointment,
   Patientappointmentcasesheet,
@@ -112,7 +113,7 @@ interface AppointmentCaseSheet {
   ConsultationMedication?: Medication[];
   ConsultationCheifComplaint?: ConsultationChiefComplaint[];
   appointment?: Appointment;
-  IsconsultationCompleted?: boolean;
+  IsConsultationCompleted?: boolean;
   updatedAt?: string;
 }
 
@@ -164,8 +165,12 @@ export default function PatientCaseHistory({
     return `${firstName?.[0] ?? ""}${lastName?.[0] ?? ""}`.toUpperCase();
   };
 
-  const getColorByInitials = (initials: string) => {
-    const code = initials.charCodeAt(0);
+  const getColorByInitials = (initials?: string) => {
+    if (!initials || initials.length === 0) return "bg-gray-100 text-gray-600";
+
+    const hash = initials
+      .split("")
+      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const colors = [
       "bg-blue-100 text-blue-600",
       "bg-pink-100 text-pink-600",
@@ -177,8 +182,9 @@ export default function PatientCaseHistory({
       "bg-teal-100 text-teal-600",
       "bg-indigo-100 text-indigo-600",
     ];
-    return colors[code % colors.length];
+    return colors[hash % colors.length];
   };
+
   const imageUrl = patient?.patient?.profileImageUrl
     ? `${BACKEND_URL}${patient?.patient?.profileImageUrl}`
     : null;
@@ -267,16 +273,18 @@ export default function PatientCaseHistory({
         icon: ClipboardList,
         tag: `${consultationData?.ConsultationCheifComplaint?.length ?? 0} complaints`,
         remark: consultationData?.CheifcomplaintNotes,
-        content: consultationData?.ConsultationCheifComplaint?.map((cc: any) => (
-          <div
-            key={cc.ConsultationComplaintId}
-            className="px-2 py-1 bg-teal-50 dark:bg-slate-700 rounded-md mb-1"
-          >
-            <span className="text-sm font-medium text-teal-800 dark:text-teal-300">
-              • {cc.chiefComplaint?.ChiefComplainTagName || "Unnamed"}
-            </span>
-          </div>
-        )),
+        content: consultationData?.ConsultationCheifComplaint?.map(
+          (cc: any) => (
+            <div
+              key={cc.ConsultationComplaintId}
+              className="px-2 py-1 bg-teal-50 dark:bg-slate-700 rounded-md mb-1"
+            >
+              <span className="text-sm font-medium text-teal-800 dark:text-teal-300">
+                • {cc.chiefComplaint?.ChiefComplainTagName || "Unnamed"}
+              </span>
+            </div>
+          )
+        ),
       },
       {
         key: "clinicalNote",
@@ -296,22 +304,24 @@ export default function PatientCaseHistory({
         icon: FlaskConical,
         tag: `${consultationData?.ConsultationInvestigation?.length ?? 0} entries`,
         remark: null,
-        content: consultationData?.ConsultationInvestigation?.map((inv: any) => (
-          <div
-            key={inv.ConsultationInvestigationId}
-            className="mb-2 space-y-1 p-2 rounded-md bg-slate-100 dark:bg-slate-700"
-          >
-            <p className="text-sm font-medium">
-              {inv.InvestigationSubType?.InvestigationSubTypename}
-              <span className="text-xs text-gray-400 ml-2">
-                ({inv.InvestigationType?.InvestigationTypeName})
-              </span>
-            </p>
-            <p className="text-xs italic text-gray-500 dark:text-gray-300">
-              {inv.ConsultationInvestigatRemark}
-            </p>
-          </div>
-        )),
+        content: consultationData?.ConsultationInvestigation?.map(
+          (inv: any) => (
+            <div
+              key={inv.ConsultationInvestigationId}
+              className="mb-2 space-y-1 p-2 rounded-md bg-slate-100 dark:bg-slate-700"
+            >
+              <p className="text-sm font-medium">
+                {inv.InvestigationSubType?.InvestigationSubTypename}
+                <span className="text-xs text-gray-400 ml-2">
+                  ({inv.InvestigationType?.InvestigationTypeName})
+                </span>
+              </p>
+              <p className="text-xs italic text-gray-500 dark:text-gray-300">
+                {inv.ConsultationInvestigatRemark}
+              </p>
+            </div>
+          )
+        ),
       },
       {
         key: "diagnosis",
@@ -426,21 +436,31 @@ export default function PatientCaseHistory({
 
         <div className="w-full border-b-amber-300 shadow py-1 px-4 flex items-center justify-between bg-white dark:bg-slate-900 dark:border-slate-700 sticky-header bg-gradient-to-b from-[#dbfffd] to-[#eff8f8]">
           <div className="flex items-center gap-2">
-            <Avatar className="h-12 w-12 rounded-full">
+            <AvatarPrimitive.Root
+              className={cn(
+                "relative inline-flex h-12 w-12 shrink-0 overflow-hidden rounded-full border border-gray-200 shadow-sm",
+                !imageUrl && colorClass // apply color only when no image
+              )}
+            >
               {imageUrl ? (
-                <AvatarImage
+                <AvatarPrimitive.Image
                   src={imageUrl}
-                  alt={patient?.patient?.firstName}
-                  className="h-12 w-12 rounded-full object-cover"
+                  alt={`${patient?.patient?.firstName} ${patient?.patient?.lastName}`}
+                  className="h-full w-full object-cover rounded-full"
                 />
               ) : (
-                <div
-                  className={`h-12 w-12 flex items-center justify-center rounded-full text-sm font-medium ${colorClass}`}
+                <AvatarPrimitive.Fallback
+                  delayMs={0}
+                  className={cn(
+                    "flex h-full w-full items-center justify-center text-base font-semibold uppercase",
+                    colorClass
+                  )}
                 >
-                  {initials}
-                </div>
+                  {initials || "?"}
+                </AvatarPrimitive.Fallback>
               )}
-            </Avatar>
+            </AvatarPrimitive.Root>
+
             <div>
               <h2 className="text-xl font-semibold">
                 {patient?.patient?.firstName} {patient?.patient?.lastName}
@@ -737,9 +757,9 @@ export default function PatientCaseHistory({
                       <FileText className="text-indigo-500" size={18} />
                       <p className="font-medium">Consultation Status:</p>
                       <span className="text-base capitalize">
-                        {appointmentcasesheet?.IsconsultationCompleted !==
+                        {appointmentcasesheet?.IsConsultationCompleted !==
                         undefined
-                          ? appointmentcasesheet.IsconsultationCompleted
+                          ? appointmentcasesheet?.IsConsultationCompleted
                             ? "Completed"
                             : "Incomplete"
                           : "--"}
@@ -825,9 +845,9 @@ export default function PatientCaseHistory({
                     onClick={() =>
                       generateConsultationPDF(appointmentcasesheet, patient)
                     }
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    className="bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-500 hover:to-teal-600 text-white font-semibold px-6 py-3 rounded-2xl transition-all duration-300 cursor-pointer shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
                   >
-                    Download Consultation PDF
+                    Download Consultation Case Sheet
                   </button>
                 </div>
               </ScrollArea>

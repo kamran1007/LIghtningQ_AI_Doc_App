@@ -1,4 +1,6 @@
-// components/MedicationCard.tsx
+"use client";
+
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,9 +11,8 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { X, Pill } from "lucide-react";
+import { X, Pill, Loader2Icon, Plus } from "lucide-react";
 import DrugAutocompleteInput from "@/components/DrugAutocompleteInput";
-
 import { Medication } from "@/types/consultation";
 
 interface MedicationCardProps {
@@ -22,7 +23,7 @@ interface MedicationCardProps {
     field: keyof Medication,
     value: string
   ) => void;
-  handleAddMedication: () => void;
+  handleAddMedication: () => void | Promise<void>;
   handleRemoveMedication: (index: number) => void;
 }
 
@@ -33,19 +34,39 @@ export default function MedicationCard({
   handleAddMedication,
   handleRemoveMedication,
 }: MedicationCardProps) {
+  const [isSaving, setIsSaving] = useState(false);
+
+  // ⏳ Wrapper for async or delayed add action
+  const handleAddMedicationWithLoader = async () => {
+    try {
+      setIsSaving(true);
+      await Promise.resolve(handleAddMedication()); // support async or sync handler
+    } catch (error) {
+      console.error("Error adding medication:", error);
+    } finally {
+      setTimeout(() => setIsSaving(false), 400); // slight delay for smoother UX
+    }
+  };
+
   return (
-    <Card className="p-4 rounded-xl shadow-sm border bg-white md:col-span-2 hover:shadow-xl hover:border-indigo-300">
+    <Card className="p-4 rounded-xl shadow-sm border bg-white md:col-span-2 hover:shadow-xl hover:border-indigo-300 transition-all duration-300">
       <div className="flex items-center gap-2 mb-4 font-semibold text-gray-800">
         <Pill size={18} className="text-indigo-600" />
         Prescription & Medication
       </div>
 
+      {medications.length === 0 && (
+        <p className="text-gray-400 text-sm italic mb-2">
+          No medications added yet. Click “Add Medication” below.
+        </p>
+      )}
+
       {medications.map((med, index) => (
         <div
           key={index}
-          className="relative grid grid-cols-6 gap-2 mb-2 p-4 rounded-lg border border-gray-200 bg-gray-50"
+          className="relative grid grid-cols-6 gap-2 mb-3 p-3 rounded-lg border border-gray-200 bg-gray-50/80 hover:border-indigo-200 transition-all"
         >
-          {/* Close button at top-right of the whole medication block */}
+          {/* ❌ Remove button */}
           <button
             type="button"
             disabled={disabled}
@@ -55,15 +76,16 @@ export default function MedicationCard({
             <X className="w-4 h-4" />
           </button>
 
-          {/* Drug */}
+          {/* 🧪 Medication Name */}
           <DrugAutocompleteInput
-            value={med.drug}
-            onChange={(val) => handleMedicationChange(index, "drug", val)}
+            value={med.medicationName}
+            onChange={(val) =>
+              handleMedicationChange(index, "medicationName", val)
+            }
             disabled={disabled}
-
           />
 
-          {/* Dosage */}
+          {/* 💊 Dosage */}
           <Select
             value={med.dosage}
             disabled={disabled}
@@ -83,7 +105,7 @@ export default function MedicationCard({
             </SelectContent>
           </Select>
 
-          {/* Frequency */}
+          {/* ⏱ Frequency */}
           <Select
             value={med.frequency}
             disabled={disabled}
@@ -112,28 +134,27 @@ export default function MedicationCard({
             </SelectContent>
           </Select>
 
-          {/* Duration + Unit */}
+          {/* ⏳ Duration + Unit */}
           <div className="flex gap-2 col-span-2">
-            <div className="!w-60">
-              <Input
-                type="number"
-                disabled={disabled}
-                placeholder="Duration"
-                value={med.duration}
-                onChange={(e) =>
-                  handleMedicationChange(index, "duration", e.target.value)
-                }
-              />
-            </div>
+            <Input
+              type="number"
+              disabled={disabled}
+              placeholder="Duration"
+              value={med.duration}
+              onChange={(e) =>
+                handleMedicationChange(index, "duration", e.target.value)
+              }
+              className="text-sm"
+            />
 
             <Select
-              value={med.durationUnit || "Days"}
+              value={med.unit || "Days"}
               disabled={disabled}
               onValueChange={(value) =>
-                handleMedicationChange(index, "durationUnit", value)
+                handleMedicationChange(index, "unit", value)
               }
             >
-              <SelectTrigger className="min-w-[80px]">
+              <SelectTrigger className="min-w-[90px]">
                 <SelectValue placeholder="Unit" />
               </SelectTrigger>
               <SelectContent className="border-gray-300 shadow-2xl rounded-2xl">
@@ -142,7 +163,7 @@ export default function MedicationCard({
                   "Weeks",
                   "Months",
                   "Years",
-                  "Life Time",
+                  "Lifetime",
                   "To Be Continued",
                 ].map((unit) => (
                   <SelectItem key={unit} value={unit}>
@@ -153,28 +174,43 @@ export default function MedicationCard({
             </Select>
           </div>
 
-          {/* Notes */}
+          {/* 📝 Remarks */}
           <div className="col-span-1">
             <Input
-              placeholder="Notes"
+              placeholder="Remarks"
               disabled={disabled}
-              value={med.notes}
+              value={med.remarks}
               onChange={(e) =>
-                handleMedicationChange(index, "notes", e.target.value)
+                handleMedicationChange(index, "remarks", e.target.value)
               }
+              className="text-sm"
             />
           </div>
         </div>
       ))}
-      <div className="flex justify-end">
+
+      {/* ➕ Add Medication Button */}
+      <div className="flex justify-end mt-3">
         <Button
           variant="outline"
-          disabled={disabled}
+          disabled={disabled || isSaving}
           size="sm"
-          onClick={handleAddMedication}
-          className="border-[#22E0D4] text-gray-700 hover:bg-gray-100"
+          onClick={handleAddMedicationWithLoader}
+          className="border-[#22E0D4] text-gray-700 hover:bg-gray-100 flex items-center gap-2"
         >
-          + Add Medication
+          {isSaving ? (
+            <>
+              <Loader2Icon className="animate-spin text-indigo-500 w-4 h-4" />
+              <span className="text-indigo-600 font-medium">Adding...</span>
+            </>
+          ) : (
+            <>
+              <Plus className="text-indigo-600 w-4 h-4" />
+              <span className="text-gray-700 font-medium">
+                Add Medication
+              </span>
+            </>
+          )}
         </Button>
       </div>
     </Card>

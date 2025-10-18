@@ -1,11 +1,10 @@
 // ClinicalNotesCard.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MessageCirclePlus, Mic, MicOff, StickyNote } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 interface ClinicalNotesCardProps {
   disabled: boolean;
-
   clinicalnotesText: string;
   setClinicalnotesText: (text: string) => void;
   handleClinicalNoteMicClick: () => void;
@@ -19,11 +18,19 @@ const ClinicalNotesCard: React.FC<ClinicalNotesCardProps> = ({
   handleClinicalNoteMicClick,
   listening,
 }) => {
-  const [showClinicalNotes, setShowClinicalNotes] =
-    useState(!!clinicalnotesText);
+  const [showClinicalNotes, setShowClinicalNotes] = useState(
+    !!clinicalnotesText?.trim()
+  );
+
+  // 🧠 Auto-expand if backend remark exists
+  useEffect(() => {
+    if (clinicalnotesText?.trim()) {
+      setShowClinicalNotes(true);
+    }
+  }, [clinicalnotesText]);
 
   return (
-    <Card className="p-4 rounded-xl shadow-sm border bg-white relative hover:shadow-xl hover:border-purple-300">
+    <Card className="p-4 rounded-xl shadow-sm border bg-white relative hover:shadow-xl hover:border-purple-300 transition-all duration-300">
       {/* Header */}
       <div className="flex items-center gap-2 font-semibold text-gray-800 mb-2">
         <StickyNote size={18} className="text-purple-500" />
@@ -41,8 +48,8 @@ const ClinicalNotesCard: React.FC<ClinicalNotesCardProps> = ({
           <span>Add Clinical Note Remark</span>
         </button>
       ) : (
-        <div className="relative w-full">
-          {/* Textarea with space for mic */}
+        <div className="relative w-full animate-fadeInScale">
+          {/* Textarea */}
           <div className="relative">
             <textarea
               value={clinicalnotesText}
@@ -61,7 +68,7 @@ const ClinicalNotesCard: React.FC<ClinicalNotesCardProps> = ({
               }}
             />
 
-            {/* Mic Button (inside textarea) */}
+            {/* Mic Button */}
             <button
               type="button"
               disabled={disabled}
@@ -79,8 +86,10 @@ const ClinicalNotesCard: React.FC<ClinicalNotesCardProps> = ({
               )}
             </button>
           </div>
+
+          {/* Status Message */}
           <p className="text-xs text-gray-500 mt-1">
-            {listening ? "Listening..." : "Click the mic to speak"}
+            {listening ? "Listening..." : "Click the mic to dictate"}
           </p>
 
           {/* Action Buttons */}
@@ -105,8 +114,6 @@ const ClinicalNotesCard: React.FC<ClinicalNotesCardProps> = ({
               Remove
             </button>
           </div>
-
-          {/* Status Message */}
         </div>
       )}
     </Card>
