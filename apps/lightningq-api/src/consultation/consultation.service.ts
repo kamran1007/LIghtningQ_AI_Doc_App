@@ -302,11 +302,12 @@ export class ConsultationService {
       ConsultationTreatment,
       ConsultationFollowUpPlan,
       ConsultationProcedure,
-      IsconsultationCompleted,
+      IsConsultationCompleted,
+      IsSentCaseSheet,
     } = dto;
 
+    // ✅ Base scalar-only fields (no relations)
     const baseData = {
-      AppointmentId,
       CheifcomplaintNotes,
       followUpDate,
       consultationDatTime: consultationDatTime
@@ -316,19 +317,45 @@ export class ConsultationService {
         ? new Date(consultationEndDateTime)
         : undefined,
       isDraft: isDraft ?? false,
-      updatedById: userId,
-      IsconsultationCompleted,
+      IsConsultationCompleted: IsConsultationCompleted ?? false,
     };
 
     let consultationResult;
+    let targetId: number | undefined;
 
+    // 🩺 Find existing consultation (by ConsultationId or AppointmentId)
     if (ConsultationId) {
-      // Update flow
-      consultationResult = await this.prisma.consultation.update({
+      const existing = await this.prisma.consultation.findUnique({
         where: { ConsultationId },
+        select: { ConsultationId: true },
+      });
+      targetId = existing?.ConsultationId;
+    }
+
+    if (!targetId) {
+      const existingByAppointment = await this.prisma.consultation.findUnique({
+        where: { AppointmentId },
+        select: { ConsultationId: true },
+      });
+      targetId = existingByAppointment?.ConsultationId;
+    }
+
+    console.log('🧩 Target consultation ID:', targetId);
+
+    // 🟡 UPDATE EXISTING CONSULTATION
+    // 🟡 UPDATE EXISTING CONSULTATION
+    if (targetId) {
+      consultationResult = await this.prisma.consultation.update({
+        where: { ConsultationId: targetId },
         data: {
           ...baseData,
+          IsConsultationCompleted: IsConsultationCompleted ?? false, // ✅ Explicit scalar update
 
+          // ✅ Only connect relation (don’t overwrite)
+          appointment: { connect: { AppointmentId } },
+          updatedBy: { connect: { UserId: userId } },
+
+          // 🔽 Nested relations
           ConsultationCheifComplaint: {
             deleteMany: {},
             create:
@@ -338,16 +365,23 @@ export class ConsultationService {
                 },
               })) || [],
           },
+
           ConsultationDiagnosis: {
             deleteMany: {},
             create:
               ConsultationDiagnosis?.map((d) => ({
                 diagnosis: {
-                  connect: { DiagnosisId: d.diagnosisId },
+                  connectOrCreate: {
+                    where: { DiagnosisId: d.diagnosisId ?? 0 },
+                    create: {
+                      DiagnosisName: d.DiagnosisName || 'Unspecified Diagnosis',
+                    },
+                  },
                 },
-                DiagnosisRemark: d.DiagnosisRemark,
+                DiagnosisRemark: d.DiagnosisRemark ?? '',
               })) || [],
           },
+
           ConsultationInvestigation: {
             deleteMany: {},
             create:
@@ -364,6 +398,7 @@ export class ConsultationService {
                   inv.ConsultationInvestigatRemark ?? '',
               })) || [],
           },
+
           ConsultationMedication: {
             deleteMany: {},
             create:
@@ -375,6 +410,7 @@ export class ConsultationService {
                 remarks: med.remarks ?? '',
               })) || [],
           },
+
           ConsultationTreatment: {
             deleteMany: {},
             create:
@@ -383,6 +419,7 @@ export class ConsultationService {
                 treatmentText: treat.treatmentText ?? '',
               })) || [],
           },
+
           ConsultationFollowUpPlan: ConsultationFollowUpPlan
             ? {
                 deleteMany: {},
@@ -394,6 +431,7 @@ export class ConsultationService {
                 },
               }
             : undefined,
+
           ConsultationclinicalNotes: {
             deleteMany: {},
             create:
@@ -401,30 +439,54 @@ export class ConsultationService {
                 content: note.content ?? '',
               })) || [],
           },
+
           ConsultationProcedure: {
             deleteMany: {},
-            create: (ConsultationProcedure || []).map((p) => ({
-              procedure: {
-                connect: { ProcedureId: p.ProcedureId },
-              },
-              Description: p.Description,
-            })),
+            create:
+              (ConsultationProcedure || []).map((p) => ({
+                procedure: p.ProcedureId
+                  ? { connect: { ProcedureId: p.ProcedureId } }
+                  : p.ProcedureName
+                    ? { create: { ProcedureName: p.ProcedureName } }
+                    : undefined,
+                Description: p.Description ?? '',
+                ProcedureDateTime: p.ProcedureDateTime
+                  ? new Date(p.ProcedureDateTime)
+                  : undefined,
+              })) || [],
           },
         },
       });
-    }
-    if (IsconsultationCompleted) {
+
+      // ✅ Force sync the Appointment table’s flag
       await this.prisma.appointment.update({
         where: { AppointmentId },
-        data: { IsConsultationCompleted: true ,status:'COMPLETED'},
+        data: {
+          IsConsultationCompleted: IsConsultationCompleted ?? false,
+          status: IsConsultationCompleted ? 'COMPLETED' : 'SCHEDULED',
+        },
       });
-    } else {
-      // Create flow
-      await this.prisma.$transaction(async (tx) => {
-        consultationResult = await tx.consultation.create({
+
+      console.log(
+        `✅ Appointment ${AppointmentId} updated — Consultation ${
+          IsConsultationCompleted ? 'Completed' : 'Pending'
+        }`,
+      );
+    }
+
+    // 🆕 CREATE NEW CONSULTATION
+    else {
+      console.log('🆕 Creating new consultation...');
+
+      consultationResult = await this.prisma.$transaction(async (tx) => {
+        const result = await tx.consultation.create({
           data: {
             ...baseData,
-            createdById: userId,
+
+            // ✅ Relation connects instead of FK scalars
+            createdBy: { connect: { UserId: userId } },
+            appointment: { connect: { AppointmentId } },
+
             ConsultationCheifComplaint: {
               create:
                 ConsultationCheifComplaint?.map((item) => ({
@@ -433,15 +495,23 @@ export class ConsultationService {
                   },
                 })) || [],
             },
+
             ConsultationDiagnosis: {
               create:
                 ConsultationDiagnosis?.map((d) => ({
                   diagnosis: {
-                    connect: { DiagnosisId: d.diagnosisId },
+                    connectOrCreate: {
+                      where: { DiagnosisId: d.diagnosisId ?? 0 },
+                      create: {
+                        DiagnosisName:
+                          d.DiagnosisName || 'Unspecified Diagnosis',
+                      },
+                    },
                   },
-                  DiagnosisRemark: d.DiagnosisRemark,
+                  DiagnosisRemark: d.DiagnosisRemark ?? '',
                 })) || [],
             },
+
             ConsultationInvestigation: {
               create:
                 ConsultationInvestigation?.map((inv) => ({
@@ -457,6 +527,7 @@ export class ConsultationService {
                     inv.ConsultationInvestigatRemark ?? '',
                 })) || [],
             },
+
             ConsultationMedication: {
               create:
                 ConsultationMedication?.map((med) => ({
@@ -467,6 +538,7 @@ export class ConsultationService {
                   remarks: med.remarks ?? '',
                 })) || [],
             },
+
             ConsultationTreatment: {
               create:
                 ConsultationTreatment?.map((treat) => ({
@@ -474,6 +546,7 @@ export class ConsultationService {
                   treatmentText: treat.treatmentText ?? '',
                 })) || [],
             },
+
             ConsultationFollowUpPlan: ConsultationFollowUpPlan
               ? {
                   create: {
@@ -484,34 +557,50 @@ export class ConsultationService {
                   },
                 }
               : undefined,
+
             ConsultationclinicalNotes: {
               create:
                 ConsultationclinicalNotes?.map((note) => ({
                   content: note.content ?? '',
                 })) || [],
             },
+
             ConsultationProcedure: {
-              create: (ConsultationProcedure || []).map((p) => ({
-                procedure: {
-                  connect: { ProcedureId: p.ProcedureId },
-                },
-                Description: p.Description,
-              })),
+              create:
+                (ConsultationProcedure || []).map((p) => ({
+                  procedure: p.ProcedureId
+                    ? { connect: { ProcedureId: p.ProcedureId } }
+                    : p.ProcedureName
+                      ? { create: { ProcedureName: p.ProcedureName } }
+                      : undefined,
+                  Description: p.Description ?? '',
+                  ProcedureDateTime: p.ProcedureDateTime
+                    ? new Date(p.ProcedureDateTime)
+                    : undefined,
+                  // IsCompleted: p.IsCompleted ?? false,
+                  // PerformedBy: p.PerformedBy ?? null,
+                  // Remarks: p.Remarks ?? '',
+                })) || [],
             },
           },
         });
+
+        // ✅ Link consultation to appointment
         await tx.appointment.update({
-          where: {
-            AppointmentId: AppointmentId,
-          },
+          where: { AppointmentId },
           data: {
-            consultationId: consultationResult.ConsultationId,
+            consultationId: result.ConsultationId,
+            IsConsultationCompleted: IsConsultationCompleted ?? false,
           },
         });
+
+        return result;
       });
+
+      console.log('✅ New consultation created successfully');
     }
 
-    // ✅ Now safely run case sheet logic after DB op
+    // Optional: send case sheet email
     if (dto.IsSentCaseSheet) {
       const appointment = await this.prisma.appointment.findUnique({
         where: { AppointmentId },
@@ -581,7 +670,7 @@ export class ConsultationService {
           `<p>Dear ${patientName},</p><p>Find attached your consultation summary.</p>`,
           [
             {
-              filename: `CaseSheet_${AppointmentId}.pdf`,
+              filename: `CaseSheet_${patientName}.pdf`,
               content: pdfBuffer,
               contentType: 'application/pdf',
             },
@@ -920,8 +1009,8 @@ export class ConsultationService {
         },
         specialization: {
           select: {
-          SpecializationName: true,
-        },
+            SpecializationName: true,
+          },
         },
         visitType: true,
         hospital: true,
@@ -1062,43 +1151,42 @@ export class ConsultationService {
   //   });
   // }
   async getPatientMedications(patientId: number) {
-  const consultations = await this.prisma.consultation.findMany({
-    where: {
-      appointment: {
-        PatientId: patientId,
+    const consultations = await this.prisma.consultation.findMany({
+      where: {
+        appointment: {
+          PatientId: patientId,
+        },
       },
-    },
-    include: {
-      ConsultationMedication: true,
-    },
-    orderBy: {
-      consultationDatTime: 'desc', // latest first
-    },
-  });
+      include: {
+        ConsultationMedication: true,
+      },
+      orderBy: {
+        consultationDatTime: 'desc', // latest first
+      },
+    });
 
-  if (consultations.length === 0) {
-    return { current: [], past: [], history: [] };
+    if (consultations.length === 0) {
+      return { current: [], past: [], history: [] };
+    }
+
+    const history = consultations.map((c) => ({
+      consultationId: c.ConsultationId,
+      date: c.consultationDatTime,
+      medications: c.ConsultationMedication.map((m) => ({
+        id: m.ConsultationMedicationId,
+        name: m.medicationName,
+        dosage: m.dosage,
+        frequency: m.frequency,
+        instructions: m.remarks,
+      })),
+    }));
+
+    // ✅ Latest consultation meds = current
+    const current = history[0]?.medications;
+
+    // ✅ All older consultation meds = past
+    const past = history.slice(1).flatMap((h) => h.medications);
+
+    return { current, past, history };
   }
-
-  const history = consultations.map((c) => ({
-    consultationId: c.ConsultationId,
-    date: c.consultationDatTime,
-    medications: c.ConsultationMedication.map((m) => ({
-      id: m.ConsultationMedicationId,
-      name: m.medicationName,
-      dosage: m.dosage,
-      frequency: m.frequency,
-      instructions: m.remarks,
-    })),
-  }));
-
-  // ✅ Latest consultation meds = current
-  const current = history[0]?.medications ;
-
-  // ✅ All older consultation meds = past
-  const past = history.slice(1).flatMap((h) => h.medications);
-
-  return { current, past, history };
-}
-
 }

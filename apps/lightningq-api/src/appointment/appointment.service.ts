@@ -25,48 +25,36 @@ export class AppointmentService {
   async BookAppointment(dto: QuickAppointmentDto, CreatedBy: number) {
     let patient;
 
-    return await this.prisma.$transaction(async (tx) => {
-      // 🟢 1. Find or create patient
+    // 🧭 Start DB Transaction (only for DB operations)
+    const result = await this.prisma.$transaction(async (tx) => {
+      // 1️⃣ Find or create patient
       if (dto.PatientId) {
         patient = await tx.patient.findUnique({
           where: { PatientId: dto.PatientId },
         });
-
-        if (!patient) {
+        if (!patient)
           throw new Error('Patient not found with provided PatientId');
-        }
       } else {
-        // Get all patients of this hospital (only MRN field for efficiency)
-        // Get all MRNs for this hospital
-        const patients = await this.prisma.patient.findMany({
+        // Generate new MRN
+        const patients = await tx.patient.findMany({
           where: { HospitalId: Number(dto.hospitalId) },
           select: { Patient_Medical_Record_No: true },
         });
 
         let lastNumber = 0;
-
         for (const p of patients) {
           if (!p.Patient_Medical_Record_No) continue;
-
           const numericPart = p.Patient_Medical_Record_No.slice(
             dto.hospitalCode.length,
           );
-
-          // ✅ accept only exactly 7 digits starting with 0
-          if (!/^0\d{6}$/.test(numericPart)) {
-            continue; // skip MXJ1000003 type records
-          }
-
+          if (!/^0\d{6}$/.test(numericPart)) continue;
           const parsed = parseInt(numericPart, 10);
-          if (parsed > lastNumber) {
-            lastNumber = parsed;
-          }
+          if (parsed > lastNumber) lastNumber = parsed;
         }
 
         const nextNumber = lastNumber + 1;
         const paddedNumber = String(nextNumber).padStart(7, '0');
         const generatedMRN = `${dto.hospitalCode}${paddedNumber}`;
-
         console.log('Generated MRN:', generatedMRN);
 
         patient = await tx.patient.create({
@@ -93,7 +81,7 @@ export class AppointmentService {
         });
       }
 
-      // 🛑 2. Prevent duplicate scheduled appointment
+      // 2️⃣ Prevent duplicate scheduled appointment
       const existingAppointment = await tx.appointment.findFirst({
         where: {
           PatientId: patient.PatientId,
@@ -117,7 +105,7 @@ export class AppointmentService {
         );
       }
 
-      // 🟢 3. Create appointment first
+      // 3️⃣ Create appointment
       const appointmentDate = new Date(
         `${dto.appointmentDate}T${dto.appointmentTime}:00`,
       );
@@ -140,14 +128,12 @@ export class AppointmentService {
           fasttrackpatient: dto.fasttrackpatient ?? false,
           SpecializationId: dto.SpecializationId!,
           TagPatients: dto.TagPatientIds?.length
-            ? {
-                connect: dto.TagPatientIds.map((id) => ({ TagPatientId: id })),
-              }
+            ? { connect: dto.TagPatientIds.map((id) => ({ TagPatientId: id })) }
             : undefined,
         },
       });
 
-      // 🟢 4. Create payment history linked to appointment
+      // 4️⃣ Create payment history
       const paymentHistory = await tx.paymentHistory.create({
         data: {
           TransactionId: Date.now(),
@@ -161,7 +147,7 @@ export class AppointmentService {
           DiscountOnAppointment: parseFloat(dto.DiscountOnAppointment || '0'),
           FastTrackCharges: parseFloat(dto.FastTrackCharges || '0'),
           TotalAppointmentCharges: parseFloat(
-            dto.ActualAppointmentCharges || '0',
+            dto.TotalAppointmentCharges || '0',
           ),
 
           appointments: {
@@ -170,13 +156,12 @@ export class AppointmentService {
         },
       });
 
-      // Link paymentHistoryId to appointment
       await tx.appointment.update({
         where: { AppointmentId: appointment.AppointmentId },
         data: { paymentHistoryId: paymentHistory.PaymentHistoryId },
       });
 
-      // 🟢 5. Get doctor time slot
+      // 5️⃣ Create doctor slot
       const slotDate = new Date(dto.appointmentDate ?? '');
       const slotDayOfWeek = slotDate
         .toLocaleString('en-US', { weekday: 'long' })
@@ -190,11 +175,9 @@ export class AppointmentService {
         },
       });
 
-      if (!doctorTimeSlot) {
+      if (!doctorTimeSlot)
         throw new Error(`No time slot found for doctor on ${slotDayOfWeek}`);
-      }
 
-      // 🟢 6. Create doctor slot
       await tx.doctorSlot.create({
         data: {
           doctorId: dto.DoctorId!,
@@ -208,31 +191,43 @@ export class AppointmentService {
         },
       });
 
-      // 🟢 7. Fetch appointment with details
+      // 6️⃣ Return summary
       const appointmentWithDetails = await tx.appointment.findUnique({
         where: { AppointmentId: appointment.AppointmentId },
         include: { doctor: true, hospital: true, visitType: true },
       });
 
-      // 🟢 8. Send notifications
-      await this.sendAllNotificationsForAppointment(
-        appointment.AppointmentId,
-        patient.email,
-        appointment,
-        patient,
-        appointmentWithDetails!,
-        appointment.sendEmailMessage,
-        appointment.sendSmsMessage,
-        appointment.sendWhatsappMessage,
-      );
-
       return {
-        message: 'Quick appointment booked successfully',
         appointment,
         patient,
-        STATUS_CODES: 200,
+        appointmentWithDetails,
       };
     });
+
+    // 🧩 Now run notifications asynchronously, AFTER commit
+    setImmediate(async () => {
+      try {
+        await this.sendAllNotificationsForAppointment(
+          result.appointment.AppointmentId,
+          result.patient.email,
+          result.appointment,
+          result.patient,
+          result.appointmentWithDetails!,
+          result.appointment.sendEmailMessage,
+          result.appointment.sendSmsMessage,
+          result.appointment.sendWhatsappMessage,
+        );
+      } catch (err) {
+        console.error('⚠️ Notification error (ignored):', err);
+      }
+    });
+
+    return {
+      message: 'Quick appointment booked successfully',
+      appointment: result.appointment,
+      patient: result.patient,
+      STATUS_CODES: 200,
+    };
   }
 
   async sendAllNotificationsForAppointment(
@@ -275,8 +270,8 @@ export class AppointmentService {
     const html = `
   <div style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 40px;">
     <div style="max-width: 600px; margin: auto; background: white; border-radius: 8px; overflow: hidden; border: 1px solid #eee;">
-      <div style="background-color: #007BFF; color: white; padding: 20px 30px;">
-        <h2 style="margin: 0;">Your ${appointmentWithDetails?.visitType?.AppointmentTypeName ?? 'Follow Up'} Appointment has been ${appointment?.status} ?? 'confirmed'</h2>
+      <div style="background-color: #00fde0; color: white; padding: 20px 30px;">
+        <h2 style="margin: 0;">Your ${appointmentWithDetails?.visitType?.AppointmentTypeName ?? 'Follow Up'} Appointment has been ${appointment?.status} !! confirmed</h2>
       </div>
       <div style="padding: 30px;">
         <p>Dear <strong>${patient?.firstName} ${patient?.lastName}</strong>,</p>
@@ -963,8 +958,8 @@ export class AppointmentService {
 
     // sort them in memory
     const data = appointments.sort((a, b) => {
-      const aCompleted = a.consultation?.IsconsultationCompleted ? 1 : 0;
-      const bCompleted = b.consultation?.IsconsultationCompleted ? 1 : 0;
+      const aCompleted = a.consultation?.IsConsultationCompleted ? 1 : 0;
+      const bCompleted = b.consultation?.IsConsultationCompleted ? 1 : 0;
 
       if (aCompleted !== bCompleted) {
         return aCompleted - bCompleted; // incomplete first

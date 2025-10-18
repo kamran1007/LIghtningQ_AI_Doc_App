@@ -5,13 +5,14 @@ export interface Procedure {
 }
 
 export interface Medication {
-  drug: string;
+  medicationName: string;
   dosage: string;
   frequency: string;
   duration: string;
-  durationUnit?: string; // ✅ added optional
-  notes: string;
+  unit?: string; // Days, Weeks, etc.
+  remarks: string;
 }
+
 export interface Investigation {
   InvestigationTypeId: number;
   InvestigationSubTypeId: number;
@@ -41,11 +42,7 @@ export interface ConsultationFormValues {
   treatment: string;
   followUp: string;
   complaints: any[];
-  medications: {
-    drug: string;
-    dosage: string;
-    frequency: string;
-    duration: string;
-    notes: string;
-  }[];
+   medications: Medication[];
 }
+
+

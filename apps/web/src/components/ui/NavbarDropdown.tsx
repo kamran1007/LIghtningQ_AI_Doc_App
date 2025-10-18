@@ -96,29 +96,54 @@ function NavbarDropdown({ profile }: ProfileProps) {
   if (!profile) return null; // ⛔️ avoid accessing null
 
   const UserAvatar = ({ imageUrl }: { imageUrl?: string }) => {
-    const [imgSrc, setImageUrl] = useState("/default-avatar.png");
+  const [imgSrc, setImgSrc] = useState("/default-avatar.png");
 
-    useEffect(() => {
-      if (imageUrl) {
-        // Add cache-busting param to avoid stale images from Vercel CDN
-        setImageUrl(`${imageUrl}?v=${Date.now()}`);
-      } else {
-        setImageUrl("/default-avatar.png");
+  useEffect(() => {
+    const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+    if (!imageUrl || typeof imageUrl !== "string" || imageUrl.trim() === "") {
+      setImgSrc("/default-avatar.png");
+      return;
+    }
+
+    try {
+      let finalUrl = imageUrl;
+
+      // 🧩 Detect if imageUrl is already absolute (starts with http or https)
+      if (!/^https?:\/\//i.test(imageUrl)) {
+        if (!backend) throw new Error("Missing NEXT_PUBLIC_BACKEND_URL");
+
+        const cleanBackend = backend.replace(/\/$/, "");
+        const cleanPath = imageUrl.startsWith("/")
+          ? imageUrl
+          : `/${imageUrl}`;
+        finalUrl = `${cleanBackend}${cleanPath}`;
       }
-    }, [imageUrl]);
 
-    return (
-      <Image
-        src={imgSrc}
-        alt="User avatar"
-        width={80}
-        height={80}
-        unoptimized
-        className="object-cover h-full w-full transition-transform duration-300 group-hover:scale-105"
-        onError={() => setImageUrl("/default-avatar.png")}
-      />
-    );
-  };
+      // ✅ Validate constructed URL
+      new URL(finalUrl);
+
+      // Cache-bust to avoid stale images
+      setImgSrc(`${finalUrl}?v=${Date.now()}`);
+    } catch (error) {
+      console.error("❌ Invalid image URL:", imageUrl, error);
+      setImgSrc("/default-avatar.png");
+    }
+  }, [imageUrl]);
+
+  return (
+    <Image
+      src={imgSrc}
+      alt="User avatar"
+      width={80}
+      height={80}
+      unoptimized
+      className="object-cover h-full w-full transition-transform duration-300 group-hover:scale-105"
+      onError={() => setImgSrc("/default-avatar.png")}
+    />
+  );
+};
+
 
   return (
     <>

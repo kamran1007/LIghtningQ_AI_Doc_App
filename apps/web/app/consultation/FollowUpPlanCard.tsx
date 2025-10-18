@@ -167,7 +167,7 @@ export default function FollowUpPlanCard({
                 }))
               }
             >
-              <SelectTrigger className="w-1/2 text-sm rounded-xl border-2 border-gray-200 hover:border-gray-300 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all duration-200">
+              <SelectTrigger className="w-1/2 text-sm rounded-xl border-2 border-gray-300 hover:border-gray-300 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all duration-200">
                 <SelectValue placeholder="Select unit" />
               </SelectTrigger>
               <SelectContent className="rounded-xl">

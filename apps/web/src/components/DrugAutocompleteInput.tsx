@@ -79,8 +79,10 @@ export default function DrugAutocompleteInput({
 
   // Update filtered suggestions whenever value changes
   useEffect(() => {
-    if (value.trim()) {
-      const search = value.toLowerCase();
+    const safeValue = value?.toString().trim() || ""; // ✅ prevent undefined errors
+
+    if (safeValue) {
+      const search = safeValue.toLowerCase();
       const match = options.filter((option) => {
         const medicineName = option.MedicineName?.toLowerCase() || "";
         const onlyName = option.OnlyMedicineName?.toLowerCase() || "";
@@ -88,7 +90,7 @@ export default function DrugAutocompleteInput({
       });
       setFiltered(match);
     } else {
-      // Show top 15 items on focus: 10 frequent + 5 others
+      // Show top 15 items: 10 frequent + 5 others
       const frequent = options
         .filter((option) => option.IsFrequent === "Y")
         .slice(0, 10);
@@ -131,7 +133,7 @@ export default function DrugAutocompleteInput({
         summary: "Success",
         detail: "Medicine Added successfully",
         life: 4000,
-        className: "custom-toast-container",
+        // className: "custom-toast-container",
       });
       reset(); // clear form
       setOpenAddDialog(false);
@@ -142,7 +144,7 @@ export default function DrugAutocompleteInput({
         summary: "Error",
         detail: "Failed to add medicine",
         life: 4000,
-        // className: "custom-toast-container",
+        className: "custom-toast-container",
       });
       console.error("Add medicine failed", err);
     }
@@ -153,7 +155,7 @@ export default function DrugAutocompleteInput({
 
       <div className="relative w-full">
         <Input
-          value={value}
+          value={value ?? ""}
           disabled={disabled}
           placeholder="Drug Name"
           onChange={(e) => {

@@ -29,6 +29,7 @@ async function bootstrap() {
       'http://localhost:3000', // local dev
       'https://dev.lightningq.com', // dev frontend (Vercel)
       'https://ai.lightningq.com', // production frontend
+      "http://127.0.0.1:3000"
     ], 
      methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,

@@ -7,15 +7,12 @@ import {
   IsBoolean,
   ValidateNested,
   IsArray,
-  IsNumber,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 
 class ChiefComplaintDto {
   @IsInt()
   ChiefComplaintTagId!: number;
-
-  // ChiefComplainTagName?: string;
 }
 
 class InvestigationDto {
@@ -32,16 +29,23 @@ class InvestigationDto {
 
 class MedicationDto {
   @IsString()
-  medicationName?: string;
+  medicationName!: string;
 
+  @IsOptional()
   @IsString()
   dosage?: string;
 
+  @IsOptional()
   @IsString()
   frequency?: string;
 
+  @IsOptional()
   @IsString()
   duration?: string;
+
+  @IsOptional()
+  @IsString()
+  unit?: 'Days' | 'Weeks' | 'Months' | 'Years' | 'Lifetime' | 'To Be Continued';
 
   @IsOptional()
   @IsString()
@@ -54,6 +58,7 @@ class ClinicalNoteDto {
 }
 
 class DiagnosisDto {
+  @IsOptional()
   @IsInt()
   diagnosisId?: number;
 
@@ -67,9 +72,11 @@ class DiagnosisDto {
 }
 
 class TreatmentDto {
+  @IsOptional()
   @IsString()
   treatmentText?: string;
 
+  @IsOptional()
   @IsString()
   source?: 'TYPED' | 'DICTATED' | 'SNIPPET';
 }
@@ -104,17 +111,33 @@ class ConsultationProcedureDto {
   @IsOptional()
   @IsString()
   Description?: string;
-}
 
-export class CreateOrUpdateConsultationDto {
-  // @IsInt()
-  // PatientId!: number;
+  @IsOptional()
+  @IsDateString()
+  ProcedureDateTime?: string;
 
-  //  @IsInt()
-  // DoctorId!: number;
   @IsOptional()
   @IsBoolean()
-  IsconsultationCompleted?: boolean = false;
+  IsCompleted?: boolean;
+
+  @IsOptional()
+  @IsString()
+  PerformedBy?: string;
+
+  @IsOptional()
+  @IsString()
+  Remarks?: string;
+}
+
+
+export class CreateOrUpdateConsultationDto {
+  @IsOptional()
+  @IsBoolean()
+  @Transform(
+    ({ obj }) =>
+      obj.IsconsultationCompleted ?? obj.IsConsultationCompleted ?? false,
+  )
+  IsConsultationCompleted?: boolean = false;
 
   @IsOptional()
   @IsBoolean()
@@ -146,9 +169,9 @@ export class CreateOrUpdateConsultationDto {
 
   @IsOptional()
   @IsBoolean()
-  isDraft?: boolean; //Auto save feature (future implementation)
+  isDraft?: boolean;
 
-  // Nested arrays
+  // Nested relationships
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ChiefComplaintDto)
@@ -185,8 +208,8 @@ export class CreateOrUpdateConsultationDto {
   ConsultationFollowUpPlan?: FollowUpPlanDto;
 
   @IsArray()
-  @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => ConsultationProcedureDto)
+  @IsOptional()
   ConsultationProcedure?: ConsultationProcedureDto[];
 }

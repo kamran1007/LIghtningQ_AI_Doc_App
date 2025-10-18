@@ -277,8 +277,7 @@ export default function Advancereporting() {
                 {/* Date Range Picker aligned LEFT of the icon */}
                 {showPicker && (
                   <div className="absolute z-50 mt-2 shadow-lg bg-white rounded-lg p-2 right-full mr-2">
-                    // 👇 Tell TS: this component accepts
-                    FixedDateRangePickerProps
+                    Date Range Picker
                     <DateRangePicker
                       {...({
                         ranges: dateRange,
@@ -347,7 +346,7 @@ export default function Advancereporting() {
                       value={selectedDoctor}
                       onValueChange={setSelectedDoctor}
                     >
-                      <SelectTrigger className="w-56 border border-gray-300 rounded-lg shadow-sm focus:border-[#22E0D4] focus:ring-2 focus:ring-[#22E0D4] transition flex items-center gap-2">
+                      <SelectTrigger className="w-56 border border-gray-300 rounded-lg shadow-sm focus:border-[#108d85] focus:ring-2 focus:ring-[#108d85] transition flex items-center gap-2">
                         <Stethoscope className="w-4 h-4 text-gray-500" />
                         <SelectValue placeholder="Select Doctor" />
                       </SelectTrigger>
@@ -369,7 +368,7 @@ export default function Advancereporting() {
                       value={selectedSpecialization}
                       onValueChange={setSelectedSpecialization}
                     >
-                      <SelectTrigger className="w-56 border border-gray-300 rounded-lg shadow-sm focus:border-[#22E0D4] focus:ring-2 focus:ring-[#22E0D4] transition flex items-center gap-2">
+                      <SelectTrigger className="w-56 border border-gray-300 rounded-lg shadow-sm focus:border-[#108d85] focus:ring-2 focus:ring-[#108d85] transition flex items-center gap-2">
                         <FlaskConical className="w-4 h-4 text-gray-500" />
                         <SelectValue placeholder="Select Specialization" />
                       </SelectTrigger>
@@ -393,7 +392,7 @@ export default function Advancereporting() {
                       value={selectedHospital}
                       onValueChange={setSelectedHospital}
                     >
-                      <SelectTrigger className="w-56 border border-gray-300 rounded-lg shadow-sm focus:border-[#22E0D4] focus:ring-2 focus:ring-[#22E0D4] transition flex items-center gap-2">
+                      <SelectTrigger className="w-56 border border-gray-300 rounded-lg shadow-sm focus:border-[#108d85] focus:ring-2 focus:ring-[#108d85] transition flex items-center gap-2">
                         <Hospital className="w-4 h-4 text-gray-500" />
                         <SelectValue placeholder="Select Hospital" />
                       </SelectTrigger>
@@ -415,13 +414,12 @@ export default function Advancereporting() {
 
                   {/* Date Range Picker */}
                   <div className="ml-8 mt-6 justify-center-safe">
-                    // 👇 Tell TS: this component accepts
-                    FixedDateRangePickerProps
+                    Date Range Picker
                     <DateRangePicker
                       {...({
                         ranges: dateRange,
                         onChange: (item: any) => setDateRange([item.selection]),
-                        rangeColors: ["#22E0D4"],
+                        rangeColors: ["#108d85"],
                       } as FixedDateRangePickerProps)}
                     />
                   </div>
@@ -432,7 +430,7 @@ export default function Advancereporting() {
                   <ApexChart
                     options={{
                       ...chartOptions,
-                      colors: ["#22E0D4"], // ✅ set chart color here
+                      colors: ["#108d85"], // ✅ set chart color here
                     }}
                     series={chartSeries}
                     type={selectedCard?.id === "doctors" ? "bar" : "line"} // bar for doctors, line for others

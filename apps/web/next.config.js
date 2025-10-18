@@ -3,7 +3,7 @@ const nextConfig = {
   productionBrowserSourceMaps: true,
 
   images: {
-    domains: ["localhost", "dev.api.lightningq.com"],
+    domains: ["localhost", "127.0.0.1","dev.api.lightningq.com"],
   },
   experimental: {
     serverActions: {
@@ -18,7 +18,7 @@ const nextConfig = {
     return [
       {
         source: "/api/:path*", // Frontend route prefix
-        destination: "https://dev.api.lightningq.com/:path*", // Backend server
+        destination: "http://127.0.0.1:8000/:path*", // Backend server
       },
     ];
   },

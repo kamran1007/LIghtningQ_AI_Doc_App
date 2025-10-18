@@ -601,7 +601,7 @@ model Consultation {
   appointment                Appointment                  @relation(fields: [AppointmentId], references: [AppointmentId])
   ConsultationCheifComplaint ConsultationCheifComplaint[] // Multiple complaint tags
   ConsultationInvestigation  ConsultationInvestigation[] // ✅ This is needed
-  IsconsultationCompleted    Boolean?                     @default(false) // New field to track completion
+  IsConsultationCompleted    Boolean?                     @default(false) // ✅ renamed correctly
   isDraft                    Boolean                      @default(false)
 
   ConsultationDiagnosis ConsultationDiagnosis[]

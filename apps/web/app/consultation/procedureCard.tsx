@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import {
   MessageCirclePlus,
@@ -16,15 +16,13 @@ import { getProfile } from "@/lib/action";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
-import { MultiValue } from "react-select";
+import { Procedure } from "@/types/consultation";
 
 interface Option {
-  ProcedureId: any;
+  ProcedureId: number;
   label: string;
   value: string;
 }
-
-import { Procedure } from "@/types/consultation";
 
 interface ProcedureInputCardProps {
   disabled: boolean;
@@ -53,6 +51,8 @@ export default function ProcedureInputCard({
     null
   );
   const [prevTranscript, setPrevTranscript] = useState("");
+  const [procedureInputValue, setProcedureInputValue] = useState("");
+  const [expandedMap, setExpandedMap] = useState<Record<string, boolean>>({});
 
   const {
     transcript,
@@ -63,24 +63,27 @@ export default function ProcedureInputCard({
 
   const activeKey = activeMicProcedure;
 
+  // ✅ Fetch procedure options
   useEffect(() => {
     const fetchProcedures = async () => {
       try {
         const profile = await getProfile();
         setUserprofiledata(profile);
+
         const res = await FetchProcedure();
-        console.log("procedure", res);
+        const allOptions =
+          res.return?.map((item: any) => ({
+            label: item.ProcedureName,
+            value: item.ProcedureName,
+            ProcedureId: item.ProcedureId,
+          })) || [];
 
-        const frequent = res.return.slice(0, 10);
-        const remaining = res.return.slice(10);
+        const unique = allOptions.filter(
+          (opt: any, i: number, arr: Option[]) =>
+            i === arr.findIndex((t) => t.ProcedureId === opt.ProcedureId)
+        );
 
-        const allOptions = [...frequent, ...remaining].map((item: any) => ({
-          label: item.ProcedureName,
-          value: item.ProcedureName,
-          ProcedureId: item.ProcedureId,
-        }));
-
-        setOptions(allOptions);
+        setOptions(unique);
       } catch (err) {
         console.error("❌ Failed to fetch procedures:", err);
       }
@@ -89,6 +92,7 @@ export default function ProcedureInputCard({
     fetchProcedures();
   }, []);
 
+  // 🎙 Speech recognition handler
   useEffect(() => {
     if (!listening && transcript && activeKey) {
       const newContent = transcript.replace(prevTranscript, "").trim();
@@ -118,6 +122,7 @@ export default function ProcedureInputCard({
     }
   };
 
+  // ➕ Create new procedure
   const handleCreateOption = async (inputValue: string) => {
     const newTag = {
       ProcedureName: inputValue,
@@ -128,11 +133,12 @@ export default function ProcedureInputCard({
 
     try {
       const result = await addupdateProcedure(newTag);
-      const newOption = {
-        label: result?.ProcedureName || inputValue,
-        value: result?.ProcedureName || inputValue,
-        ProcedureId: result?.ProcedureId || 0,
+      const newOption: Option = {
+        label: result?.data?.ProcedureName || inputValue,
+        value: result?.data?.ProcedureName || inputValue,
+        ProcedureId: result?.data?.ProcedureId || 0,
       };
+
       setOptions((prev) => [...prev, newOption]);
       setProcedures((prev) => [...prev, newOption]);
     } catch (error) {
@@ -140,11 +146,30 @@ export default function ProcedureInputCard({
     }
   };
 
-  const selectedOptions: Option[] = procedures.map((proc) => ({
+  const selectedOptions: Option[] = procedures.map((proc: any) => ({
     label: proc.label,
     value: proc.label,
-    ProcedureId: proc.ProcedureId,
+    ProcedureId: proc.ProcedureId ?? 0,
   }));
+
+  // 🧠 Expand remark boxes for filled remarks
+  useEffect(() => {
+    setExpandedMap((prev) => {
+      const updated = { ...prev };
+      procedures.forEach((item: any) => {
+        const key = String(item.ProcedureId || item.label);
+        // Only add new keys; don’t reset existing expanded ones
+        if (!(key in updated)) {
+          updated[key] = !!procedureremarkMap?.[key]?.trim();
+        }
+      });
+      return updated;
+    });
+  }, [procedures]);
+
+  const toggleExpanded = useCallback((key: string, value: boolean) => {
+    setExpandedMap((prev) => ({ ...prev, [key]: value }));
+  }, []);
 
   if (!browserSupportsSpeechRecognition) {
     return <p>Your browser does not support speech recognition.</p>;
@@ -164,14 +189,14 @@ export default function ProcedureInputCard({
         value={selectedOptions}
         onChange={(selected) => {
           setProcedures(
-            [...(selected || [])].map((opt) => ({
+            (selected || []).map((opt) => ({
               label: opt.label,
               ProcedureId: Number(opt.ProcedureId) || 0,
             }))
           );
         }}
-        inputValue={inputValue}
-        onInputChange={(val) => setInputValue(val)}
+        inputValue={procedureInputValue}
+        onInputChange={(val) => setProcedureInputValue(val)}
         onCreateOption={handleCreateOption}
         placeholder="Type or select procedure..."
         classNamePrefix="react-select"
@@ -179,12 +204,10 @@ export default function ProcedureInputCard({
         styles={{
           control: (provided, state) => ({
             ...provided,
-            borderColor: state.isFocused ? "#93C5FD" : "#93C5FD", // Tailwind blue-300 hex
+            borderColor: state.isFocused ? "#93C5FD" : "#BFDBFE",
             boxShadow: state.isFocused ? "0 0 0 1px #93C5FD" : "none",
-            "&:hover": {
-              borderColor: "#93C5FD",
-            },
-            borderRadius: "0.75rem", // rounded-xl look (optional)
+            "&:hover": { borderColor: "#93C5FD" },
+            borderRadius: "0.75rem",
             minHeight: "42px",
           }),
         }}
@@ -192,31 +215,33 @@ export default function ProcedureInputCard({
 
       {procedures.length > 0 && (
         <ul className="space-y-2">
-          {procedures.map((item, index) => {
-            const key = String(item.ProcedureId || item.label); // ✅ always string
-            const hasRemark = procedureremarkMap?.[key] !== undefined;
+          {procedures.map((item: any, index) => {
+            const key = String(item.ProcedureId || item.label);
             const remarkValue = procedureremarkMap?.[key] ?? "";
+            const expanded = expandedMap[key] ?? false;
+            const isActiveField = activeKey === key;
 
             return (
               <li
                 key={key}
                 className={`mt-2 ${
-                  index > 0 ? "border-t border-green-200 pt-2" : ""
+                  index > 0 ? "border-t border-blue-200 pt-2" : ""
                 }`}
               >
                 <div className="flex justify-between items-center">
                   <span className="font-medium text-gray-800">
                     {item.label}
                   </span>
-                  {/* ❌ Remove procedure itself */}
                   <button
                     type="button"
                     onClick={() => {
-                      setProcedureremarkMap((prev) => {
-                        const newMap = { ...prev };
-                        delete newMap[key];
-                        return newMap;
-                      });
+                      const updated = { ...procedureremarkMap };
+                      delete updated[key];
+                      setProcedureremarkMap(updated);
+                      setProcedures((prev) =>
+                        prev.filter((p) => p.ProcedureId !== item.ProcedureId)
+                      );
+                      toggleExpanded(key, false);
                     }}
                     className="text-red-500 hover:text-red-700"
                   >
@@ -224,94 +249,90 @@ export default function ProcedureInputCard({
                   </button>
                 </div>
 
-                {/* If no remark yet → show Add Remark button */}
-                {!hasRemark && (
+                {!expanded ? (
                   <button
                     type="button"
-                    onClick={() =>
-                      setProcedureremarkMap((prev) => ({
-                        ...prev,
-                        [key]: "", // create remark field
-                      }))
-                    }
-                    className="mt-2 text-xs text-blue-400 hover:underline flex items-center gap-1"
+                    onClick={() => {
+                      // Step 1️⃣: Mark as expanded first (forces render next frame)
+                      setExpandedMap((prev) => ({ ...prev, [key]: true }));
+
+                      // Step 2️⃣: After render tick, create remark entry and focus
+                      requestAnimationFrame(() => {
+                        setProcedureremarkMap((prev) => ({
+                          ...prev,
+                          [key]: prev[key] || "",
+                        }));
+
+                        // Step 3️⃣: Focus after it's mounted
+                        setTimeout(() => {
+                          const textarea = document.getElementById(
+                            `remark-${key}`
+                          );
+                          if (textarea) textarea.focus();
+                        }, 50);
+                      });
+                    }}
+                    className="mt-2 text-xs text-blue-500 hover:underline flex items-center gap-1 transition-all duration-200"
                   >
                     <MessageCirclePlus className="w-4 h-4" />
                     <span>Add {item.label} Remark</span>
                   </button>
-                )}
-
-                {/* If remark exists → show textarea + controls */}
-                {hasRemark && (
+                ) : (
                   <div className="mt-2">
                     <div className="relative">
                       <Textarea
+                        id={`remark-${key}`}
                         value={remarkValue}
                         disabled={disabled}
-                        onChange={(e) =>
+                        onChange={(e) => {
+                          const newVal = e.target.value;
                           setProcedureremarkMap((prev) => ({
                             ...prev,
-                            [key]: e.target.value,
-                          }))
-                        }
-                        placeholder={`Enter remark for ${item.label}...`}
-                        className="text-sm pr-10 rounded-2xl border-2 border-blue-200 hover:border-blue-300 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all duration-300 no-scrollbar bg-gradient-to-br from-blue-50/50 to-sky-50/30 placeholder:text-gray-400 placeholder:font-light text-gray-700 leading-relaxed tracking-wide shadow-sm hover:shadow-md focus:shadow-lg backdrop-blur-sm resize-none min-h-[100px] p-4"
-                        style={{
-                          fontFamily:
-                            '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                          fontSize: "14px",
-                          lineHeight: "1.6",
-                          letterSpacing: "0.025em",
+                            [key]: newVal,
+                          }));
                         }}
+                        placeholder={`Enter remark for ${item.label}...`}
+                        className="text-sm pr-10 rounded-2xl no-scrollbar border-2 border-blue-200 hover:border-blue-300 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-gradient-to-br from-blue-50/50 to-sky-50/30 placeholder:text-gray-400 text-gray-700 min-h-[100px] p-4"
                       />
-                      {/* Mic button inside textarea */}
+
+                      {/* 🎙 Mic Button */}
                       <button
                         type="button"
                         disabled={disabled}
                         onClick={() => handleMicClick(key)}
-                        className="absolute bottom-2 right-2 p-1 rounded-full transition bg-white shadow hover:bg-gray-50"
+                        className={`absolute bottom-2 right-2 p-1 rounded-full transition ${
+                          listening && isActiveField
+                            ? "bg-red-100 hover:bg-red-200"
+                            : "bg-white shadow hover:bg-gray-50"
+                        }`}
                       >
-                        {listening && activeMicProcedure === key ? (
+                        {listening && isActiveField ? (
                           <MicOff className="w-4 h-4 text-red-600 animate-pulse" />
                         ) : (
                           <Mic className="w-4 h-4 text-blue-500" />
                         )}
                       </button>
                     </div>
+
                     <p className="text-xs text-gray-500 mt-1">
-                      {listening && activeMicProcedure === key
+                      {listening && isActiveField
                         ? "Listening..."
                         : "Click mic to dictate"}
                     </p>
 
-                    {/* Clear + Remove buttons below textarea */}
                     <div className="flex gap-2 mt-2">
                       <button
                         type="button"
                         disabled={disabled}
-                        onClick={() =>
-                          setProcedureremarkMap((prev) => ({
-                            ...prev,
-                            [key]: "",
-                          }))
-                        }
-                        className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                        onClick={() => {
+                          const updated = { ...procedureremarkMap };
+                          delete updated[key];
+                          setProcedureremarkMap(updated);
+                          setExpandedMap((prev) => ({ ...prev, [key]: false }));
+                        }}
+                        className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition"
                       >
                         Clear
-                      </button>
-                      <button
-                        type="button"
-                        disabled={disabled}
-                        onClick={() => {
-                          setProcedureremarkMap((prev) => {
-                            const newMap = { ...prev };
-                            delete newMap[key];
-                            return newMap;
-                          });
-                        }}
-                        className="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200"
-                      >
-                        Remove
                       </button>
                     </div>
                   </div>

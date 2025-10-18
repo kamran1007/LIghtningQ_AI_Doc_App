@@ -2,6 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { formatLocalDate } from "@/utils/dateUtils";
+
 // Charts: install recharts (npm i recharts) or replace with your chart lib of choice
 import {
   LineChart,
@@ -292,11 +294,11 @@ export default function Dashboard({
       setLoading(true);
 
       const startDate = dateRange[0]?.startDate
-        ? dateRange[0].startDate.toISOString().split("T")[0]
+        ? formatLocalDate(dateRange[0].startDate)
         : undefined;
 
       const endDate = dateRange[0]?.endDate
-        ? dateRange[0].endDate.toISOString().split("T")[0]
+        ? formatLocalDate(dateRange[0].endDate)
         : undefined;
 
       const data = await FetchDashboardsummary(
@@ -333,6 +335,7 @@ export default function Dashboard({
       key: "selection",
     },
   ]);
+  console.log("Selected date range:", dateRange);
   const {
     control,
     formState: { errors, isSubmitting },
@@ -366,12 +369,13 @@ export default function Dashboard({
   const fetchDashboardDemographyData = async () => {
     try {
       const startDate = dateRange[0]?.startDate
-        ? dateRange[0].startDate.toISOString().split("T")[0]
+        ? formatLocalDate(dateRange[0].startDate)
         : undefined;
 
       const endDate = dateRange[0]?.endDate
-        ? dateRange[0].endDate.toISOString().split("T")[0]
+        ? formatLocalDate(dateRange[0].endDate)
         : undefined;
+
       const res = await FetchPatientDemographics(
         startDate,
         endDate,

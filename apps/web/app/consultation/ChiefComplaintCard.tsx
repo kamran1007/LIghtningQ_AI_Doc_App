@@ -11,7 +11,7 @@ import { getProfile } from "@/lib/action";
 interface ComplaintOption {
   label: string;
   value: string;
-  id: number;
+  ChiefComplaintTagId: number;
 }
 import { MultiValue, ActionMeta } from "react-select";
 
@@ -34,6 +34,8 @@ export const ChiefComplaintCard = ({
   const [showComplaintRemark, setShowComplaintRemark] = useState(
     !!complaintText // open if remark already exists
   );
+  const [chiefInputValue, setChiefInputValue] = useState("");
+
   // console.log("ChiefComplaintCard rendered", chiefComplaintOptions);
   useEffect(() => {
     const fetchData = async () => {
@@ -65,9 +67,9 @@ export const ChiefComplaintCard = ({
       const result = await AddUpdatechiefComplaint(newTag);
 
       const newOption: ComplaintOption = {
-        label: result?.ChiefComplainTagName || inputValue,
-        value: result?.ChiefComplainTagName || inputValue,
-        id: result?.ChiefComplaintTagId || 0, // ✅ use "id"
+        label: result?.data?.ChiefComplainTagName || inputValue,
+        value: result?.data?.ChiefComplainTagName || inputValue,
+        ChiefComplaintTagId: result?.data?.ChiefComplaintTagId || 0, // ✅ use "id"
       };
 
       // Add to master options
@@ -90,7 +92,7 @@ export const ChiefComplaintCard = ({
       return {
         label: s.label,
         value: s.value,
-        id: found ? found.id : 0,
+        ChiefComplaintTagId: found ? found.ChiefComplaintTagId : 0,
       };
     });
 
@@ -115,15 +117,13 @@ export const ChiefComplaintCard = ({
         isDisabled={disabled}
         options={chiefComplaintOptions}
         styles={customsStyles}
-        value={(selectedChiefComplaints || []).map(
-          (c: { label: any; value: any }) => ({
-            label: c?.label,
-            value: c?.value,
-          })
-        )}
+        value={(selectedChiefComplaints || []).map((c:any) => ({
+          label: c?.label,
+          value: c?.value,
+        }))}
         onChange={handleChange}
-        inputValue={inputValue}
-        onInputChange={(val) => setInputValue(val)}
+        inputValue={chiefInputValue}
+        onInputChange={(val) => setChiefInputValue(val)}
         onCreateOption={handleCreateOption}
         placeholder="Type or select chief complaint..."
         classNamePrefix="react-select"

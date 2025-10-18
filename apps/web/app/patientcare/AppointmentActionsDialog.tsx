@@ -181,7 +181,16 @@ export default function AppointmentActionsDialog({
                       variant="ghost"
                       className={hoverchange}
                       onClick={() => {
-                        if (isPastDate(patient.appointmentDate)) {
+                        const appointmentDate = new Date(
+                          patient.appointmentDate
+                        );
+                        const today = new Date();
+
+                        // Remove time part for strict date comparison
+                        appointmentDate.setHours(0, 0, 0, 0);
+                        today.setHours(0, 0, 0, 0);
+
+                        if (appointmentDate < today) {
                           toast.current?.show({
                             severity: "error",
                             summary: "Error",
@@ -191,6 +200,19 @@ export default function AppointmentActionsDialog({
                           });
                           return;
                         }
+
+                        if (appointmentDate > today) {
+                          toast.current?.show({
+                            severity: "warn",
+                            summary: "Warning",
+                            detail:
+                              "You can't start consultation for a future appointment.",
+                            life: 4000,
+                          });
+                          return;
+                        }
+
+                        // ✅ Allow only for today's appointments
                         onStartConsultation({
                           ...patient,
                           initialTab: "consultation",

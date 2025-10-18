@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import {
   MessageCirclePlus,
   Mic,
@@ -19,21 +18,23 @@ import SpeechRecognition, {
 } from "react-speech-recognition";
 
 interface Option {
-  DiagnosisId: any;
+  DiagnosisId: number;
   label: string;
   value: string;
 }
+
 interface Diagnosis {
   label: string;
-  DiagnosisId: number; // ✅ must match parent
+  DiagnosisId: number;
 }
+
 interface DiagnosisInputCardProps {
   disabled: boolean;
   diagnoses: Diagnosis[];
   setDiagnoses: React.Dispatch<React.SetStateAction<Diagnosis[]>>;
   inputValue: string;
   setInputValue: (val: string) => void;
-  remarkMap: Record<string, string>; // ✅ all keys coerced to string
+  remarkMap: Record<string, string>;
   setRemarkMap: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 }
 
@@ -52,6 +53,11 @@ export default function DiagnosisInputCard({
     null
   );
   const [prevTranscript, setPrevTranscript] = useState("");
+  const [diagnosisInputValue, setDiagnosisInputValue] = useState("");
+  const [expandedRemarks, setExpandedRemarks] = useState<
+    Record<string, boolean>
+  >({});
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
 
   const {
     transcript,
@@ -60,24 +66,27 @@ export default function DiagnosisInputCard({
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
 
-  // 🧠 Identify currently active mic key (DiagnosisId or label)
   const activeKey = activeMicDiagnosis;
 
+  // 🧠 Fetch all diagnosis options + profile
   useEffect(() => {
     const fetchDiagnosis = async () => {
       try {
         const resp = await getProfile();
         setUserprofiledata(resp);
+
         const res = await FetchDiagnosis();
-
-        const frequent = res.return.slice(0, 10);
-        const remaining = res.return.slice(10);
-
-        const allOptions = [...frequent, ...remaining].map((item: any) => ({
-          label: item.DiagnosisName,
-          value: item.DiagnosisName,
-          DiagnosisId: item.DiagnosisId,
-        }));
+        const allOptions = res.return
+          .map((item: any) => ({
+            label: item.DiagnosisName,
+            value: item.DiagnosisName,
+            DiagnosisId: item.DiagnosisId,
+          }))
+          .filter(
+            (opt: any, index: number, self: any) =>
+              index ===
+              self.findIndex((t: any) => t.DiagnosisId === opt.DiagnosisId)
+          );
 
         setOptions(allOptions);
       } catch (err) {
@@ -88,19 +97,37 @@ export default function DiagnosisInputCard({
     fetchDiagnosis();
   }, []);
 
+  // 🧩 Expand remarks for already existing ones (loaded from DB) - ONLY on initial load
+  // 🧩 Expand remarks for already existing ones (loaded from DB) - ONLY on initial load
+
+  useEffect(() => {
+    if (diagnoses.length > 0 && !initialLoadDone) {
+      const updated: Record<string, boolean> = {};
+      diagnoses.forEach((item) => {
+        const key = String(item.DiagnosisId || item.label);
+        const remark = remarkMap[key] ?? "";
+        // Only expand if there's actually content
+        if (remark.trim() !== "") {
+          updated[key] = true;
+        }
+      });
+      setExpandedRemarks(updated);
+      setInitialLoadDone(true);
+    }
+  }, [diagnoses, remarkMap, initialLoadDone]);
+
+  // 🎙️ Handle mic input for remarks
   useEffect(() => {
     if (!listening && transcript && activeKey) {
-      const key = Number(activeKey); // ✅ cast string → number
-
       const newContent = transcript.replace(prevTranscript, "").trim();
-
       if (newContent) {
         setRemarkMap((prev) => ({
           ...prev,
-          [key]: prev[key] ? `${prev[key]} ${newContent}`.trim() : newContent,
+          [activeKey]: prev[activeKey]
+            ? `${prev[activeKey]} ${newContent}`.trim()
+            : newContent,
         }));
       }
-
       resetTranscript();
       setActiveMicDiagnosis(null);
     }
@@ -111,12 +138,13 @@ export default function DiagnosisInputCard({
       SpeechRecognition.stopListening();
     } else {
       setActiveMicDiagnosis(key);
-      setPrevTranscript(transcript); // Store current transcript
-      resetTranscript(); // Clear global transcript before starting
+      setPrevTranscript(transcript);
+      resetTranscript();
       SpeechRecognition.startListening({ continuous: true, language: "en-IN" });
     }
   };
 
+  // ✨ Create new diagnosis
   const handleCreateOption = async (inputValue: string) => {
     const newTag = {
       DiagnosisName: inputValue,
@@ -127,16 +155,48 @@ export default function DiagnosisInputCard({
     try {
       const result = await AddUpdateDiagnosis(newTag);
       const newOption = {
-        label: result?.DiagnosisName || inputValue,
-        value: result?.DiagnosisName || inputValue,
-        DiagnosisId: result?.DiagnosisId || 0,
+        label: result?.data?.DiagnosisName || inputValue,
+        value: result?.data?.DiagnosisName || inputValue,
+        DiagnosisId: result?.data?.DiagnosisId || 0,
       };
-      setOptions((prev) => [...prev, newOption]);
-      setDiagnoses((prev) => [...prev, newOption]);
+
+      setOptions((prev) => {
+        const exists = prev.some(
+          (opt) => opt.DiagnosisId === newOption.DiagnosisId
+        );
+        return exists ? prev : [...prev, newOption];
+      });
+
+      setDiagnoses((prev) => {
+        const exists = prev.some(
+          (d) => d.DiagnosisId === newOption.DiagnosisId
+        );
+        return exists ? prev : [...prev, newOption];
+      });
     } catch (error) {
       console.error("Error creating diagnosis:", error);
     }
   };
+
+  // Handle change
+  const handleDiagnosisChange = (selected: readonly Option[] | null) => {
+    const values = selected || [];
+    const uniqueValues = Array.from(
+      new Map(values.map((v) => [v.DiagnosisId || v.label, v])).values()
+    );
+
+    setDiagnoses(
+      uniqueValues.map((opt) => ({
+        label: opt.label,
+        DiagnosisId: Number(opt.DiagnosisId) || 0,
+      }))
+    );
+  };
+
+  const filteredOptions = options.map((opt) => ({
+    ...opt,
+    isDisabled: diagnoses.some((d) => d.DiagnosisId === opt.DiagnosisId),
+  }));
 
   const selectedOptions: Option[] = diagnoses.map((diag) => ({
     label: diag.label,
@@ -157,19 +217,11 @@ export default function DiagnosisInputCard({
       <CreatableSelect
         isMulti
         isDisabled={disabled}
-        options={options}
+        options={filteredOptions}
         value={selectedOptions}
-        onChange={(selected) => {
-          const values = (selected || []) as Option[];
-          setDiagnoses(
-            values.map((opt) => ({
-              label: opt.label,
-              DiagnosisId: Number(opt.DiagnosisId) || 0, // ✅ enforce number
-            }))
-          );
-        }}
-        inputValue={inputValue}
-        onInputChange={(val) => setInputValue(val)}
+        onChange={handleDiagnosisChange}
+        inputValue={diagnosisInputValue}
+        onInputChange={(val) => setDiagnosisInputValue(val)}
         onCreateOption={handleCreateOption}
         placeholder="Type or select diagnosis..."
         classNamePrefix="react-select"
@@ -178,31 +230,36 @@ export default function DiagnosisInputCard({
 
       {diagnoses.length > 0 && (
         <ul className="space-y-2">
-          {diagnoses.map((item, index: number) => {
-            const key = String(item.DiagnosisId || item.label); // always string
+          {diagnoses.map((item, index) => {
+            const key = String(item.DiagnosisId || item.label);
             const remarkValue = remarkMap[key] ?? "";
+            const isExpanded = expandedRemarks[key] || false;
 
             return (
               <li
                 key={key}
                 className={`mt-2 ${index > 0 ? "border-t border-green-200 pt-2" : ""}`}
               >
-                {/* Header row */}
+                {/* Header */}
                 <div className="flex justify-between items-center">
                   <span className="font-medium text-gray-800">
                     {item.label}
                   </span>
-
                   <button
                     type="button"
                     onClick={() => {
                       setDiagnoses((prev) =>
-                        prev.filter((d) => d.label !== item.label)
+                        prev.filter((d) => d.DiagnosisId !== item.DiagnosisId)
                       );
                       setRemarkMap((prev) => {
-                        const newMap = { ...prev };
-                        delete newMap[key];
-                        return newMap;
+                        const map = { ...prev };
+                        delete map[key];
+                        return map;
+                      });
+                      setExpandedRemarks((prev) => {
+                        const map = { ...prev };
+                        delete map[key];
+                        return map;
                       });
                     }}
                     className="text-red-500 hover:text-red-700"
@@ -211,46 +268,40 @@ export default function DiagnosisInputCard({
                   </button>
                 </div>
 
-                {/* Show "Add Remark" button OR textarea */}
-                {remarkMap[key] === undefined ? (
+                {/* Expand/Collapse */}
+                {!isExpanded ? (
                   <button
                     type="button"
-                    onClick={() =>
-                      setRemarkMap((prev) => ({
+                    onClick={() => {
+                      setExpandedRemarks((prev) => ({
                         ...prev,
-                        [key]: "", // initialize empty textarea
-                      }))
-                    }
-                    className="mt-2 text-xs text-green-400 hover:underline flex items-center gap-1"
+                        [key]: true,
+                      }));
+                    }}
+                    className="mt-2 text-xs text-green-500 hover:underline flex items-center gap-1 transition-colors"
                   >
                     <MessageCirclePlus className="w-4 h-4" />
-                    <span>Add {item.label} Remark</span>{" "}
+                    <span>Add {item.label} Remark</span>
                   </button>
                 ) : (
                   <div className="w-full mt-2">
-                    {/* relative wrapper */}
                     <div className="relative">
                       <Textarea
+                        id={`remark-${key}`}
                         disabled={disabled}
-                        className="mt-1 pr-10 resize-none rounded-2xl border-2 border-green-200 hover:border-green-300 focus:border-green-400 focus:ring-4 focus:ring-green-100 transition-all duration-300 no-scrollbar bg-gradient-to-br from-green-50/50 to-emerald-50/30 placeholder:text-gray-400 placeholder:font-light text-gray-700 leading-relaxed tracking-wide shadow-sm hover:shadow-md focus:shadow-lg backdrop-blur-sm min-h-[100px] p-4"
+                        className="mt-1 pr-10 resize-none  rounded-2xl border-2 border-green-200 hover:border-green-300 focus:border-green-400 focus:ring-4 focus:ring-green-100 transition-all duration-300 no-scrollbar bg-gradient-to-br from-green-50/50 to-emerald-50/30 placeholder:text-gray-400 text-gray-700 min-h-[100px] p-4"
                         placeholder={`Enter remark for ${item.label}...`}
                         value={remarkValue}
-                        onChange={(e) =>
+                        onChange={(e) => {
+                          const val = e.target.value;
                           setRemarkMap((prev) => ({
                             ...prev,
-                            [key]: e.target.value,
-                          }))
-                        }
-                        style={{
-                          fontFamily:
-                            '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                          fontSize: "14px",
-                          lineHeight: "1.6",
-                          letterSpacing: "0.025em",
+                            [key]: val,
+                          }));
                         }}
                       />
 
-                      {/* mic button inside textarea at bottom-right */}
+                      {/* 🎙 Mic */}
                       <button
                         type="button"
                         disabled={disabled}
@@ -269,42 +320,24 @@ export default function DiagnosisInputCard({
                       </button>
                     </div>
 
-                    {/* Status text */}
                     <p className="text-xs text-gray-500 mt-1">
                       {listening && activeMicDiagnosis === key
                         ? "Listening..."
                         : "Click mic to dictate"}
                     </p>
 
-                    {/* Buttons below textarea */}
                     <div className="flex gap-2 mt-2">
                       <button
                         type="button"
-                        disabled={disabled}
-                        onClick={() =>
-                          setRemarkMap((prev) => ({
+                        onClick={() => {
+                          setExpandedRemarks((prev) => ({
                             ...prev,
-                            [key]: "",
-                          }))
-                        }
-                        className="px-2 py-1 text-xs mouse-pointer bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                            [key]: true,
+                          }));
+                        }}
+                        className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
                       >
                         Clear
-                      </button>
-
-                      <button
-                        type="button"
-                        disabled={disabled}
-                        onClick={() => {
-                          setRemarkMap((prev) => {
-                            const newMap = { ...prev };
-                            delete newMap[key];
-                            return newMap;
-                          });
-                        }}
-                        className="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200"
-                      >
-                        Remove
                       </button>
                     </div>
                   </div>
