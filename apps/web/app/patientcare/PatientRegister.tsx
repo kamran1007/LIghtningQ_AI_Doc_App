@@ -617,7 +617,7 @@ export function RegisterPatient() {
       );
       setTimeout(() => {
         setRegisterAnimation(true);
-        setCountdown(5); // Start from 10
+        setCountdown(5); // Start from 10 
 
         const timer = setInterval(() => {
           setCountdown((prev) => {
