@@ -270,7 +270,7 @@ export class AppointmentService {
     const html = `
   <div style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 40px;">
     <div style="max-width: 600px; margin: auto; background: white; border-radius: 8px; overflow: hidden; border: 1px solid #eee;">
-      <div style="background-color: #00fde0; color: white; padding: 20px 30px;">
+      <div style="background-color: #29bab0; color: white; padding: 20px 30px;">
         <h2 style="margin: 0;">Your ${appointmentWithDetails?.visitType?.AppointmentTypeName ?? 'Follow Up'} Appointment has been ${appointment?.status} !! confirmed</h2>
       </div>
       <div style="padding: 30px;">
@@ -371,7 +371,7 @@ export class AppointmentService {
       location: appointment?.hospital?.address,
       organizer: {
         name: 'LightningQ Healthcare',
-        email: 'contact@lightningq.in',
+        email: 'info@lightningq.in',
       },
     };
 
