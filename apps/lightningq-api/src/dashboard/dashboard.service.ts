@@ -154,8 +154,8 @@ export class DashboardService {
         where: {
           IsConsultationCompleted: true,
           consultationEndDateTime: { not: null },
-          consultationDatTime: { gte, lte },
           appointment: {
+            appointmentDate: { gte, lte }, // ✅ use appointment date only
             ...(hospitalId ? { hospitalId } : {}),
             ...(doctorId ? { DoctorId: doctorId } : {}),
           },
@@ -220,9 +220,8 @@ export class DashboardService {
       where: {
         IsConsultationCompleted: true,
         consultationEndDateTime: { not: null },
-        consultationDatTime: { gte, lte },
         appointment: {
-          appointmentDate: { gte, lte }, // ✅ ensures same-day appointments only
+          appointmentDate: { gte, lte }, // ✅ use appointment date only
           ...(hospitalId ? { hospitalId } : {}),
           ...(doctorId ? { DoctorId: doctorId } : {}),
         },
@@ -736,27 +735,37 @@ export class DashboardService {
       revenue: value,
     }));
 
-    // -----------------------------
-    // 7️⃣ Doctor Performance
-    // -----------------------------
+    // -------------------------
+    // 6️⃣ Doctor Performance (FIXED)
+    // -------------------------
     const doctorPerformanceRaw = await this.prisma.appointment.groupBy({
       by: ['DoctorId'],
       _count: { _all: true },
-      where: whereClause,
+      where: {
+        ...appointments,
+        status: 'COMPLETED', // ✅ Focus on completed appointments
+      },
     });
 
     const doctorIds = doctorPerformanceRaw.map((d) => d.DoctorId);
 
-    const doctors = await this.prisma.user.findMany({
+    const doctorInfo = await this.prisma.user.findMany({
       where: { UserId: { in: doctorIds } },
-      select: { UserId: true, firstName: true, lastName: true },
+      select: {
+        UserId: true,
+        firstName: true,
+        lastName: true,
+        Specialization: { select: { SpecializationName: true } },
+      },
     });
 
     const doctorPerformance = doctorPerformanceRaw.map((d) => {
-      const doc = doctors.find((x) => x.UserId === d.DoctorId);
+      const doc = doctorInfo.find((x) => x.UserId === d.DoctorId);
       return {
-        doctorName: doc ? `Dr. ${doc.firstName} ${doc.lastName}` : 'Unknown',
-        appointments: d._count._all,
+        name: doc ? `${doc.firstName} ${doc.lastName}` : 'Unknown',
+        specialization: doc?.Specialization?.SpecializationName ?? 'N/A',
+        completed: d._count._all,
+        avgMin: 0, // optional: later calculated from consultation durations
       };
     });
 
