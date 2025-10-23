@@ -890,6 +890,7 @@ export class DashboardService {
       report.frequency,
     );
 
+    // 2. Get hospital info
     const hospitalInfo = await this.prisma.hospital.findUnique({
       where: { HospitalId: report.HospitalId },
       select: {
@@ -901,7 +902,7 @@ export class DashboardService {
       },
     });
 
-    // 2. Generate HTML
+    // 3. Generate HTML for report
     const html = generateScheduledReportHtml({
       frequency: report.frequency,
       reportTypes: report.reportTypes,
@@ -916,10 +917,10 @@ export class DashboardService {
       },
     });
 
-    // 3. Convert to PDF
+    // 4. Convert HTML → PDF
     const pdfBuffer = await generatePdfFromHtml(html);
 
-    // 4. Get admin email
+    // 5. Fetch admin info
     const admin = await this.prisma.user.findUnique({
       where: { UserId: report.adminId },
       select: { email: true, firstName: true },
@@ -927,21 +928,38 @@ export class DashboardService {
 
     if (!admin) throw new Error(`Admin with ID ${report.adminId} not found`);
 
-    // 5. Send email
-    await this.mailerService.sendMailWithAttachment(
-      admin.email,
-      `${report.frequency} Scheduled Report`,
-      `<p>Dear ${admin.firstName},</p>
-     <p>Please find attached your ${report.frequency.toLowerCase()} scheduled report.</p>
-     <p>Best regards,<br/>LightningQ Team</p>`,
-      [
-        {
-          filename: `ScheduledReport_${report.frequency}_${Date.now()}.pdf`,
-          content: pdfBuffer,
-          contentType: 'application/pdf',
-        },
-      ],
-    );
+    // 6. Send email (with null-check)
+    if (!pdfBuffer) {
+      console.warn(
+        `⚠️ Scheduled report PDF generation failed for ${report.frequency}. Sending email without attachment...`,
+      );
+
+      await this.mailerService.sendMail(
+        admin.email,
+        `${report.frequency} Scheduled Report`,
+        `<p>Dear ${admin.firstName},</p>
+       <p>We encountered an issue generating your ${report.frequency.toLowerCase()} scheduled report.</p>
+       <p>Please try again later or contact support.</p>
+       <p>Best regards,<br/>LightningQ Team</p>`,
+      );
+    } else {
+      await this.mailerService.sendMailWithAttachment(
+        admin.email,
+        `${report.frequency} Scheduled Report`,
+        `<p>Dear ${admin.firstName},</p>
+       <p>Please find attached your ${report.frequency.toLowerCase()} scheduled report.</p>
+       <p>Best regards,<br/>LightningQ Team</p>`,
+        [
+          {
+            filename: `ScheduledReport_${report.frequency}_${Date.now()}.pdf`,
+            content: pdfBuffer,
+            contentType: 'application/pdf',
+          },
+        ],
+      );
+    }
+
+    console.log(`✅ ${report.frequency} report email sent to ${admin.email}`);
   }
 
   private async fetchReportSections(
