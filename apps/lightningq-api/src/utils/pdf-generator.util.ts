@@ -9,13 +9,9 @@ export async function generatePdfFromHtml(html: string): Promise<Buffer | null> 
   try {
     console.log("🧩 [PDF] Starting Puppeteer...");
 
-    // Determine Chrome executable path dynamically
-    const executablePath =
-      process.env.PUPPETEER_EXECUTABLE_PATH || (await puppeteer.executablePath());
-
+    // ✅ Let Puppeteer use its bundled Chromium
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath,
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
@@ -26,7 +22,7 @@ export async function generatePdfFromHtml(html: string): Promise<Buffer | null> 
       ],
     });
 
-    console.log("✅ [PDF] Chrome launched successfully");
+    console.log("✅ [PDF] Chromium launched successfully");
 
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });
