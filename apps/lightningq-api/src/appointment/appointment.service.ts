@@ -764,22 +764,22 @@ export class AppointmentService {
     const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
 
     // Build UTC Date objects that correspond to IST day boundaries.
+    // ✅ Corrected date helper — do not shift IST by offset again
     const istDayRangeToUtc = (yyyyMmDd: string) => {
       if (!yyyyMmDd) return null;
-      const parts = yyyyMmDd.split('-');
-      if (parts.length !== 3) return null;
-      const year = Number(parts[0]);
-      const month = Number(parts[1]); // 1..12
-      const day = Number(parts[2]);
-      if ([year, month, day].some((v) => !Number.isFinite(v))) return null;
 
-      // UTC instant for local IST midnight
-      const utcStartMs =
-        Date.UTC(year, month - 1, day, 0, 0, 0, 0) - IST_OFFSET_MS;
-      const utcEndMs =
-        Date.UTC(year, month - 1, day, 23, 59, 59, 999) - IST_OFFSET_MS;
+      const [yearStr, monthStr, dayStr] = yyyyMmDd.split('-');
+      const year = Number(yearStr);
+      const month = Number(monthStr);
+      const day = Number(dayStr);
 
-      return { start: new Date(utcStartMs), end: new Date(utcEndMs) };
+      if (![year, month, day].every(Number.isFinite)) return null;
+
+      // We treat this date as a local day and construct UTC equivalents directly
+      const start = new Date(`${yyyyMmDd}T00:00:00.000Z`);
+      const end = new Date(`${yyyyMmDd}T23:59:59.999Z`);
+
+      return { start, end };
     };
 
     const parseNumberSafe = (v: any) => {

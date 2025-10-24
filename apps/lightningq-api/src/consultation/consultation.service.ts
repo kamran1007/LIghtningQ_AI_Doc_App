@@ -584,7 +584,7 @@ export class ConsultationService {
           where: { AppointmentId },
           include: {
             patient: {
-              select: { email: true, firstName: true, lastName: true },
+              select: { email: true, firstName: true, lastName: true,Patient_Medical_Record_No:true, gender:true, mobile:true, dateOfBirth:true },
             },
             doctor: {
               select: { firstName: true, lastName: true, email: true },
@@ -595,6 +595,7 @@ export class ConsultationService {
                 email: true,
                 contactNumber: true,
                 address: true,
+                HospitalCode: true,
               },
             },
           },
