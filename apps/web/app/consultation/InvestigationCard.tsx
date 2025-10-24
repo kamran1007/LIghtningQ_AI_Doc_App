@@ -441,7 +441,7 @@ const InvestigationCard = ({
               <div className="relative">
                 <Textarea
                   disabled={disabled}
-                  className="mt-1 pr-10 resize-none rounded-2xl border-2 border-pink-200 hover:border-pink-300 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all duration-300 bg-gradient-to-br from-pink-50/50 to-rose-50/30 placeholder:text-gray-400 text-gray-700 shadow-sm hover:shadow-md focus:shadow-lg min-h-[100px] p-4"
+                  className="mt-1 pr-10 resize-none rounded-2xl no-scrollbar border-2 border-pink-200 hover:border-pink-300 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all duration-300 bg-gradient-to-br from-pink-50/50 to-rose-50/30 placeholder:text-gray-400 text-gray-700 shadow-sm hover:shadow-md focus:shadow-lg min-h-[100px] p-4"
                   placeholder={`Enter remark for ${inv.label}...`}
                   value={remarkValue}
                   onChange={(e) =>

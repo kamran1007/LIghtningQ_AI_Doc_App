@@ -5,18 +5,18 @@ import * as nodemailer from 'nodemailer';
 @Injectable()
 export class MailerService {
   private transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: 'smtp.resend.com',
     port: 587,
     secure: false, // Use true for port 465 with SSL
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user: 'resend',
+      pass: process.env.RESEND_API_KEY,
     },
   });
 
   async sendMail(to: string, subject: string, html: string) {
     return await this.transporter.sendMail({
-      from: `"LightningQ" <${process.env.SMTP_USER}>`,
+      from: `"LightningQ" <no-reply@lightningq.com>`,
       to,
       subject,
       html,
@@ -34,7 +34,7 @@ export class MailerService {
     }[],
   ) {
     return await this.transporter.sendMail({
-      from: `"LightningQ" <${process.env.SMTP_USER}>`,
+      from: `"LightningQ" <no-reply@lightningq.com>`,
       to,
       subject,
       html,

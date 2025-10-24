@@ -321,10 +321,9 @@ export class ConsultationService {
       IsConsultationCompleted: isCompleted,
     };
 
-    let consultationResult;
     let targetId: number | undefined;
 
-    // 🩺 Find existing consultation (by ConsultationId or AppointmentId)
+    // 🧩 Find existing consultation
     if (ConsultationId) {
       const existing = await this.prisma.consultation.findUnique({
         where: { ConsultationId },
@@ -343,332 +342,318 @@ export class ConsultationService {
 
     console.log('🧩 Target consultation ID:', targetId);
 
-    // ✅ Run everything atomically inside a transaction
-    consultationResult = await this.prisma.$transaction(async (tx) => {
-      let result;
+    // ✅ Perform only database operations in transaction
+    const consultationResult = await this.prisma.$transaction(
+      async (tx) => {
+        let result;
 
-      if (targetId) {
-        // 🟡 UPDATE EXISTING CONSULTATION
-        result = await tx.consultation.update({
-          where: { ConsultationId: targetId },
-          data: {
-            ...baseData,
-            appointment: { connect: { AppointmentId } },
-            updatedBy: { connect: { UserId: userId } },
+        if (targetId) {
+          // 🟡 Update existing consultation
+          result = await tx.consultation.update({
+            where: { ConsultationId: targetId },
+            data: {
+              ...baseData,
+              appointment: { connect: { AppointmentId } },
+              updatedBy: { connect: { UserId: userId } },
 
-            ConsultationCheifComplaint: {
-              deleteMany: {},
-              create:
-                ConsultationCheifComplaint?.map((item) => ({
-                  chiefComplaint: {
-                    connect: { ChiefComplaintTagId: item.ChiefComplaintTagId },
-                  },
-                })) || [],
-            },
-
-            ConsultationDiagnosis: {
-              deleteMany: {},
-              create:
-                ConsultationDiagnosis?.map((d) => ({
-                  diagnosis: {
-                    connectOrCreate: {
-                      where: { DiagnosisId: d.diagnosisId ?? 0 },
-                      create: {
-                        DiagnosisName:
-                          d.DiagnosisName || 'Unspecified Diagnosis',
+              ConsultationCheifComplaint: {
+                deleteMany: {},
+                create:
+                  ConsultationCheifComplaint?.map((item) => ({
+                    chiefComplaint: {
+                      connect: {
+                        ChiefComplaintTagId: item.ChiefComplaintTagId,
                       },
                     },
-                  },
-                  DiagnosisRemark: d.DiagnosisRemark ?? '',
-                })) || [],
-            },
+                  })) || [],
+              },
 
-            ConsultationInvestigation: {
-              deleteMany: {},
-              create:
-                ConsultationInvestigation?.map((inv) => ({
-                  InvestigationType: {
-                    connect: { InvestigationTypeId: inv.InvestigationTypeId },
-                  },
-                  InvestigationSubType: {
-                    connect: {
-                      InvestigationSubTypeId: inv.InvestigationSubTypeId,
-                    },
-                  },
-                  ConsultationInvestigatRemark:
-                    inv.ConsultationInvestigatRemark ?? '',
-                })) || [],
-            },
-
-            ConsultationMedication: {
-              deleteMany: {},
-              create:
-                ConsultationMedication?.map((med) => ({
-                  medicationName: med.medicationName ?? '',
-                  dosage: med.dosage ?? '',
-                  frequency: med.frequency ?? '',
-                  duration: med.duration ?? '',
-                  remarks: med.remarks ?? '',
-                })) || [],
-            },
-
-            ConsultationTreatment: {
-              deleteMany: {},
-              create:
-                ConsultationTreatment?.map((treat) => ({
-                  source: treat.source ?? 'TYPED',
-                  treatmentText: treat.treatmentText ?? '',
-                })) || [],
-            },
-
-            ConsultationFollowUpPlan: ConsultationFollowUpPlan
-              ? {
-                  deleteMany: {},
-                  create: {
-                    followUpText: ConsultationFollowUpPlan.followUpText,
-                    duration: ConsultationFollowUpPlan.duration,
-                    unit: ConsultationFollowUpPlan.unit,
-                    nextDate: ConsultationFollowUpPlan.nextDate,
-                  },
-                }
-              : undefined,
-
-            ConsultationclinicalNotes: {
-              deleteMany: {},
-              create:
-                ConsultationclinicalNotes?.map((note) => ({
-                  content: note.content ?? '',
-                })) || [],
-            },
-
-            ConsultationProcedure: {
-              deleteMany: {},
-              create:
-                (ConsultationProcedure || []).map((p) => ({
-                  procedure: p.ProcedureId
-                    ? { connect: { ProcedureId: p.ProcedureId } }
-                    : p.ProcedureName
-                      ? { create: { ProcedureName: p.ProcedureName } }
-                      : undefined,
-                  Description: p.Description ?? '',
-                  ProcedureDateTime: p.ProcedureDateTime
-                    ? new Date(p.ProcedureDateTime)
-                    : undefined,
-                })) || [],
-            },
-          },
-        });
-      } else {
-        // 🆕 CREATE NEW CONSULTATION
-        result = await tx.consultation.create({
-          data: {
-            ...baseData,
-            createdBy: { connect: { UserId: userId } },
-            appointment: { connect: { AppointmentId } },
-
-            ConsultationCheifComplaint: {
-              create:
-                ConsultationCheifComplaint?.map((item) => ({
-                  chiefComplaint: {
-                    connect: { ChiefComplaintTagId: item.ChiefComplaintTagId },
-                  },
-                })) || [],
-            },
-
-            ConsultationDiagnosis: {
-              create:
-                ConsultationDiagnosis?.map((d) => ({
-                  diagnosis: {
-                    connectOrCreate: {
-                      where: { DiagnosisId: d.diagnosisId ?? 0 },
-                      create: {
-                        DiagnosisName:
-                          d.DiagnosisName || 'Unspecified Diagnosis',
+              ConsultationDiagnosis: {
+                deleteMany: {},
+                create:
+                  ConsultationDiagnosis?.map((d) => ({
+                    diagnosis: {
+                      connectOrCreate: {
+                        where: { DiagnosisId: d.diagnosisId ?? 0 },
+                        create: {
+                          DiagnosisName:
+                            d.DiagnosisName || 'Unspecified Diagnosis',
+                        },
                       },
                     },
-                  },
-                  DiagnosisRemark: d.DiagnosisRemark ?? '',
-                })) || [],
-            },
+                    DiagnosisRemark: d.DiagnosisRemark ?? '',
+                  })) || [],
+              },
 
-            ConsultationInvestigation: {
-              create:
-                ConsultationInvestigation?.map((inv) => ({
-                  InvestigationType: {
-                    connect: { InvestigationTypeId: inv.InvestigationTypeId },
-                  },
-                  InvestigationSubType: {
-                    connect: {
-                      InvestigationSubTypeId: inv.InvestigationSubTypeId,
+              ConsultationInvestigation: {
+                deleteMany: {},
+                create:
+                  ConsultationInvestigation?.map((inv) => ({
+                    InvestigationType: {
+                      connect: { InvestigationTypeId: inv.InvestigationTypeId },
                     },
-                  },
-                  ConsultationInvestigatRemark:
-                    inv.ConsultationInvestigatRemark ?? '',
-                })) || [],
-            },
+                    InvestigationSubType: {
+                      connect: {
+                        InvestigationSubTypeId: inv.InvestigationSubTypeId,
+                      },
+                    },
+                    ConsultationInvestigatRemark:
+                      inv.ConsultationInvestigatRemark ?? '',
+                  })) || [],
+              },
 
-            ConsultationMedication: {
-              create:
-                ConsultationMedication?.map((med) => ({
-                  medicationName: med.medicationName ?? '',
-                  dosage: med.dosage ?? '',
-                  frequency: med.frequency ?? '',
-                  duration: med.duration ?? '',
-                  remarks: med.remarks ?? '',
-                })) || [],
-            },
+              ConsultationMedication: {
+                deleteMany: {},
+                create:
+                  ConsultationMedication?.map((med) => ({
+                    medicationName: med.medicationName ?? '',
+                    dosage: med.dosage ?? '',
+                    frequency: med.frequency ?? '',
+                    duration: med.duration ?? '',
+                    remarks: med.remarks ?? '',
+                  })) || [],
+              },
 
-            ConsultationTreatment: {
-              create:
-                ConsultationTreatment?.map((treat) => ({
-                  source: treat.source ?? 'TYPED',
-                  treatmentText: treat.treatmentText ?? '',
-                })) || [],
-            },
+              ConsultationTreatment: {
+                deleteMany: {},
+                create:
+                  ConsultationTreatment?.map((treat) => ({
+                    source: treat.source ?? 'TYPED',
+                    treatmentText: treat.treatmentText ?? '',
+                  })) || [],
+              },
 
-            ConsultationFollowUpPlan: ConsultationFollowUpPlan
-              ? {
-                  create: {
-                    followUpText: ConsultationFollowUpPlan.followUpText,
-                    duration: ConsultationFollowUpPlan.duration,
-                    unit: ConsultationFollowUpPlan.unit,
-                    nextDate: ConsultationFollowUpPlan.nextDate,
-                  },
-                }
-              : undefined,
+              ConsultationFollowUpPlan: ConsultationFollowUpPlan
+                ? {
+                    deleteMany: {},
+                    create: {
+                      followUpText: ConsultationFollowUpPlan.followUpText,
+                      duration: ConsultationFollowUpPlan.duration,
+                      unit: ConsultationFollowUpPlan.unit,
+                      nextDate: ConsultationFollowUpPlan.nextDate,
+                    },
+                  }
+                : undefined,
 
-            ConsultationclinicalNotes: {
-              create:
-                ConsultationclinicalNotes?.map((note) => ({
-                  content: note.content ?? '',
-                })) || [],
-            },
+              ConsultationclinicalNotes: {
+                deleteMany: {},
+                create:
+                  ConsultationclinicalNotes?.map((note) => ({
+                    content: note.content ?? '',
+                  })) || [],
+              },
 
-            ConsultationProcedure: {
-              create:
-                (ConsultationProcedure || []).map((p) => ({
-                  procedure: p.ProcedureId
-                    ? { connect: { ProcedureId: p.ProcedureId } }
-                    : p.ProcedureName
-                      ? { create: { ProcedureName: p.ProcedureName } }
+              ConsultationProcedure: {
+                deleteMany: {},
+                create:
+                  (ConsultationProcedure || []).map((p) => ({
+                    procedure: p.ProcedureId
+                      ? { connect: { ProcedureId: p.ProcedureId } }
+                      : p.ProcedureName
+                        ? { create: { ProcedureName: p.ProcedureName } }
+                        : undefined,
+                    Description: p.Description ?? '',
+                    ProcedureDateTime: p.ProcedureDateTime
+                      ? new Date(p.ProcedureDateTime)
                       : undefined,
-                  Description: p.Description ?? '',
-                  ProcedureDateTime: p.ProcedureDateTime
-                    ? new Date(p.ProcedureDateTime)
-                    : undefined,
-                })) || [],
+                  })) || [],
+              },
             },
+          });
+        } else {
+          // 🆕 Create new consultation
+          result = await tx.consultation.create({
+            data: {
+              ...baseData,
+              createdBy: { connect: { UserId: userId } },
+              appointment: { connect: { AppointmentId } },
+              ConsultationCheifComplaint: {
+                create:
+                  ConsultationCheifComplaint?.map((item) => ({
+                    chiefComplaint: {
+                      connect: {
+                        ChiefComplaintTagId: item.ChiefComplaintTagId,
+                      },
+                    },
+                  })) || [],
+              },
+              ConsultationDiagnosis: {
+                create:
+                  ConsultationDiagnosis?.map((d) => ({
+                    diagnosis: {
+                      connectOrCreate: {
+                        where: { DiagnosisId: d.diagnosisId ?? 0 },
+                        create: {
+                          DiagnosisName:
+                            d.DiagnosisName || 'Unspecified Diagnosis',
+                        },
+                      },
+                    },
+                    DiagnosisRemark: d.DiagnosisRemark ?? '',
+                  })) || [],
+              },
+              ConsultationInvestigation: {
+                create:
+                  ConsultationInvestigation?.map((inv) => ({
+                    InvestigationType: {
+                      connect: { InvestigationTypeId: inv.InvestigationTypeId },
+                    },
+                    InvestigationSubType: {
+                      connect: {
+                        InvestigationSubTypeId: inv.InvestigationSubTypeId,
+                      },
+                    },
+                    ConsultationInvestigatRemark:
+                      inv.ConsultationInvestigatRemark ?? '',
+                  })) || [],
+              },
+              ConsultationMedication: {
+                create:
+                  ConsultationMedication?.map((med) => ({
+                    medicationName: med.medicationName ?? '',
+                    dosage: med.dosage ?? '',
+                    frequency: med.frequency ?? '',
+                    duration: med.duration ?? '',
+                    remarks: med.remarks ?? '',
+                  })) || [],
+              },
+              ConsultationTreatment: {
+                create:
+                  ConsultationTreatment?.map((treat) => ({
+                    source: treat.source ?? 'TYPED',
+                    treatmentText: treat.treatmentText ?? '',
+                  })) || [],
+              },
+              ConsultationFollowUpPlan: ConsultationFollowUpPlan
+                ? {
+                    create: {
+                      followUpText: ConsultationFollowUpPlan.followUpText,
+                      duration: ConsultationFollowUpPlan.duration,
+                      unit: ConsultationFollowUpPlan.unit,
+                      nextDate: ConsultationFollowUpPlan.nextDate,
+                    },
+                  }
+                : undefined,
+              ConsultationclinicalNotes: {
+                create:
+                  ConsultationclinicalNotes?.map((note) => ({
+                    content: note.content ?? '',
+                  })) || [],
+              },
+              ConsultationProcedure: {
+                create:
+                  (ConsultationProcedure || []).map((p) => ({
+                    procedure: p.ProcedureId
+                      ? { connect: { ProcedureId: p.ProcedureId } }
+                      : p.ProcedureName
+                        ? { create: { ProcedureName: p.ProcedureName } }
+                        : undefined,
+                    Description: p.Description ?? '',
+                    ProcedureDateTime: p.ProcedureDateTime
+                      ? new Date(p.ProcedureDateTime)
+                      : undefined,
+                  })) || [],
+              },
+            },
+          });
+        }
+
+        // ✅ Update appointment status
+        await tx.appointment.update({
+          where: { AppointmentId: Number(AppointmentId) },
+          data: {
+            consultationId: result.ConsultationId,
+            IsConsultationCompleted: isCompleted,
+            status: isCompleted ? 'COMPLETED' : 'SCHEDULED',
           },
         });
-      }
 
-      // ✅ Update Appointment atomically in the same transaction
-      await tx.appointment.update({
-        where: { AppointmentId: Number(AppointmentId) },
-        data: {
-          consultationId: result.ConsultationId,
-          IsConsultationCompleted: isCompleted,
-          status: isCompleted ? 'COMPLETED' : 'SCHEDULED',
-        },
-      });
-
-      return result;
-    });
-
-    console.log(
-      `✅ Appointment ${AppointmentId} updated — Consultation ${
-        isCompleted ? 'Completed' : 'Pending'
-      }`,
+        return result;
+      },
+      { timeout: 20000 }, // 🕒 Increase timeout
     );
 
-    // ✅ Case Sheet Email Logic
+    console.log(
+      `✅ Appointment ${AppointmentId} updated — Consultation ${isCompleted ? 'Completed' : 'Pending'}`,
+    );
+
+    // ✅ PDF + Email sending OUTSIDE the transaction
     if (IsSentCaseSheet) {
-      const appointment = await this.prisma.appointment.findUnique({
-        where: { AppointmentId },
-        include: {
-          patient: {
-            select: {
-              email: true,
-              firstName: true,
-              lastName: true,
-              dateOfBirth: true,
-              Patient_Medical_Record_No: true,
-              mobile: true,
-              gender: true,
+      try {
+        const appointment = await this.prisma.appointment.findUnique({
+          where: { AppointmentId },
+          include: {
+            patient: {
+              select: { email: true, firstName: true, lastName: true },
             },
-          },
-          hospital: {
-            select: {
-              HospitalName: true,
-              address: true,
-              email: true,
-              contactNumber: true,
-              HospitalCode: true,
+            doctor: {
+              select: { firstName: true, lastName: true, email: true },
             },
-          },
-          doctor: {
-            select: { firstName: true, lastName: true, email: true },
-          },
-          Vitals: true,
-        },
-      });
-
-      const consultationFull = await this.prisma.consultation.findUnique({
-        where: { ConsultationId: consultationResult.ConsultationId },
-        include: {
-          ConsultationCheifComplaint: {
-            include: { chiefComplaint: true },
-          },
-          ConsultationDiagnosis: {
-            include: { diagnosis: true },
-          },
-          ConsultationMedication: true,
-          ConsultationInvestigation: {
-            include: {
-              InvestigationType: true,
-              InvestigationSubType: true,
-            },
-          },
-          ConsultationTreatment: true,
-          ConsultationFollowUpPlan: true,
-          ConsultationclinicalNotes: true,
-        },
-      });
-
-      if (appointment?.patient?.email) {
-        const patientName = `${appointment.patient.firstName} ${appointment.patient.lastName}`;
-        const html = generateCaseSheetHtml(
-          patientName,
-          AppointmentId,
-          consultationFull,
-          appointment,
-        );
-
-        const pdfBuffer = await generatePdfFromHtml(html);
-
-        if (!pdfBuffer) {
-          console.warn(
-            '⚠️ PDF generation failed — sending email without attachment',
-          );
-          await this.mailerService.sendMail(
-            appointment.patient.email,
-            `Consultation Case Sheet - Appointment #${AppointmentId}`,
-            `<p>Dear ${patientName},</p><p>Your consultation summary could not be attached. Please contact support if needed.</p>`,
-          );
-        } else {
-          await this.mailerService.sendMailWithAttachment(
-            appointment.patient.email,
-            `Consultation Case Sheet - Appointment #${AppointmentId}`,
-            `<p>Dear ${patientName},</p><p>Find attached your consultation summary.</p>`,
-            [
-              {
-                filename: `CaseSheet_${patientName}.pdf`,
-                content: pdfBuffer,
-                contentType: 'application/pdf',
+            hospital: {
+              select: {
+                HospitalName: true,
+                email: true,
+                contactNumber: true,
+                address: true,
               },
-            ],
+            },
+          },
+        });
+
+        if (appointment?.patient?.email) {
+          const patientName = `${appointment.patient.firstName} ${appointment.patient.lastName}`;
+          const consultationFull = await this.prisma.consultation.findUnique({
+            where: { ConsultationId: consultationResult.ConsultationId },
+            include: {
+              ConsultationCheifComplaint: { include: { chiefComplaint: true } },
+              ConsultationDiagnosis: { include: { diagnosis: true } },
+              ConsultationMedication: true,
+              ConsultationInvestigation: {
+                include: {
+                  InvestigationType: true,
+                  InvestigationSubType: true,
+                },
+              },
+              ConsultationTreatment: true,
+              ConsultationFollowUpPlan: true,
+              ConsultationclinicalNotes: true,
+            },
+          });
+
+          const html = generateCaseSheetHtml(
+            patientName,
+            AppointmentId,
+            consultationFull,
+            appointment,
           );
+          const pdfBuffer = await generatePdfFromHtml(html);
+
+          if (!pdfBuffer) {
+            console.warn(
+              '⚠️ PDF generation failed — sending email without attachment',
+            );
+            await this.mailerService.sendMail(
+              appointment.patient.email,
+              `Consultation Case Sheet - Appointment #${AppointmentId}`,
+              `<p>Dear ${patientName},</p><p>Your consultation summary could not be attached.</p>`,
+            );
+          } else {
+            await this.mailerService.sendMailWithAttachment(
+              appointment.patient.email,
+              `Consultation Case Sheet - Appointment #${AppointmentId}`,
+              `<p>Dear ${patientName},</p><p>Find attached your consultation summary.</p>`,
+              [
+                {
+                  filename: `CaseSheet_${patientName}.pdf`,
+                  content: pdfBuffer,
+                  contentType: 'application/pdf',
+                },
+              ],
+            );
+          }
         }
+      } catch (error) {
+        console.error('❌ Error sending consultation email:', error);
       }
     }
 
