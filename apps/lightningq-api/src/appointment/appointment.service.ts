@@ -90,7 +90,9 @@ export class AppointmentService {
             gte: new Date(dto.appointmentDate + 'T00:00:00'),
             lt: new Date(dto.appointmentDate + 'T23:59:59'),
           },
-          status: 'SCHEDULED',
+          status: {
+            in: ['SCHEDULED'], // optional
+          },
         },
       });
 
