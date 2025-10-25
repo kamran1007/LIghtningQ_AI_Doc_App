@@ -1,24 +1,21 @@
-// apps/lightningq-api/scripts/install-chrome.js
-import puppeteer from "puppeteer";
-import fs from "fs";
+import puppeteer from 'puppeteer';
 
 (async () => {
-  console.log("🔧 Installing Chromium for Puppeteer...");
+  console.log('🔧 Installing Chromium for Puppeteer...');
 
   try {
-    const browserFetcher = puppeteer.createBrowserFetcher();
-    const revisionInfo = await browserFetcher.download("1195492"); // stable revision
-    console.log("✅ Chromium installed at:", revisionInfo.executablePath);
+    // This will download Chrome to the cache
+    const browserFetcher = puppeteer.createBrowserFetcher({
+      path: process.env.PUPPETEER_CACHE_DIR || '/opt/render/.cache/puppeteer',
+    });
 
-    // Ensure path is visible to Puppeteer at runtime
-    const chromeDir = revisionInfo.executablePath.split("/chrome")[0];
-    if (fs.existsSync(chromeDir)) {
-      console.log("🧩 Chromium directory:", chromeDir);
-    }
+    // Use a stable revision that matches your puppeteer version
+    const revisionInfo = await browserFetcher.download('1368088'); // Chrome 138
 
-    console.log("✅ Puppeteer setup complete.");
+    console.log('✅ Chromium installed at:', revisionInfo.executablePath);
+    console.log('✅ Puppeteer setup complete.');
   } catch (err) {
-    console.error("❌ Failed to install Chromium:", err);
+    console.error('❌ Failed to install Chromium:', err);
     process.exit(1);
   }
 })();

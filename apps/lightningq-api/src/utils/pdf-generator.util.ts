@@ -14,34 +14,22 @@
 // }
 
 // src/utils/pdf-generator.util.ts
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
 
 export async function generatePdfFromHtml(html: string): Promise<Buffer> {
+  let browser;
   try {
     console.log('🧩 [PDF] Launching Puppeteer...');
 
-    // 🧩 Determine executable path dynamically
-    let executablePath: string | undefined;
-    try {
-      executablePath = puppeteer.executablePath(); // returns string
-    } catch {
-      executablePath =
-        '/opt/render/.cache/puppeteer/chrome/linux-138.0.7204.168/chrome-linux64/chrome';
-    }
-
-    console.log('✅ [PDF] Using Chrome path:', executablePath);
-
-    const browser = await puppeteer.launch({
+    browser = await puppeteer.launch({
+      args: chromium.args,
+      executablePath: await chromium.executablePath(),
       headless: true,
-      executablePath,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-        '--single-process',
-        '--no-zygote',
-      ],
+      defaultViewport: {
+        width: 1920,
+        height: 1080,
+      },
     });
 
     const page = await browser.newPage();
@@ -58,6 +46,7 @@ export async function generatePdfFromHtml(html: string): Promise<Buffer> {
     return Buffer.from(pdf);
   } catch (error) {
     console.error('❌ [PDF] Puppeteer PDF generation failed:', error);
+    if (browser) await browser.close();
     return Buffer.alloc(0);
   }
 }

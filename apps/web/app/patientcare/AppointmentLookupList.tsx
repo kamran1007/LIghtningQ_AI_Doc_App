@@ -1065,7 +1065,7 @@ export default function AppointmentLookupList() {
                 max={120}
                 step={1}
                 value={ageRange}
-                onValueChange={(val) => {
+                onValueChange={(val: [number, number]) => {
                   setAgeRange(val as [number, number]);
                   setAgeDirty(true);
                 }}
