@@ -31,25 +31,27 @@ export class WhatsappService {
       to,
       type: 'template',
       template: {
-        name: 'lightningqapointmentbooking', // 👈 must match Meta template name
+        name: 'lightningqapointmentbooking', // must match your template name
         language: { code: 'en' },
         components: [
           {
             type: 'header',
             parameters: [
-              { type: 'text', text: data.patient.firstName },
-              { type: 'text', text: data.patient.lastName ?? '' },
+              {
+                type: 'text',
+                text: `${data.patient.firstName} ${data.patient.lastName ?? ''}`.trim(),
+              },
             ],
           },
           {
             type: 'body',
             parameters: [
-              { type: 'text', text: data.appointmentType ?? 'FollowUp' },
-              { type: 'text', text: data.doctorName },
-              { type: 'text', text: data.appointmentTime },
-              { type: 'text', text: data.appointmentDate },
-              { type: 'text', text: data.hospitalName },
-              { type: 'text', text: data.hospitalContact },
+              { type: 'text', text: data.appointmentType ?? 'FollowUp' }, // {{1}}
+              { type: 'text', text: data.doctorName }, // {{2}}
+              { type: 'text', text: data.hospitalName }, // {{3}}
+              { type: 'text', text: data.appointmentDate }, // {{4}}
+              { type: 'text', text: data.appointmentTime }, // {{5}}
+              { type: 'text', text: data.hospitalContact }, // {{6}}
             ],
           },
         ],
