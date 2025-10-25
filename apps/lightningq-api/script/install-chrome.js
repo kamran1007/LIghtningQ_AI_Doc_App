@@ -1,10 +1,24 @@
-// scripts/install-chrome.js
-import { execSync } from "child_process";
+// apps/lightningq-api/scripts/install-chrome.js
+import puppeteer from "puppeteer";
+import fs from "fs";
 
-try {
-  console.log("🚀 Installing Puppeteer Chrome for Render...");
-  execSync("npx puppeteer browsers install chrome", { stdio: "inherit" });
-  console.log("✅ Chrome installation completed successfully!");
-} catch (err) {
-  console.error("❌ Chrome installation failed:", err);
-}
+(async () => {
+  console.log("🔧 Installing Chromium for Puppeteer...");
+
+  try {
+    const browserFetcher = puppeteer.createBrowserFetcher();
+    const revisionInfo = await browserFetcher.download("1195492"); // stable revision
+    console.log("✅ Chromium installed at:", revisionInfo.executablePath);
+
+    // Ensure path is visible to Puppeteer at runtime
+    const chromeDir = revisionInfo.executablePath.split("/chrome")[0];
+    if (fs.existsSync(chromeDir)) {
+      console.log("🧩 Chromium directory:", chromeDir);
+    }
+
+    console.log("✅ Puppeteer setup complete.");
+  } catch (err) {
+    console.error("❌ Failed to install Chromium:", err);
+    process.exit(1);
+  }
+})();

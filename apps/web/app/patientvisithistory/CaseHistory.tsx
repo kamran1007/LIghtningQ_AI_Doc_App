@@ -346,6 +346,35 @@ export default function PatientCaseHistory({
           </div>
         )),
       },
+      // 🆕 Procedure Section Added Here
+      {
+        key: "procedure",
+        title: "Procedure",
+        icon: NotebookPen, // or ClipboardSignature if you prefer
+        tag: `${consultationData?.ConsultationProcedure?.length ?? 0} entries`,
+        remark: null,
+        content: consultationData?.ConsultationProcedure?.length ? (
+          <div className="space-y-2">
+            {consultationData.ConsultationProcedure.map((proc: any) => (
+              <div
+                key={proc.ConsultationProcedureId}
+                className="p-3 bg-cyan-50 dark:bg-slate-700 rounded-md shadow-sm"
+              >
+                <p className="text-sm font-semibold text-cyan-700 dark:text-cyan-300">
+                  {proc.procedure?.ProcedureName || "Unnamed Procedure"}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-300 mt-1 whitespace-pre-wrap">
+                  {proc.Description?.trim() || "No description provided."}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="italic text-gray-400 dark:text-gray-500">
+            No procedures recorded.
+          </p>
+        ),
+      },
       {
         key: "treatment",
         title: "Treatment & Instructions",
