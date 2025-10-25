@@ -6,7 +6,19 @@
     "lib": ["dom", "esnext"],
     "plugins": [{ "name": "next" }],
     "baseUrl": ".",
-    "paths": { "@/*": ["./src/*"] }
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
+    // ✅ Modern, future-safe compiler settings
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // ✅ Optional: silence deprecation warnings cleanly
+    "ignoreDeprecations": "6.0"
   },
   "include": [
     "**/*.ts",
