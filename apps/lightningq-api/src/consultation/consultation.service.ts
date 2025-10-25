@@ -686,7 +686,11 @@ export class ConsultationService {
             InvestigationSubType: true,
           },
         },
-        ConsultationProcedure: true,
+        ConsultationProcedure: {
+          include: {
+            procedure: true,
+          },
+        },
         ConsultationTreatment: true,
         ConsultationFollowUpPlan: true,
         appointment: {

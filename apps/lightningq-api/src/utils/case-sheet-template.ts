@@ -1,5 +1,3 @@
-// import { differenceInYears, differenceInMonths } from 'date-fns';
-
 export function generateCaseSheetHtml(
   patientName: string,
   appointmentId: number,
@@ -23,7 +21,7 @@ export function generateCaseSheetHtml(
   `
     : '';
 
-  const calculateAge = (dobString) => {
+  const calculateAge = (dobString: string) => {
     if (!dobString) return '-';
     const dob = new Date(dobString);
     const now = new Date();
@@ -39,25 +37,45 @@ export function generateCaseSheetHtml(
     return `${years} year${years !== 1 ? 's' : ''} ${months} month${months !== 1 ? 's' : ''}`;
   };
 
-  // In your component
   const age = calculateAge(patient?.dateOfBirth);
+
   const medicationsTable =
     consultation.ConsultationMedication?.map(
       (m: any) => `
-    <tr>
-      <td>${m.medicationName}</td>
-      <td>${m.dosage}</td>
-      <td>${m.frequency}</td>
-      <td>${m.duration}</td>
-      <td>${m.remarks}</td>
-    </tr>`,
+        <tr>
+          <td>${m.medicationName}</td>
+          <td>${m.dosage}</td>
+          <td>${m.frequency}</td>
+          <td>${m.duration}</td>
+          <td>${m.remarks}</td>
+        </tr>`,
     ).join('') || '';
 
-  return `
+  // 🩺 Procedures Section
+  const proceduresBlock =
+    consultation.ConsultationProcedure?.length > 0
+      ? `
+        <div class="section">
+          <h2>Procedures</h2>
+          <table class="table">
+            <thead>
+              <tr><th>Procedure Name</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              ${consultation.ConsultationProcedure.map(
+                (p: any) => `
+                <tr>
+                  <td>${p.procedure?.ProcedureName || '-'}</td>
+                  <td>${p.Description || '-'}</td>
+                </tr>`,
+              ).join('')}
+            </tbody>
+          </table>
+        </div>`
+      : '';
 
-  
+  return `
   <html>
-  
     <head>
       <style>
         body {
@@ -99,11 +117,11 @@ export function generateCaseSheetHtml(
           margin-bottom: 4px;
         }
         .hospital-name h2 {
-  font-size: 16px; 
-  margin: 0 0 2px 0;
-  color: #222;
-  font-weight: 600;
-}
+          font-size: 16px;
+          margin: 0 0 2px 0;
+          color: #222;
+          font-weight: 600;
+        }
         .hospital-details {
           text-align: right;
           font-size: 13px;
@@ -163,14 +181,12 @@ export function generateCaseSheetHtml(
         <div class="hospital-header">
           <div><h2>${hospital?.HospitalName}</h2></div>
           <div class="hospital-details">
-            <div>🏥 ${hospital?.HospitalCode}</div>
-            <div>✆ ${hospital?.contactNumber}</div>
-            <div>✉ ${hospital?.email}</div>
+            <div>🏥 ${hospital?.HospitalCode || '-'}</div>
+            <div>✆ ${hospital?.contactNumber || '-'}</div>
+            <div>✉ ${hospital?.email || '-'}</div>
           </div>
         </div>
-        <div class="hospital-address">
-          ${hospital?.address}
-        </div>
+        <div class="hospital-address">${hospital?.address || '-'}</div>
       </div>
 
       <div class="thin-divider"></div>
@@ -178,14 +194,16 @@ export function generateCaseSheetHtml(
       <div class="patient-grid">
         <div class="left">
           <div class="field"><div class="label">Name:</div><div>${patientName}</div></div>
-          <div class="field"><div class="label">MRN:</div><div>${patient?.Patient_Medical_Record_No}</div></div>
-          <div class="field"><div class="label">Gender:</div><div>${patient?.gender}</div></div>
+          <div class="field"><div class="label">MRN:</div><div>${patient?.Patient_Medical_Record_No || '-'}</div></div>
+          <div class="field"><div class="label">Gender:</div><div>${patient?.gender || '-'}</div></div>
           <div class="field"><div class="label">Age:</div><div>${age}</div></div>
-          <div class="field"><div class="label">Phone:</div><div>${patient?.mobile}</div></div>
+          <div class="field"><div class="label">Phone:</div><div>${patient?.mobile || '-'}</div></div>
         </div>
         <div class="right">
           <div class="field"><div class="label">Doctor:</div><div>Dr. ${doctor?.firstName} ${doctor?.lastName}</div></div>
-          <div class="field"><div class="label">Appointment Date:</div><div>${new Date(consultation.consultationDatTime).toLocaleString()}</div></div>
+          <div class="field"><div class="label">Appointment Date:</div><div>${new Date(
+            consultation.consultationDatTime,
+          ).toLocaleString()}</div></div>
         </div>
       </div>
 
@@ -197,13 +215,11 @@ export function generateCaseSheetHtml(
           ${
             consultation.ConsultationCheifComplaint?.map(
               (c: any) => `
-            <li>
-              <strong>${c.chiefComplaint?.ChiefComplainTagName}</strong>${
+              <li><strong>${c.chiefComplaint?.ChiefComplainTagName}</strong>${
                 consultation.CheifcomplaintNotes
                   ? ` : ${consultation.CheifcomplaintNotes}`
                   : ''
-              }
-            </li>`,
+              }</li>`,
             ).join('') || ''
           }
         </ul>
@@ -220,6 +236,8 @@ export function generateCaseSheetHtml(
           }
         </ul>
       </div>
+
+      ${proceduresBlock}
 
       <div class="section">
         <h2>Vitals</h2>
@@ -261,35 +279,15 @@ export function generateCaseSheetHtml(
       <div class="section">
         <h2>Follow-up</h2>
         <ul class="custom-bullets">
-  ${
-    consultation.ConsultationFollowUpPlan?.map(
-      (f: any) => `
-        <li>
-          ${f.followUpText || '-'}
-          <ul class="custom-bullets">
-  ${
-    consultation.ConsultationFollowUpPlan?.map(
-      (f: any) => `
-        <li>
-          ${f.followUpText || '-'}
           ${
-            f.followUpDate
-              ? ` — <strong>Follow-up Date:</strong> ${new Date(f.followUpDate).toLocaleDateString()}`
-              : ''
+            consultation.ConsultationFollowUpPlan?.map(
+              (f: any) =>
+                `<li>${f.followUpText}, After ${f.duration} ${f.unit} - Next Date: ${new Date(
+                  f.nextDate,
+                ).toLocaleDateString()}</li>`,
+            ).join('') || ''
           }
-        </li>
-      `,
-    ).join('') || ''
-  }
-</ul>
-
-
-        </li>
-      `,
-    ).join('') || ''
-  }
-</ul>
-
+        </ul>
       </div>
 
       <div class="footer">
@@ -298,6 +296,5 @@ export function generateCaseSheetHtml(
       </div>
 
     </body>
-  </html>
-  `;
+  </html>`;
 }

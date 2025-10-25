@@ -203,6 +203,19 @@ export async function generateConsultationPDF(data: any, patient: any) {
         : "None",
     ],
     [
+      "Procedure",
+      data.ConsultationProcedure?.length
+        ? data.ConsultationProcedure.map(
+            (p: any) =>
+              `${p.procedure?.ProcedureName || ""}\n${
+                p.Description?.trim()
+                  ? `Description: ${p.Description.trim()}`
+                  : "Description: —"
+              }`
+          ).join("\n\n")
+        : "None",
+    ],
+    [
       "Treatment & Instructions",
       data.ConsultationTreatment?.length
         ? data.ConsultationTreatment.map((t: any) => t.treatmentText).join(

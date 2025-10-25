@@ -12,6 +12,7 @@ import { MailerService } from 'src/common/mailer/mailer.service';
 import { createEvent } from 'ics';
 import { STATUS_CODES } from 'http';
 import { addDays } from 'date-fns';
+import { WhatsappService } from 'src/common/whatsapp/whatsapp.service';
 
 // import { subMinutes, addMilliseconds } from 'date-fns';
 
@@ -20,6 +21,7 @@ export class AppointmentService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
+    private readonly whatsappService: WhatsappService,
   ) {}
 
   async BookAppointment(dto: QuickAppointmentDto, CreatedBy: number) {
@@ -353,6 +355,36 @@ export class AppointmentService {
     //     }
     //   }
     // }
+
+    // ✅ Send WhatsApp Message
+    if (sendWhatsapp && patient?.mobile) {
+      try {
+        await this.whatsappService.sendAppointmentConfirmation({
+          patient: {
+            firstName: patient?.firstName ?? '',
+            lastName: patient?.lastName ?? '',
+            mobile: patient?.mobile,
+          },
+          appointmentType:
+            appointmentWithDetails?.visitType?.AppointmentTypeName ??
+            'FollowUp',
+          doctorName: doctorFullName,
+          appointmentDate,
+          appointmentTime,
+          hospitalName,
+          hospitalContact,
+        });
+      } catch (err) {
+        if (err instanceof Error) {
+          console.error('❌ Failed to send WhatsApp message:', err.message);
+        } else {
+          console.error(
+            '❌ Failed to send WhatsApp message:',
+            String(err),
+          );
+        }
+      }
+    }
   }
 
   //ICS Calender
