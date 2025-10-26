@@ -8,10 +8,23 @@ export class WhatsappService {
   private readonly phoneNumberId = process.env.PHONE_NUMBER_ID;
   private readonly url = `https://graph.facebook.com/v20.0/${this.phoneNumberId}/messages`;
 
+  constructor() {
+    this.logger.log('🚀 WhatsAppService initialized...');
+    this.logger.log(`📞 PHONE_NUMBER_ID: ${this.phoneNumberId || '❌ Undefined'}`);
+    this.logger.log(`🔑 TOKEN: ${this.token ? '✅ Loaded' : '❌ Missing'}`);
+    this.logger.log(`🌐 API URL: ${this.url}`);
+  }
+
   private normalizeMobile(mobile?: string): string | null {
-    if (!mobile) return null;
+    if (!mobile) {
+      this.logger.warn('⚠️ No mobile number provided to normalizeMobile()');
+      return null;
+    }
+
     const cleaned = mobile.replace(/[\s()-]/g, '');
-    return cleaned.startsWith('+') ? cleaned : `+91${cleaned}`; // 🇮🇳 change if needed
+    const normalized = cleaned.startsWith('+') ? cleaned : `+91${cleaned}`;
+    this.logger.log(`📱 Normalized mobile number: ${normalized}`);
+    return normalized;
   }
 
   async sendAppointmentConfirmation(data: {
@@ -23,15 +36,21 @@ export class WhatsappService {
     hospitalName: string;
     hospitalContact: string;
   }) {
+    this.logger.log('🧩 Preparing WhatsApp confirmation message...');
+    this.logger.debug(`🧾 Payload Input: ${JSON.stringify(data, null, 2)}`);
+
     const to = this.normalizeMobile(data.patient.mobile);
-    if (!to) return;
+    if (!to) {
+      this.logger.error('❌ WhatsApp send aborted — invalid or missing mobile number.');
+      return;
+    }
 
     const body = {
       messaging_product: 'whatsapp',
       to,
       type: 'template',
       template: {
-        name: 'lightningqapointmentbooking', // must match your template name
+        name: 'lightningqapointmentbooking', // your template name in Meta dashboard
         language: { code: 'en' },
         components: [
           {
@@ -58,6 +77,9 @@ export class WhatsappService {
       },
     };
 
+    this.logger.debug(`📤 WhatsApp API URL: ${this.url}`);
+    this.logger.debug(`📦 WhatsApp Payload: ${JSON.stringify(body, null, 2)}`);
+
     try {
       const res = await axios.post(this.url, body, {
         headers: {
@@ -65,12 +87,16 @@ export class WhatsappService {
           'Content-Type': 'application/json',
         },
       });
-      this.logger.log(`✅ WhatsApp sent: ${JSON.stringify(res.data)}`);
+
+      this.logger.log(`✅ WhatsApp sent successfully!`);
+      this.logger.debug(`📨 API Response: ${JSON.stringify(res.data, null, 2)}`);
     } catch (err: any) {
+      this.logger.error('❌ WhatsApp API Request Failed:');
+      this.logger.error(`🧩 URL Used: ${this.url}`);
+      this.logger.error(`📞 PHONE_NUMBER_ID: ${this.phoneNumberId}`);
+      this.logger.error(`🔑 Token Present: ${!!this.token}`);
       this.logger.error(
-        `❌ WhatsApp send failed: ${
-          err.response?.data?.error?.message || err.message
-        }`,
+        `🧾 Error Response: ${JSON.stringify(err.response?.data || err.message, null, 2)}`
       );
     }
   }

@@ -7,6 +7,8 @@ export function generateCaseSheetHtml(
   const { hospital, patient, doctor, Vitals } = appointmentDetails;
 
   const vital = Array.isArray(Vitals) && Vitals.length > 0 ? Vitals[0] : null;
+  console.log('📊 Vitals Count:', vital);
+console.log('🩺 Procedures Count:', consultation.ConsultationProcedure?.length);
 
   const vitalsBlock = vital
     ? `
@@ -282,9 +284,9 @@ export function generateCaseSheetHtml(
           ${
             consultation.ConsultationFollowUpPlan?.map(
               (f: any) =>
-                `<li>${f.followUpText}, After ${f.duration} ${f.unit} - Next Date: ${new Date(
+                `<li>${f.followUpText}, After ${f.duration} ${f.unit}<br><strong>Next Date: ${new Date(
                   f.nextDate,
-                ).toLocaleDateString()}</li>`,
+                ).toLocaleDateString()}</strong></li>`,
             ).join('') || ''
           }
         </ul>
