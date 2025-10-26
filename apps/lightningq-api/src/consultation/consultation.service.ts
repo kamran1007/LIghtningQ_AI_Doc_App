@@ -584,7 +584,15 @@ export class ConsultationService {
           where: { AppointmentId },
           include: {
             patient: {
-              select: { email: true, firstName: true, lastName: true,Patient_Medical_Record_No:true, gender:true, mobile:true, dateOfBirth:true },
+              select: {
+                email: true,
+                firstName: true,
+                lastName: true,
+                Patient_Medical_Record_No: true,
+                gender: true,
+                mobile: true,
+                dateOfBirth: true,
+              },
             },
             doctor: {
               select: { firstName: true, lastName: true, email: true },
@@ -598,6 +606,7 @@ export class ConsultationService {
                 HospitalCode: true,
               },
             },
+            Vitals: true,
           },
         });
 
@@ -618,6 +627,11 @@ export class ConsultationService {
               ConsultationTreatment: true,
               ConsultationFollowUpPlan: true,
               ConsultationclinicalNotes: true,
+              ConsultationProcedure: {
+                include: {
+                  procedure: true,
+                },
+              },
             },
           });
 
