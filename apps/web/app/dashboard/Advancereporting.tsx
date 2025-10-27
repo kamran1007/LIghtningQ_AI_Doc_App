@@ -136,12 +136,27 @@ export default function Advancereporting() {
           selectedHospital ? Number(selectedHospital) : undefined,
           selectedSpecialization ? Number(selectedSpecialization) : undefined
         );
-
+        console.log("Fetched Report Data:", data);
         setReportData(data);
 
-        // ✅ Trends: Month vs Revenue
-        setRevenueTrend(data.revenueTrend ?? []);
-        setDoctorPerformance(data.doctorPerformance ?? []);
+        // ✅ Transform revenue trend
+        setRevenueTrend(
+          (data.revenueTrend ?? []).map((t: any) => ({
+            month: t.time || t.month || "N/A",
+            revenue:
+              typeof t.revenue === "number"
+                ? t.revenue
+                : Number(String(t.revenue).replace(/[^0-9.-]+/g, "")) || 0,
+          }))
+        );
+
+        // ✅ Transform doctor performance to match expected structure
+        setDoctorPerformance(
+          (data.doctorPerformance ?? []).map((d: any) => ({
+            doctorName: d.name || "Unknown",
+            appointments: d.completed || 0,
+          }))
+        );
 
         // Summary Cards
         setDashboardCards(data.summaryCards || []);
@@ -153,50 +168,90 @@ export default function Advancereporting() {
     };
 
     loadReport();
-  }, [
-    dateRange, // re-fetch when date changes
-    selectedDoctor, // re-fetch when doctor changes
-    selectedHospital, // re-fetch when hospital changes
-    selectedSpecialization, // re-fetch when specialization changes
-  ]);
+  }, [dateRange, selectedDoctor, selectedHospital, selectedSpecialization]);
 
   // 👇 Auto re-render chart when reportData updates
   useEffect(() => {
     if (selectedCard && reportData) {
+      console.log("🔄 Re-rendering chart for:", selectedCard.id);
       handleCardClick(selectedCard, reportData);
     }
-  }, [reportData, selectedCard]);
+  }, [reportData]);
 
   const handleCardClick = (card: any, data: any) => {
+    console.log("🎯 Card clicked:", card.id);
     setSelectedCard(card);
+
+    // ❌ DON'T reset here - it causes the blank chart
+    // setChartOptions({});
+    // setChartSeries([]);
 
     if (card.id === "appointments") {
       const appointmentTrend = data?.appointmentTrend ?? [];
 
+      if (appointmentTrend.length === 0) {
+        console.warn("No appointment trend data");
+        setChartOptions({});
+        setChartSeries([]);
+        return;
+      }
+
       setChartOptions({
         chart: { type: "line", toolbar: { show: false } },
         stroke: { curve: "smooth", width: 3 },
-        xaxis: { categories: appointmentTrend.map((t: any) => t.time) },
-        yaxis: { title: { text: "Appointments" } },
+        colors: ["#108d85"],
+        xaxis: {
+          categories: appointmentTrend.map((t: any) => t.time || "N/A"),
+          labels: { rotate: -45 },
+        },
+        yaxis: {
+          title: { text: "Appointments" },
+          labels: { formatter: (val: number) => Math.floor(val).toString() },
+        },
       });
 
       setChartSeries([
         {
           name: "Appointments",
-          data: appointmentTrend.map((t: any) => t.appointments),
+          data: appointmentTrend.map((t: any) => Number(t.appointments) || 0),
         },
       ]);
     }
 
     if (card.id === "revenue") {
-      // ✅ Revenue Trend
+      const revenueTrend = data?.revenueTrend ?? [];
+
+      if (revenueTrend.length === 0) {
+        console.warn("No revenue trend data");
+        setChartOptions({});
+        setChartSeries([]);
+        return;
+      }
+
+      const categories = revenueTrend.map((t: any) => t.time || "N/A");
+      const values = revenueTrend.map((t: any) => {
+        const revenue = t.revenue;
+        if (typeof revenue === "number") return revenue;
+        if (typeof revenue === "string") {
+          return Number(revenue.replace(/[^0-9.-]+/g, "")) || 0;
+        }
+        return 0;
+      });
+
+      console.log("Revenue categories:", categories);
+      console.log("Revenue values:", values);
+
       setChartOptions({
         chart: { type: "line", toolbar: { show: false } },
         stroke: { curve: "smooth", width: 3 },
-        xaxis: { categories: data.revenueTrend.map((t: any) => t.month) },
+        colors: ["#108d85"],
+        xaxis: {
+          categories: categories,
+          labels: { rotate: -45 },
+        },
         yaxis: {
           labels: {
-            formatter: (val: number) => `₹${val.toFixed(2)}`,
+            formatter: (val: number) => `₹${val.toFixed(0)}`,
           },
           title: { text: "Revenue (₹)" },
         },
@@ -205,45 +260,159 @@ export default function Advancereporting() {
       setChartSeries([
         {
           name: "Revenue",
-          data: data.revenueTrend.map((t: any) =>
-            Number(String(t.revenue).replace(/[^0-9.-]+/g, ""))
-          ),
+          data: values,
         },
       ]);
     }
 
-    if (card.id === "doctors") {
-      // ✅ Doctor Performance
-      setChartOptions({
-        chart: { type: "bar", toolbar: { show: false } },
+    if (card.id === "doctor" || card.id?.toLowerCase().includes("doctor")) {
+      console.log("✅ Doctor Performance Card Clicked");
+      const doctorPerf = Array.isArray(data?.doctorPerformance)
+        ? data.doctorPerformance
+        : [];
+
+      console.log("📊 Doctor Performance Data:", doctorPerf);
+
+      if (doctorPerf.length === 0) {
+        console.warn("⚠️ No doctor performance data");
+        setChartOptions({});
+        setChartSeries([]);
+        return;
+      }
+
+      const xCategories = doctorPerf.map((d: any) => d?.name || "Unknown");
+      const yValues = doctorPerf.map((d: any) => Number(d?.completed) || 0);
+
+      console.log("📈 X-axis (Doctors):", xCategories);
+      console.log("📈 Y-axis (Appointments):", yValues);
+
+      // ✅ REMOVED the problematic validation that was blocking valid data
+      // Just check if we have matching lengths
+      if (xCategories.length === 0 || yValues.length === 0) {
+        console.error("❌ No data to display");
+        setChartOptions({});
+        setChartSeries([]);
+        return;
+      }
+
+      // ✅ Set chart config and series together
+      const newChartOptions = {
+        chart: {
+          type: "bar" as const,
+          toolbar: { show: false },
+          height: 350,
+        },
+        plotOptions: {
+          bar: {
+            borderRadius: 8,
+            columnWidth: "60%",
+            dataLabels: {
+              position: "top" as const,
+            },
+          },
+        },
+        dataLabels: {
+          enabled: true,
+          formatter: (val: number) => `${val}`,
+          offsetY: -20,
+          style: {
+            fontSize: "12px",
+            colors: ["#fff"],
+            fontWeight: "bold" as const,
+          },
+        },
         xaxis: {
-          categories: data.doctorPerformance.map((d: any) => d.doctorName),
+          categories: xCategories,
+          title: {
+            text: "Doctors",
+            style: {
+              fontSize: "14px",
+              fontWeight: 600,
+              color: "#108d85",
+            },
+          },
+          labels: {
+            rotate: -45,
+            style: {
+              fontSize: "11px",
+            },
+            trim: true,
+          },
         },
-        yaxis: { title: { text: "Appointments" } },
-      });
+        yaxis: {
+          title: {
+            text: "Completed Appointments",
+            style: {
+              fontSize: "14px",
+              fontWeight: 600,
+              color: "#108d85",
+            },
+          },
+          labels: {
+            formatter: (val: number) => Math.floor(val).toString(),
+          },
+        },
+        colors: ["#108d85"],
+        tooltip: {
+          y: {
+            formatter: (val: number) => `${val} appointments`,
+          },
+        },
+        grid: {
+          borderColor: "#e7e7e7",
+          strokeDashArray: 5,
+        },
+      };
 
-      setChartSeries([
+      const newChartSeries = [
         {
-          name: "Appointments",
-          data: data.doctorPerformance.map((d: any) => d.appointments),
+          name: "Completed Appointments",
+          data: yValues,
         },
-      ]);
+      ];
+
+      console.log("✅ Setting chart options:", newChartOptions);
+      console.log("✅ Setting chart series:", newChartSeries);
+
+      // ✅ Set both at once
+      setChartOptions(newChartOptions);
+      setChartSeries(newChartSeries);
+
+      // Add a small delay to ensure state is updated
+      setTimeout(() => {
+        console.log("📊 Final chartSeries state:", newChartSeries);
+      }, 100);
     }
+
     if (card.id === "specialization") {
-      // ✅ Specialization Performance
-      const specializationData = data.specializationPerformance || [];
+      const specializationData = data?.specializationPerformance ?? [];
+
+      if (specializationData.length === 0) {
+        console.warn("No specialization data");
+        setChartOptions({});
+        setChartSeries([]);
+        return;
+      }
+
       setChartOptions({
         chart: { type: "bar", toolbar: { show: false } },
+        colors: ["#108d85"],
         xaxis: {
-          categories: specializationData.map((s: any) => s.specializationName),
+          categories: specializationData.map(
+            (s: any) => s.specializationName || "N/A"
+          ),
+          labels: { rotate: -45 },
         },
-        yaxis: { title: { text: "Appointments" } },
+        yaxis: {
+          title: { text: "Appointments" },
+          labels: { formatter: (val: number) => Math.floor(val).toString() },
+        },
       });
 
       setChartSeries([
         {
           name: "Appointments",
-          data: specializationData.map((s: any) => s.appointments),
+          data: specializationData.map((s: any) => Number(s.appointments) || 0),
         },
       ]);
     }
@@ -295,7 +464,10 @@ export default function Advancereporting() {
             {dashboardCards.map((card) => (
               <div
                 key={card.id}
-                onClick={() => handleCardClick(card, reportData)} // 🔹 now passes API data
+                onClick={() => {
+                  console.log("Card clicked:", card);
+                  handleCardClick(card, reportData);
+                }}
                 className="  bg-white 
   rounded-2xl 
   p-5 
@@ -316,6 +488,7 @@ export default function Advancereporting() {
             ))}
           </div>
           {/* Advanced Reporting Modal */}
+
           <Dialog
             open={!!selectedCard}
             onClose={() => setSelectedCard(null)}
@@ -338,8 +511,8 @@ export default function Advancereporting() {
                   </button>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-4 w-full">
-                  {/* Filters */}
+                {/* Filters */}
+                <div className="flex flex-wrap items-center gap-4 w-full mb-6">
                   <div className="flex flex-wrap gap-4">
                     {/* Doctor Filter */}
                     <Select
@@ -413,8 +586,7 @@ export default function Advancereporting() {
                   </div>
 
                   {/* Date Range Picker */}
-                  <div className="ml-8 mt-6 justify-center-safe">
-                    Date Range Picker
+                  <div className="ml-8">
                     <DateRangePicker
                       {...({
                         ranges: dateRange,
@@ -425,178 +597,197 @@ export default function Advancereporting() {
                   </div>
                 </div>
 
-                {/* Chart */}
-                <div className="mt-6">
-                  <ApexChart
-                    options={{
-                      ...chartOptions,
-                      colors: ["#108d85"], // ✅ set chart color here
-                    }}
-                    series={chartSeries}
-                    type={selectedCard?.id === "doctors" ? "bar" : "line"} // bar for doctors, line for others
-                    height={300}
-                  />
-                </div>
+                {/* Chart Section */}
+                {chartSeries &&
+                chartSeries.length > 0 &&
+                chartSeries[0]?.data &&
+                chartSeries[0].data.length > 0 ? (
+                  <div className="my-6">
+                    <ApexChart
+                      key={`chart-${selectedCard?.id}-${Date.now()}`}
+                      options={chartOptions}
+                      series={chartSeries}
+                      type={chartOptions?.chart?.type || "bar"}
+                      height={chartOptions?.chart?.height || 350}
+                    />
+                  </div>
+                ) : (
+                  <div className="my-6 text-center py-12 bg-gray-50 rounded-lg">
+                    <p className="text-gray-400 text-lg font-medium">
+                      No chart data available
+                    </p>
+                    <p className="text-gray-300 text-sm mt-2">
+                      Try adjusting your filters or date range
+                    </p>
+                  </div>
+                )}
 
                 {/* Appointment Trend Table */}
-                {reportData?.appointmentTrend?.length > 0 && (
-                  <div className="mt-6 overflow-x-auto">
-                    <h2 className="text-lg font-semibold mb-2">
-                      Appointment Trend
-                    </h2>
-                    <table className="min-w-full bg-white shadow-lg rounded-xl overflow-hidden">
-                      <thead>
-                        <tr className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-left">
-                          <th className="p-4 text-sm font-semibold">Date</th>
-                          <th className="p-4 text-sm font-semibold">
-                            No. of Appointments
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {reportData.appointmentTrend.map(
-                          (t: any, idx: number) => (
-                            <tr
-                              key={idx}
-                              className="border-b hover:bg-gray-50 transition-colors"
-                            >
-                              <td className="p-4 text-gray-700">{t.time}</td>
-                              <td className="p-4 font-semibold text-cyan-600">
-                                {t.appointments}
-                              </td>
-                            </tr>
-                          )
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-
-                {/* -------------------- Revenue Trend Table -------------------- */}
-                {reportData?.revenueTrend?.length > 0 && (
-                  <div className="mt-6 overflow-x-auto">
-                    <h2 className="text-lg font-semibold mb-2">
-                      Revenue Trend
-                    </h2>
-                    <table className="min-w-full bg-white shadow-lg rounded-xl overflow-hidden">
-                      <thead>
-                        <tr className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-left">
-                          <th className="p-4 text-sm font-semibold">Date</th>
-                          <th className="p-4 text-sm font-semibold">Month</th>
-                          <th className="p-4 text-sm font-semibold">
-                            Amount (INR)
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {reportData.revenueTrend?.map((t: any, idx: number) => (
-                          <tr
-                            key={idx}
-                            className="border-b hover:bg-gray-50 transition-colors"
-                          >
-                            <td className="p-4 text-gray-700">{t.time}</td>
-                            <td className="p-4 text-gray-700">{t.month}</td>
-                            <td className="p-4 font-semibold text-green-600">
-                              {t.revenue}
-                            </td>
+                {reportData?.appointmentTrend?.length > 0 &&
+                  selectedCard?.id === "appointments" && (
+                    <div className="mt-6 overflow-x-auto">
+                      <h2 className="text-lg font-semibold mb-2">
+                        Appointment Trend
+                      </h2>
+                      <table className="min-w-full bg-white shadow-lg rounded-xl overflow-hidden">
+                        <thead>
+                          <tr className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-left">
+                            <th className="p-4 text-sm font-semibold">Date</th>
+                            <th className="p-4 text-sm font-semibold">
+                              No. of Appointments
+                            </th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                        </thead>
+                        <tbody>
+                          {reportData.appointmentTrend.map(
+                            (t: any, idx: number) => (
+                              <tr
+                                key={idx}
+                                className="border-b hover:bg-gray-50 transition-colors"
+                              >
+                                <td className="p-4 text-gray-700">{t.time}</td>
+                                <td className="p-4 font-semibold text-cyan-600">
+                                  {t.appointments}
+                                </td>
+                              </tr>
+                            )
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
 
-                {/* -------------------- Doctor Performance Table -------------------- */}
-                {reportData?.doctorPerformance?.length > 0 && (
-                  <div className="mt-6 overflow-x-auto">
-                    <h2 className="text-lg font-semibold mb-2">
-                      Doctor Performance
-                    </h2>
-                    <table className="min-w-full bg-white shadow-lg rounded-xl overflow-hidden">
-                      <thead>
-                        <tr className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-left">
-                          <th className="p-4 text-sm font-semibold">Date</th>
-                          <th className="p-4 text-sm font-semibold">
-                            Doctor Name
-                          </th>
-                          <th className="p-4 text-sm font-semibold">
-                            No. of Appointments
-                          </th>
-                          <th className="p-4 text-sm font-semibold">
-                            Revenue (INR)
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {reportData.doctorPerformance?.map(
-                          (d: any, idx: number) => (
-                            <tr
-                              key={idx}
-                              className="border-b hover:bg-gray-50 transition-colors"
-                            >
-                              <td className="p-4 text-gray-700">{d.date}</td>
-                              <td className="p-4 font-medium text-gray-900">
-                                {d.doctorName}
-                              </td>
-                              <td className="p-4 font-semibold text-cyan-600">
-                                {d.appointments}
-                              </td>
-                              <td className="p-4 font-semibold text-green-600">
-                                {d.revenue}
-                              </td>
-                            </tr>
-                          )
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                {/* Revenue Trend Table */}
+                {reportData?.revenueTrend?.length > 0 &&
+                  selectedCard?.id === "revenue" && (
+                    <div className="mt-6 overflow-x-auto">
+                      <h2 className="text-lg font-semibold mb-2">
+                        Revenue Trend
+                      </h2>
+                      <table className="min-w-full bg-white shadow-lg rounded-xl overflow-hidden">
+                        <thead>
+                          <tr className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-left">
+                            <th className="p-4 text-sm font-semibold">Date</th>
+                            <th className="p-4 text-sm font-semibold">
+                              Amount (INR)
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {reportData.revenueTrend?.map(
+                            (t: any, idx: number) => (
+                              <tr
+                                key={idx}
+                                className="border-b hover:bg-gray-50 transition-colors"
+                              >
+                                <td className="p-4 text-gray-700">{t.time}</td>
+                                <td className="p-4 font-semibold text-green-600">
+                                  {t.revenue}
+                                </td>
+                              </tr>
+                            )
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
 
-                {/* -------------------- Specialization Performance Table -------------------- */}
-                {reportData?.appointmentTrend?.length > 0 && (
-                  <div className="mt-6 overflow-x-auto">
-                    <h2 className="text-lg font-semibold mb-2">
-                      Specialization Performance
-                    </h2>
-                    <table className="min-w-full bg-white shadow-lg rounded-xl overflow-hidden">
-                      <thead>
-                        <tr className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-left">
-                          <th className="p-4 text-sm font-semibold">Date</th>
-                          <th className="p-4 text-sm font-semibold">
-                            Specialist
-                          </th>
-                          <th className="p-4 text-sm font-semibold">
-                            No. of Appointments
-                          </th>
-                          <th className="p-4 text-sm font-semibold">
-                            Revenue (INR)
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {reportData.specializationPerformance?.map(
-                          (s: any, idx: number) => (
-                            <tr
-                              key={idx}
-                              className="border-b hover:bg-gray-50 transition-colors"
-                            >
-                              <td className="p-4 text-gray-700">{s.date}</td>
-                              <td className="p-4 font-medium text-gray-900">
-                                {s.specializationName}
-                              </td>
-                              <td className="p-4 font-semibold text-cyan-600">
-                                {s.appointments}
-                              </td>
-                              <td className="p-4 font-semibold text-green-600">
-                                {s.revenue}
-                              </td>
-                            </tr>
-                          )
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                {/* Doctor Performance Table */}
+                {reportData?.doctorPerformance?.length > 0 &&
+                  (selectedCard?.id === "doctor" ||
+                    selectedCard?.id?.toLowerCase().includes("doctor")) && (
+                    <div className="mt-6 overflow-x-auto">
+                      <h2 className="text-lg font-semibold mb-2">
+                        Doctor Performance Details
+                      </h2>
+                      <table className="min-w-full bg-white shadow-lg rounded-xl overflow-hidden">
+                        <thead>
+                          <tr className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-left">
+                            <th className="p-4 text-sm font-semibold">
+                              Doctor Name
+                            </th>
+                            <th className="p-4 text-sm font-semibold">
+                              Specialization
+                            </th>
+                            <th className="p-4 text-sm font-semibold">
+                              Completed Appointments
+                            </th>
+                            <th className="p-4 text-sm font-semibold">
+                              Avg Minutes
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {reportData.doctorPerformance?.map(
+                            (d: any, idx: number) => (
+                              <tr
+                                key={idx}
+                                className="border-b hover:bg-gray-50 transition-colors"
+                              >
+                                <td className="p-4 font-medium text-gray-900">
+                                  {d.name || "N/A"}
+                                </td>
+                                <td className="p-4 text-gray-700">
+                                  {d.specialization || "N/A"}
+                                </td>
+                                <td className="p-4 font-semibold text-cyan-600">
+                                  {d.completed || 0}
+                                </td>
+                                <td className="p-4 font-semibold text-green-600">
+                                  {d.avgMin || 0} min
+                                </td>
+                              </tr>
+                            )
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                {/* Specialization Performance Table */}
+                {reportData?.specializationPerformance?.length > 0 &&
+                  selectedCard?.id === "specialization" && (
+                    <div className="mt-6 overflow-x-auto">
+                      <h2 className="text-lg font-semibold mb-2">
+                        Specialization Performance
+                      </h2>
+                      <table className="min-w-full bg-white shadow-lg rounded-xl overflow-hidden">
+                        <thead>
+                          <tr className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-left">
+                            <th className="p-4 text-sm font-semibold">
+                              Specialist
+                            </th>
+                            <th className="p-4 text-sm font-semibold">
+                              No. of Appointments
+                            </th>
+                            <th className="p-4 text-sm font-semibold">
+                              Revenue (INR)
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {reportData.specializationPerformance?.map(
+                            (s: any, idx: number) => (
+                              <tr
+                                key={idx}
+                                className="border-b hover:bg-gray-50 transition-colors"
+                              >
+                                <td className="p-4 font-medium text-gray-900">
+                                  {s.specializationName}
+                                </td>
+                                <td className="p-4 font-semibold text-cyan-600">
+                                  {s.appointments}
+                                </td>
+                                <td className="p-4 font-semibold text-green-600">
+                                  {s.revenue}
+                                </td>
+                              </tr>
+                            )
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
 
                 {/* Export Buttons */}
                 <ReportExport
@@ -616,7 +807,6 @@ export default function Advancereporting() {
             revenueTrend={revenueTrend}
             doctorPerformance={doctorPerformance}
           />
-
           <ScheduledReports />
         </div>
       )}

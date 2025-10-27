@@ -742,7 +742,7 @@ export class DashboardService {
       by: ['DoctorId'],
       _count: { _all: true },
       where: {
-        ...appointments,
+        ...whereClause,
         status: 'COMPLETED', // ✅ Focus on completed appointments
       },
     });
@@ -765,7 +765,7 @@ export class DashboardService {
         name: doc ? `${doc.firstName} ${doc.lastName}` : 'Unknown',
         specialization: doc?.Specialization?.SpecializationName ?? 'N/A',
         completed: d._count._all,
-        avgMin: 0, // optional: later calculated from consultation durations
+        avgMin: 0, // optional: future metric
       };
     });
 
