@@ -15,10 +15,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-
-    // ✅ Optional: silence deprecation warnings cleanly
-    "ignoreDeprecations": "6.0"
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
     "**/*.ts",
