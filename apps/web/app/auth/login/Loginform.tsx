@@ -184,6 +184,7 @@ const LoginInForm = () => {
     }
   }, [dispatch, selectedHospital, profile]);
 
+  const isScrollable = hospitals.length > 2;
   return (
     <>
       <Toast ref={toast} />
@@ -282,11 +283,11 @@ const LoginInForm = () => {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -100 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="flex flex-col items-center gap-8 p-6 w-full max-w-2lg max-h-xl mx-auto bg-white/70 backdrop-blur-md shadow-lg rounded-2xl"
+          className="flex flex-col items-center gap-8 p-6 w-full max-w-3xl mx-auto bg-white/70 backdrop-blur-md shadow-lg rounded-2xl"
         >
           {/* Greeting with gradient */}
           <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-400 bg-clip-text text-transparent font-sans animate-ocean-flow">
-            Welcome back, {sessionProfile?.name}!{/* 🎉 */}
+            Welcome back, {sessionProfile?.name}!
           </h2>
 
           <p className="text-gray-600 text-lg font-medium font-sans text-center">
@@ -294,43 +295,48 @@ const LoginInForm = () => {
           </p>
 
           {/* Hospital Buttons */}
-          <div className="flex flex-col items-center gap-4 w-full">
-            {hospitals.map((h) => (
-              <motion.button
-                key={h.hospitalId}
-                type="button"
-                onClick={() => handleHospitalSelect(h)}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className="relative sm:w-90 w-84 py-3 px-6 rounded-xl font-semibold font-sans
-          bg-gradient-to-r from-cyan-400 via-teal-400 to-blue-400
-          text-white shadow-md hover:shadow-xl 
-          overflow-hidden transition-all duration-300 cursor-pointer"
-              >
-                {/* Shimmer effect */}
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
-                  initial={{ x: "-100%" }}
-                  animate={{ x: "100%" }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                  }}
-                />
+          <div
+            className={`flex flex-col items-center w-full px-6 py-6 scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-transparent transition-all duration-300 ${
+              isScrollable
+                ? "max-h-[400px] overflow-y-auto"
+                : "overflow-y-visible"
+            }`}
+            style={{ scrollBehavior: "smooth" }}
+          >
+            <div className="flex flex-col items-center gap-4 w-full">
+              {hospitals.map((h) => (
+                <motion.button
+                  key={h.hospitalId}
+                  type="button"
+                  onClick={() => handleHospitalSelect(h)}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="relative w-[90%] sm:w-[480px] lg:w-[520px] py-4 px-8 rounded-xl font-semibold font-sans
+              bg-gradient-to-r from-cyan-400 via-teal-400 to-blue-500
+              text-white shadow-md hover:shadow-xl 
+              overflow-hidden transition-all duration-300 cursor-pointer whitespace-nowrap"
+                >
+                  {/* Shimmer effect */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
+                    initial={{ x: "-100%" }}
+                    animate={{ x: "100%" }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                    }}
+                  />
 
-                {/* Button label */}
-                <span className="relative z-10">
-                  {h.hospital?.HospitalName ?? `Hospital ${h.hospitalId}`} –{" "}
-                  {h.hospital?.city}
-                </span>
-              </motion.button>
-            ))}
+                  {/* Button label */}
+                  <span className="relative z-10 text-center block">
+                    {h.hospital?.HospitalName ?? `Hospital ${h.hospitalId}`} –{" "}
+                    {h.hospital?.city}
+                  </span>
+                </motion.button>
+              ))}
+            </div>
           </div>
         </motion.div>
-
-        //bg-gradient-to-r from-cyan-500 to-teal-500
-        // text-2xl font-extrabold bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent
-        //bg-gradient-to-r from-blue-500 via-cyan-400 to-teal-400
       )}
     </>
   );

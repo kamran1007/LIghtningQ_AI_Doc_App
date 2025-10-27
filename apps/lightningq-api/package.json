@@ -21,6 +21,11 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@mui/icons-material": "^7.3.4",
+    "@mui/lab": "7.0.1-beta.18",
+    "@mui/x-date-pickers": "^8.5.2",
+    "@mui/x-date-pickers-pro": "^8.15.0",
+    "@mui/x-license-pro": "^6.10.2",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
