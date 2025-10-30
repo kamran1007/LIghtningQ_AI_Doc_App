@@ -858,7 +858,7 @@ export class AppointmentService {
       const isCompleted =
         String(filters.isConsultationcompleted).toLowerCase() === 'true';
       andConditions.push({
-        consultation: { is: { IsconsultationCompleted: isCompleted } },
+        consultation: { is: { IsConsultationCompleted: isCompleted } },
       });
     }
 

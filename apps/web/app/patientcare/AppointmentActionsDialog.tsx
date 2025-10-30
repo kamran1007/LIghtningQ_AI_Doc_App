@@ -201,16 +201,16 @@ export default function AppointmentActionsDialog({
                           return;
                         }
 
-                        // if (appointmentDate > today) {
-                        //   toast.current?.show({
-                        //     severity: "warn",
-                        //     summary: "Warning",
-                        //     detail:
-                        //       "You can't start consultation for a future appointment.",
-                        //     life: 4000,
-                        //   });
-                        //   return;
-                        // }
+                        if (appointmentDate > today) {
+                          toast.current?.show({
+                            severity: "warn",
+                            summary: "Warning",
+                            detail:
+                              "You can't start consultation for a future appointment.",
+                            life: 4000,
+                          });
+                          return;
+                        }
 
                         // ✅ Allow only for today's appointments
                         onStartConsultation({
