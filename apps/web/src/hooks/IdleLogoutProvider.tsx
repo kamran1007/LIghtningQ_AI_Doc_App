@@ -4,6 +4,6 @@
 import { useIdleLogout } from "@/hooks/useIdleLogout";
 
 export default function IdleLogoutProvider() {
-  useIdleLogout(10* 60 * 1000); // 30s
+  useIdleLogout(12* 60 * 1000); // 30s
   return null; // it doesn’t render anything
 }
