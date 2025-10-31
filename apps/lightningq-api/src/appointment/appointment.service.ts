@@ -93,7 +93,7 @@ export class AppointmentService {
             lt: new Date(dto.appointmentDate + 'T23:59:59'),
           },
           status: {
-            in: ['SCHEDULED'], // optional
+            in: ['SCHEDULED','COMPLETED'], // optional
           },
         },
       });
