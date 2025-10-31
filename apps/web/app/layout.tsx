@@ -46,7 +46,7 @@ export default async function RootLayout({
           <Toaster position="top-center" reverseOrder={false} />
           <TooltipProvider delayDuration={200}>
             <AppProviders>
-              {/* <IdleLogoutProvider /> */}
+              <IdleLogoutProvider />
               <NProgressProvider />
 
               {!isAuthPage && <ClientAppBarWrapper session={session} />}

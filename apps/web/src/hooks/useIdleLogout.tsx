@@ -8,7 +8,7 @@ import { clearSelectedHospital } from "@/store/HospitalBranchSelectionSlice";
 import { persistor } from "@/store";
 import { useAppDispatch } from "@/store/hooks";
 
-export function useIdleLogout(timeout = 10 * 60 * 1000) {
+export function useIdleLogout(timeout = 12 * 60 * 1000) {
   // default 10 min
   const dispatch = useAppDispatch();
 
