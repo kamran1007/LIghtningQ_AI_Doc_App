@@ -353,31 +353,30 @@ export class DashboardService {
   }) {
     const { startDate, endDate, hospitalId, doctorId } = filters;
 
-    // Fetch appointments for today with patient info
+    // ---- Build where conditions ----
     const appointmentWhere: any = {};
     if (startDate && endDate) {
       const gte = new Date(startDate);
       const lte = new Date(endDate);
       gte.setHours(0, 0, 0, 0);
       lte.setHours(23, 59, 59, 999);
-
       appointmentWhere.appointmentDate = { gte, lte };
     }
 
-    if (hospitalId) {
-      appointmentWhere.HospitalId = hospitalId;
-    }
-    if (doctorId) {
-      appointmentWhere.DoctorId = doctorId;
-    }
+    if (hospitalId) appointmentWhere.hospitalId = hospitalId; // ✅ lowercase matches model
+    if (doctorId) appointmentWhere.DoctorId = doctorId;
+
+    // ---- Fetch appointments in the range ----
     const appointments = await this.prisma.appointment.findMany({
       where: appointmentWhere,
-
       select: {
+        AppointmentId: true,
         PatientId: true,
         acuity: true,
+        visitTypeId: true,
         visitType: { select: { AppointmentTypeName: true } },
         fasttrackpatient: true,
+        appointmentDate: true,
         patient: {
           select: {
             firstName: true,
@@ -387,23 +386,60 @@ export class DashboardService {
           },
         },
       },
+      orderBy: { appointmentDate: 'asc' }, // ✅ ensure chronological order
     });
 
-    // Build demographic stats
-    const total = appointments.length;
+    // ---- No appointments case ----
+    if (appointments.length === 0) {
+      return {
+        genderStats: [],
+        summary: {
+          fastTrack: 0,
+          highAcuity: 0,
+          newPatients: 0,
+          newAppointments: 0,
+        },
+        list: [],
+      };
+    }
+
+    // ---- Compute demographic stats ----
     const maleCount = appointments.filter(
-      (a) => a.patient.gender === 'MALE',
+      (a) => a.patient.gender?.toUpperCase() === 'MALE',
     ).length;
     const femaleCount = appointments.filter(
-      (a) => a.patient.gender === 'FEMALE',
+      (a) => a.patient.gender?.toUpperCase() === 'FEMALE',
     ).length;
     const fastTrack = appointments.filter((a) => a.fasttrackpatient).length;
     const highAcuity = appointments.filter((a) => a.acuity === 'HIGH').length;
-    const newPatients = appointments.filter((a) => {
-      // Example: define "new patient" as no previous appointments
-      return a.patient && a.patient.firstName && this.isNewPatient(a.PatientId);
-    }).length;
 
+    // ---- New appointments (visitTypeId = 1) ----
+    const newAppointments = appointments.filter(
+      (a) => a.visitTypeId === 1,
+    ).length;
+
+    // ---- Identify new vs returning patients efficiently ----
+    const uniquePatientIds = [...new Set(appointments.map((a) => a.PatientId))];
+
+    // ✅ Safe reference to earliest appointment date
+    const earliestAppointmentDate =
+      appointments[0]?.appointmentDate ?? new Date();
+
+    const previousAppointments = await this.prisma.appointment.groupBy({
+      by: ['PatientId'],
+      _count: { _all: true },
+      where: {
+        PatientId: { in: uniquePatientIds },
+        appointmentDate: { lt: earliestAppointmentDate },
+      },
+    });
+
+    const oldPatientIds = new Set(previousAppointments.map((p) => p.PatientId));
+    const newPatients = uniquePatientIds.filter(
+      (id) => !oldPatientIds.has(id),
+    ).length;
+
+    // ---- Final response ----
     return {
       genderStats: [
         { label: 'Male', value: maleCount },
@@ -413,7 +449,7 @@ export class DashboardService {
         fastTrack,
         highAcuity,
         newPatients,
-        newAppointments: total,
+        newAppointments,
       },
       list: appointments.map((a) => ({
         firstName: a.patient.firstName,
