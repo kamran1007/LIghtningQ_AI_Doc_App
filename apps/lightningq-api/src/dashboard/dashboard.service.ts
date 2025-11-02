@@ -620,6 +620,7 @@ export class DashboardService {
     doctorId?: number;
     hospitalId?: number;
     specializationId?: number;
+    status?: string; // optional, future support
   }) {
     const { startDate, endDate, doctorId, hospitalId, specializationId } =
       filters;
@@ -631,23 +632,21 @@ export class DashboardService {
 
     if (startDate) {
       appointmentDateFilter.gte = new Date(startDate);
-      appointmentDateFilter.gte.setHours(0, 0, 0, 0); // start of the day
+      appointmentDateFilter.gte.setHours(0, 0, 0, 0);
     }
-
     if (endDate) {
       appointmentDateFilter.lte = new Date(endDate);
-      appointmentDateFilter.lte.setHours(23, 59, 59, 999); // end of the day
+      appointmentDateFilter.lte.setHours(23, 59, 59, 999);
     }
 
     // -----------------------------
-    // 2️⃣ Build Base Where Clause
+    // 2️⃣ Base WHERE Clause
     // -----------------------------
     const whereClause: any = {};
 
     if (Object.keys(appointmentDateFilter).length > 0) {
       whereClause.appointmentDate = appointmentDateFilter;
     }
-
     if (doctorId) whereClause.DoctorId = Number(doctorId);
     if (hospitalId) whereClause.hospitalId = Number(hospitalId);
     if (specializationId)
@@ -664,11 +663,7 @@ export class DashboardService {
 
     const totalRevenue = await this.prisma.paymentHistory.aggregate({
       _sum: { AppointmentChargesPaid: true },
-      where: {
-        appointments: {
-          some: whereClause,
-        },
-      },
+      where: { appointments: { some: whereClause } },
     });
 
     // -----------------------------
@@ -677,35 +672,19 @@ export class DashboardService {
     const topSpecialization = await this.prisma.specialization.findFirst({
       where: {
         Users: {
-          some: {
-            DoctorAppointments: {
-              some: whereClause,
-            },
-          },
+          some: { DoctorAppointments: { some: whereClause } },
         },
       },
-      orderBy: {
-        Users: {
-          _count: 'desc',
-        },
-      },
+      orderBy: { Users: { _count: 'desc' } },
     });
 
     const topDoctor = await this.prisma.user.findFirst({
-      where: {
-        DoctorAppointments: {
-          some: whereClause,
-        },
-      },
-      orderBy: {
-        DoctorAppointments: {
-          _count: 'desc',
-        },
-      },
+      where: { DoctorAppointments: { some: whereClause } },
+      orderBy: { DoctorAppointments: { _count: 'desc' } },
     });
 
     // -----------------------------
-    // 5️⃣ Calculate diffDays Safely
+    // 5️⃣ Date Range Logic
     // -----------------------------
     const safeStart = startDate ? new Date(startDate) : new Date();
     const safeEnd = endDate ? new Date(endDate) : new Date();
@@ -731,7 +710,6 @@ export class DashboardService {
 
     const groupAppointments: Record<string, number> = {};
     const groupRevenue: Record<string, number> = {};
-
     const TZ = 'Asia/Kolkata';
 
     function bucketLabel(
@@ -741,7 +719,6 @@ export class DashboardService {
       const z = toZonedTime(new Date(dateUTC), TZ);
       if (type === 'hour') return formatInTimeZone(z, TZ, 'HH:00');
       if (type === 'day') return formatInTimeZone(z, TZ, 'dd-MMM');
-
       const ws = startOfWeek(z, { weekStartsOn: 1 });
       const we = endOfWeek(z, { weekStartsOn: 1 });
       return `Week of ${formatInTimeZone(ws, TZ, 'dd-MMM')} - ${formatInTimeZone(
@@ -771,29 +748,30 @@ export class DashboardService {
       revenue: value,
     }));
 
-    // -------------------------
-    // 6️⃣ Doctor Performance (FIXED)
-    // -------------------------
+    // -----------------------------
+    // 7️⃣ Doctor Performance (Dynamic)
+    // -----------------------------
     const doctorPerformanceRaw = await this.prisma.appointment.groupBy({
       by: ['DoctorId'],
       _count: { _all: true },
       where: {
         ...whereClause,
-        status: 'COMPLETED', // ✅ Focus on completed appointments
+        NOT: { status: 'CANCELLED' }, // ✅ includes completed, booked, etc.
       },
     });
 
     const doctorIds = doctorPerformanceRaw.map((d) => d.DoctorId);
-
-    const doctorInfo = await this.prisma.user.findMany({
-      where: { UserId: { in: doctorIds } },
-      select: {
-        UserId: true,
-        firstName: true,
-        lastName: true,
-        Specialization: { select: { SpecializationName: true } },
-      },
-    });
+    const doctorInfo = doctorIds.length
+      ? await this.prisma.user.findMany({
+          where: { UserId: { in: doctorIds } },
+          select: {
+            UserId: true,
+            firstName: true,
+            lastName: true,
+            Specialization: { select: { SpecializationName: true } },
+          },
+        })
+      : [];
 
     const doctorPerformance = doctorPerformanceRaw.map((d) => {
       const doc = doctorInfo.find((x) => x.UserId === d.DoctorId);
@@ -801,12 +779,68 @@ export class DashboardService {
         name: doc ? `${doc.firstName} ${doc.lastName}` : 'Unknown',
         specialization: doc?.Specialization?.SpecializationName ?? 'N/A',
         completed: d._count._all,
-        avgMin: 0, // optional: future metric
+        avgMin: 0,
       };
     });
 
+    console.log('📊 Doctor Performance:', doctorPerformance);
+
     // -----------------------------
-    // 8️⃣ Final Response
+    // 8️⃣ Specialization Performance
+    // -----------------------------
+    const specializationPerformanceRaw = await this.prisma.appointment.groupBy({
+      by: ['SpecializationId'],
+      _count: { _all: true },
+      where: whereClause,
+    });
+
+    const specializationIds = specializationPerformanceRaw
+      .map((s) => s.SpecializationId)
+      .filter((id): id is number => id !== null);
+
+    const specializationInfo = specializationIds.length
+      ? await this.prisma.specialization.findMany({
+          where: { SpecializationId: { in: specializationIds } },
+          select: { SpecializationId: true, SpecializationName: true },
+        })
+      : [];
+
+    const specializationRevenue = await this.prisma.paymentHistory.findMany({
+      where: { appointments: { some: whereClause } },
+      select: {
+        AppointmentChargesPaid: true,
+        appointments: { select: { SpecializationId: true } },
+      },
+    });
+
+    const revenueBySpec: Record<number, number> = {};
+    for (const payment of specializationRevenue) {
+      const specId = payment.appointments[0]?.SpecializationId;
+      if (specId) {
+        revenueBySpec[specId] =
+          (revenueBySpec[specId] || 0) + (payment.AppointmentChargesPaid || 0);
+      }
+    }
+
+    const specializationPerformance = specializationPerformanceRaw
+      .filter((s) => s.SpecializationId !== null)
+      .map((s) => {
+        const spec = specializationInfo.find(
+          (x) => x.SpecializationId === s.SpecializationId,
+        );
+        return {
+          specializationName: spec?.SpecializationName || 'Unknown',
+          appointments: s._count._all,
+          revenue: new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            maximumFractionDigits: 0,
+          }).format(revenueBySpec[s.SpecializationId!] || 0),
+        };
+      });
+
+    // -----------------------------
+    // 9️⃣ Final Response
     // -----------------------------
     return {
       summaryCards: [
@@ -837,9 +871,10 @@ export class DashboardService {
             : 'N/A',
         },
       ],
-      appointmentTrend,
-      revenueTrend,
-      doctorPerformance,
+      appointmentTrend: appointmentTrend ?? [],
+      revenueTrend: revenueTrend ?? [],
+      doctorPerformance: doctorPerformance ?? [],
+      specializationPerformance: specializationPerformance ?? [],
     };
   }
 
