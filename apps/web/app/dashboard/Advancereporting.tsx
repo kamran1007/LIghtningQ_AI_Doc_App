@@ -132,9 +132,16 @@ export default function Advancereporting() {
         const data = await FetchAdvancedReport(
           startDate,
           endDate,
-          selectedDoctor ? Number(selectedDoctor) : undefined,
-          selectedHospital ? Number(selectedHospital) : undefined,
-          selectedSpecialization ? Number(selectedSpecialization) : undefined
+          selectedDoctor && selectedDoctor !== "all-doctors"
+            ? Number(selectedDoctor)
+            : undefined,
+          selectedHospital && selectedHospital !== "all-hospitals"
+            ? Number(selectedHospital)
+            : undefined,
+          selectedSpecialization &&
+            selectedSpecialization !== "all-specializations"
+            ? Number(selectedSpecialization)
+            : undefined
         );
         console.log("Fetched Report Data:", data);
         setReportData(data);
@@ -275,8 +282,15 @@ export default function Advancereporting() {
 
       if (doctorPerf.length === 0) {
         console.warn("⚠️ No doctor performance data");
-        setChartOptions({});
-        setChartSeries([]);
+        setChartOptions({
+          chart: { type: "bar", toolbar: { show: false } },
+          xaxis: { categories: [] },
+          noData: {
+            text: "No data available",
+            style: { fontSize: "16px" },
+          },
+        });
+        setChartSeries([{ name: "Completed Appointments", data: [] }]);
         return;
       }
 
@@ -286,16 +300,6 @@ export default function Advancereporting() {
       console.log("📈 X-axis (Doctors):", xCategories);
       console.log("📈 Y-axis (Appointments):", yValues);
 
-      // ✅ REMOVED the problematic validation that was blocking valid data
-      // Just check if we have matching lengths
-      if (xCategories.length === 0 || yValues.length === 0) {
-        console.error("❌ No data to display");
-        setChartOptions({});
-        setChartSeries([]);
-        return;
-      }
-
-      // ✅ Set chart config and series together
       const newChartOptions = {
         chart: {
           type: "bar" as const,
@@ -317,7 +321,7 @@ export default function Advancereporting() {
           offsetY: -20,
           style: {
             fontSize: "12px",
-            colors: ["#fff"],
+            colors: ["#304758"],
             fontWeight: "bold" as const,
           },
         },
@@ -374,14 +378,8 @@ export default function Advancereporting() {
       console.log("✅ Setting chart options:", newChartOptions);
       console.log("✅ Setting chart series:", newChartSeries);
 
-      // ✅ Set both at once
       setChartOptions(newChartOptions);
       setChartSeries(newChartSeries);
-
-      // Add a small delay to ensure state is updated
-      setTimeout(() => {
-        console.log("📊 Final chartSeries state:", newChartSeries);
-      }, 100);
     }
 
     if (card.id === "specialization") {
