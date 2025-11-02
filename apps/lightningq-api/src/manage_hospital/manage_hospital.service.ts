@@ -1321,99 +1321,76 @@ export class ManageHospitalService {
       throw new Error('Modules cannot be empty');
     }
 
-    return this.prisma.$transaction(async (tx) => {
-      for (const module of dto.Modules) {
-        // --- Upsert Module ---
-        const upsertedModule = await tx.module.upsert({
-          where: { ModuleId: module.ModuleId || -1 },
+    for (const module of dto.Modules) {
+      const upsertedModule = await this.prisma.module.upsert({
+        where: { ModuleId: module.ModuleId || -1 },
+        update: { ModuleName: module.ModuleName ?? '' },
+        create: {
+          ModuleName: module.ModuleName ?? '',
+          IsActive: module.IsActive ?? true,
+        },
+      });
+
+      for (const sub of module.SubModules ?? []) {
+        const upsertedSubModule = await this.prisma.subModule.upsert({
+          where: { SubModuleId: sub.SubModuleId || -1 },
           update: {
-            ModuleName: module.ModuleName ?? '',
-            // IsActive: module.IsActive ?? true,
+            SubModuleName: sub.SubModuleName ?? '',
+            ModuleId: upsertedModule.ModuleId,
           },
           create: {
-            ModuleName: module.ModuleName ?? '',
-            IsActive: module.IsActive ?? true,
+            SubModuleName: sub.SubModuleName ?? '',
+            IsActive: sub.IsActive ?? true,
+            ModuleId: upsertedModule.ModuleId,
           },
         });
 
-        for (const sub of module.SubModules ?? []) {
-          // --- Upsert SubModule ---
-          const upsertedSubModule = await tx.subModule.upsert({
-            where: { SubModuleId: sub.SubModuleId || -1 },
+        for (const perm of sub.Permissions ?? []) {
+          const permission = await this.prisma.permission.upsert({
+            where: { PermissionId: perm.PermissionId || -1 },
             update: {
-              SubModuleName: sub.SubModuleName ?? '',
-              // IsActive: sub.IsActive ?? true,
-              ModuleId: upsertedModule.ModuleId,
+              CanView: perm.CanView ?? false,
+              CanCreate: perm.CanCreate ?? false,
+              CanUpdate: perm.CanUpdate ?? false,
+              CanDelete: perm.CanDelete ?? false,
+              CanAI_Assist: perm.CanAI_Assist ?? false,
+              IsActive: sub.IsActive ?? true,
             },
             create: {
-              SubModuleName: sub.SubModuleName ?? '',
+              SubModuleId: upsertedSubModule.SubModuleId,
+              CanView: perm.CanView ?? false,
+              CanCreate: perm.CanCreate ?? false,
+              CanUpdate: perm.CanUpdate ?? false,
+              CanDelete: perm.CanDelete ?? false,
+              CanAI_Assist: perm.CanAI_Assist ?? false,
               IsActive: sub.IsActive ?? true,
-              ModuleId: upsertedModule.ModuleId,
             },
           });
 
-          for (const perm of sub.Permissions ?? []) {
-            let permission;
-
-            if (!perm.PermissionId || perm.PermissionId === 0) {
-              // --- Create new Permission ---
-              permission = await tx.permission.create({
-                data: {
-                  SubModuleId: upsertedSubModule.SubModuleId,
-                  CanView: perm.CanView ?? false,
-                  CanCreate: perm.CanCreate ?? false,
-                  CanUpdate: perm.CanUpdate ?? false,
-                  CanDelete: perm.CanDelete ?? false,
-                  CanAI_Assist: perm.CanAI_Assist ?? false,
-                  IsActive: sub.IsActive ?? true,
-                },
-              });
-            } else {
-              // --- Update existing Permission ---
-              permission = await tx.permission.update({
-                where: { PermissionId: perm.PermissionId },
-                data: {
-                  CanView: perm.CanView ?? false,
-                  CanCreate: perm.CanCreate ?? false,
-                  CanUpdate: perm.CanUpdate ?? false,
-                  CanDelete: perm.CanDelete ?? false,
-                  CanAI_Assist: perm.CanAI_Assist ?? false,
-                  IsActive: sub.IsActive ?? true,
-                },
-              });
-            }
-
-            // --- Handle RolePermissions ---
-            for (const rp of perm.RolePermissions ?? []) {
-              if (!rp.RolePermissionId || rp.RolePermissionId === 0) {
-                // Create new RolePermission
-                await tx.rolePermission.create({
-                  data: {
-                    RoleId: rp.RoleId,
-                    UserId: rp.UserId,
-                    HospitalId: rp.HospitalId,
-                    OrganizationId: rp.OrganizationId,
-                    PermissionId: permission.PermissionId,
-                  },
-                });
-              } else {
-                // Update existing RolePermission
-                await tx.rolePermission.update({
-                  where: { RolePermissionId: rp.RolePermissionId },
-                  data: {
-                    RoleId: rp.RoleId,
-                    UserId: rp.UserId,
-                    HospitalId: rp.HospitalId,
-                    OrganizationId: rp.OrganizationId,
-                    PermissionId: permission.PermissionId,
-                  },
-                });
-              }
-            }
+          for (const rp of perm.RolePermissions ?? []) {
+            await this.prisma.rolePermission.upsert({
+              where: { RolePermissionId: rp.RolePermissionId || -1 },
+              update: {
+                RoleId: rp.RoleId,
+                UserId: rp.UserId,
+                HospitalId: rp.HospitalId,
+                OrganizationId: rp.OrganizationId,
+                PermissionId: permission.PermissionId,
+              },
+              create: {
+                RoleId: rp.RoleId,
+                UserId: rp.UserId,
+                HospitalId: rp.HospitalId,
+                OrganizationId: rp.OrganizationId,
+                PermissionId: permission.PermissionId,
+              },
+            });
           }
         }
       }
-    });
+    }
+
+    return { success: true };
   }
 
   // admin.service.ts

@@ -36,33 +36,42 @@ export function AppSidebar() {
   const [isExpanded, setIsExpanded] = useState(false);
 
   type AccessRight = {
-    ModuleId: number;
-    ModuleName: keyof typeof moduleNavMap;
-    enabled: boolean;
-    Submodules?: { SubModuleName: string; [key: string]: any }[];
-  };
+  ModuleId: number;
+  ModuleName: keyof typeof moduleNavMap;
+  enabled: boolean;
+  Submodules?: { SubModuleName: string; [key: string]: any }[];
+};
 
-  type NavItem = {
-    name: string;
-    path: string; // <-- must always exist
-    icon: React.ElementType; // safe icon type
-  };
+type NavItem = {
+  name: string;
+  path: string;
+  icon: React.ElementType;
+};
 
+// ✅ get access rights safely from Redux
 const accessRights: AccessRight[] =
-  useSelector((state: RootState) => state.hospitalAccessRight.data) ?? [];
+  useSelector((state: RootState) => state.hospitalAccessRight?.data) ?? [];
 
+console.log("Access Rights from Redux AppBar:", accessRights);
 
-  // console.log("Access Rights from Redux AppBar:", accessRights);
-
-  // ✅ filter only enabled modules
-// Add type guard and safe access
+// ✅ Always sort by ModuleId (ascending), then filter enabled ones
 const enabledNavItems: NavItem[] = (accessRights ?? [])
-  .filter((m) => m.enabled && m.ModuleName in moduleNavMap)
-  .map((m) => ({
-    name: m.ModuleName,
-    icon: moduleNavMap[m.ModuleName as keyof typeof moduleNavMap]!.icon,
-    path: moduleNavMap[m.ModuleName as keyof typeof moduleNavMap]!.path,
-  }));
+  .slice()
+  .sort((a, b) => a.ModuleId - b.ModuleId)
+  .filter(
+    (m): m is AccessRight & { ModuleName: keyof typeof moduleNavMap } =>
+      m.enabled && m.ModuleName in moduleNavMap
+  )
+  .map((m) => {
+    const moduleConfig = moduleNavMap[m.ModuleName]!; // ✅ Non-null assertion
+    return {
+      name: m.ModuleName,
+      icon: moduleConfig.icon,
+      path: moduleConfig.path,
+    };
+  });
+
+
 
 
   return (
