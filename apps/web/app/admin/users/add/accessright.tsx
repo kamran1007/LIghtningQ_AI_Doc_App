@@ -65,7 +65,6 @@ export interface User {
   }[];
 }
 
-
 interface AccessRightProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -89,8 +88,8 @@ const AccessRight: React.FC<AccessRightProps> = ({
 
   const [hospitalData, setHospitalData] = useState<any[]>([]);
   const [userHospital, setUserHospital] = useState<any>(null);
-    const dispatch = useAppDispatch();
-  
+  const dispatch = useAppDispatch();
+
   const {
     handleSubmit,
     setValue,
@@ -298,7 +297,7 @@ const AccessRight: React.FC<AccessRightProps> = ({
 
       if (res?.status === 200 || res?.success) {
         toast.success("Access rights updated successfully");
-        dispatch(fetchAccessRight());  // refresh access rights in redux
+        dispatch(fetchAccessRight()); // refresh access rights in redux
         onOpenChange(false);
       } else {
         toast.error("Failed to update access rights");
@@ -345,9 +344,14 @@ const AccessRight: React.FC<AccessRightProps> = ({
   );
   useEffect(() => {
     if (hospitalSelection) {
+      // 🩺 hospitalSelection may have HospitalId or hospitalId — handle both
+      const selectedId =
+        hospitalSelection?.HospitalId || hospitalSelection?.hospitalId;
       setUserHospital(hospitalSelection);
+      setSelectedHospitalId(selectedId);
+      setValue("hospitalId", selectedId);
     }
-  }, [hospitalSelection]);
+  }, [hospitalSelection, setValue]);
   // console.log("User in AccessRight:", userHospital);
 
   const fetchInitialData = async () => {
@@ -386,7 +390,7 @@ const AccessRight: React.FC<AccessRightProps> = ({
       const rolePermResp = await fetchPermissions(
         user.roleId,
         user.UserId,
-        userHospital?.hospitalId || selectedHospitalId,
+        selectedHospitalId || 0,
         user?.organizationId
       );
 
@@ -415,8 +419,10 @@ const AccessRight: React.FC<AccessRightProps> = ({
   };
 
   useEffect(() => {
-    fetchInitialData();
-  }, [user, selectedHospitalId]);
+    if (user && (selectedHospitalId || userHospital)) {
+      fetchInitialData();
+    }
+  }, [user, selectedHospitalId, userHospital]);
   useEffect(() => {
     console.log("Modules updated:", modules);
   }, [modules]);
@@ -488,78 +494,79 @@ const AccessRight: React.FC<AccessRightProps> = ({
   // }
 
   function mergeModulesWithPermissions(
-  allModules: any[],
-  rolePermModules: any[]
-): Module[] {
-  const merged = allModules.map((mod) => {
-    const roleModule = rolePermModules.find(
-      (rm) => rm.ModuleId === mod.ModuleId
-    );
-
-    const allSubModules = mod.SubModules ?? mod.Submodules ?? [];
-    const roleSubModules = roleModule?.SubModules ?? roleModule?.Submodules ?? [];
-
-    // 🟢 Union of submodules
-    const combinedSubModules = [
-      ...allSubModules,
-      ...roleSubModules.filter(
-        (rs: any) =>
-          !allSubModules.some((s: any) => s.SubModuleId === rs.SubModuleId)
-      ),
-    ];
-
-    // 🟢 Merge permissions
-    const mergedSubModules = combinedSubModules.map((sub: any) => {
-      const roleSub = roleSubModules.find(
-        (rs: any) => rs.SubModuleId === sub.SubModuleId
+    allModules: any[],
+    rolePermModules: any[]
+  ): Module[] {
+    const merged = allModules.map((mod) => {
+      const roleModule = rolePermModules.find(
+        (rm) => rm.ModuleId === mod.ModuleId
       );
 
-      const perms = roleSub
-        ? Array.isArray(roleSub.Permissions)
-          ? roleSub.Permissions[0]
-          : roleSub.Permissions
-        : Array.isArray(sub.Permissions)
-        ? sub.Permissions[0]
-        : (sub.Permissions ?? {});
+      const allSubModules = mod.SubModules ?? mod.Submodules ?? [];
+      const roleSubModules =
+        roleModule?.SubModules ?? roleModule?.Submodules ?? [];
+
+      // 🟢 Union of submodules
+      const combinedSubModules = [
+        ...allSubModules,
+        ...roleSubModules.filter(
+          (rs: any) =>
+            !allSubModules.some((s: any) => s.SubModuleId === rs.SubModuleId)
+        ),
+      ];
+
+      // 🟢 Merge permissions
+      const mergedSubModules = combinedSubModules.map((sub: any) => {
+        const roleSub = roleSubModules.find(
+          (rs: any) => rs.SubModuleId === sub.SubModuleId
+        );
+
+        const perms = roleSub
+          ? Array.isArray(roleSub.Permissions)
+            ? roleSub.Permissions[0]
+            : roleSub.Permissions
+          : Array.isArray(sub.Permissions)
+            ? sub.Permissions[0]
+            : (sub.Permissions ?? {});
+
+        return {
+          ...sub,
+          ...roleSub,
+          Permissions: {
+            PermissionId: perms?.PermissionId ?? 0,
+            CanView: perms?.CanView ?? false,
+            CanCreate: perms?.CanCreate ?? false,
+            CanUpdate: perms?.CanUpdate ?? false,
+            CanDelete: perms?.CanDelete ?? false,
+            CanAI_Assist: perms?.CanAI_Assist ?? false,
+            RolePermissions:
+              perms?.RolePermissions?.map((rp: any) => ({
+                RolePermissionId: rp.RolePermissionId ?? 0,
+                RoleId: rp.RoleId,
+                UserId: rp.UserId,
+                HospitalId: rp.HospitalId,
+                OrganizationId: rp.OrganizationId,
+              })) ?? [],
+          },
+        };
+      });
+
+      // 🟢 Sort submodules by SubModuleId
+      mergedSubModules.sort((a: any, b: any) => a.SubModuleId - b.SubModuleId);
 
       return {
-        ...sub,
-        ...roleSub,
-        Permissions: {
-          PermissionId: perms?.PermissionId ?? 0,
-          CanView: perms?.CanView ?? false,
-          CanCreate: perms?.CanCreate ?? false,
-          CanUpdate: perms?.CanUpdate ?? false,
-          CanDelete: perms?.CanDelete ?? false,
-          CanAI_Assist: perms?.CanAI_Assist ?? false,
-          RolePermissions:
-            perms?.RolePermissions?.map((rp: any) => ({
-              RolePermissionId: rp.RolePermissionId ?? 0,
-              RoleId: rp.RoleId,
-              UserId: rp.UserId,
-              HospitalId: rp.HospitalId,
-              OrganizationId: rp.OrganizationId,
-            })) ?? [],
-        },
+        ModuleId: mod.ModuleId,
+        ModuleName: mod.ModuleName,
+        enabled: roleModule?.enabled ?? mod.enabled ?? false,
+        SubModules: mergedSubModules,
       };
     });
 
-    // 🟢 Sort submodules by SubModuleId
-    mergedSubModules.sort((a: any, b: any) => a.SubModuleId - b.SubModuleId);
+    // 🟢 Sort modules by ModuleId
+    merged.sort((a: any, b: any) => a.ModuleId - b.ModuleId);
 
-    return {
-      ModuleId: mod.ModuleId,
-      ModuleName: mod.ModuleName,
-      enabled: roleModule?.enabled ?? mod.enabled ?? false,
-      SubModules: mergedSubModules,
-    };
-  });
-
-  // 🟢 Sort modules by ModuleId
-  merged.sort((a: any, b: any) => a.ModuleId - b.ModuleId);
-
-  return merged;
-}
+    return merged;
+  }
 
 
   type Permission = {
@@ -837,5 +844,3 @@ const AccessRight: React.FC<AccessRightProps> = ({
 };
 
 export default AccessRight;
-
-
