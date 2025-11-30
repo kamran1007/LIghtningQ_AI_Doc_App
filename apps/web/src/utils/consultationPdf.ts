@@ -187,8 +187,8 @@ export async function generateConsultationPDF(data: any, patient: any) {
       data.ConsultationInvestigation?.length
         ? data.ConsultationInvestigation.map(
             (i: any) =>
-              `${i.InvestigationType?.InvestigationTypeName || ""} - ${
-                i.InvestigationSubType?.InvestigationSubTypename || ""
+              `${i.billingItem?.BillingItemName || ""} - ${
+                i.investigationType?.InvestigationTypeName || ""
               }\nRemark: ${i.ConsultationInvestigatRemark || ""}`
           ).join("\n\n")
         : "None",
@@ -207,9 +207,9 @@ export async function generateConsultationPDF(data: any, patient: any) {
       data.ConsultationProcedure?.length
         ? data.ConsultationProcedure.map(
             (p: any) =>
-              `${p.procedure?.ProcedureName || ""}\n${
-                p.Description?.trim()
-                  ? `Description: ${p.Description.trim()}`
+              `${p.billingItem?.BillingItemName || ""}\n${
+                p.ConsultationProcedureRemark?.trim()
+                  ? `Description: ${p.ConsultationProcedureRemark.trim()}`
                   : "Description: —"
               }`
           ).join("\n\n")

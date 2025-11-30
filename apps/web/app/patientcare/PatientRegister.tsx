@@ -617,7 +617,7 @@ export function RegisterPatient() {
       );
       setTimeout(() => {
         setRegisterAnimation(true);
-        setCountdown(5); // Start from 10 
+        setCountdown(5); // Start from 10
 
         const timer = setInterval(() => {
           setCountdown((prev) => {
@@ -709,23 +709,43 @@ export function RegisterPatient() {
     }
   }, [dispatch]);
 
+  const accessRights = useSelector(
+    (state: RootState) => state.hospitalAccessRight.data
+  );
+
+  // ✅ Find “Patient Care” module
+  const patientCareModule = accessRights?.find(
+    (m: any) => m.ModuleName === "Patient Care"
+  );
+
+  // ✅ Use correct property name → Submodules (not SubModules)
+  const getPermission = (subName: string) =>
+    patientCareModule?.Submodules?.find((s: any) => s.SubModuleName === subName)
+      ?.Permissions?.[0];
+
+  // ✅ Extract required permissions
+  const registerPerm = getPermission("Patient Registration");
+  const canRegisterPatient = registerPerm?.CanCreate ?? false;
+
   return (
     <>
       <Toast ref={toast} />
 
       <AlertDialog
         open={isRegisterPatientOpen}
-        onOpenChange={setRegisterPatientOpen}
+        onOpenChange={setRegisterPatientOpen} 
       >
         <div className="w-full flex justify-end pr-4">
           <div className="flex-none">
-            <Button
-              className="register-patient-btn inline-flex items-center gap-2"
-              onClick={() => setRegisterPatientOpen(true)}
-            >
-              <UserPlus className="w-5 h-5 inline-block mr-2" />
-              Register Patient
-            </Button>
+            {canRegisterPatient && (
+              <Button
+                className="register-patient-btn inline-flex items-center gap-2"
+                onClick={() => setRegisterPatientOpen(true)}
+              >
+                <UserPlus className="w-5 h-5 inline-block mr-2" />
+                Register Patient
+              </Button>
+            )}
           </div>
         </div>
         {/* ✅ Success Animation */}

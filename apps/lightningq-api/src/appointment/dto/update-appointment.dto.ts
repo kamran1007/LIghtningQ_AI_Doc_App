@@ -15,6 +15,13 @@ enum AppointmentStatus {
   RESCHEDULED = 'RESCHEDULED',
 }
 
+export enum ConsultationStatusType {
+  NOT_STARTED = 'NOT_STARTED',
+  ONGOING = 'ONGOING',
+  COMPLETED = 'COMPLETED',
+  INCOMPLETE = 'INCOMPLETE',
+}
+
 export class UpdateAppointmentDto {
   @IsInt()
   AppointmentId?: number;
@@ -99,4 +106,8 @@ export class UpdateAppointmentDto {
   @IsOptional()
   @IsInt()
   SpecializationId?: number;
+
+  @IsOptional()
+  @IsEnum(ConsultationStatusType)
+  consultationStatus?: ConsultationStatusType;
 }

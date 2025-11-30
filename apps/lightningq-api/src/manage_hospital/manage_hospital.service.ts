@@ -1394,96 +1394,125 @@ export class ManageHospitalService {
   }
 
   // admin.service.ts
-  async getAccessRights(filters: {
-    RoleId: number;
-    UserId: number;
-    HospitalId: number;
-    OrganizationId: number;
-  }) {
-    const { RoleId, UserId, HospitalId, OrganizationId } = filters;
+ async getAccessRights(filters: {
+  RoleId: number;
+  UserId: number;
+  HospitalId: number;
+  OrganizationId: number;
+}) {
+  const { RoleId, UserId, HospitalId, OrganizationId } = filters;
 
-    // 1. Fetch role/user/org/hospital-specific permissions
-    const rolePerms = await this.prisma.rolePermission.findMany({
-      where: {
-        RoleId,
-        UserId,
-        HospitalId,
-        OrganizationId,
-      },
-      include: {
-        Permission: {
-          include: {
-            SubModule: {
-              include: {
-                Module: true,
-              },
+  // 1️⃣ Fetch all role permissions with required joins
+  const rolePerms = await this.prisma.rolePermission.findMany({
+    where: {
+      RoleId,
+      UserId,
+      HospitalId,
+      OrganizationId,
+    },
+    include: {
+      Permission: {
+        include: {
+          SubModule: {
+            include: {
+              Module: true,
             },
-            RolePermissions: true, // ✅ correctly included
           },
+          RolePermissions: true,
         },
       },
-    });
+    },
+  });
 
-    if (rolePerms.length === 0) {
-      return [];
-    }
+  if (!rolePerms.length) return [];
 
-    // 2. Group by Module → SubModule → Permissions
-    const moduleMap = new Map<number, any>();
+  // 2️⃣ Group into Modules -> SubModules -> Permissions
+  const moduleMap = new Map<number, any>();
 
-    for (const rp of rolePerms) {
-      const perm = rp.Permission;
-      if (!perm?.SubModule) continue;
+  for (const rp of rolePerms) {
+    const perm = rp.Permission;
+    if (!perm?.SubModule) continue;
 
-      const sub = perm.SubModule;
-      const mod = sub.Module;
+    const sub = perm.SubModule;
+    const mod = sub.Module;
 
-      if (!moduleMap.has(mod.ModuleId)) {
-        moduleMap.set(mod.ModuleId, {
-          ModuleId: mod.ModuleId,
-          ModuleName: mod.ModuleName,
-          enabled:
-            perm.CanView ||
-            perm.CanCreate ||
-            perm.CanUpdate ||
-            perm.CanDelete ||
-            perm.CanAI_Assist,
-          Submodules: [],
-        });
-      }
-
-      const moduleEntry = moduleMap.get(mod.ModuleId);
-
-      moduleEntry.Submodules.push({
-        SubModuleId: sub.SubModuleId,
-        SubModuleName: sub.SubModuleName,
-        enabled:
-          perm.CanView ||
-          perm.CanCreate ||
-          perm.CanUpdate ||
-          perm.CanDelete ||
-          perm.CanAI_Assist,
-        Permissions: {
-          PermissionId: perm.PermissionId,
-          CanView: !!perm.CanView,
-          CanCreate: !!perm.CanCreate,
-          CanUpdate: !!perm.CanUpdate,
-          CanDelete: !!perm.CanDelete,
-          CanAI_Assist: !!perm.CanAI_Assist,
-          RolePermissions: perm.RolePermissions.map((rp) => ({
-            RolePermissionId: rp.RolePermissionId,
-            RoleId: rp.RoleId,
-            UserId: rp.UserId,
-            HospitalId: rp.HospitalId,
-            OrganizationId: rp.OrganizationId,
-          })),
-        },
+    // --- Find or create module entry
+    if (!moduleMap.has(mod.ModuleId)) {
+      moduleMap.set(mod.ModuleId, {
+        ModuleId: mod.ModuleId,
+        ModuleName: mod.ModuleName,
+        enabled: false,
+        Submodules: [],
       });
     }
 
-    // 3. Return only modules that had rolePerms
-    return Array.from(moduleMap.values());
+    const moduleEntry = moduleMap.get(mod.ModuleId);
+
+    // --- Find or create submodule entry
+    let subEntry = moduleEntry.Submodules.find(
+      (s: any) => s.SubModuleId === sub.SubModuleId
+    );
+
+    if (!subEntry) {
+      subEntry = {
+        SubModuleId: sub.SubModuleId,
+        SubModuleName: sub.SubModuleName,
+        enabled: false,
+        Permissions: [],
+      };
+      moduleEntry.Submodules.push(subEntry);
+    }
+
+    // --- Find or create permission entry
+    let permEntry = subEntry.Permissions.find(
+      (p: any) => p.PermissionId === perm.PermissionId
+    );
+
+    if (!permEntry) {
+      permEntry = {
+        PermissionId: perm.PermissionId,
+        CanView: !!perm.CanView,
+        CanCreate: !!perm.CanCreate,
+        CanUpdate: !!perm.CanUpdate,
+        CanDelete: !!perm.CanDelete,
+        CanAI_Assist: !!perm.CanAI_Assist,
+        RolePermissions: [],
+      };
+      subEntry.Permissions.push(permEntry);
+    }
+
+    // --- Merge unique RolePermissions (avoid duplicate RolePermissionId)
+    const existing = permEntry.RolePermissions.find(
+      (r) => r.RolePermissionId === rp.RolePermissionId
+    );
+    if (!existing) {
+      permEntry.RolePermissions.push({
+        RolePermissionId: rp.RolePermissionId,
+        RoleId: rp.RoleId,
+        UserId: rp.UserId,
+        HospitalId: rp.HospitalId,
+        OrganizationId: rp.OrganizationId,
+      });
+    }
+
+    // --- Update enable flags dynamically
+    const isEnabled =
+      perm.CanView ||
+      perm.CanCreate ||
+      perm.CanUpdate ||
+      perm.CanDelete ||
+      perm.CanAI_Assist;
+
+    if (isEnabled) {
+      subEntry.enabled = true;
+      moduleEntry.enabled = true;
+    }
   }
+
+  // 3️⃣ Return final structured, deduplicated list
+  return Array.from(moduleMap.values());
+}
+
 
   async getAllModules() {
     const modules = await this.prisma.module.findMany({

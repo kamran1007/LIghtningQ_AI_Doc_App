@@ -40,6 +40,7 @@ import { useSelector } from "react-redux";
 import AccessRightSkeleton from "@/components/ui/skeletonloader/AccessRightSkeleton";
 import { fetchAccessRight } from "@/store/LoginAccessRightSlice";
 import { useAppDispatch } from "@/store/hooks";
+import { RootState } from "@/store";
 
 // ---- Helpers ----
 const PERM_KEYS = [
@@ -568,7 +569,6 @@ const AccessRight: React.FC<AccessRightProps> = ({
     return merged;
   }
 
-
   type Permission = {
     PermissionId: number;
     CanView: boolean;
@@ -628,11 +628,25 @@ const AccessRight: React.FC<AccessRightProps> = ({
     });
   }
 
+  // Get Access Right update permission from Redux
+  const accessRights = useSelector(
+    (state: RootState) => state.hospitalAccessRight.data
+  );
+
+  const adminModule = accessRights?.find((m: any) => m.ModuleName === "Admin");
+  const accessRightSub = adminModule?.Submodules?.find(
+    (s: any) => s.SubModuleName === "Access Right"
+  );
+  const canUpdateAccessRight =
+    accessRightSub?.Permissions?.[0]?.CanUpdate ?? false;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         size="lg"
         className="max-h-[95vh] overflow-y-auto p-6 max-w-6.5xl rounded-2xl flex flex-col no-scrollbar"
+        onInteractOutside={(e) => e.preventDefault()} // 🛑 Prevent close on outside click
+        onEscapeKeyDown={(e) => e.preventDefault()}
       >
         {/* Header */}
         <div className="flex items-start justify-between px-1 pt-1 mb-4 ">
@@ -747,10 +761,16 @@ const AccessRight: React.FC<AccessRightProps> = ({
                           </span>
                           <Switch
                             checked={isAnyEnabled}
+                            disabled={!canUpdateAccessRight}
                             onCheckedChange={(checked) =>
+                              canUpdateAccessRight &&
                               setModuleEnabled(module.ModuleId, checked)
                             }
-                            className="data-[state=checked]:bg-teal-400"
+                            className={`data-[state=checked]:bg-teal-400 ${
+                              !canUpdateAccessRight
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
+                            }`}
                           />
                         </div>
                       </div>
@@ -779,14 +799,20 @@ const AccessRight: React.FC<AccessRightProps> = ({
                                 <div className="flex items-center gap-2">
                                   <Switch
                                     checked={sub.enabled}
+                                    disabled={!canUpdateAccessRight}
                                     onCheckedChange={(checked) =>
+                                      canUpdateAccessRight &&
                                       setSubmoduleEnabled(
                                         module.ModuleId,
                                         sub.SubModuleId,
                                         checked
                                       )
                                     }
-                                    className="data-[state=checked]:bg-teal-300"
+                                    className={`data-[state=checked]:bg-teal-300 ${
+                                      !canUpdateAccessRight
+                                        ? "opacity-50 cursor-not-allowed"
+                                        : ""
+                                    }`}
                                   />
                                 </div>
                               </div>
@@ -798,7 +824,9 @@ const AccessRight: React.FC<AccessRightProps> = ({
                                 >
                                   <Switch
                                     checked={sub.Permissions[k]}
+                                    disabled={!canUpdateAccessRight}
                                     onCheckedChange={(checked) =>
+                                      canUpdateAccessRight &&
                                       setPermission(
                                         module.ModuleId,
                                         sub.SubModuleId,
@@ -806,7 +834,11 @@ const AccessRight: React.FC<AccessRightProps> = ({
                                         checked
                                       )
                                     }
-                                    className="data-[state=checked]:bg-teal-300"
+                                    className={`data-[state=checked]:bg-teal-300 ${
+                                      !canUpdateAccessRight
+                                        ? "opacity-50 cursor-not-allowed"
+                                        : ""
+                                    }`}
                                   />
                                 </div>
                               ))}
@@ -832,7 +864,12 @@ const AccessRight: React.FC<AccessRightProps> = ({
             </Button>
             <Button
               type="submit"
-              className="rounded-full h-10 px-6 cursor-pointer bg-green-400 text-white shadow-2xl hover:bg-green-500"
+              disabled={!canUpdateAccessRight}
+              className={`rounded-full h-10 px-6 cursor-pointer shadow-2xl ${
+                canUpdateAccessRight
+                  ? "bg-green-400 text-white hover:bg-green-500"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
             >
               {isSubmitting ? <Loader2Icon className="animate-spin" /> : "Save"}
             </Button>

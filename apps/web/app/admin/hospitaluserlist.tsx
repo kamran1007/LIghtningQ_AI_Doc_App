@@ -12,9 +12,8 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/store";
 import { fetchHospitalUsers } from "@/store/hospitalusersSlice";
-import { getUserRole, toggleStatus as toggleUserStatus } from "@/lib/admin"; // alias to avoid name clash
+import { getUserRole, toggleStatus as toggleUserStatus } from "@/lib/admin";
 import { toast } from "react-hot-toast";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,9 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
 import { HospitalUserSkeleton } from "@/components/ui/skeletonloader/hospitalUserSkeleton";
-import AddUserPage from "./users/add/page";
 import { useRouter } from "next/navigation";
-
 import {
   Select,
   SelectTrigger,
@@ -33,13 +30,10 @@ import {
   SelectContent,
   SelectValue,
 } from "@/components/ui/select";
-import { FetchDoctorRole } from "@/lib/bookappointment";
 import { FetchHospital } from "@/lib/dashboard";
 import { Input } from "@/components/ui/input";
-import { fetchUserProfile } from "@/store/authSlice";
 import { getSession } from "@/lib/session";
-
-// import EditUserModal from "./EditUserModal"; // You can create this for editing users
+import { MRT_ColumnDef } from "material-react-table"; // ✅ make sure this import exists
 
 export type User = {
   UserId: number;
@@ -52,9 +46,7 @@ export type User = {
   mobile: string;
   gender: string;
   email: string;
-  role: {
-    name: string;
-  };
+  role: { name: string };
   SpecializationId: number;
   Experience: string;
   roleId: number;
@@ -65,25 +57,45 @@ export type User = {
 
 const UserList = () => {
   const router = useRouter();
-
   const dispatch = useDispatch<AppDispatch>();
+
   const {
     data: users,
     total,
     loading,
   } = useSelector((state: RootState) => state.hospitalUsers);
-  console.log("user data", users);
+
+  // ✅ Get Access Rights from Redux
+  const accessRights = useSelector(
+    (state: RootState) => state.hospitalAccessRight.data
+  );
+
+  // ✅ Extract "Manage User" permissions under "Admin" module
+  const adminModule = accessRights?.find((m: any) => m.ModuleName === "Admin");
+  const manageUserSub = adminModule?.Submodules?.find(
+    (s: any) => s.SubModuleName === "Manage User"
+  );
+  const permissionObj = Array.isArray(manageUserSub?.Permissions)
+    ? manageUserSub.Permissions[0]
+    : manageUserSub?.Permissions;
+
+  const canView = permissionObj?.CanView ?? true;
+  const canUpdate = permissionObj?.CanUpdate ?? false;
+
+  // 🔒 Prevent viewing the page entirely if no view permission
+  if (!canView) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[80vh] text-gray-600">
+        <p className="text-lg font-semibold">
+          You do not have permission to view this module.
+        </p>
+      </div>
+    );
+  }
+
   const [isLoading, setIsLoading] = useState(false);
-
-  type Hospital = {
-    HospitalId: number;
-    HospitalName: string;
-    // Add other properties if needed
-  };
-
   const [hospitalrole, setRole] = useState<any[]>([]);
-  const [hospitalData, setHospitalData] = useState<Hospital[]>([]);
-
+  const [hospitalData, setHospitalData] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedHospital, setSelectedHospital] = useState<"all" | number>(
     "all"
@@ -97,34 +109,30 @@ const UserList = () => {
       try {
         setIsLoading(true);
         const session = await getSession();
-        const orgId = session?.user?.OrganizationId ?? null;
-        console.log("Organization ID:", orgId);
-        setOrganizationId(orgId); // ✅ store in state
-      } catch (error) {
-        console.error("Failed to fetch data", error);
-        toast.error("Failed to fetch initial data");
+        setOrganizationId(session?.user?.OrganizationId ?? null);
+      } catch {
+        toast.error("Failed to fetch session data");
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchSessionData();
   }, []);
-  // const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
   const [pagination, setPagination] = useState({
-    pageIndex: 0, // MaterialReactTable uses 0-based indexing
+    pageIndex: 0,
     pageSize: 10,
   });
 
-  // const handleEdit = (user: User) => {
-  //   router.push(`/admin/users/add?page=edit&userId=${user.UserId}`);
-  // };
   const handleEdit = (user: User) => {
-    // Store current tab in localStorage
+    if (!canUpdate) {
+      toast.error("You do not have permission to edit users.");
+      return;
+    }
     localStorage.setItem("adminTab", "user");
-    // Redirect to user edit page
     router.push(`/admin/users/add?page=edit&userId=${user.UserId}`);
   };
+
   const toggleStatus = async (user: User) => {
     const success = await toggleUserStatus(user);
     if (success) {
@@ -151,7 +159,6 @@ const UserList = () => {
 
   useEffect(() => {
     const { pageIndex, pageSize } = pagination;
-
     dispatch(
       fetchHospitalUsers({
         page: pageIndex + 1,
@@ -175,22 +182,18 @@ const UserList = () => {
     const fetchInitialData = async () => {
       try {
         setIsLoading(true);
-
-        const [docRes, hosRes] = await Promise.all([
+        const [roles, hospitals] = await Promise.all([
           getUserRole(),
           FetchHospital(),
         ]);
-
-        setRole(docRes?.return?.data ?? []);
-        setHospitalData(hosRes ?? []);
-      } catch (error) {
-        console.error("Failed to fetch data", error);
-        toast.error("Failed to fetch initial data");
+        setRole(roles?.return?.data ?? []);
+        setHospitalData(hospitals ?? []);
+      } catch {
+        toast.error("Failed to fetch data");
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchInitialData();
   }, []);
 
@@ -199,120 +202,120 @@ const UserList = () => {
       if (searchQuery.length >= 3 || searchQuery.length === 0) {
         setDebouncedSearch(searchQuery);
       }
-    }, 500); // standard debounce time 500ms
-
+    }, 500);
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
-  // ✅ Whenever filters change, send it to parent
-
-  const columns = [
+  // ✅ Table Columns
+  const columns: MRT_ColumnDef<User>[] = [
     {
-      accessorFn: (row: any) => `${row.firstName || ""} ${row.lastName || ""}`,
+      accessorFn: (row) => `${row.firstName || ""} ${row.lastName || ""}`,
       id: "fullName",
       header: "Name",
-      size: 60,
-      muiTableHeadCellProps: {
-        sx: { textAlign: "center" as const },
-      },
+      size: 140,
+      muiTableHeadCellProps: () => ({
+        align: "center",
+        sx: { fontWeight: 600, whiteSpace: "nowrap" },
+      }),
+      muiTableBodyCellProps: () => ({
+        align: "center",
+        sx: { fontSize: "0.9rem" },
+      }),
     },
     {
       accessorKey: "Employee_ID",
       header: "Employee ID",
-      size: 60,
-      muiTableHeadCellProps: {
-        sx: { textAlign: "center" as const },
-      },
-      Cell: ({ row }: { row: any }) => {
-        const empId = row.getValue("Employee_ID");
-        // Handle both real null and string "null"
-        return empId === null || empId === "null" ? "" : empId;
-      },
+      size: 110,
+      muiTableHeadCellProps: () => ({ align: "center" }),
+      muiTableBodyCellProps: () => ({ align: "center" }),
     },
     {
       accessorKey: "mobile",
       header: "Mobile",
-      size: 60,
-      muiTableHeadCellProps: {
-        sx: { textAlign: "center" as const },
-      },
+      size: 130,
+      muiTableHeadCellProps: () => ({ align: "center" }),
+      muiTableBodyCellProps: () => ({ align: "center" }),
     },
     {
       accessorKey: "gender",
       header: "Gender",
-      size: 60,
-      muiTableHeadCellProps: {
-        sx: { textAlign: "center" as const },
-      },
+      size: 100,
+      muiTableHeadCellProps: () => ({ align: "center" }),
+      muiTableBodyCellProps: () => ({ align: "center" }),
     },
     {
       accessorKey: "email",
       header: "Email",
-      size: 60,
-      muiTableHeadCellProps: {
-        sx: {
-          textAlign: "center" as const, // ⬅️ center text
-          padding: "18px",
-          margin: "0 auto",
-        },
-      },
+      size: 200,
+      muiTableHeadCellProps: () => ({ align: "center" }),
+      muiTableBodyCellProps: () => ({
+        align: "center",
+        sx: { maxWidth: 220, textOverflow: "ellipsis", overflow: "hidden" },
+      }),
     },
     {
       accessorKey: "role.Rolename",
       header: "Role Name",
-      size: 60,
-      muiTableHeadCellProps: {
-        sx: { textAlign: "center" as const },
-      },
+      size: 150,
+      muiTableHeadCellProps: () => ({ align: "center" }),
+      muiTableBodyCellProps: () => ({ align: "center" }),
     },
     {
       accessorKey: "Experience",
       header: "Experience",
-      size: 60,
-      Cell: ({ row }: { row: any }) => {
-        const exp = row.getValue("Experience") as number | string | null;
-        if (!exp) return "-";
-        return `${exp} ${Number(exp) > 1 ? "years" : "year"}`;
+      size: 120,
+      muiTableHeadCellProps: () => ({ align: "center" }),
+      muiTableBodyCellProps: () => ({ align: "center" }),
+      Cell: ({ row }) => {
+        const exp = row.getValue<number | string>("Experience");
+        return exp ? `${exp} ${Number(exp) > 1 ? "years" : "year"}` : "-";
       },
     },
-
     {
       accessorKey: "isActive",
       header: "Status",
-      size: 30,
-
-      Cell: ({ row }: { row: { original: User } }) => (
+      size: 100,
+      muiTableHeadCellProps: () => ({ align: "center" }),
+      muiTableBodyCellProps: () => ({ align: "center" }),
+      Cell: ({ row }) => (
         <Switch
           checked={row.original.isActive}
           onCheckedChange={() => toggleStatus(row.original)}
           className="data-[state=checked]:bg-green-500 transition-colors duration-300 border-1 border-gray-300 rounded-full"
-        >
-          <span className="sr-only">Toggle Active</span>
-        </Switch>
+        />
       ),
     },
     {
       id: "actions",
       header: "Action",
-      size: 30,
-
-      Cell: ({ row }: { row: { original: User } }) => (
+      size: 100,
+      muiTableHeadCellProps: () => ({ align: "center" }),
+      muiTableBodyCellProps: () => ({ align: "center" }),
+      Cell: ({ row }) => (
         <DropdownMenu>
           <DropdownMenuTrigger className="focus:outline-none">
             <MoreHorizontal className="w-5 h-5 text-teal-500 cursor-pointer" />
           </DropdownMenuTrigger>
-
-          <DropdownMenuContent
-            align="end"
-            className="!w-[100px] !min-w-[100px] p-1 rounded-md shadow-md border border-gray-200 bg-white"
-          >
-            <DropdownMenuItem
-              onClick={() => handleEdit(row.original)}
-              className="flex items-center gap-1 px-2 py-1 text-sm text-gray-700 hover:bg-blue-50 cursor-pointer"
-            >
-              <Edit className="w-4 h-4 text-teal-500" />
-              Edit
-            </DropdownMenuItem>
+          <DropdownMenuContent align="end" className="p-1">
+            {canUpdate ? (
+              <DropdownMenuItem
+                onClick={() => handleEdit(row.original)}
+                className="flex items-center gap-1 px-2 py-1 text-sm text-gray-700 hover:bg-blue-50 cursor-pointer"
+              >
+                <Edit className="w-4 h-4 text-teal-500" />
+                Edit
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem
+                onClick={() =>
+                  toast.error("You do not have permission to edit users.")
+                }
+                className="flex items-center gap-1 px-2 py-1 text-sm text-gray-400 cursor-not-allowed"
+              >
+                <Edit className="w-4 h-4 text-gray-300" />
+                Edit (Locked)
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -326,111 +329,17 @@ const UserList = () => {
       ) : (
         <MaterialReactTable
           columns={columns}
-          data={users ?? []} // ✅ fallback to empty array
+          data={users ?? []}
           manualPagination
-          rowCount={total ?? 0} // ✅ safe fallback
+          rowCount={total ?? 0}
           state={{ pagination }}
           onPaginationChange={setPagination}
-          enableSorting={false} // disables sorting completely
-          enableColumnActions={false} // removes column action menu
-          enableColumnFilters={false} // removes filter icon & logic
-          enableGlobalFilter={false} // removes global search bar
-          muiTableHeadCellProps={{
-            sx: {
-              whiteSpace: "nowrap",
-              padding: "4px",
-            },
-          }}
-          muiTableBodyCellProps={{
-            sx: { whiteSpace: "nowrap" },
-          }}
-          muiTableBodyRowProps={{
-            sx: {
-              "&:hover": {
-                backgroundColor: "#CCFBF1 !important",
-              },
-            },
-          }}
-          muiTopToolbarProps={{
-            sx: {
-              "& .MuiButtonBase-root": {
-                color: "black",
-                "&:hover": { color: "#13D4D4" },
-              },
-            },
-          }}
-          // 👇 filters moved into table toolbar
-          renderTopToolbarCustomActions={() => (
-            <div className="flex items-center gap-4 w-full">
-              {/* Hospital Select */}
-              <Select
-                value={String(selectedHospital)}
-                onValueChange={(value) =>
-                  setSelectedHospital(value === "all" ? "all" : Number(value))
-                }
-              >
-                <SelectTrigger className="w-64 border border-gray-300 rounded-lg shadow-sm focus:border-[#22E0D4] focus:ring-2 focus:ring-[#22E0D4] transition flex items-center gap-2">
-                  <Hospital className="w-4 h-4 text-teal-400" />
-                  <SelectValue placeholder="All Hospitals" />
-                </SelectTrigger>
-                <SelectContent className="border-gray-300 shadow-2xl rounded-2xl">
-                  <SelectItem value="all">All Hospitals</SelectItem>
-                  {hospitalData.map((hospital) => (
-                    <SelectItem
-                      key={hospital.HospitalId}
-                      value={String(hospital.HospitalId)}
-                    >
-                      {hospital.HospitalName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* Role Select */}
-              <Select
-                value={String(selectedRole)}
-                onValueChange={(value) =>
-                  setSelectedRole(value === "all" ? "all" : Number(value))
-                }
-              >
-                <SelectTrigger className="w-64 border border-gray-300 rounded-lg shadow-sm focus:border-[#22E0D4] focus:ring-2 focus:ring-[#22E0D4] transition flex items-center gap-2">
-                  <UserRound className="w-4 h-4 text-teal-400" />
-                  <SelectValue placeholder="All Roles" />
-                </SelectTrigger>
-                <SelectContent className="border-gray-300 shadow-2xl rounded-2xl">
-                  <SelectItem value="all">All Roles</SelectItem>
-                  {hospitalrole.map((role) => (
-                    <SelectItem key={role.RoleId} value={String(role.RoleId)}>
-                      {role.Rolename}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* Search Input */}
-              <div className="relative flex-1 max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-teal-400" />
-                <Input
-                  type="text"
-                  placeholder="Search users, hospitals, roles..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-200 
-            bg-white shadow-sm focus:border-pink-400 focus:ring-2 
-            focus:ring-pink-200 transition-all"
-                />
-                {searchQuery.length > 0 && searchQuery.length < 3 && (
-                  <p className="text-xs text-gray-400 mt-1 pl-2">
-                    Enter at least 3 characters
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
+          enableSorting={false}
+          enableColumnActions={false}
+          enableColumnFilters={false}
+          enableGlobalFilter={false}
         />
       )}
-
-      {/* <EditUserModal open={editOpen} onOpenChange={setEditOpen} user={selectedUser} /> */}
     </div>
   );
 };

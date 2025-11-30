@@ -204,7 +204,7 @@ export class PatientcareService {
     TagPatientId?: number;
     GenderName?: string;
     SpecializationId?: number;
-    isConsultationcompleted?: boolean;
+    consultationStatus?: string;
     acuity?: string;
     search?: string;
     appointmentDate?: string; // ✅ single date

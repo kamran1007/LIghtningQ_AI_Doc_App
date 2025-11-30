@@ -1,3 +1,8 @@
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import {
   CircleChevronLeft,
@@ -5,104 +10,139 @@ import {
   DollarSign,
   ShieldCheck,
 } from "lucide-react";
-import Link from "next/link";
-import React, { useState } from "react";
 import Timeslot from "./timeslot";
-import { User } from "@/types/user";
 import Costing from "./costing";
-import { set } from "zod";
-import toast from "react-hot-toast";
 import AccessRight from "./accessright";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@radix-ui/react-tooltip";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@radix-ui/react-tooltip";
+import { User } from "@/types/user";
 
 interface AsideProps {
   user: User | null;
 }
 
 const Aside: React.FC<AsideProps> = ({ user }) => {
+  // State for modals
   const [openAccessRightDialog, setOpenAccessRightDialog] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
-  const [openCostingModal, setOpenCostingModal] = useState(false);
+  const [openTimeSlotDialog, setOpenTimeSlotDialog] = useState(false);
+  const [openCostingDialog, setOpenCostingDialog] = useState(false);
 
+  // ✅ Get permissions from Redux store
+  const accessRights = useSelector(
+    (state: RootState) => state.hospitalAccessRight.data
+  );
+
+  // ✅ Find the "Admin" module
+  const adminModule = accessRights?.find(
+    (m: any) => m.ModuleName === "Admin"
+  );
+
+  // ✅ Extract submodules
+  const submodules = adminModule?.Submodules ?? [];
+
+  // ✅ Check if each submodule is enabled
+  const accessRightEnabled =
+    submodules.find((s: any) => s.SubModuleName === "Access Right")?.enabled ??
+    false;
+
+  const timeSlotEnabled =
+    submodules.find((s: any) => s.SubModuleName === "Time Slot")?.enabled ??
+    false;
+
+  const costingEnabled =
+    submodules.find((s: any) => s.SubModuleName === "Costing")?.enabled ?? false;
+
+  // ✅ Helper handlers with permission + user checks
+  const handleAccessRightOpen = () => {
+    if (!accessRightEnabled) {
+      toast.error("Access Rights is disabled for your role.");
+      return;
+    }
+    if (!user) {
+      toast.error("Please add the user first before managing access rights.");
+      return;
+    }
+    setOpenAccessRightDialog(true);
+  };
+
+  const handleTimeSlotOpen = () => {
+    if (!timeSlotEnabled) {
+      toast.error("Time Slot module is disabled for your role.");
+      return;
+    }
+    if (!user) {
+      toast.error("Please add the user first before managing time slots.");
+      return;
+    }
+    setOpenTimeSlotDialog(true);
+  };
+
+  const handleCostingOpen = () => {
+    if (!costingEnabled) {
+      toast.error("Costing module is disabled for your role.");
+      return;
+    }
+    if (!user) {
+      toast.error("Please add the user first before managing costing.");
+      return;
+    }
+    setOpenCostingDialog(true);
+  };
+
+  // ✅ Define navigation items dynamically based on permissions
   const navItems = [
     {
       label: "Access Rights",
       icon: <ShieldCheck className="w-4 h-4 text-teal-400" />,
-      onClick: () => setIsAccessRightDialogOpen(), // Open dialog
+      onClick: handleAccessRightOpen,
+      enabled: accessRightEnabled,
     },
     {
       label: "Time Slots",
       icon: <Clock className="w-4 h-4 text-teal-400" />,
-      onClick: () => setIsTimeSlotDialogOpen(), // Open dialog
+      onClick: handleTimeSlotOpen,
+      enabled: timeSlotEnabled,
     },
     {
       label: "Costing",
       icon: <DollarSign className="w-4 h-4 text-teal-400" />,
-      onClick: () => setIsCostingDialogOpen(),
+      onClick: handleCostingOpen,
+      enabled: costingEnabled,
     },
   ];
 
-  const setIsAccessRightDialogOpen = () => {
-    if (!user) {
-      setOpenAccessRightDialog(false);
-      toast.error("User has Not Added!  Add user first.");
-    } else {
-      console.log("Opening Access right dialog");
-      setOpenAccessRightDialog(true);
-    }
-  };
-
-  const setIsTimeSlotDialogOpen = () => {
-    if (!user) {
-      setOpenModal(false);
-      toast.error("User has Not Added!  Add user first.");
-    } else {
-      console.log("Opening Timeslot dialog");
-      setOpenModal(true);
-    }
-  };
-
-  const setIsCostingDialogOpen = () => {
-    if (!user) {
-      setOpenCostingModal(false);
-      toast.error("User has Not Added!  Add user first.");
-    } else {
-      console.log("Opening Timeslot dialog");
-      setOpenCostingModal(true);
-    }
-  };
   return (
     <>
       <aside className="w-52 bg-white p-4 rounded-4xl shadow-2xl space-y-6">
         {/* Back Button */}
-        <div>
-          <div className="flex">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    asChild
-                    className="justify-center rounded-2xl"
+        <div className="flex justify-start">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button asChild className="justify-center rounded-2xl">
+                  <Link
+                    href="/admin"
+                    className="flex items-center gap-1 text-sm"
                   >
-                    <Link
-                      href="/admin"
-                      className="flex items-center gap-1 text-sm"
-                    >
-                      <CircleChevronLeft className="h-4 w-4 text-teal-400" />
-                      {/* You can leave text hidden if you only want tooltip */}
-                    </Link>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent
-                  side="bottom"
-                  sideOffset={6}
-                  className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg z-[9999]"
-                >
-                  Back to Admin
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
+                    <CircleChevronLeft className="h-4 w-4 text-teal-400" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent
+                side="bottom"
+                sideOffset={6}
+                className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg z-[9999]"
+              >
+                Back to Admin
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
 
         {/* Section Title */}
@@ -110,7 +150,7 @@ const Aside: React.FC<AsideProps> = ({ user }) => {
           <h2 className="text-lg font-semibold text-gray-800 mb-1 flex items-center">
             User Settings
           </h2>
-          <div className="h-1 w-40 bg-teal-500 rounded-full flex items-center font-sans" />
+          <div className="h-1 w-40 bg-teal-500 rounded-full" />
         </div>
 
         {/* Navigation List */}
@@ -118,21 +158,38 @@ const Aside: React.FC<AsideProps> = ({ user }) => {
           {navItems.map((item, idx) => (
             <li
               key={idx}
-              onClick={item.onClick} // ✅ Hook up the click handler here
-              className="flex items-center gap-2 px-3 py-2 rounded-md bg-white hover:bg-teal-50 transition-colors cursor-pointer group"
+              onClick={() => item.enabled && item.onClick()}
+              className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors 
+                ${
+                  item.enabled
+                    ? "cursor-pointer bg-white hover:bg-teal-50 group"
+                    : "cursor-not-allowed opacity-50 bg-gray-50"
+                }`}
             >
               {item.icon}
-              <span className="font-medium text-gray-700 group-hover:text-teal-400">
+              <span
+                className={`font-medium ${
+                  item.enabled
+                    ? "text-gray-700 group-hover:text-teal-400"
+                    : "text-gray-400"
+                }`}
+              >
                 {item.label}
               </span>
             </li>
           ))}
         </ul>
       </aside>
-      <Timeslot open={openModal} onOpenChange={setOpenModal} user={user} />
+
+      {/* Dialog Components */}
+      <Timeslot
+        open={openTimeSlotDialog}
+        onOpenChange={setOpenTimeSlotDialog}
+        user={user}
+      />
       <Costing
-        open={openCostingModal}
-        onOpenChange={setOpenCostingModal}
+        open={openCostingDialog}
+        onOpenChange={setOpenCostingDialog}
         user={user}
       />
       <AccessRight
