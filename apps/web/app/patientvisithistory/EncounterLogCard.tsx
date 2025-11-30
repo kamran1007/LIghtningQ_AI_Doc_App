@@ -32,7 +32,8 @@ export default function EncounterLogCard({
     appointmentcasesheet?.CheifcomplaintNotes || "No summary provided.";
   const nextAction =
     appointmentcasesheet?.ConsultationFollowUpPlan?.[0]?.followUpText || "—";
-  const displayStatus: StatusKey = appointmentcasesheet?.IsConsultationCompleted
+  const displayStatus: StatusKey = appointmentcasesheet?.consultationStatus ===
+  "Completed"
     ? "Completed"
     : "InCompleted";
   return (

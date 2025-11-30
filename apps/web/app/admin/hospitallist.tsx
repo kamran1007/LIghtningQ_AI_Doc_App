@@ -69,6 +69,28 @@ const HospitalList = () => {
     setOpenModal(true);
   };
 
+  // Get access rights from Redux
+  const accessRights = useSelector(
+    (state: RootState) => state.hospitalAccessRight.data
+  );
+
+  // Extract Admin → Manage Hospital permissions
+  const adminModule = accessRights?.find((m: any) => m.ModuleName === "Admin");
+  const hospitalSub = adminModule?.Submodules?.find(
+    (s: any) => s.SubModuleName === "Manage Hospital"
+  );
+
+  // ✅ Handle Permissions array safely
+  const hospitalPerm = Array.isArray(hospitalSub?.Permissions)
+    ? hospitalSub.Permissions[0]
+    : hospitalSub?.Permissions;
+
+  // Default fallback
+  const canView = hospitalPerm?.CanView ?? false;
+  const canCreate = hospitalPerm?.CanCreate ?? false;
+  const canUpdate = hospitalPerm?.CanUpdate ?? false;
+  const canDelete = hospitalPerm?.CanDelete ?? false;
+
   useEffect(() => {
     dispatch(fetchHospitals());
   }, [dispatch]);
@@ -150,20 +172,22 @@ const HospitalList = () => {
               <Eye className="w-4 h-4 text-teal-500" />
               View
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => handleEdit(row.original)}
-              className="flex items-center gap-2 hover:bg-teal-50 rounded-md cursor-pointer"
-            >
-              <Edit className="w-4 h-4 text-teal-500" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem
+            {canUpdate && (
+              <DropdownMenuItem
+                onClick={() => handleEdit(row.original)}
+                className="flex items-center gap-2 hover:bg-teal-50 rounded-md cursor-pointer"
+              >
+                <Edit className="w-4 h-4 text-teal-500" />
+                Edit
+              </DropdownMenuItem>
+            )}
+            {/* <DropdownMenuItem
               onClick={() => handleAddNew()}
               className="flex items-center gap-2 hover:bg-teal-50 rounded-md cursor-pointer"
             >
               <Plus className="w-4 h-4 text-teal-500" />
               Add New
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -183,7 +207,6 @@ const HospitalList = () => {
           enableColumnActions={false} // ✅ removes column action menu
           enableColumnFilters={false} // ✅ removes filter icon & logic
           enableGlobalFilter={false} // ✅ removes global search bar
-          
           muiTableBodyCellProps={{
             sx: {
               whiteSpace: "nowrap",
@@ -191,22 +214,22 @@ const HospitalList = () => {
             },
           }}
           muiTableBodyRowProps={{
-          sx: {
-            '&:hover': {
-              backgroundColor: '#8AFFFF !important',
-            },
-          },
-        }}
-        muiTopToolbarProps={{
-          sx: {
-            '& .MuiButtonBase-root': {
-              color: 'black', // default icon color
-              '&:hover': {
-                color: '#2EFFFF', // hover color
+            sx: {
+              "&:hover": {
+                backgroundColor: "#8AFFFF !important",
               },
             },
-          },
-        }}
+          }}
+          muiTopToolbarProps={{
+            sx: {
+              "& .MuiButtonBase-root": {
+                color: "black", // default icon color
+                "&:hover": {
+                  color: "#2EFFFF", // hover color
+                },
+              },
+            },
+          }}
         />
       ) : (
         <div className="flex flex-col items-center justify-center w-full h-[calc(90vh-150px)] px-2 text-center overflow-hidden">

@@ -52,7 +52,7 @@ type NavItem = {
 const accessRights: AccessRight[] =
   useSelector((state: RootState) => state.hospitalAccessRight?.data) ?? [];
 
-console.log("Access Rights from Redux AppBar:", accessRights);
+// console.log("Access Rights from Redux AppBar:", accessRights);
 
 // ✅ Always sort by ModuleId (ascending), then filter enabled ones
 const enabledNavItems: NavItem[] = (accessRights ?? [])

@@ -10,45 +10,91 @@ import {
   Stethoscope,
   MoreHorizontal,
   SquareActivity,
+  ReceiptText,
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { Toast } from "primereact/toast";
-import { Sidebar } from "primereact/sidebar";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 import PatientCaseHistory from "app/patientvisithistory/CaseHistory";
 import { useEvents } from "@/context/events-context";
 
 interface AppointmentActionsDialogProps {
   patient: any;
-  onCancel: (patient: any) => void; // 👈 takes patient
-  onReschedule: (patient: any) => void; // 👈 takes patient
+  onCancel: (patient: any) => void;
+  onReschedule: (patient: any) => void;
   onViewCaseHistory: (patient: any) => void;
   onStartConsultation: (patient: any) => void;
+  onBilling?: (appointment: any) => void; // ✅ New optional prop
 }
 
 export default function AppointmentActionsDialog({
   patient,
   onReschedule,
   onCancel,
-  onViewCaseHistory,
   onStartConsultation,
+  onBilling,
 }: AppointmentActionsDialogProps) {
   const [open, setOpen] = useState(false);
   const [isCaseHistoryOpen, setIsCaseHistoryOpen] = useState(false);
   const toast = useRef<Toast>(null);
   const { setEventAddOpen, setEditingEvent } = useEvents();
 
-  const isPastDate = (dateStr: string) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+  const accessRights = useSelector(
+    (state: RootState) => state.hospitalAccessRight.data
+  );
 
-    const appointmentDate = new Date(dateStr);
-    appointmentDate.setHours(0, 0, 0, 0);
+  // ✅ Extract "Patient Care" module
+  const patientCareModule = accessRights?.find(
+    (m: any) => m.ModuleName === "Patient Care"
+  );
 
-    return appointmentDate < today;
-  };
+  // ✅ Correct helper — use Submodules not SubModules
+  const getPermission = (subName: string) =>
+    patientCareModule?.Submodules?.find((s: any) => s.SubModuleName === subName)
+      ?.Permissions?.[0];
+
+  // ✅ Individual submodule permissions
+  const vitalPerm = getPermission("vitals");
+  const consultPerm = getPermission("Consultation");
+  const casePerm = getPermission("Case History");
+
+  const canViewVitals = vitalPerm?.CanView ?? false;
+  const canUpdateVitals = vitalPerm?.CanUpdate ?? false;
+
+  const canViewConsultation = consultPerm?.CanView ?? false;
+  const canUpdateConsultation = consultPerm?.CanUpdate ?? false;
+
+  const canViewCaseHistory = casePerm?.CanView ?? false;
+  const canCreateCaseHistory = casePerm?.CanCreate ?? false;
+
+  // Get Billing permission from ANY module
+const billingModule = accessRights
+  ?.flatMap((mod: any) => mod.Submodules || [])
+  ?.find((s: any) => s.SubModuleName === "Billing");
+
+const isBillingEnabled = billingModule?.enabled ?? false;
+
 
   const hoverchange =
     "justify-start gap-3 hover:bg-[linear-gradient(135deg,rgba(34,211,238,0.35)_0%,rgba(129,140,248,0.15)_100%)]";
+
+  const isPastDate = (dateStr: string) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const appointmentDate = new Date(dateStr);
+    appointmentDate.setHours(0, 0, 0, 0);
+    return appointmentDate < today;
+  };
+
+  const showToast = (message: string, type: "error" | "warn" = "error") => {
+    toast.current?.show({
+      severity: type,
+      summary: type === "error" ? "Error" : "Warning",
+      detail: message,
+      life: 4000,
+    });
+  };
 
   return (
     <>
@@ -100,27 +146,18 @@ export default function AppointmentActionsDialog({
                   }}
                   className="fixed z-50 top-1/2 left-1/2 w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-xl"
                 >
-                  <h2 className="text-lg font-medium text-center mb-4 text-[#2cbbb1] font-sans ">
+                  <h2 className="text-lg font-medium text-center mb-4 text-[#2cbbb1] font-serif">
                     Appointment Actions Panel
                   </h2>
 
-                  <div className="flex flex-col gap-3 hover:to-blue-100">
+                  <div className="flex flex-col gap-3">
+                    {/* Reschedule Appointment */}
                     <Button
                       variant="ghost"
                       className={hoverchange}
                       onClick={() => {
-                        if (
-                          isPastDate(patient.appointmentDate) ||
-                          patient.IsConsultationCompleted
-                        ) {
-                          toast.current?.show({
-                            severity: "error",
-                            summary: "Error",
-                            detail: patient.IsConsultationCompleted
-                              ? "You can't reschedule a completed consultation."
-                              : "You can't reschedule a past appointment.",
-                            life: 4000,
-                          });
+                        if (isPastDate(patient.appointmentDate)) {
+                          showToast("You can't reschedule a past appointment.");
                           return;
                         }
                         onReschedule(patient);
@@ -131,17 +168,13 @@ export default function AppointmentActionsDialog({
                       Reschedule Appointment
                     </Button>
 
+                    {/* Cancel Appointment */}
                     <Button
                       variant="ghost"
                       className={hoverchange}
                       onClick={() => {
                         if (isPastDate(patient.appointmentDate)) {
-                          toast.current?.show({
-                            severity: "error",
-                            summary: "Error",
-                            detail: "You can't cancel a past appointment.",
-                            life: 4000,
-                          });
+                          showToast("You can't cancel a past appointment.");
                           return;
                         }
                         onCancel(patient);
@@ -152,18 +185,26 @@ export default function AppointmentActionsDialog({
                       Cancel Appointment
                     </Button>
 
+                    {/* Vitals */}
                     <Button
                       variant="ghost"
-                      className={hoverchange}
+                      disabled={!canViewVitals}
+                      className={`${hoverchange} ${
+                        !canViewVitals
+                          ? "opacity-50 cursor-not-allowed"
+                          : "cursor-pointer"
+                      }`}
                       onClick={() => {
+                        if (!canViewVitals) {
+                          showToast(
+                            "You don’t have permission to view vitals."
+                          );
+                          return;
+                        }
                         if (isPastDate(patient.appointmentDate)) {
-                          toast.current?.show({
-                            severity: "error",
-                            summary: "Error",
-                            detail:
-                              "You can't add vitals for a past appointment.",
-                            life: 4000,
-                          });
+                          showToast(
+                            "You can't add vitals for a past appointment."
+                          );
                           return;
                         }
                         onStartConsultation({
@@ -177,47 +218,44 @@ export default function AppointmentActionsDialog({
                       Vitals
                     </Button>
 
+                    {/* Consultation */}
                     <Button
                       variant="ghost"
-                      className={hoverchange}
+                      disabled={!canViewConsultation}
+                      className={`${hoverchange} ${
+                        !canViewConsultation
+                          ? "opacity-50 cursor-not-allowed"
+                          : "cursor-pointer"
+                      }`}
                       onClick={() => {
+                        if (!canViewConsultation) {
+                          showToast(
+                            "You don’t have permission to start consultation."
+                          );
+                          return;
+                        }
+
                         const appointmentDate = new Date(
                           patient.appointmentDate
                         );
                         const today = new Date();
-
-                        // Remove time part for strict date comparison
                         appointmentDate.setHours(0, 0, 0, 0);
                         today.setHours(0, 0, 0, 0);
 
-                        if (appointmentDate < today) {
-                          toast.current?.show({
-                            severity: "error",
-                            summary: "Error",
-                            detail:
-                              "You can't start consultation for a past appointment.",
-                            life: 4000,
-                          });
-                          return;
-                        }
+                        if (appointmentDate < today)
+                          return showToast(
+                            "You can't start consultation for a past appointment."
+                          );
+                        if (appointmentDate > today)
+                          return showToast(
+                            "You can't start consultation for a future appointment.",
+                            "warn"
+                          );
 
-                        if (appointmentDate > today) {
-                          toast.current?.show({
-                            severity: "warn",
-                            summary: "Warning",
-                            detail:
-                              "You can't start consultation for a future appointment.",
-                            life: 4000,
-                          });
-                          return;
-                        }
-
-                        // ✅ Allow only for today's appointments
                         onStartConsultation({
                           ...patient,
                           initialTab: "consultation",
                         });
-
                         setOpen(false);
                       }}
                     >
@@ -225,15 +263,52 @@ export default function AppointmentActionsDialog({
                       Start Consultation
                     </Button>
 
+                    {/* Case History */}
                     <Button
                       variant="ghost"
-                      className={hoverchange}
+                      disabled={!canViewCaseHistory}
+                      className={`${hoverchange} ${
+                        !canViewCaseHistory
+                          ? "opacity-50 cursor-not-allowed"
+                          : "cursor-pointer"
+                      }`}
                       onClick={() => {
+                        if (!canViewCaseHistory) {
+                          showToast(
+                            "You don’t have permission to view case history."
+                          );
+                          return;
+                        }
                         setIsCaseHistoryOpen(true);
                       }}
                     >
                       <ClipboardList className="w-5 h-5 text-green-500" />
                       View Case History
+                    </Button>
+                    {/* Billing */}
+                    <Button
+                      variant="ghost"
+                      disabled={!isBillingEnabled}
+                      className={`${hoverchange} ${
+                        !isBillingEnabled
+                          ? "opacity-50 cursor-not-allowed"
+                          : "cursor-pointer"
+                      }`}
+                      onClick={() => {
+                        if (!isBillingEnabled) {
+                          showToast(
+                            "You don’t have permission to access billing."
+                          );
+                          return;
+                        }
+
+                        if (!onBilling) return;
+                        onBilling(patient);
+                        setOpen(false);
+                      }}
+                    >
+                      <ReceiptText className="w-5 h-5 text-amber-500" />
+                      Billing
                     </Button>
                   </div>
                 </motion.div>

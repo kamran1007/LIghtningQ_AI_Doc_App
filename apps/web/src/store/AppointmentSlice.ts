@@ -91,7 +91,7 @@ export interface Appointment {
   acuity: 'LOW' | 'MEDIUM' | 'HIGH';
   isDraft: boolean;
   fasttrackpatient: boolean;
-  IsConsultationCompleted: boolean;
+  consultationStatus: string | null;
   consultationId: number | null;
   paymentHistoryId: number;
   paymentTypeId: number;

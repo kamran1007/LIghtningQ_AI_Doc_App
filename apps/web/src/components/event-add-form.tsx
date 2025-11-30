@@ -47,6 +47,12 @@ import {
   MessageCircle,
   MessageSquare,
   Loader2Icon,
+  IndianRupee,
+  BanknoteArrowDown,
+  BanknoteArrowUp,
+  BellRing,
+  HardDriveDownload,
+  HandCoins,
 } from "lucide-react";
 import { useMemo, useRef } from "react";
 import {
@@ -91,6 +97,14 @@ import { fetchAllAppointmentPatient } from "@/store/AppointmentSlice";
 import { useAppDispatch } from "@/store/hooks";
 import { useSelector } from "react-redux";
 import { generateAppointmentPDF } from "@/utils/generateAppointmentPDF.pdf";
+import { RootState } from "@/store";
+import Billing from "app/patientcare/Billings";
+import {
+  addupdatePatientPackageUsage,
+  GetBillingItem,
+  getPatientPackageUsage,
+} from "@/lib/billing";
+import { hostname } from "os";
 
 const messages = [
   "Search patient by Phone No.",
@@ -201,6 +215,24 @@ type QuickAppointmentForm = {
   appointmentTime: string;
   // etc...
 };
+interface PatientPackageUsage {
+  PatientPackageUsageId: number;
+  patientId: number;
+  appointmentId?: number;
+  consultationId?: number;
+  status?: string;
+
+  IsFastTrack: boolean;
+  IsFreeFollowUp: boolean;
+
+  billingItemChargeId: number;
+
+  billingItemCharge?: {
+    BillingItemChargeId: number;
+    BillingItemName: string;
+    price?: number;
+  };
+}
 
 export function EventAddForm({
   start,
@@ -232,6 +264,11 @@ export function EventAddForm({
   // console.log("selected hospital from book Appointment", selectedHospital);
   const toast = useRef<Toast>(null);
   const [open, setOpen] = useState(false);
+  const [selectedOption, setSelectedOption] = useState("Pay Now");
+  const [isBillingOpen, setIsBillingOpen] = useState(false);
+  const [appointmentData, setAppointmentData] = useState(null); // store created appointment data
+  const [billingItems, setBillingItems] = useState<any[]>([]);
+  const [billingLoading, setBillingLoading] = useState(false);
 
   const DoctorIcons: Record<string, React.ReactElement> = {
     general: <Stethoscope className="w-5 h-5 text-blue-500" />,
@@ -291,6 +328,7 @@ export function EventAddForm({
   const [selectedSlotDate, setSelectedSlotDate] = useState<string | null>(null);
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [advisedItems, setAdvisedItems] = useState<PatientPackageUsage[]>([]);
 
   type DoctorData = {
     UserId: number;
@@ -315,6 +353,7 @@ export function EventAddForm({
 
   const [isLoadingQuickBook, setIsLoadingQuickBook] = useState(true);
   const [printEnabled, setPrintEnabled] = useState(true); // defaultChecked ✅
+  const [filteredBillingItems, setFilteredBillingItems] = useState<any[]>([]);
 
   const costing = selectedDoctorData?.DoctorCosting?.[0];
   const walkInFee = costing?.walkInFee || 0;
@@ -374,6 +413,22 @@ export function EventAddForm({
           getAllAppointmentType(),
           getAllTagPatientType(),
         ]);
+
+        // setBillingLoading(true);
+
+        // const billingResp = await GetBillingItem({
+        //   chargeType: 'consultation',
+        //   // hospitalId: selectedHospital?.hospital?.HospitalId,
+        //   doctorId: selectedDoctorId,
+        //   page: 1,
+        //   limit: 10, // load all items
+        // });
+
+        // setBillingItems(billingResp.data || []);
+
+        // console.log("Fetched Billing Items:", billingResp.data);
+
+        // setBillingLoading(false);
 
         setIsLoadingQuickBook(true);
 
@@ -462,6 +517,33 @@ export function EventAddForm({
 
     init();
   }, []);
+
+  useEffect(() => {
+    const loadBillingItems = async () => {
+      if (!selectedDoctorId) return; // doctor not selected yet
+
+      try {
+        setBillingLoading(true);
+
+        const billingResp = await GetBillingItem({
+          hospitalId: selectedHospital?.hospital?.HospitalId,
+          chargeType: "consultation",
+          doctorId: selectedDoctorId,
+          page: 1,
+          limit: 10,
+        });
+
+        setBillingItems(billingResp.data || []);
+        console.log("Billing items for doctor:", billingResp.data);
+      } catch (error) {
+        console.error("❌ Billing Fetch Error:", error);
+      } finally {
+        setBillingLoading(false);
+      }
+    };
+
+    loadBillingItems();
+  }, [selectedDoctorId]); // ⭐ runs ONLY after doctor selection
 
   useEffect(() => {
     if (selectedSpecializationId) {
@@ -744,6 +826,61 @@ export function EventAddForm({
     el.addEventListener("scroll", updateScrollButtons);
     return () => el.removeEventListener("scroll", updateScrollButtons);
   }, [filteredDoctors]);
+
+  useEffect(() => {
+    console.log(
+      "Filtering billing items for doctor:",
+      selectedDoctorId,
+      billingItems.length,
+      watchVisitTypeId
+    );
+    if (!selectedDoctorId || !billingItems.length || !watchVisitTypeId) return;
+
+    const selectedVisitType = appointmentType.find(
+      (t) => t.id.toString() === watchVisitTypeId
+    );
+
+    if (!selectedVisitType) {
+      setFilteredBillingItems([]);
+      return;
+    }
+
+    const visitTypeName = selectedVisitType.name.trim().toLowerCase();
+
+    const filtered = billingItems.filter(
+      (item) => item.BillingItemName?.trim().toLowerCase() === visitTypeName
+    );
+
+    setFilteredBillingItems(filtered);
+  }, [billingItems, appointmentType, selectedDoctorId, watchVisitTypeId]);
+
+  useEffect(() => {
+    if (!selectedPatient?.PatientId && !editingEvent?.AppointmentId) return;
+
+    const fetchAdvised = async () => {
+      try {
+        const resp = await getPatientPackageUsage(
+          0,
+          selectedPatient?.PatientId,
+          editingEvent?.AppointmentId
+        );
+
+        // ❗ FILTER OUT INCOMPLETE ITEMS
+        const filtered = (resp || []).filter(
+          (item: any) => item.status === "Incomplete"
+        );
+
+        console.log("Filtered Advised Items:", filtered);
+
+        setAdvisedItems(filtered);
+      } catch (err) {
+        console.error("Error loading advised items:", err);
+      }
+    };
+
+    fetchAdvised();
+  }, [selectedPatient?.PatientId]);
+
   const dispatch = useAppDispatch();
 
   const onSubmit = async (form: quickAppointmentSchema) => {
@@ -753,6 +890,16 @@ export function EventAddForm({
       return;
     }
     const isUpdate = !!editingEvent?.AppointmentId; // ✅ Determine if update
+    //Bill Item Usage
+    // const billItemUsageData = {
+    //   patientId: selectedPatient?.PatientId || null,
+    //   appointmentId: null,
+    //   consultationId: null,
+    //   billingItemChargeId: filteredBillingItems[0]?.BillingItemChargeId || null,
+    //   IsFastTrack: Boolean(form.fasttrackpatient),
+    //   IsFreeFollowUp: Boolean(form.visitTypeId === "2"),
+    //   status: "Incomplete",
+    // };
 
     const payload = {
       ...form,
@@ -814,22 +961,90 @@ export function EventAddForm({
         ? await UpdateAppointment(updatePayload) // call update
         : await BookAppointment(payload); // call add
       if (res?.return?.STATUS_CODES === 200) {
-        if (printEnabled) {
-          const appointmentPayload = {
-            ...payload,
-            AppointmentId:
-              res?.return?.AppointmentId || editingEvent?.AppointmentId,
-            doctor: selectedDoctorData, // ✅ include doctor
-            patient: selectedPatient,
-            AppoitmentSummary:
-              res?.return?.appointmentWithDetails || res?.return?.patient || [],
-            hospital: selectedHospital,
-          };
+        // ✅ Build base usage data
+        console.log("Booking/Update Response:", res);
+        const usageBase = {
+          patientId: selectedPatient?.PatientId || null,
+          appointmentId:
+            res?.return?.appointmentWithDetails?.AppointmentId ||
+            editingEvent?.AppointmentId,
+          consultationId: null,
+          billingItemChargeId:
+            filteredBillingItems[0]?.BillingItemChargeId || null,
+          IsFastTrack: Boolean(form.fasttrackpatient),
+          IsFreeFollowUp: Boolean(form.visitTypeId === "2"),
+          status: "Incomplete",
+        };
 
-          if (printEnabled) {
-            generateAppointmentPDF(appointmentPayload);
-          }
+        // ✅ Only include PatientPackageUsageId when updating
+        if (isUpdate && advisedItems[0]?.PatientPackageUsageId) {
+          addupdatePatientPackageUsage({
+            ...usageBase,
+            PatientPackageUsageId: advisedItems[0].PatientPackageUsageId,
+          });
+        } else {
+          // ✅ NEW appointment → do NOT send PatientPackageUsageId
+          addupdatePatientPackageUsage(usageBase);
         }
+
+        // ✅ Declare once at the top so it's accessible to both conditions
+        let appointmentPayload: any = null;
+
+        // ✅ Build appointment payload
+        appointmentPayload = {
+          ...payload,
+          AppointmentId:
+            res?.return?.AppointmentId || editingEvent?.AppointmentId,
+          doctor: selectedDoctorData, // ✅ include doctor
+          patient: selectedPatient,
+          AppoitmentSummary:
+            res?.return?.appointmentWithDetails || res?.return?.patient || [],
+          hospital: selectedHospital,
+        };
+
+        // 🟦 PRINT ONLY IF billing is disabled
+        generateAppointmentPDF(appointmentPayload);
+
+        // if (printEnabled && !isBillingEnabled) {
+        //   generateAppointmentPDF(appointmentPayload);
+        // }
+
+        // 🟩 SHOW SUCCESS → THEN BILLING (Pay Now Flow)
+        // ---- SHOW SUCCESS → THEN BILLING (Pay Now Flow) ----
+        if (selectedOption === "Pay Now") {
+          setBooked(true);
+
+          setTimeout(() => {
+            setBooked(false);
+
+            // 🟢 1. Open Billing FIRST
+            setAppointmentData(appointmentPayload);
+            setIsBillingOpen(true);
+
+            // 🟢 2. WAIT A LITTLE before closing appointment dialog
+            setTimeout(() => {
+              setEventAddOpen(false);
+            }, 300); // small delay prevents auto-close bug
+
+            // 🟢 3. Refresh list
+            const today = new Date().toISOString().split("T")[0];
+            dispatch(
+              fetchAllAppointmentPatient({
+                page: 1,
+                limit: 10,
+                hospitalId: selectedHospital
+                  ? Number(selectedHospital?.hospitalId)
+                  : undefined,
+                appointmentDateFrom: today,
+                appointmentDateTo: today,
+              })
+            );
+          }, 2000);
+
+          return;
+        }
+
+        // 🟧 NORMAL FLOW (Pay Later or Billing Disabled)
         setTimeout(() => {
           setBooked(true);
 
@@ -837,7 +1052,8 @@ export function EventAddForm({
             reset();
             setBooked(false);
             setEventAddOpen(false);
-            const today = new Date().toISOString().split("T")[0]; // yyyy-mm-dd
+
+            const today = new Date().toISOString().split("T")[0];
 
             dispatch(
               fetchAllAppointmentPatient({
@@ -849,8 +1065,7 @@ export function EventAddForm({
                 appointmentDateFrom: today,
                 appointmentDateTo: today,
               })
-            ); // 🟢 Fetch updated patient list
-            // clear selections if needed
+            );
           }, 2000);
         }, 800);
       }
@@ -1284,6 +1499,30 @@ export function EventAddForm({
     indicatorSeparator: () => ({ display: "none" }),
   };
 
+  const accessRights = useSelector(
+    (state: RootState) => state.hospitalAccessRight.data
+  );
+
+  // ✅ Find “Appointments” module
+  const appointmentsModule = accessRights?.find(
+    (m: any) => m.ModuleName === "Appointments"
+  );
+
+  // ✅ Find the “Book Appointment” submodule
+  const bookAppointmentSubmodule = appointmentsModule?.Submodules?.find(
+    (s: any) => s.SubModuleName === "Book Appointment"
+  );
+
+  // ✅ Extract permissions
+  const canBookAppointment =
+    bookAppointmentSubmodule?.Permissions?.[0]?.CanCreate ?? false;
+
+  const billingModule = accessRights
+    ?.flatMap((mod: any) => mod.Submodules || [])
+    ?.find((s: any) => s.SubModuleName === "Billing");
+
+  const isBillingEnabled = billingModule?.enabled ?? false;
+
   return (
     <>
       <Toast ref={toast} />
@@ -1292,13 +1531,15 @@ export function EventAddForm({
         {!eventAddOpen && (
           <AlertDialogTrigger asChild>
             <div className="flex-none">
-              <Button
-                className="book-appointment-btn inline-flex items-center gap-2"
-                onClick={() => setEventAddOpen(true)}
-              >
-                <CalendarClock className="w-5 h-5" />
-                Book Appointment
-              </Button>
+              {canBookAppointment && (
+                <Button
+                  className="book-appointment-btn inline-flex items-center gap-2"
+                  onClick={() => setEventAddOpen(true)}
+                >
+                  <CalendarClock className="w-5 h-5" />
+                  Book Appointment
+                </Button>
+              )}
             </div>
           </AlertDialogTrigger>
         )}
@@ -2381,8 +2622,8 @@ export function EventAddForm({
                 </div>
                 {/* Notifications */}
                 <div className="space-y-2 text-gray-800">
-                  <p className="text-sm font-medium mb-1">
-                    Send Notification To:
+                  <p className="flex items-center text-sm gap-1.5 font-medium text-gray-600 mb-2">
+                    <BellRing className="ml-1 h-4 w-4" /> Send Notification To
                   </p>
 
                   {/* SMS */}
@@ -2471,7 +2712,8 @@ export function EventAddForm({
                 </div>
 
                 <div className="border-t border-blue-200 pt-3">
-                  <p className="text-sm font-medium text-gray-600 mb-2">
+                  <p className="flex items-center text-sm gap-1 font-medium text-gray-600 mb-2">
+                    <HardDriveDownload className="ml-1 h-4 w-4" />
                     print Summary
                   </p>
 
@@ -2504,6 +2746,79 @@ export function EventAddForm({
                     ))}
                   </div>
                 </div>
+
+                {isBillingEnabled && (
+                  <div className="border-t border-blue-200 pt-3">
+                    <p className="flex items-center text-sm gap-1 font-medium text-gray-600 mb-2">
+                      <HandCoins className="ml-1 h-4 w-4" />
+                      Payment Options
+                    </p>
+
+                    <div className="flex items-center gap-6">
+                      {[
+                        {
+                          id: "Pay Now",
+                          label: "Pay Now",
+                          icon: <BanknoteArrowDown className="w-4 h-4" />,
+                          color: "text-gray-700",
+                        },
+                        {
+                          id: "Pay Later",
+                          label: "Pay Later",
+                          icon: <BanknoteArrowUp className="w-4 h-4" />,
+                          color: "text-gray-700",
+                        },
+                      ].map((item) => (
+                        <label
+                          key={item.id}
+                          htmlFor={item.id}
+                          className="flex items-center gap-2 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            id={item.id}
+                            className="h-4 w-4 accent-green-600 border-gray-300 rounded focus:ring-green-300"
+                            checked={selectedOption === item.id}
+                            onChange={() => setSelectedOption(item.id)}
+                          />
+                          <span className="flex items-center gap-1 text-sm font-medium">
+                            <span className={item.color}>{item.icon}</span>
+                            <span className={item.color}>{item.label}</span>
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+
+                    {/* <div className="space-y-2">
+                    {[
+                      {
+                        id: "Pay Later",
+                        label: "Pay Later",
+                        icon: <PrinterCheck className="w-4 h-4" />,
+                        color: "text-gray-700",
+                      },
+                    ].map((item) => (
+                      <label
+                        key={item.id}
+                        htmlFor={item.id}
+                        className="flex items-center gap-2 cursor-pointer "
+                      >
+                        <input
+                          type="checkbox"
+                          id={item.id}
+                          className="h-4 w-4 accent-green-600 border-gray-300 rounded focus:ring-green-300"
+                          checked={printEnabled}
+                          onChange={(e) => setPrintEnabled(e.target.checked)}
+                        />
+                        <span className="flex items-center gap-1 text-sm font-medium">
+                          <span className={item.color}>{item.icon}</span>
+                          <span className={item.color}>{item.label}</span>
+                        </span>
+                      </label>
+                    ))}
+                  </div> */}
+                  </div>
+                )}
                 <div className="pt-4">
                   <Button
                     type="submit"
@@ -2557,7 +2872,6 @@ export function EventAddForm({
 
               {/* ✅ Success Animation */}
             </form>
-
             <PatientSearchDrawer
               selectedHospital={selectedHospital}
               query={searchQuery}
@@ -2576,6 +2890,13 @@ export function EventAddForm({
           </AlertDialogContent>
         </div>
       </AlertDialog>
+
+      <Billing
+        open={isBillingOpen}
+        onOpenChange={setIsBillingOpen}
+        patient={userprofiledata?.user || null}
+        appointment={appointmentData}
+      />
     </>
   );
 }

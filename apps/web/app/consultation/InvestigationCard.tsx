@@ -22,6 +22,13 @@ import { AddUpdateInvestigation, FetchInvestigation } from "@/lib/consultation";
 import { getProfile } from "@/lib/action";
 import Select from "react-select";
 import { useFieldSpeechRecognition } from "./useFieldSpeechRecognition";
+import { createOrUpdateBillingItem, GetBillingItem } from "@/lib/billing";
+
+interface InvestigationGroup {
+  label: string;
+  color: string;
+  options: any[];
+}
 
 const InvestigationCard = ({
   disabled,
@@ -34,8 +41,12 @@ const InvestigationCard = ({
   form,
   setForm,
   customStyles = {},
+  UserHospitalData,
 }: any) => {
-  const [investigationOptions, setInvestigationOptions] = useState([]);
+  const [investigationOptions, setInvestigationOptions] = useState<
+    InvestigationGroup[]
+  >([]);
+
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [userprofiledata, setUserprofiledata] = useState<any>(null);
   const [inputValue, setInputValue] = useState("");
@@ -76,6 +87,7 @@ const InvestigationCard = ({
 
   useEffect(() => {
     fetchOptions();
+    fetchOptionsForCategories();
   }, []);
 
   // Debug effect to monitor transcript changes
@@ -89,44 +101,126 @@ const InvestigationCard = ({
     }
   }, [transcript, activeField, form.investigationRemarks]);
 
-  const fetchOptions = async () => {
+  // const fetchOptions = async () => {
+  //   try {
+  //     const resp = await getProfile();
+  //     setUserprofiledata(resp);
+  //     const res = await FetchInvestigation();
+  //     console.log("Fetched Investigation Options:", res);
+  //     const categories =
+  //       res?.data?.investigationTypeData?.map((cat: any) => ({
+  //         label: cat.InvestigationType,
+  //         value: cat.InvestigationTypeId,
+  //       })) || [];
+
+  //     const groupedOptions =
+  //       res?.data?.consultationInvestigation?.map((group: any) => ({
+  //         label: group.InvestigationType,
+  //         options: (group.options || []).map((opt: any) => ({
+  //           label: opt.subInveatigationType,
+  //           value: opt.value,
+  //           color: opt.color,
+  //           InvestigationSubTypeId: opt.InvestigationSubTypeId,
+  //           InvestigationTypeId: group.InvestigationTypeId,
+  //           InvestigationType: group.InvestigationType,
+  //         })),
+  //       })) || [];
+
+  //     setInvestigationOptions(groupedOptions);
+  //     setInvestigationCategories(categories);
+  //   } catch (error) {
+  //     console.error("Error fetching investigations:", error);
+  //   }
+  // };
+
+  const fetchOptionsForCategories = async () => {
     try {
       const resp = await getProfile();
       setUserprofiledata(resp);
       const res = await FetchInvestigation();
-
+      console.log("Fetched Investigation Options:", res);
       const categories =
         res?.data?.investigationTypeData?.map((cat: any) => ({
           label: cat.InvestigationType,
           value: cat.InvestigationTypeId,
         })) || [];
 
-      const groupedOptions =
-        res?.data?.consultationInvestigation?.map((group: any) => ({
-          label: group.InvestigationType,
-          options: (group.options || []).map((opt: any) => ({
-            label: opt.subInveatigationType,
-            value: opt.value,
-            color: opt.color,
-            InvestigationSubTypeId: opt.InvestigationSubTypeId,
-            InvestigationTypeId: group.InvestigationTypeId,
-            InvestigationType: group.InvestigationType,
-          })),
-        })) || [];
-
-      setInvestigationOptions(groupedOptions);
       setInvestigationCategories(categories);
     } catch (error) {
       console.error("Error fetching investigations:", error);
     }
   };
 
+  const fetchOptions = async () => {
+    try {
+      const resp = await GetBillingItem({
+        chargeType: "INVESTIGATION",
+        limit: 200,
+      });
+
+      const items = resp?.data || [];
+
+      // ✅ Group by InvestigationType
+      const grouped = items.reduce((acc: any, item: any) => {
+        const type = item.investigationType;
+        const groupName = type?.InvestigationTypeName || "OTHER";
+        const groupColor = type?.InvestigationTypeColorCode || "#E5E7EB"; // default gray
+
+        if (!acc[groupName]) {
+          acc[groupName] = {
+            label: groupName,
+            color: groupColor, // ✅ store color at group level
+            options: [],
+          };
+        }
+
+        acc[groupName].options.push({
+          label: item.BillingItemName,
+          value: String(item.BillingItemChargeId),
+          BillingItemChargeId: item.BillingItemChargeId,
+          price: Number(item.price || item.walkinPrice || 0),
+          maxDiscountPercent: Number(item.maxDiscountPercent || 0),
+          maxDiscountInr: Number(item.maxDiscountInr || 0),
+
+          InvestigationTypeId: type?.InvestigationTypeId || null,
+          InvestigationTypeColor: groupColor,
+        });
+
+        return acc;
+      }, {});
+
+      // ✅ Convert grouped object into array
+      const formatted = Object.values(grouped) as {
+        label: string;
+        color: string;
+        options: any[];
+      }[];
+
+      setInvestigationOptions(formatted);
+
+      console.log("✅ Investigation Groups with Colors:", formatted);
+    } catch (error) {
+      console.error("❌ Error fetching investigation billing items:", error);
+    }
+  };
+
   const handleAddCustom = async () => {
     if (!InvestigationSubTypename?.trim()) return;
     try {
-      await AddUpdateInvestigation({
-        InvestigationSubTypename: InvestigationSubTypename.trim(),
-        InvestigationTypeId: parseInt(customCategory, 10),
+      await createOrUpdateBillingItem({
+        specializationId:
+          UserHospitalData.auth.profile.user.SpecializationId ?? undefined,
+        hospitalId:
+          UserHospitalData.hospitalSelection?.selectedHospital.hospital
+            .HospitalId ?? undefined,
+        investigationTypeId: parseInt(customCategory, 10) || undefined,
+        BillingItemName: InvestigationSubTypename.trim(),
+        code: "",
+        price: Number(0) ?? 0,
+        maxDiscountPercent: Number(0) ?? 0,
+        maxDiscountInr: Number(0) ?? 0,
+        description: "",
+        chargeTypeId: Number(3),
       });
       await fetchOptions();
       setCustomInvestigation("");
@@ -228,6 +322,7 @@ const InvestigationCard = ({
         if (remaining.length === 0) return null;
         return {
           label: group.label || group.InvestigationType || "Other",
+          color: group.color,
           options: remaining,
         };
       })
@@ -243,291 +338,501 @@ const InvestigationCard = ({
   };
 
   return (
-  <Card className="p-4 rounded-xl shadow-sm border bg-white w-full hover:shadow-xl hover:border-pink-300">
-    <div className="flex items-center gap-2 mb-2 font-semibold text-gray-800">
-      <Microscope size={18} className="text-pink-600" /> Investigations
-    </div>
+    <Card className="p-4 rounded-xl shadow-sm border bg-white w-full hover:shadow-xl hover:border-pink-300">
+      <div className="flex items-center gap-2 mb-2 font-semibold text-gray-800">
+        <Microscope size={18} className="text-pink-600" /> Investigations
+      </div>
 
-    {/* Select Investigations */}
-    <div className="space-y-2">
-      <Label className="text-sm block mb-1">Select Investigations</Label>
-      <Select
-        isMulti
-        isDisabled={disabled}
-        options={filteredInvestigationOptions}
-        value={(form.investigations || []).map((v: any) => ({
-          ...v,
-          value: String(v.value || v.InvestigationSubTypeId),
-        }))}
-        getOptionValue={(option) => String(option.value)}
-        getOptionLabel={(option) => option.label}
-        onChange={(selectedOptions) => {
-          const optionsArray = Array.isArray(selectedOptions)
-            ? [...selectedOptions]
-            : [];
-
-          const normalized = optionsArray.map((opt: any) => ({
-            ...opt,
-            value: String(
-              opt.value || opt.InvestigationSubTypeId || opt.InvestigationId
-            ),
-            label:
-              opt.label ||
-              opt.subInveatigationType ||
-              opt.InvestigationSubType ||
-              "Unnamed",
-          }));
-
-          const seen = new Set<string>();
-          const unique: {
-            value: string;
-            label: string;
-            [key: string]: any;
-          }[] = [];
-          let duplicateDetected = false;
-
-          for (const opt of normalized) {
-            if (seen.has(opt.value)) {
-              duplicateDetected = true;
-              continue;
-            }
-            seen.add(opt.value);
-            unique.push(opt);
-          }
-
-          if (duplicateDetected) {
-            alert("⚠️ This investigation is already selected.");
-          }
-
-          // Keep old remarks if already present
-          setForm((prev: any) => ({
-            ...prev,
-            investigations: unique,
-            investigationRemarks: { ...prev.investigationRemarks },
-          }));
-        }}
-        onInputChange={(value) => setInputValue(value)}
-        placeholder="Select or search investigations..."
-        className="text-sm w-full border border-pink-200 focus:border-pink-300 focus:ring-pink-200"
-        classNamePrefix="react-select"
-        styles={{
-          ...customStyles,
-          menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-          menu: (base) => ({ ...base, zIndex: 9999, position: "absolute" }),
-          menuList: (base) => ({
-            ...base,
-            maxHeight: "200px",
-            overflowY: "auto",
-            borderColor: "#fbcfe8",
-            "&:hover": { borderColor: "#f9a8d4" },
-          }),
-          control: (provided, state) => ({
-            ...provided,
-            borderColor: state.isFocused ? "#f9a8d4" : "#fbcfe8",
-            boxShadow: state.isFocused ? "0 0 0 1px #f9a8d4" : "none",
-            "&:hover": { borderColor: "#f9a8d4" },
-          }),
-        }}
-        menuPortalTarget={
-          typeof window !== "undefined" ? document.body : null
-        }
-        noOptionsMessage={() =>
-          inputValue && !showCreateForm ? (
-            <div className="flex justify-between items-center text-sm px-2 py-1">
-              <span className="text-gray-600">Not found?</span>
-              <button
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  setShowCreateForm(true);
-                }}
-                className="text-pink-400 hover:underline ml-2"
-              >
-                ➕ Add New
-              </button>
-            </div>
-          ) : null
-        }
-      />
-    </div>
-
-    {/* Create New Investigation */}
-    {showCreateForm && (
-      <div className="mt-3 flex items-center gap-2">
-        <CreatableSelect
-          options={investigationCategories}
+      {/* Select Investigations */}
+      <div className="space-y-2">
+        <Label className="text-sm block mb-1">Select Investigations</Label>
+        {/* // Fixed InvestigationCard component */}
+        <Select
+          isMulti
           isDisabled={disabled}
-          value={investigationCategories.find(
-            (c: any) => c.value === customCategory
+          options={filteredInvestigationOptions}
+          value={(form.investigations || []).map((v: any) => ({
+            ...v,
+            value: String(v.value || v.InvestigationSubTypeId),
+          }))}
+          getOptionValue={(option) => String(option.value)}
+          getOptionLabel={(option) => option.label}
+          formatGroupLabel={(group: any) => (
+            <div className="flex items-center gap-2 py-1 px-1">
+              <span
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: group.color }}
+              />
+              <span
+                className="text-xs font-semibold"
+                style={{ color: group.color }}
+              >
+                {group.label}
+              </span>
+            </div>
           )}
-          onChange={(selectedOption) =>
-            setCustomCategory(selectedOption?.value || "")
-          }
+          onChange={(selectedOptions) => {
+            const optionsArray = Array.isArray(selectedOptions)
+              ? [...selectedOptions]
+              : [];
+
+            const normalized = optionsArray.map((opt: any) => ({
+              ...opt,
+              value: String(
+                opt.value || opt.InvestigationSubTypeId || opt.InvestigationId
+              ),
+              label:
+                opt.label ||
+                opt.subInveatigationType ||
+                opt.InvestigationSubType ||
+                "Unnamed",
+            }));
+
+            const seen = new Set<string>();
+            const unique: any[] = [];
+            let duplicateDetected = false;
+
+            for (const opt of normalized) {
+              if (seen.has(opt.value)) {
+                duplicateDetected = true;
+                continue;
+              }
+              seen.add(opt.value);
+              unique.push(opt);
+            }
+
+            if (duplicateDetected) {
+              alert("⚠️ This investigation is already selected.");
+            }
+
+            setForm((prev: any) => ({
+              ...prev,
+              investigations: unique,
+              investigationRemarks: { ...prev.investigationRemarks },
+            }));
+          }}
+          onInputChange={(value) => setInputValue(value)}
+          placeholder="Select or search investigations..."
           classNamePrefix="react-select"
-          className="text-sm w-[220px]"
-          isSearchable={false}
-          placeholder="Select category"
+          isClearable={true}
+          closeMenuOnSelect={false}
           menuPortalTarget={
             typeof window !== "undefined" ? document.body : null
           }
-          menuPosition="fixed"
+          noOptionsMessage={() =>
+            inputValue && !showCreateForm ? (
+              <div className="flex justify-between items-center text-sm px-2 py-1">
+                <span className="text-gray-600">Not found?</span>
+                <button
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    setShowCreateForm(true);
+                  }}
+                  className="text-pink-400 hover:underline ml-2"
+                >
+                  ➕ Add New
+                </button>
+              </div>
+            ) : null
+          }
           styles={{
-            menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-            menu: (base) => ({ ...base, zIndex: 9999, position: "absolute" }),
-            menuList: (base) => ({
-              ...base,
+            // Merge with custom styles if provided
+            ...(customStyles || {}),
+
+            // Control - the main input box
+            control: (provided, state) => ({
+              ...provided,
+              minHeight: "44px",
+              borderColor: state.isFocused ? "#f9a8d4" : "#fbcfe8",
+              backgroundColor: state.isDisabled ? "#f3f4f6" : "white",
+              boxShadow: state.isFocused ? "0 0 0 2px #fce7f3" : "none",
+              transition: "all 0.2s ease",
+              "&:hover": {
+                borderColor: state.isDisabled ? "#fbcfe8" : "#f9a8d4",
+              },
+              cursor: state.isDisabled ? "not-allowed" : "pointer",
+            }),
+
+            // Value Container - where selected values and input appear
+            valueContainer: (provided) => ({
+              ...provided,
+              padding: "6px 8px",
+              overflow: "visible", // CRITICAL: Allow indicators to stay visible
+              zIndex: 1,
+              gap: "4px",
+            }),
+
+            // Input - the typing area
+            input: (provided) => ({
+              ...provided,
+              color: "#111827",
+              zIndex: 1,
+              cursor: "text",
+            }),
+
+            // Placeholder
+            placeholder: (provided) => ({
+              ...provided,
+              color: "#9ca3af",
+              fontSize: "14px",
+            }),
+
+            // Multi Value (selected tags)
+            multiValue: (provided) => ({
+              ...provided,
+              backgroundColor: "#e0f2fe",
+              borderRadius: "6px",
+              padding: "2px 6px",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+            }),
+
+            multiValueLabel: (provided) => ({
+              ...provided,
+              color: "#0369a1",
+              fontSize: "13px",
+              fontWeight: "500",
+              padding: "0 4px",
+            }),
+
+            multiValueRemove: (provided) => ({
+              ...provided,
+              color: "#0369a1",
+              cursor: "pointer",
+              transition: "all 0.15s ease",
+              padding: "0 2px",
+              "&:hover": {
+                backgroundColor: "#fca5a5",
+                color: "#dc2626",
+              },
+            }),
+
+            // Indicators Container - holds both clear and dropdown buttons
+            indicatorsContainer: (provided) => ({
+              ...provided,
+              zIndex: 10,
+              position: "relative",
+              display: "flex",
+              gap: "0",
+              padding: "0",
+              alignItems: "center",
+              pointerEvents: "auto", // CRITICAL: Allow clicks to pass through
+            }),
+
+            // Clear Indicator (X button)
+            clearIndicator: (provided, state) => ({
+              ...provided,
+              zIndex: 10,
+              position: "relative",
+              visibility: state.hasValue ? "visible" : "hidden",
+              opacity: state.hasValue ? 1 : 0,
+              pointerEvents: state.hasValue ? "auto" : "none", // CRITICAL: Only clickable when has value
+              padding: "8px",
+              cursor: state.hasValue ? "pointer" : "default",
+              color: "#ec4899",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.2s ease",
+              "&:hover": {
+                color: "#be185d",
+              },
+            }),
+
+            // Dropdown Indicator (chevron/arrow)
+            dropdownIndicator: (provided, state) => ({
+              ...provided,
+              zIndex: 10,
+              position: "relative",
+              padding: "8px",
+              cursor: "pointer",
+              color: state.isDisabled ? "#d1d5db" : "#9ca3af",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.2s ease",
+              transform: state.isFocused ? "rotate(180deg)" : "rotate(0deg)",
+              "&:hover": {
+                color: state.isDisabled ? "#d1d5db" : "#6b7280",
+              },
+            }),
+
+            // Menu - dropdown container
+            menu: (provided) => ({
+              ...provided,
+              zIndex: 9999,
+              position: "absolute",
+              backgroundColor: "white",
+              border: "1px solid #fbcfe8",
+              borderRadius: "12px",
+              boxShadow:
+                "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+              overflow: "hidden",
+            }),
+
+            // Menu List - scrollable area
+            menuList: (provided) => ({
+              ...provided,
+              zIndex: 9999,
               maxHeight: "200px",
               overflowY: "auto",
+              padding: "8px 0",
+              backgroundColor: "white",
+              border: "none",
+              "&::-webkit-scrollbar": {
+                width: "8px",
+              },
+              "&::-webkit-scrollbar-track": {
+                background: "#f1f5f9",
+                borderRadius: "4px",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                background: "#cbd5e1",
+                borderRadius: "4px",
+                "&:hover": {
+                  background: "#94a3b8",
+                },
+              },
+            }),
+
+            // Group
+            group: (provided) => ({
+              ...provided,
+              paddingTop: "8px",
+              paddingBottom: "0px",
+            }),
+
+            // Group Heading
+            groupHeading: (provided) => ({
+              ...provided,
+              color: "#6b7280",
+              fontSize: "12px",
+              fontWeight: "600",
+              textTransform: "uppercase",
+              paddingLeft: "16px",
+              paddingRight: "16px",
+              paddingTop: "8px",
+              paddingBottom: "4px",
+              margin: "0",
+              letterSpacing: "0.5px",
+            }),
+
+            // Option
+            option: (provided, state) => ({
+              ...provided,
+              backgroundColor: state.isSelected
+                ? "#fbcfe8"
+                : state.isFocused
+                  ? "#fce7f3"
+                  : "white",
+              color: state.isSelected ? "#be185d" : "#374151",
+              cursor: "pointer",
+              padding: "10px 16px",
+              fontSize: "14px",
+              fontWeight: state.isSelected ? "600" : "400",
+              transition: "all 0.15s ease",
+              "&:hover": {
+                backgroundColor: state.isSelected ? "#fbcfe8" : "#fce7f3",
+                color: "#be185d",
+              },
+            }),
+
+            // Menu Portal - for portal rendering
+            menuPortal: (provided) => ({
+              ...provided,
+              zIndex: 9999,
+            }),
+
+            // No Options Message
+            noOptionsMessage: (provided) => ({
+              ...provided,
+              color: "#6b7280",
+              padding: "16px",
+              fontSize: "14px",
+              textAlign: "center",
             }),
           }}
         />
-
-        <Input
-          placeholder="Add custom investigation..."
-          value={InvestigationSubTypename}
-          onChange={(e) => setCustomInvestigation(e.target.value)}
-          className="text-sm"
-        />
-        <Button type="button" onClick={handleAddCustom} size="icon">
-          <PlusCircle className="w-5 h-5" />
-        </Button>
       </div>
-    )}
 
-    {/* Investigation List */}
-    {form.investigations?.map((inv: any, index: number) => {
-      const key = inv.value;
-      const remarkValue = form.investigationRemarks?.[key] || "";
-      const isActiveField = activeField === key;
+      {/* Create New Investigation */}
+      {showCreateForm && (
+        <div className="mt-3 flex items-center gap-2">
+          <CreatableSelect
+            options={investigationCategories}
+            isDisabled={disabled}
+            value={investigationCategories.find(
+              (c: any) => c.value === customCategory
+            )}
+            onChange={(selectedOption) =>
+              setCustomCategory(selectedOption?.value || "")
+            }
+            classNamePrefix="react-select"
+            className="text-sm w-[220px]"
+            isSearchable={false}
+            placeholder="Select category"
+            menuPortalTarget={
+              typeof window !== "undefined" ? document.body : null
+            }
+            menuPosition="fixed"
+            styles={{
+              menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+              menu: (base) => ({ ...base, zIndex: 9999, position: "absolute" }),
+              menuList: (base) => ({
+                ...base,
+                maxHeight: "200px",
+                overflowY: "auto",
+              }),
+            }}
+          />
 
-      // Auto-expand if remark has value
-      const expanded =
-        expandedMap[key] ?? (!!remarkValue && remarkValue.trim() !== "");
-
-      return (
-        <div
-          key={key}
-          className="mt-2 border-t border-pink-100 pt-2 transition-all duration-300"
-        >
-          <div className="flex justify-between items-center">
-            <label className="text-sm font-medium text-gray-700">
-              {inv.label}
-            </label>
-          </div>
-
-          {/* Add Remark */}
-          {!expanded && (
-            <button
-              type="button"
-              onClick={() => {
-                toggleExpanded(key, true);
-                setForm((prev: any) => ({
-                  ...prev,
-                  investigationRemarks: {
-                    ...prev.investigationRemarks,
-                    [key]: prev.investigationRemarks?.[key] || "",
-                  },
-                }));
-              }}
-              className="mt-1 text-xs text-pink-400 hover:underline flex items-center gap-1"
-            >
-              <MessageCirclePlus className="w-4 h-4" />
-              <span>Add {inv.label} Remark</span>
-            </button>
-          )}
-
-          {/* Collapsible Remark Section */}
-          {expanded && (
-            <div className="w-full animate-fadeIn mt-2 transition-all duration-500 ease-in-out">
-              <div className="relative">
-                <Textarea
-                  disabled={disabled}
-                  className="mt-1 pr-10 resize-none rounded-2xl no-scrollbar border-2 border-pink-200 hover:border-pink-300 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all duration-300 bg-gradient-to-br from-pink-50/50 to-rose-50/30 placeholder:text-gray-400 text-gray-700 shadow-sm hover:shadow-md focus:shadow-lg min-h-[100px] p-4"
-                  placeholder={`Enter remark for ${inv.label}...`}
-                  value={remarkValue}
-                  onChange={(e) =>
-                    setForm((prev: any) => ({
-                      ...prev,
-                      investigationRemarks: {
-                        ...prev.investigationRemarks,
-                        [key]: e.target.value,
-                      },
-                    }))
-                  }
-                />
-
-                {/* Mic button */}
-                <button
-                  type="button"
-                  disabled={disabled}
-                  onClick={() => handleMicClick(key)}
-                  className={`absolute bottom-2 right-2 p-1 rounded-full transition ${
-                    listening && isActiveField
-                      ? "bg-red-100 hover:bg-red-200"
-                      : "bg-white shadow hover:bg-gray-50"
-                  }`}
-                >
-                  {listening && isActiveField ? (
-                    <MicOff className="w-4 h-4 text-red-600 animate-pulse" />
-                  ) : (
-                    <Mic className="w-4 h-4 text-pink-400" />
-                  )}
-                </button>
-              </div>
-
-              <p className="text-xs text-gray-500 mt-1">
-                {listening && isActiveField
-                  ? `Listening... ${
-                      interimTranscript
-                        ? `(Processing: "${interimTranscript}")`
-                        : "Speak now"
-                    }`
-                  : "Click mic to dictate"}
-              </p>
-
-              {/* Action Buttons */}
-              <div className="flex gap-2 mt-1">
-                <button
-                  type="button"
-                  disabled={disabled}
-                  onClick={() => {
-                    const updated = { ...form.investigationRemarks };
-                    delete updated[key];
-                    setForm((prev: any) => ({
-                      ...prev,
-                      investigationRemarks: updated,
-                    }));
-                    toggleExpanded(key, false);
-                  }}
-                  className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
-                >
-                  Clear
-                </button>
-
-                <button
-                  type="button"
-                  disabled={disabled}
-                  onClick={() => {
-                    const updated = { ...form.investigationRemarks };
-                    delete updated[key];
-                    setForm((prev: any) => ({
-                      ...prev,
-                      investigationRemarks: updated,
-                    }));
-                    toggleExpanded(key, false);
-                  }}
-                  className="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200"
-                >
-                  Remove
-                </button>
-              </div>
-            </div>
-          )}
+          <Input
+            placeholder="Add custom investigation..."
+            value={InvestigationSubTypename}
+            onChange={(e) => setCustomInvestigation(e.target.value)}
+            className="text-sm"
+          />
+          <Button type="button" onClick={handleAddCustom} size="icon">
+            <PlusCircle className="w-5 h-5" />
+          </Button>
         </div>
-      );
-    })}
-  </Card>
-);
+      )}
 
+      {/* Investigation List */}
+      {form.investigations?.map((inv: any, index: number) => {
+        const key = inv.value;
+        const remarkValue = form.investigationRemarks?.[key] || "";
+        const isActiveField = activeField === key;
+
+        // Auto-expand if remark has value
+        const expanded =
+          expandedMap[key] ?? (!!remarkValue && remarkValue.trim() !== "");
+
+        return (
+          <div
+            key={key}
+            className="mt-2 border-t border-pink-100 pt-2 transition-all duration-300"
+          >
+            <div className="flex justify-between items-center">
+              <label className="text-sm font-medium text-gray-700">
+                {inv.label}
+              </label>
+            </div>
+
+            {/* Add Remark */}
+            {!expanded && (
+              <button
+                type="button"
+                onClick={() => {
+                  toggleExpanded(key, true);
+                  setForm((prev: any) => ({
+                    ...prev,
+                    investigationRemarks: {
+                      ...prev.investigationRemarks,
+                      [key]: prev.investigationRemarks?.[key] || "",
+                    },
+                  }));
+                }}
+                className="mt-1 text-xs text-pink-400 hover:underline flex items-center gap-1"
+              >
+                <MessageCirclePlus className="w-4 h-4" />
+                <span>Add {inv.label} Remark</span>
+              </button>
+            )}
+
+            {/* Collapsible Remark Section */}
+            {expanded && (
+              <div className="w-full animate-fadeIn mt-2 transition-all duration-500 ease-in-out">
+                <div className="relative">
+                  <Textarea
+                    disabled={disabled}
+                    className="mt-1 pr-10 resize-none rounded-2xl no-scrollbar border-2 border-pink-200 hover:border-pink-300 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all duration-300 bg-gradient-to-br from-pink-50/50 to-rose-50/30 placeholder:text-gray-400 text-gray-700 shadow-sm hover:shadow-md focus:shadow-lg min-h-[100px] p-4"
+                    placeholder={`Enter remark for ${inv.label}...`}
+                    value={remarkValue}
+                    onChange={(e) =>
+                      setForm((prev: any) => ({
+                        ...prev,
+                        investigationRemarks: {
+                          ...prev.investigationRemarks,
+                          [key]: e.target.value,
+                        },
+                      }))
+                    }
+                  />
+
+                  {/* Mic button */}
+                  <button
+                    type="button"
+                    disabled={disabled}
+                    onClick={() => handleMicClick(key)}
+                    className={`absolute bottom-2 right-2 p-1 rounded-full transition ${
+                      listening && isActiveField
+                        ? "bg-red-100 hover:bg-red-200"
+                        : "bg-white shadow hover:bg-gray-50"
+                    }`}
+                  >
+                    {listening && isActiveField ? (
+                      <MicOff className="w-4 h-4 text-red-600 animate-pulse" />
+                    ) : (
+                      <Mic className="w-4 h-4 text-pink-400" />
+                    )}
+                  </button>
+                </div>
+
+                <p className="text-xs text-gray-500 mt-1">
+                  {listening && isActiveField
+                    ? `Listening... ${
+                        interimTranscript
+                          ? `(Processing: "${interimTranscript}")`
+                          : "Speak now"
+                      }`
+                    : "Click mic to dictate"}
+                </p>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 mt-1">
+                  <button
+                    type="button"
+                    disabled={disabled}
+                    onClick={() => {
+                      const updated = { ...form.investigationRemarks };
+                      delete updated[key];
+                      setForm((prev: any) => ({
+                        ...prev,
+                        investigationRemarks: updated,
+                      }));
+                      toggleExpanded(key, false);
+                    }}
+                    className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                  >
+                    Clear
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={disabled}
+                    onClick={() => {
+                      const updated = { ...form.investigationRemarks };
+                      delete updated[key];
+                      setForm((prev: any) => ({
+                        ...prev,
+                        investigationRemarks: updated,
+                      }));
+                      toggleExpanded(key, false);
+                    }}
+                    className="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </Card>
+  );
 };
 
 export default InvestigationCard;

@@ -15,7 +15,7 @@ export const DoctorSlotSkeleton = () => {
         </div>
   
         {/* Slots for only 1 day */}
-        <div className="border rounded-3xl p-4 space-y-4 bg-white drop-shadow-md">
+        <div className="border rounded-3xl p-4 space-y-4 bg-white drop-shadow-md border-gray-300">
           {/* Day Header */}
           <div className="h-5 w-1/4 bg-gray-200 rounded-md animate-pulse" />
   

@@ -113,7 +113,7 @@ interface AppointmentCaseSheet {
   ConsultationMedication?: Medication[];
   ConsultationCheifComplaint?: ConsultationChiefComplaint[];
   appointment?: Appointment;
-  IsConsultationCompleted?: boolean;
+  consultationStatus?: string;
   updatedAt?: string;
 }
 
@@ -311,9 +311,12 @@ export default function PatientCaseHistory({
               className="mb-2 space-y-1 p-2 rounded-md bg-slate-100 dark:bg-slate-700"
             >
               <p className="text-sm font-medium">
-                {inv.InvestigationSubType?.InvestigationSubTypename}
+                {inv.billingItem?.BillingItemName}
                 <span className="text-xs text-gray-400 ml-2">
-                  ({inv.InvestigationType?.InvestigationTypeName})
+                  (
+                  {inv.billingItem?.investigationType?.InvestigationTypeName ||
+                    "N/A"}
+                  )
                 </span>
               </p>
               <p className="text-xs italic text-gray-500 dark:text-gray-300">
@@ -361,10 +364,11 @@ export default function PatientCaseHistory({
                 className="p-3 bg-cyan-50 dark:bg-slate-700 rounded-md shadow-sm"
               >
                 <p className="text-sm font-semibold text-cyan-700 dark:text-cyan-300">
-                  {proc.procedure?.ProcedureName || "Unnamed Procedure"}
+                  {proc.billingItem?.BillingItemName || "Unnamed Procedure"}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-300 mt-1 whitespace-pre-wrap">
-                  {proc.Description?.trim() || "No description provided."}
+                  {proc.ConsultationProcedureRemark?.trim() ||
+                    "No description provided."}
                 </p>
               </div>
             ))}
@@ -786,9 +790,9 @@ export default function PatientCaseHistory({
                       <FileText className="text-indigo-500" size={18} />
                       <p className="font-medium">Consultation Status:</p>
                       <span className="text-base capitalize">
-                        {appointmentcasesheet?.IsConsultationCompleted !==
-                        undefined
-                          ? appointmentcasesheet?.IsConsultationCompleted
+                        {appointmentcasesheet?.consultationStatus !== undefined
+                          ? appointmentcasesheet?.consultationStatus ===
+                            "COMPLETED"
                             ? "Completed"
                             : "Incomplete"
                           : "--"}

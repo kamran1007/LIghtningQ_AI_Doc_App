@@ -752,23 +752,62 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
       </div>
     </>
   );
+
+  const accessRights = useSelector(
+    (state: RootState) => state.hospitalAccessRight.data
+  );
+
+  const timeSlotPermissions = accessRights
+    ?.find((m: any) => m.ModuleName === "Admin")
+    ?.Submodules?.find((s: any) => s.SubModuleName === "Time Slot")
+    ?.Permissions?.[0];
+
+  const canViewTimeSlot = timeSlotPermissions?.CanView ?? false;
+  const canUpdateTimeSlot = timeSlotPermissions?.CanUpdate ?? false;
+
+  // 🛑 1️⃣ — Early return if no view permission
+  if (!canViewTimeSlot) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="p-6 text-center max-w-md rounded-2xl">
+          <DialogTitle className="text-lg font-semibold text-red-500 mb-2">
+            Access Denied
+          </DialogTitle>
+          <p className="text-gray-600 mb-4">
+            You don’t have permission to view or modify doctor time slots.
+          </p>
+          <DialogFooter className="flex justify-center mt-4">
+            <Button
+              onClick={() => onOpenChange(false)}
+              className="rounded-full px-6 bg-teal-500 text-white hover:bg-teal-600"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild></DialogTrigger>
-      <DialogContent
-        size="md"
-        className="max-h-[95vh] overflow-y-auto p-4 max-w-3xl no-scrollbar"
-      >
-        <div className="flex justify-between items-center">
-          <DialogTitle className="text-xl font-semibold font-sans text-teal-400">
+      <DialogContent className="max-h-[95vh] overflow-y-auto p-6 max-w-4xl rounded-2xl no-scrollbar" onInteractOutside={(e) => e.preventDefault()} // 🛑 Prevent close on outside click
+          onEscapeKeyDown={(e) => e.preventDefault()}>
+        <div className="flex justify-between items-center mb-4">
+          <DialogTitle className="text-2xl font-semibold text-teal-500">
             Doctor Time Slot
           </DialogTitle>
           <DialogClose asChild>
-            <button className="text-teal-400 hover:bg-teal-50 p-2 rounded-full transition cursor-pointer">
+            <button className="text-teal-600 hover:bg-teal-100 p-2 rounded-full transition cursor-pointer">
               <X className="w-6 h-6" />
             </button>
           </DialogClose>
         </div>
+        {!canUpdateTimeSlot && (
+          <div className="text-sm text-amber-600 bg-amber-50 border border-amber-200 p-2 rounded-lg mb-4">
+            You have view-only access. Editing is disabled.
+          </div>
+        )}
         {isLoading ? (
           <DoctorSlotSkeleton />
         ) : (
@@ -1090,11 +1129,10 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
                       <span>{today} (Today)</span>
                       {cancelledDays.includes(today) && (
                         <span className="text-md italic text-black">
-                          {slotsByDay[today]?.cancellationRemarks} -- {
-                            slotsByDay[today]?.isPermanentCancelled
-                              ? "Cancelled Permanent"
-                              : "Cancelled Temporary"
-                          }
+                          {slotsByDay[today]?.cancellationRemarks} --{" "}
+                          {slotsByDay[today]?.isPermanentCancelled
+                            ? "Cancelled Permanent"
+                            : "Cancelled Temporary"}
                         </span>
                       )}
                       {dndDays.includes(today) &&
@@ -1238,8 +1276,20 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
                   Cancel
                 </Button>
                 <Button
-                  className="rounded-full h-10 cursor-pointer shadow-2xl"
-                  onClick={handleSave}
+                  className={`rounded-full h-10 cursor-pointer shadow-2xl ${
+                    canUpdateTimeSlot
+                      ? "bg-teal-400 text-white hover:bg-teal-500"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
+                  onClick={() => {
+                    if (!canUpdateTimeSlot) {
+                      toast.error(
+                        "You don’t have permission to update time slots."
+                      );
+                      return;
+                    }
+                    handleSave();
+                  }}
                 >
                   {isSubmitting ? (
                     <Loader2Icon className="animate-spin" />

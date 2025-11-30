@@ -158,4 +158,58 @@ export const GetFilterSearchPatient = async (filters: PatientFilter = {}) => {
   }
 };
 
+export const startConsultationApi = async (
+  appointmentId: number,
+  userId: number
+) => {
+  const session = await getSession();
+
+  try {
+    const res = await axios.post(
+      `${BACKEND_URL}/patientcare/${appointmentId}/start`,
+      { userId },
+      {
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+        },
+      }
+    );
+
+    return res.data;
+  } catch (error: any) {
+    const message = error.response?.data?.message || error.message;
+    console.error("❌ Start Consultation Error:", message);
+    throw new Error(message);
+  }
+};
+
+export const completeConsultation = async (appointmentId:number, consultationId:number) => {
+  const session = await getSession();
+
+  return axios.post(
+    `${BACKEND_URL}/patientcare/${appointmentId}/complete`,
+    { consultationId }, // 👈 correct
+    {
+      headers: { Authorization: `Bearer ${session?.accessToken}` },
+    }
+  );
+};
+
+
+
+export const markIncomplete = async (appointmentId: number, consultationId: number) => {
+  const session = await getSession();
+
+  return axios.post(
+    `${BACKEND_URL}/patientcare/${appointmentId}/incomplete`,
+    { consultationId },
+    {
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
+    }
+  );
+};
+
+
 //Auto Save

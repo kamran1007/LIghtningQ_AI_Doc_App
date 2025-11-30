@@ -59,6 +59,9 @@ import { getUserSpecialization } from "@/lib/admin";
 import { useSelector } from "react-redux";
 import NoAppointmentsIllustration from "@/components/ui/illustration/NoAppointment";
 import { RootState } from "@/store";
+import Billing from "./Billings";
+import { startConsultationApi } from "@/lib/patientcare";
+import { getProfile } from "@/lib/action";
 
 const getAcuityColor = (acuity: string) => {
   switch (acuity?.toLowerCase()) {
@@ -122,11 +125,10 @@ export interface Appointment {
   doctor?: Doctor;
   reason?: string;
   acuity?: string;
-  IsConsultationCompleted?: boolean;
+  consultationStatus?: string;
 }
 
 export default function AppointmentLookupList() {
-  
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [fullScreen, setFullScreen] = useState(false);
@@ -141,6 +143,7 @@ export default function AppointmentLookupList() {
   const [activeChip, setActiveChip] = useState("All Appointments"); // ✅ default
 
   const filterRef = useRef<HTMLDivElement | null>(null);
+  const UserHospitalData = useSelector((state: any) => state);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -277,6 +280,8 @@ export default function AppointmentLookupList() {
   const [selectedSpecialization, setSelectedSpecialization] = useState<
     string | undefined
   >();
+  const [isBillingOpen, setIsBillingOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
 
   const debounceSearch = useRef<NodeJS.Timeout>(null);
 
@@ -388,7 +393,7 @@ export default function AppointmentLookupList() {
     "All Appointments": {}, // no extra filter
     "New Appointment": { visitTypeId: 1 },
     "High Priority": { acuity: "High" },
-    Completed: { isConsultationcompleted: true },
+    Completed: { consultationStatus: "COMPLETED" },
   };
 
   useEffect(() => {
@@ -593,7 +598,7 @@ export default function AppointmentLookupList() {
                   <th className="px-4 py-3 whitespace-nowrap">Specialist</th>
                   <th className="px-4 py-3 whitespace-nowrap">Reason</th>
                   <th className="px-2 py-3 whitespace-nowrap">Acuity</th>
-                  <th className="px-4 py-3 whitespace-nowrap">
+                  <th className="px-2 py-3 whitespace-nowrap">
                     Assign Provider
                   </th>
                   <th className="px-2 py-3 whitespace-nowrap">status</th>
@@ -899,9 +904,16 @@ export default function AppointmentLookupList() {
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <span className="truncate max-w-[150px] cursor-default">
-                                  {`Dr. ${p?.doctor?.firstName ?? ""} ${p?.doctor?.lastName ?? ""}`}
+                                  {(() => {
+                                    const fullName =
+                                      `Dr. ${p?.doctor?.firstName ?? ""} ${p?.doctor?.lastName ?? ""}`.trim();
+                                    return fullName.length > 12
+                                      ? fullName.slice(0, 12) + "..."
+                                      : fullName;
+                                  })()}
                                 </span>
                               </TooltipTrigger>
+
                               <TooltipContent
                                 side="top"
                                 className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg"
@@ -911,27 +923,34 @@ export default function AppointmentLookupList() {
                             </Tooltip>
                           </TooltipProvider>
                         </td>
+
                         <td>
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <div className="flex items-center gap-2 cursor-default">
-                                  {/* Status Circle */}
-                                  {p?.IsConsultationCompleted === true ? (
+                                  {/* COMPLETED */}
+                                  {p?.consultationStatus === "COMPLETED" && (
                                     <>
                                       <span className="w-3 h-3 rounded-full bg-green-500"></span>
                                       <span className="text-green-600 text-sm">
                                         Compl..
                                       </span>
                                     </>
-                                  ) : p?.IsConsultationCompleted === false ? (
+                                  )}
+
+                                  {/* INCOMPLETE */}
+                                  {p?.consultationStatus === "INCOMPLETE" && (
                                     <>
                                       <span className="w-3 h-3 rounded-full bg-red-500"></span>
                                       <span className="text-red-600 text-sm">
-                                        In compl..
+                                        Incompl..
                                       </span>
                                     </>
-                                  ) : (
+                                  )}
+
+                                  {/* ONGOING */}
+                                  {p?.consultationStatus === "ONGOING" && (
                                     <>
                                       <span className="w-3 h-3 rounded-full bg-yellow-500"></span>
                                       <span className="text-yellow-600 text-sm">
@@ -939,14 +958,29 @@ export default function AppointmentLookupList() {
                                       </span>
                                     </>
                                   )}
+
+                                  {/* NOT_STARTED or NULL */}
+                                  {!p?.consultationStatus ||
+                                  p?.consultationStatus === "NOT_STARTED" ? (
+                                    <>
+                                      <span className="w-3 h-3 rounded-full bg-blue-500"></span>
+                                      <span className="text-blue-600 text-sm">
+                                        Not st..
+                                      </span>
+                                    </>
+                                  ) : null}
                                 </div>
                               </TooltipTrigger>
+
                               <TooltipContent>
-                                {p?.IsConsultationCompleted === true
-                                  ? "Completed"
-                                  : p?.IsConsultationCompleted === false
-                                    ? "Incomplete"
-                                    : "Going on"}
+                                {
+                                  {
+                                    COMPLETED: "Completed",
+                                    INCOMPLETE: "Incomplete",
+                                    ONGOING: "Ongoing",
+                                    NOT_STARTED: "Not Started",
+                                  }[p?.consultationStatus ?? "NOT_STARTED"]
+                                }
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
@@ -971,20 +1005,56 @@ export default function AppointmentLookupList() {
                                         appointment
                                       );
                                     }}
-                                    onStartConsultation={(appointment) => {
+                                    // onStartConsultation={(appointment) => {
+                                    //   const startTime =
+                                    //     new Date().toISOString();
+                                    //   startConsultation({
+                                    //     ...appointment,
+                                    //     consultationStartDateTime: startTime,
+                                    //   });
+                                    // }}
+                                    // // ✅ New Callback
+                                    // onBilling={(appointment: any) => {
+                                    //   setSelectedAppointment(appointment);
+                                    //   setIsBillingOpen(true);
+                                    // }}
+                                    onStartConsultation={async (
+                                      appointment
+                                    ) => {
+                                      const loggedInUserId =
+                                        UserHospitalData.auth.profile.user
+                                          .UserId;
+
+                                      // 👉 Open instantly
                                       const startTime =
                                         new Date().toISOString();
                                       startConsultation({
                                         ...appointment,
                                         consultationStartDateTime: startTime,
                                       });
+
+                                      // 👉 Run API in background (non-blocking)
+                                      if (
+                                        appointment.consultationStatus ===
+                                        "NOT_STARTED"
+                                      ) {
+                                        startConsultationApi(
+                                          appointment.AppointmentId,
+                                          loggedInUserId
+                                        )
+                                          .then(() => {
+                                            console.log("Consultation started");
+                                          })
+                                          .catch((err) => {
+                                            console.error(err);
+                                          });
+                                      }
                                     }}
-                                  />
-                                  <ConsultationDrawer
-                                    open={drawerOpen}
-                                    onClose={() => closeSheet()}
-                                    patient={selectedPatient}
-                                    initialTab={initialTab} // 👈 pass it here
+                                    onBilling={(appointment) => {
+                                      setSelectedAppointment(appointment);
+                                      setSelectedPatient(appointment.patient);
+                                      setIsBillingOpen(true);
+                                    }}
                                   />
                                 </div>
                               </TooltipTrigger>
@@ -1014,7 +1084,19 @@ export default function AppointmentLookupList() {
           </div>
         </div>
       )}
+      <ConsultationDrawer
+        open={drawerOpen}
+        onClose={() => closeSheet()}
+        patient={selectedPatient}
+        initialTab={initialTab} // 👈 pass it here
+      />
 
+      <Billing
+        open={isBillingOpen}
+        onOpenChange={setIsBillingOpen}
+        patient={selectedPatient}
+        appointment={selectedAppointment}
+      />
       {/* Pagination */}
       <div className="flex justify-center pt-2">
         <Stack spacing={2}>
