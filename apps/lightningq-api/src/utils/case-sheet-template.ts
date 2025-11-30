@@ -8,7 +8,10 @@ export function generateCaseSheetHtml(
 
   const vital = Array.isArray(Vitals) && Vitals.length > 0 ? Vitals[0] : null;
   console.log('📊 Vitals Count:', vital);
-console.log('🩺 Procedures Count:', consultation.ConsultationProcedure?.length);
+  console.log(
+    '🩺 Procedures Count:',
+    consultation.ConsultationProcedure?.length,
+  );
 
   const vitalsBlock = vital
     ? `
@@ -67,8 +70,8 @@ console.log('🩺 Procedures Count:', consultation.ConsultationProcedure?.length
               ${consultation.ConsultationProcedure.map(
                 (p: any) => `
                 <tr>
-                  <td>${p.procedure?.ProcedureName || '-'}</td>
-                  <td>${p.Description || '-'}</td>
+                  <td>${p.billingItem?.BillingItemName || '-'}</td>
+                  <td>${p.ConsultationProcedureRemark || '-'}</td>
                 </tr>`,
               ).join('')}
             </tbody>
@@ -260,16 +263,21 @@ console.log('🩺 Procedures Count:', consultation.ConsultationProcedure?.length
       </div>
 
       <div class="section">
-        <h2>Investigations</h2>
-        <ul class="custom-bullets">
-          ${
-            consultation.ConsultationInvestigation?.map(
-              (inv: any) =>
-                `<li>${inv.InvestigationType?.InvestigationTypeName} - ${inv.InvestigationSubType?.InvestigationSubTypename} (${inv.ConsultationInvestigatRemark})</li>`,
-            ).join('') || ''
-          }
-        </ul>
-      </div>
+  <h2>Investigations</h2>
+  <ul class="custom-bullets">
+    ${
+      consultation.ConsultationInvestigation?.map(
+        (inv: any) => `
+        <li>
+          ${inv.billingItem?.BillingItemName || '-'}
+          (${inv.billingItem?.investigationType?.InvestigationTypeName || 'N/A'})
+          - ${inv.ConsultationInvestigatRemark || '-'}
+        </li>`,
+      ).join('') || ''
+    }
+  </ul>
+</div>
+
 
       <div class="section">
         <h2>Treatment Plan</h2>

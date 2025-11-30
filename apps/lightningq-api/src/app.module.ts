@@ -18,6 +18,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { WhatsappModule } from './common/whatsapp/whatsapp.module';
 import { MailerModule } from './common/mailer/mailer.module';
+import { BillingModule } from './billing/billing.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { MailerModule } from './common/mailer/mailer.module';
     DashboardModule,
     WhatsappModule,
     MailerModule,
+    BillingModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

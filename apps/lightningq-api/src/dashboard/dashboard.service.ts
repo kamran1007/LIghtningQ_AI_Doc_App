@@ -152,7 +152,7 @@ export class DashboardService {
     const consultationsWithSpecialization =
       await this.prisma.consultation.findMany({
         where: {
-          IsConsultationCompleted: true,
+  consultationStatus: "COMPLETED",
           consultationEndDateTime: { not: null },
           appointment: {
             appointmentDate: { gte, lte }, // ✅ use appointment date only
@@ -218,7 +218,7 @@ export class DashboardService {
     // -------------------------
     const consultations = await this.prisma.consultation.findMany({
       where: {
-        IsConsultationCompleted: true,
+  consultationStatus: "COMPLETED",
         consultationEndDateTime: { not: null },
         appointment: {
           appointmentDate: { gte, lte }, // ✅ use appointment date only

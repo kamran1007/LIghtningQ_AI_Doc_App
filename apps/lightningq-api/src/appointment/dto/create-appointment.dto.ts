@@ -26,6 +26,12 @@ export enum BloodGroup {
   AB_POS = 'AB_POS',
   AB_NEG = 'AB_NEG',
 }
+export enum ConsultationStatusType {
+  NOT_STARTED = 'NOT_STARTED',
+  ONGOING = 'ONGOING',
+  COMPLETED = 'COMPLETED',
+  INCOMPLETE = 'INCOMPLETE',
+}
 
 export class QuickAppointmentDto {
   // Patient fields
@@ -168,4 +174,8 @@ export class QuickAppointmentDto {
   @IsOptional()
   @Type(() => Number)
   SpecializationId?: number;
+
+  @IsOptional()
+  @IsEnum(ConsultationStatusType)
+  consultationStatus?: ConsultationStatusType;
 }
