@@ -857,7 +857,7 @@ model BillingItemCharge {
   updatedAt                              DateTime
   createdBy                              Int?
   updatedBy                              Int?
-  BillingItemName                        String                      @unique
+  BillingItemName                        String                      
   price                                  Decimal?                    @db.Decimal(10, 2)
   doctorId                               Int?
   fastTrackCharges                       Decimal?                    @db.Decimal(10, 2)
@@ -881,6 +881,8 @@ model BillingItemCharge {
   ConsultationInvestigation              ConsultationInvestigation[]
   ConsultationProcedure                  ConsultationProcedure[]
   PatientPackageUsage                    PatientPackageUsage[]
+  @@unique([BillingItemName, hospitalId, doctorId, appointmentTypeId])
+
 }
 
 model BillingPayment {

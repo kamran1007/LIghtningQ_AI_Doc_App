@@ -125,6 +125,7 @@ export class BillingService {
           AppointmentType: true,
           User_BillingItemCharge_createdByToUser: true,
           Hospital: true,
+          User_BillingItemCharge_doctorIdToUser: true,
           InvestigationType: true,
         },
         skip: (page - 1) * limit,
