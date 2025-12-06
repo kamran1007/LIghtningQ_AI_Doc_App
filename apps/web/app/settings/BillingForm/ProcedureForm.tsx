@@ -91,7 +91,7 @@ export default function ProcedureForm({
         BillingItemName: editData.BillingItemName ?? "",
         procedure: "procedure",
         code: editData.code ?? "",
-        hospitalId: editData.hospital?.HospitalId ?? undefined,
+        hospitalId: editData.Hospital?.HospitalId ?? undefined,
         chargeTypeId: editData.chargeType?.BillItemTypeId ?? undefined,
         doctorId: editData.doctor?.UserId ?? undefined,
         amount: editData.price ?? 0,

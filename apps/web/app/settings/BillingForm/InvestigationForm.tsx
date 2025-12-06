@@ -90,8 +90,8 @@ export default function InvestigationForm({
     if (editData) {
       setForm({
         specializationId:
-          editData.specialization?.SpecializationId ?? undefined,
-        hospitalId: editData.hospital?.HospitalId ?? undefined,
+          editData.Specialization?.SpecializationId ?? undefined,
+        hospitalId: editData.Hospital?.HospitalId ?? undefined,
         investigationTypeId: editData.investigationTypeId ?? undefined,
         BillingItemName: editData.BillingItemName ?? "",
         code: editData.code ?? "",

@@ -30,7 +30,7 @@ interface ProcedureItem {
   BillingItemName: string;
   code?: string;
   price?: number;
-  hospital?: { HospitalName?: string };
+  Hospital?: { HospitalName?: string };
   maxDiscountPercent?: number;
   maxDiscountInr?: number;
   description?: string;
@@ -124,7 +124,7 @@ export default function ProcedureTable({
                   <TableCell>{item.BillingItemName}</TableCell>
                   <TableCell>{item.code || "—"}</TableCell>
                   <TableCell>₹{item.price ?? 0}</TableCell>
-                  <TableCell>{item.hospital?.HospitalName || "—"}</TableCell>
+                  <TableCell>{item.Hospital?.HospitalName || "—"}</TableCell>
                   <TableCell>
                     {item.maxDiscountPercent
                       ? `${item.maxDiscountPercent}%`

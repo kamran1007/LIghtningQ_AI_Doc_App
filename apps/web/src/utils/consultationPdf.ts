@@ -187,8 +187,8 @@ export async function generateConsultationPDF(data: any, patient: any) {
       data.ConsultationInvestigation?.length
         ? data.ConsultationInvestigation.map(
             (i: any) =>
-              `${i.billingItem?.BillingItemName || ""} - ${
-                i.investigationType?.InvestigationTypeName || ""
+              `${i.BillingItemCharge?.BillingItemName || ""} - ${
+                i.InvestigationType?.InvestigationTypeName || ""
               }\nRemark: ${i.ConsultationInvestigatRemark || ""}`
           ).join("\n\n")
         : "None",
@@ -207,7 +207,7 @@ export async function generateConsultationPDF(data: any, patient: any) {
       data.ConsultationProcedure?.length
         ? data.ConsultationProcedure.map(
             (p: any) =>
-              `${p.billingItem?.BillingItemName || ""}\n${
+              `${p.BillingItemCharge?.BillingItemName || ""}\n${
                 p.ConsultationProcedureRemark?.trim()
                   ? `Description: ${p.ConsultationProcedureRemark.trim()}`
                   : "Description: —"
@@ -225,13 +225,17 @@ export async function generateConsultationPDF(data: any, patient: any) {
     ],
     [
       "Follow-Up Plan",
-      data.ConsultationFollowUpPlan?.length
-        ? data.ConsultationFollowUpPlan.map(
-            (f: any) =>
-              `${f.followUpText || ""}\nNext Date: ${
-                f.nextDate ? new Date(f.nextDate).toLocaleDateString() : ""
-              } (${f.duration} ${f.unit})`
-          ).join("\n\n")
+      data.ConsultationFollowUpPlan
+        ? `${data.ConsultationFollowUpPlan.followUpText || ""}
+Next Date: ${
+            data.ConsultationFollowUpPlan.nextDate
+              ? new Date(
+                  data.ConsultationFollowUpPlan.nextDate
+                ).toLocaleDateString()
+              : ""
+          } (${data.ConsultationFollowUpPlan.duration || ""} ${
+            data.ConsultationFollowUpPlan.unit || ""
+          })`
         : "None",
     ],
   ];

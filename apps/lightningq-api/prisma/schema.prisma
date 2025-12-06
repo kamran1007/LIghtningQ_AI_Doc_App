@@ -956,7 +956,9 @@ model BillingTransactionItem {
   gstAmount      Decimal  @default(0) @db.Decimal(10, 2)
   totalAmount    Decimal  @db.Decimal(10, 2)
   createdAt      DateTime @default(now())
-  updatedAt      DateTime
+  // updatedAt      DateTime
+  updatedAt      DateTime @updatedAt   // ⭐ FIX
+
 
   BillingItemCharge  BillingItemCharge  @relation(fields: [billingItemChargeId], references: [BillingItemChargeId])
   BillingTransaction BillingTransaction @relation(fields: [billingTransactionId], references: [BillingTransactionId])
@@ -991,7 +993,7 @@ model PatientPackageUsage {
   usageDate             DateTime @default(now())
   status                String   @default("Incomplete")
   createdAt             DateTime @default(now())
-  updatedAt             DateTime
+updatedAt DateTime @updatedAt
 
   billingItemChargeId Int // REQUIRED
 
