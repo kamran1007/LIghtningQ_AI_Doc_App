@@ -740,6 +740,7 @@ export class ConsultationService {
             hospital: true,
           },
         },
+        updatedBy: { select: { UserId: true, firstName: true, lastName: true }},
       },
     });
   }

@@ -5,8 +5,10 @@ export function generateCaseSheetHtml(
   appointmentDetails: any,
 ) {
   const { hospital, patient, doctor, Vitals } = appointmentDetails;
-
-  const vital = Array.isArray(Vitals) && Vitals.length > 0 ? Vitals[0] : null;
+  console.log('🏥 Hospital:', Vitals);
+const vital = Array.isArray(Vitals)
+  ? Vitals[0]
+  : (typeof Vitals === "object" ? Vitals : null);
   console.log('📊 Vitals Count:', vital);
   console.log(
     '🩺 Procedures Count:',
@@ -70,7 +72,7 @@ export function generateCaseSheetHtml(
               ${consultation.ConsultationProcedure.map(
                 (p: any) => `
                 <tr>
-                  <td>${p.billingItem?.BillingItemName || '-'}</td>
+                  <td>${p.BillingItemCharge?.BillingItemName || '-'}</td>
                   <td>${p.ConsultationProcedureRemark || '-'}</td>
                 </tr>`,
               ).join('')}
@@ -269,8 +271,11 @@ export function generateCaseSheetHtml(
       consultation.ConsultationInvestigation?.map(
         (inv: any) => `
         <li>
-          ${inv.billingItem?.BillingItemName || '-'}
-          (${inv.billingItem?.investigationType?.InvestigationTypeName || 'N/A'})
+          ${inv.BillingItemCharge?.BillingItemName || '-'}
+          (${
+            inv.BillingItemCharge?.InvestigationType?.InvestigationTypeName ||
+            'N/A'
+          })
           - ${inv.ConsultationInvestigatRemark || '-'}
         </li>`,
       ).join('') || ''
@@ -290,12 +295,11 @@ export function generateCaseSheetHtml(
         <h2>Follow-up</h2>
         <ul class="custom-bullets">
           ${
-            consultation.ConsultationFollowUpPlan?.map(
-              (f: any) =>
-                `<li>${f.followUpText}, After ${f.duration} ${f.unit}<br><strong>Next Date: ${new Date(
-                  f.nextDate,
-                ).toLocaleDateString()}</strong></li>`,
-            ).join('') || ''
+            consultation.ConsultationFollowUpPlan
+              ? `<li>${consultation.ConsultationFollowUpPlan.followUpText}, After ${consultation.ConsultationFollowUpPlan.duration} ${consultation.ConsultationFollowUpPlan.unit}<br><strong>Next Date: ${new Date(
+                  consultation.ConsultationFollowUpPlan.nextDate,
+                ).toLocaleDateString()}</strong></li>`
+              : ''
           }
         </ul>
       </div>
