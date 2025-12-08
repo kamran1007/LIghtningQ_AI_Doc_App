@@ -390,7 +390,7 @@ export class ConsultationService {
                 deleteMany: {},
                 create:
                   ConsultationInvestigation?.map((inv) => ({
-                    billingItem: {
+                    BillingItemCharge: {
                       connect: { BillingItemChargeId: inv.BillingItemChargeId },
                     },
                     ConsultationInvestigatRemark:
@@ -499,7 +499,7 @@ export class ConsultationService {
               ConsultationInvestigation: {
                 create:
                   ConsultationInvestigation?.map((inv) => ({
-                    billingItem: {
+                    BillingItemCharge: {
                       connect: {
                         BillingItemChargeId: inv.BillingItemChargeId,
                       },

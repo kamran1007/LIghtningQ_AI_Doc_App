@@ -30,8 +30,8 @@ interface InvestigationItem {
   BillingItemName: string;
   code?: string;
   price?: number;
-  hospital?: { HospitalName?: string };
-  specialization?: { SpecializationName?: string };
+  Hospital?: { HospitalName?: string };
+  Specialization?: { SpecializationName?: string };
   maxDiscountPercent?: number;
   maxDiscountInr?: number;
   description?: string;
@@ -128,11 +128,11 @@ export default function InvestigationTable({
                   </TableCell>
                   <TableCell>{item.BillingItemName}</TableCell>
                   <TableCell>
-                    {item.specialization?.SpecializationName || "—"}
+                    {item.Specialization?.SpecializationName || "—"}
                   </TableCell>
                   <TableCell>{item.code || "—"}</TableCell>
                   <TableCell>₹{item.price ?? 0}</TableCell>
-                  <TableCell>{item.hospital?.HospitalName || "—"}</TableCell>
+                  <TableCell>{item.Hospital?.HospitalName || "—"}</TableCell>
                   <TableCell>
                     {item.maxDiscountPercent
                       ? `${item.maxDiscountPercent}%`

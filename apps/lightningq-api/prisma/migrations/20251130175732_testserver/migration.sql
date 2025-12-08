@@ -1,1 +1,3 @@
--- This is an empty migration.
+-- NO-OP MIGRATION
+-- This migration was already applied in the database.
+-- Its SQL is removed to prevent drift with current schema.

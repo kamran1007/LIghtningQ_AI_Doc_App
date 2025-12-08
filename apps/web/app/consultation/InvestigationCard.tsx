@@ -159,10 +159,11 @@ const InvestigationCard = ({
       });
 
       const items = resp?.data || [];
+      console.log("Fetched Investigation Billing Items:", items);
 
       // ✅ Group by InvestigationType
       const grouped = items.reduce((acc: any, item: any) => {
-        const type = item.investigationType;
+        const type = item.InvestigationType;
         const groupName = type?.InvestigationTypeName || "OTHER";
         const groupColor = type?.InvestigationTypeColorCode || "#E5E7EB"; // default gray
 

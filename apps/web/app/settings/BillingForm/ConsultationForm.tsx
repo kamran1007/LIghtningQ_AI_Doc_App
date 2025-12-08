@@ -86,27 +86,45 @@ export default function ConsultationForm({
   }, []);
 
   useEffect(() => {
-    if (editData) {
-      setForm({
-        BillingItemChargeId: editData.BillingItemChargeId,
-        BillingItemName: editData.BillingItemName ?? "",
-        code: editData.code ?? "",
-        hospitalId: editData.hospital?.HospitalId ?? undefined,
-        chargeTypeId: editData.chargeType?.BillItemTypeId ?? undefined,
-        appointmentTypeId: editData.appointmentType?.AppointmentTypeId ?? undefined,
-        doctorId: editData.doctor?.UserId ?? undefined,
-        walkinPrice: editData.walkinPrice ?? 0,
-        telePrice: editData.telePrice ?? 0,
-        fastTrackCharges: editData.fastTrackCharges ?? 0,
-        numberOfFollowups: editData.numberOfFollowups ?? 0, // ✅ fixed name
-        followupValidity: editData.followupValidity ?? 0, // ✅ fixed name
-        maxDiscountPercent: editData.maxDiscountPercent ?? 0,
-        maxDiscountInr: editData.maxDiscountInr ?? 0,
-        finalWalkinPrice: editData.finalWalkinPrice, // ✅ add this
+    if (!editData) return;
 
-        createdBy: editData.createdBy ?? undefined,
-      });
-    }
+    setForm({
+      BillingItemChargeId: editData.BillingItemChargeId,
+
+      BillingItemName: editData.BillingItemName ?? "",
+      code: editData.code ?? "",
+
+      // 🏥 Hospital
+      hospitalId: editData.Hospital?.HospitalId ?? undefined,
+
+      // 🧾 Charge Type
+      chargeTypeId: editData.chargeType?.BillItemTypeId ?? undefined,
+
+      // 📅 Appointment Type
+      appointmentTypeId:
+        editData.AppointmentType?.AppointmentTypeId ?? undefined,
+
+      // 👨‍⚕️ Doctor
+      doctorId:
+        editData.User_BillingItemCharge_doctorIdToUser?.UserId ?? undefined,
+
+      // 💰 Prices
+      walkinPrice: editData.walkinPrice ?? 0,
+      telePrice: editData.telePrice ?? 0,
+      fastTrackCharges: editData.fastTrackCharges ?? 0,
+
+      // 🔁 Followups
+      numberOfFollowups: editData.numberOfFollowups ?? 0,
+      followupValidity: editData.followupValidity ?? 0,
+
+      // 💸 Discount
+      maxDiscountPercent: editData.maxDiscountPercent ?? 0,
+      maxDiscountInr: editData.maxDiscountInr ?? 0,
+
+      finalWalkinPrice: editData.finalWalkinPrice ?? 0,
+
+      createdBy: editData.createdBy ?? undefined,
+    });
   }, [editData]);
 
   // 🧮 Auto-recalculate INR discount whenever walkinPrice or percent changes
@@ -140,82 +158,88 @@ export default function ConsultationForm({
   ]);
 
   // 💾 Save to API
-const handleSave = async () => {
-  if (!form.hospitalId || !form.appointmentTypeId || !form.BillingItemName || !form.hospitalId || !form.walkinPrice || form.walkinPrice <= 0) {
-    toast.current?.show({
-      severity: "warn",
-      summary: "Please fill all required fields",
-      life: 2000,
-    });
-    return;
-  }
+  const handleSave = async () => {
+    if (
+      !form.hospitalId ||
+      !form.appointmentTypeId ||
+      !form.BillingItemName ||
+      !form.hospitalId ||
+      !form.walkinPrice ||
+      form.walkinPrice <= 0
+    ) {
+      toast.current?.show({
+        severity: "warn",
+        summary: "Please fill all required fields",
+        life: 2000,
+      });
+      return;
+    }
 
-  try {
-    setLoading(true);
-    const { finalWalkinPrice, ...rest } = form;
+    try {
+      setLoading(true);
+      const { finalWalkinPrice, ...rest } = form;
 
-    const payload = {
-      ...rest,
-      walkinPrice: Number(form.walkinPrice) || 0,
-      telePrice: Number(form.telePrice) || 0,
-      fastTrackCharges: Number(form.fastTrackCharges) || 0,
-      numberOfFollowups: Number(form.numberOfFollowups) || 0,
-      followupValidity: Number(form.followupValidity) || 0,
-      maxDiscountPercent: Number(form.maxDiscountPercent) || 0,
-      maxDiscountInr: Number(form.maxDiscountInr) || 0,
-      chargeTypeId: Number(1),
-      appointmentTypeId: Number(form.appointmentTypeId) || 0,
-      isActive: true,
-    };
+      const payload = {
+        ...rest,
+        walkinPrice: Number(form.walkinPrice) || 0,
+        telePrice: Number(form.telePrice) || 0,
+        fastTrackCharges: Number(form.fastTrackCharges) || 0,
+        numberOfFollowups: Number(form.numberOfFollowups) || 0,
+        followupValidity: Number(form.followupValidity) || 0,
+        maxDiscountPercent: Number(form.maxDiscountPercent) || 0,
+        maxDiscountInr: Number(form.maxDiscountInr) || 0,
+        chargeTypeId: Number(1),
+        appointmentTypeId: Number(form.appointmentTypeId) || 0,
+        isActive: true,
+      };
 
-    console.log("📤 Submitting Billing Item:", payload);
-    const response = await createOrUpdateBillingItem(payload);
+      console.log("📤 Submitting Billing Item:", payload);
+      const response = await createOrUpdateBillingItem(payload);
 
-    toast.current?.show({
-      severity: "success",
-      summary: "Saved Successfully",
-      detail: response?.message || "Billing item added successfully",
-      life: 2500,
-    });
+      toast.current?.show({
+        severity: "success",
+        summary: "Saved Successfully",
+        detail: response?.message || "Billing item added successfully",
+        life: 2500,
+      });
 
-    // ✅ Immediately refresh billing items
-    const updatedList = await GetBillingItem();
-    console.log("✅ Refreshed billing item list:", updatedList);
+      // ✅ Immediately refresh billing items
+      const updatedList = await GetBillingItem();
+      console.log("✅ Refreshed billing item list:", updatedList);
 
-    // ✅ Call parent callback if provided
-    onSuccess?.(updatedList?.return ?? []);
+      // ✅ Call parent callback if provided
+      onSuccess?.(updatedList?.return ?? []);
 
-    // ✅ Clear the form
-    setForm({
-      BillingItemChargeId: undefined,
-      BillingItemName: "",
-      code: "",
-      hospitalId: undefined,
-      chargeTypeId: undefined,
-      appointmentTypeId: undefined,
-      doctorId: undefined,
-      walkinPrice: undefined,
-      telePrice: undefined,
-      fastTrackCharges: undefined,
-      numberOfFollowups: undefined,
-      followupValidity: undefined,
-      maxDiscountPercent: undefined,
-      maxDiscountInr: undefined,
-      finalWalkinPrice: undefined,
-      createdBy: undefined,
-    });
-  } catch (error: any) {
-    toast.current?.show({
-      severity: "error",
-      summary: "Save Failed",
-      detail: error?.message || "Unable to save billing item",
-      life: 2500,
-    });
-  } finally {
-    setLoading(false);
-  }
-};
-
+      // ✅ Clear the form
+      setForm({
+        BillingItemChargeId: undefined,
+        BillingItemName: "",
+        code: "",
+        hospitalId: undefined,
+        chargeTypeId: undefined,
+        appointmentTypeId: undefined,
+        doctorId: undefined,
+        walkinPrice: undefined,
+        telePrice: undefined,
+        fastTrackCharges: undefined,
+        numberOfFollowups: undefined,
+        followupValidity: undefined,
+        maxDiscountPercent: undefined,
+        maxDiscountInr: undefined,
+        finalWalkinPrice: undefined,
+        createdBy: undefined,
+      });
+    } catch (error: any) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Save Failed",
+        detail: error?.message || "Unable to save billing item",
+        life: 2500,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleClear = () => {
     setForm({
@@ -280,7 +304,9 @@ const handleSave = async () => {
           </Label>
           <Select
             value={form.appointmentTypeId?.toString()}
-            onValueChange={(val) => handleChange("appointmentTypeId", Number(val))}
+            onValueChange={(val) =>
+              handleChange("appointmentTypeId", Number(val))
+            }
           >
             <SelectTrigger>
               <SelectValue placeholder="Select Appointment Type" />
@@ -445,7 +471,7 @@ const handleSave = async () => {
         <div className="flex flex-col">
           <div className="flex justify-between items-center mb-1.5">
             <Label className="text-sm font-medium text-gray-700">
-             Discount ({discountMode === "percent" ? "%" : "INR"})
+              Discount ({discountMode === "percent" ? "%" : "INR"})
             </Label>
 
             {/* Toggle Button */}

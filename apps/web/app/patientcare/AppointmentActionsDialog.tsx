@@ -69,12 +69,11 @@ export default function AppointmentActionsDialog({
   const canCreateCaseHistory = casePerm?.CanCreate ?? false;
 
   // Get Billing permission from ANY module
-const billingModule = accessRights
-  ?.flatMap((mod: any) => mod.Submodules || [])
-  ?.find((s: any) => s.SubModuleName === "Billing");
+  const billingModule = accessRights
+    ?.flatMap((mod: any) => mod.Submodules || [])
+    ?.find((s: any) => s.SubModuleName === "Billing");
 
-const isBillingEnabled = billingModule?.enabled ?? false;
-
+  const isBillingEnabled = billingModule?.enabled ?? false;
 
   const hoverchange =
     "justify-start gap-3 hover:bg-[linear-gradient(135deg,rgba(34,211,238,0.35)_0%,rgba(129,140,248,0.15)_100%)]";
@@ -228,12 +227,12 @@ const isBillingEnabled = billingModule?.enabled ?? false;
                           : "cursor-pointer"
                       }`}
                       onClick={() => {
-                        if (!canViewConsultation) {
-                          showToast(
-                            "You don’t have permission to start consultation."
-                          );
-                          return;
-                        }
+                        // if (!canViewConsultation) {
+                        //   showToast(
+                        //     "You don’t have permission to start consultation."
+                        //   );
+                        //   return;
+                        // }
 
                         const appointmentDate = new Date(
                           patient.appointmentDate
@@ -242,15 +241,15 @@ const isBillingEnabled = billingModule?.enabled ?? false;
                         appointmentDate.setHours(0, 0, 0, 0);
                         today.setHours(0, 0, 0, 0);
 
-                        if (appointmentDate < today)
-                          return showToast(
-                            "You can't start consultation for a past appointment."
-                          );
-                        if (appointmentDate > today)
-                          return showToast(
-                            "You can't start consultation for a future appointment.",
-                            "warn"
-                          );
+                        // if (appointmentDate < today)
+                        //   return showToast(
+                        //     "You can't start consultation for a past appointment."
+                        //   );
+                        // if (appointmentDate > today)
+                        //   return showToast(
+                        //     "You can't start consultation for a future appointment.",
+                        //     "warn"
+                        //   );
 
                         onStartConsultation({
                           ...patient,
@@ -295,12 +294,26 @@ const isBillingEnabled = billingModule?.enabled ?? false;
                           : "cursor-pointer"
                       }`}
                       onClick={() => {
+                        // First check consultation status
+                        if (
+                          patient?.consultation?.consultationStatus !==
+                          "COMPLETE"
+                        ) {
+                          showToast(
+                            "Consultation is not complete. You cannot start billing."
+                          );
+                          return;
+                        }
+                        
+                        // Then check billing permission
                         if (!isBillingEnabled) {
                           showToast(
                             "You don’t have permission to access billing."
                           );
                           return;
                         }
+
+                        // Continue billing flow...
 
                         if (!onBilling) return;
                         onBilling(patient);

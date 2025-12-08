@@ -30,7 +30,7 @@ interface OtherCharge {
   BillingItemName: string;
   code?: string | null;
   price?: number | null;
-  hospital?: { HospitalName?: string | null } | null;
+  Hospital?: { HospitalName?: string | null } | null;
   maxDiscountPercent?: number | null;
   maxDiscountInr?: number | null;
   description?: string | null;
@@ -126,7 +126,7 @@ export default function OtherChargesTable({
                   <TableCell>{item.BillingItemName}</TableCell>
                   <TableCell>{item.code || "—"}</TableCell>
                   <TableCell>₹{item.price ?? 0}</TableCell>
-                  <TableCell>{item.hospital?.HospitalName || "—"}</TableCell>
+                  <TableCell>{item.Hospital?.HospitalName || "—"}</TableCell>
                   <TableCell>
                     {item.maxDiscountPercent
                       ? `${item.maxDiscountPercent}%`

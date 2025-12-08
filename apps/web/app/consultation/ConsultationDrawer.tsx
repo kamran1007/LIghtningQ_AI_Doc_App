@@ -1023,7 +1023,7 @@ export default function ConsultationDrawer({
 
   const handleSaveConsultation = async (type: string) => {
     try {
-      const isComplete = type?.toLowerCase() === "complete"; // case-insensitive check
+      const isComplete = type?.toLowerCase() === "complete";
       const SaveConsultation = type?.toLowerCase() === "save";
       setIsSaving(true);
 
@@ -1032,53 +1032,65 @@ export default function ConsultationDrawer({
         patient?.consultationStartDateTime || new Date().toISOString();
       const consultationEnd = isComplete ? new Date().toISOString() : "";
 
+      // 🧹 FIX: CLEAN PROCEDURES FIRST
+      const cleanedProcedures = (procedures || [])
+        .filter(
+          (p) =>
+            p?.ProcedureId &&
+            !isNaN(Number(p.ProcedureId)) &&
+            Number(p.ProcedureId) > 0
+        )
+        .map((p) => ({
+          BillingItemChargeId: Number(p.ProcedureId),
+          ConsultationProcedureRemark:
+            procedureremarkMap?.[p.ProcedureId] || "",
+        }));
+
       // 🧩 Build final payload
       const payload = {
         ConsultationId: patient?.consultationId || undefined,
-        AppointmentId: appointmentId, // ✅ Still required (used for relation connect on backend)
+        AppointmentId: appointmentId,
         consultationDatTime: consultationStart,
         consultationEndDateTime: consultationEnd,
         CheifcomplaintNotes: form?.notes || complaintText || "",
         IsSentCaseSheet: isComplete,
-        // consultationStatus: isComplete,
 
-        // ✅ Chief Complaints
+        // Chief Complaints
         ConsultationCheifComplaint: (selectedChiefComplaints || []).map(
           (item) => ({
             ChiefComplaintTagId: Number(item?.ChiefComplaintTagId) || 0,
           })
         ),
 
-        // ✅ Investigations
-        // ✅ Investigations (BillingItemCharge based)
+        // Investigations
         ConsultationInvestigation: (form.investigations || []).map((inv) => ({
-          BillingItemChargeId: Number(inv.value || inv.value),
+          BillingItemChargeId: Number(inv.value),
           ConsultationInvestigatRemark:
             form.investigationRemarks?.[inv.value] || "",
         })),
 
-        // ✅ Medications (mapped properly to DTO)
+        // Medications
         ConsultationMedication: (form.medications || []).map((med) => ({
-          medicationName: med.medicationName || med.medicationName || "",
+          medicationName: med.medicationName || "",
           dosage: med.dosage || "",
           frequency: med.frequency || "",
           duration: med.duration || "",
-          remarks: med.remarks || med.remarks || "",
+          remarks: med.remarks || "",
         })),
 
-        // ✅ Clinical Notes
+        // Clinical Notes
         ConsultationclinicalNotes: clinicalnotesText
           ? [{ content: clinicalnotesText }]
           : [],
 
-        // ✅ Diagnosis
+        // Diagnosis
         ConsultationDiagnosis: (diagnoses || []).map((diag) => ({
           diagnosisId: Number(diag?.DiagnosisId) || undefined,
           DiagnosisName: diag?.label || "",
           DiagnosisRemark: remarkMap?.[diag?.DiagnosisId] || "",
         })),
 
-        // ✅ Treatment
+        // Treatment
         ConsultationTreatment: [
           {
             treatmentText: form.treatment || "",
@@ -1086,7 +1098,7 @@ export default function ConsultationDrawer({
           },
         ],
 
-        // ✅ Follow-Up Plan
+        // Follow-up
         ConsultationFollowUpPlan: {
           followUpText: form.followUp || "",
           duration: form.followUpDuration
@@ -1099,56 +1111,33 @@ export default function ConsultationDrawer({
           ),
         },
 
-        // ✅ followUpDate
         followUpDate: calculateFollowUpDate(
           form.followUpDuration,
           form.followUpUnit
         ),
 
-        // ✅ Procedures
-        ConsultationProcedure: (procedures || []).map((proc) => ({
-          BillingItemChargeId: Number(proc.ProcedureId), // ✅ FIXED
-          ConsultationProcedureRemark:
-            procedureremarkMap?.[proc.ProcedureId] || "",
-        })),
+        // 🟩 FIX: USE CLEANED PROCEDURES
+        ConsultationProcedure: cleanedProcedures,
       };
+
+      // Compute BIC IDs for usage sync
       const investigationIds =
         payload.ConsultationInvestigation?.map((i) => i.BillingItemChargeId) ||
         [];
 
       const procedureIds =
-        payload.ConsultationProcedure?.map((p) => p.BillingItemChargeId) || [];
+        cleanedProcedures.map((p) => p.BillingItemChargeId) || [];
 
       const allBillingItemChargeIds = [
         ...investigationIds,
         ...procedureIds,
       ].filter(Boolean);
+
       console.log("All Billing Item Charge IDs:", allBillingItemChargeIds);
+      console.log("Submitting payload:", payload);
 
-      console.log("🧠 Submitting payload:", payload);
-
-      // ✅ Send payload to backend
+      // API call
       const consultationdata = await addupdateConsultation(payload);
-
-      // const usageBase = {
-      //   patientId: patient?.PatientId || null,
-      //   appointmentId: patient?.AppointmentId || null,
-      //   consultationId: null,
-      //   billingItemChargeId: null,
-      //   // filteredBillingItems[0]?.BillingItemChargeId || null,
-      //   status: "Incomplete",
-      // };
-
-      // // ✅ Only include PatientPackageUsageId when updating
-      // if (advisedItems[0]?.PatientPackageUsageId) {
-      //   addupdatePatientPackageUsage({
-      //     ...usageBase,
-      //     PatientPackageUsageId: advisedItems[0].PatientPackageUsageId,
-      //   });
-      // } else {
-      //   // ✅ NEW appointment → do NOT send PatientPackageUsageId
-      //   addupdatePatientPackageUsage(usageBase);
-      // }
 
       const usageBase = {
         patientId: patient?.PatientId || null,
@@ -1157,45 +1146,12 @@ export default function ConsultationDrawer({
         status: "Incomplete",
       };
 
-      // ✅ Extract existing usage IDs
-      // const existingUsageIds =
-      //   advisedItems?.map((i) => i.PatientPackageUsageId).filter(Boolean) || [];
-
-      // // ✅ 1) UPDATE only rows that have matching BillingItemChargeId
-      // for (let i = 0; i < existingUsageIds.length; i++) {
-      //   const chargeId = allBillingItemChargeIds[i];
-      //   if (!chargeId) continue; // ✅ skip instead of sending null
-
-      //   await addupdatePatientPackageUsage({
-      //     ...usageBase,
-      //     PatientPackageUsageId: existingUsageIds[i],
-      //     billingItemChargeId: chargeId,
-      //   });
-      // }
-
-      // // ✅ 2) CREATE new usage rows for extra billing items
-      // if (allBillingItemChargeIds.length > existingUsageIds.length) {
-      //   const remaining = allBillingItemChargeIds.slice(
-      //     existingUsageIds.length
-      //   );
-
-      //   for (const chargeId of remaining) {
-      //     await addupdatePatientPackageUsage({
-      //       ...usageBase,
-      //       billingItemChargeId: chargeId,
-      //     });
-      //   }
-      // }
-      const UsagePayload = {
-        patientId: usageBase.patientId,
-        appointmentId: usageBase.appointmentId,
-        consultationId: usageBase.consultationId,
-        billingItemChargeIds: allBillingItemChargeIds, // ⬅ send your computed list
-        status: usageBase.status,
-      };
       if (isComplete) {
         await Promise.all([
-          addupdatePatientsyncPatientPackageUsage(UsagePayload),
+          addupdatePatientsyncPatientPackageUsage({
+            ...usageBase,
+            billingItemChargeIds: allBillingItemChargeIds,
+          }),
           completeConsultation(appointmentId, usageBase.consultationId),
         ]);
       }
@@ -1211,15 +1167,16 @@ export default function ConsultationDrawer({
           : "Consultation draft saved.",
       });
 
-      // ✅ UI handling
       setTimeout(() => {
         SetConsultationComlete(true);
         setTimeout(() => {
           SetConsultationComlete(false);
+          onClose();
+
           const today = new Date().toLocaleDateString("en-CA", {
             timeZone: "Asia/Kolkata",
           });
-          onClose(); // Close modal or drawer
+
           dispatch(
             fetchAllAppointmentPatient({
               page: 1,
@@ -1353,10 +1310,10 @@ export default function ConsultationDrawer({
       // Investigations
       const investigationValues =
         consultation.ConsultationInvestigation?.map((i: any) => ({
-          label: i?.billingItem?.BillingItemName || "",
-          value: String(i?.billingItem?.BillingItemChargeId),
-          BillingItemChargeId: i?.billingItem?.BillingItemChargeId,
-          color: i?.billingItem?.InvestigationTypeColor || "", // only if available
+          label: i?.BillingItemCharge?.BillingItemName || "",
+          value: String(i?.BillingItemCharge?.BillingItemChargeId),
+          BillingItemChargeId: i?.BillingItemCharge?.BillingItemChargeId,
+          color: i?.BillingItemCharge?.InvestigationTypeColor || "", // only if available
         })) || [];
 
       const investigationRemarks =
@@ -1387,17 +1344,17 @@ export default function ConsultationDrawer({
       }));
 
       // Follow-up
-      const followUpData = consultation.ConsultationFollowUpPlan[0];
+      const followUpData = consultation?.ConsultationFollowUpPlan ?? {};
 
-      const formattedDate = followUpData.nextDate
+      const formattedDate = followUpData?.nextDate
         ? new Date(followUpData.nextDate).toISOString().slice(0, 10)
         : "";
 
       setForm((prev: any) => ({
         ...prev,
-        followUp: followUpData.followUpText || "",
-        followUpDuration: followUpData.duration?.toString() || "",
-        followUpUnit: followUpData.unit || "Days", // Default unit
+        followUp: followUpData?.followUpText || "",
+        followUpDuration: followUpData?.duration?.toString() || "",
+        followUpUnit: followUpData?.unit || "Days",
       }));
 
       // Medications
@@ -1419,14 +1376,14 @@ export default function ConsultationDrawer({
       // Procedures
       const procedureList =
         consultation.ConsultationProcedure?.map((p: any) => ({
-          label: p?.billingItem?.BillingItemName || "",
+          label: p?.BillingItemCharge?.BillingItemName || "",
           ProcedureId: String(p?.billingItem?.BillingItemChargeId),
         })) || [];
 
       const procedureremarkMap =
         consultation.ConsultationProcedure?.reduce(
           (acc: Record<string, string>, p: any) => {
-            const key = String(p?.billingItem?.BillingItemChargeId);
+            const key = String(p?.BillingItemCharge?.BillingItemChargeId);
             acc[key] = p?.ConsultationProcedureRemark || "";
             return acc;
           },
@@ -1711,7 +1668,7 @@ export default function ConsultationDrawer({
             <div className="w-full text-sm text-gray-700 font-mono py-2">
               {fullScreen ? (
                 // 👉 Full screen layout - single row grid
-<div className="grid grid-cols-[1fr_1fr_1fr_0.7fr_auto] gap-x-4 gap-y-2 w-full font-sans">
+                <div className="grid grid-cols-[1fr_1fr_1fr_0.7fr_auto] gap-x-4 gap-y-2 w-full font-sans">
                   {/* Scheduled Time */}
                   <div className="flex flex-col items-start">
                     <div className="flex items-center gap-1 text-[12px] text-muted-foreground">

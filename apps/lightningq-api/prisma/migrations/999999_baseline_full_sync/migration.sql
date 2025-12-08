@@ -1,0 +1,2 @@
+-- Baseline migration to sync Prisma migration history with existing database.
+-- No SQL executed.

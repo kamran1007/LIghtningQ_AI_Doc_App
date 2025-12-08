@@ -123,8 +123,8 @@ useEffect(() => {
                     {(meta.page - 1) * meta.limit + idx + 1}
                   </TableCell>
                   <TableCell className="capitalize">
-                    {item.doctor
-                      ? `${item.doctor.firstName} ${item.doctor.lastName}`
+                    {item.User_BillingItemCharge_doctorIdToUser
+                      ? `${item.User_BillingItemCharge_doctorIdToUser.firstName} ${item.User_BillingItemCharge_doctorIdToUser.lastName}`
                       : "—"}
                   </TableCell>
                   <TableCell>

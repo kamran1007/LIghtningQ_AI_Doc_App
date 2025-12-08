@@ -311,11 +311,11 @@ export default function PatientCaseHistory({
               className="mb-2 space-y-1 p-2 rounded-md bg-slate-100 dark:bg-slate-700"
             >
               <p className="text-sm font-medium">
-                {inv.billingItem?.BillingItemName}
+                {inv.BillingItemCharge?.BillingItemName}
                 <span className="text-xs text-gray-400 ml-2">
                   (
-                  {inv.billingItem?.investigationType?.InvestigationTypeName ||
-                    "N/A"}
+                  {inv.BillingItemCharge?.InvestigationType
+                    ?.InvestigationTypeName || "N/A"}
                   )
                 </span>
               </p>
@@ -364,7 +364,8 @@ export default function PatientCaseHistory({
                 className="p-3 bg-cyan-50 dark:bg-slate-700 rounded-md shadow-sm"
               >
                 <p className="text-sm font-semibold text-cyan-700 dark:text-cyan-300">
-                  {proc.billingItem?.BillingItemName || "Unnamed Procedure"}
+                  {proc.BillingItemCharge?.BillingItemName ||
+                    "Unnamed Procedure"}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-300 mt-1 whitespace-pre-wrap">
                   {proc.ConsultationProcedureRemark?.trim() ||
@@ -424,18 +425,19 @@ export default function PatientCaseHistory({
         title: "Follow-Up Plan",
         icon: CalendarCheck,
         tag: "Next Visit",
-        remark:
-          consultationData?.ConsultationFollowUpPlan?.[0]?.followUpText || "",
+        remark: consultationData?.ConsultationFollowUpPlan?.followUpText || "",
         content: (
           <div className="text-sm font-medium">
             Next Visit:{" "}
             <span className="text-blue-700 dark:text-blue-300">
-              {dayjs(
-                consultationData?.ConsultationFollowUpPlan?.[0]?.nextDate
-              ).format("DD MMM, YYYY")}
+              {consultationData?.ConsultationFollowUpPlan?.nextDate
+                ? dayjs(
+                    consultationData.ConsultationFollowUpPlan.nextDate
+                  ).format("DD MMM, YYYY")
+                : "Not Scheduled"}
             </span>{" "}
-            ({consultationData?.ConsultationFollowUpPlan?.[0]?.duration}{" "}
-            {consultationData?.ConsultationFollowUpPlan?.[0]?.unit})
+            ({consultationData?.ConsultationFollowUpPlan?.duration || "-"}{" "}
+            {consultationData?.ConsultationFollowUpPlan?.unit || ""})
           </div>
         ),
       },

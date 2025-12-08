@@ -74,7 +74,7 @@ export default function OtherChargesForm({
     if (editData) {
       setForm({
         BillingItemChargeId: editData.BillingItemChargeId ?? undefined,
-        hospitalId: editData.hospital?.HospitalId ?? undefined,
+        hospitalId: editData.Hospital?.HospitalId ?? undefined,
         chargeTypeId: editData.chargeTypeId ?? 4,
         BillingItemName: editData.BillingItemName ?? "",
         code: editData.code ?? "",
