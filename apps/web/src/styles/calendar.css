@@ -2,94 +2,131 @@
   --fc-border-color: lightgray;
   --fc-page-bg-color: none;
 }
+
 .dark {
   --fc-border-color: gray;
 }
 
 /* Removing borders */
-
 .fc-scrollgrid {
-  @apply border-none !important;
+  border: none !important;
 }
 
 .fc tbody tr:last-child td:first-child {
-  @apply border-l-0 !important;
+  border-left: 0 !important;
 }
 
 .fc tbody tr:last-child td:last-child {
-  @apply border-r-0 border-b-0 !important;
+  border-right: 0 !important;
+  border-bottom: 0 !important;
 }
 
 .fc-theme-standard th {
-  @apply border-r-0 !important;
+  border-right: 0 !important;
 }
 
-/* Setting header size */
-
+/* Header size */
 .fc-col-header-cell-cushion {
-  @apply flex h-14 items-center;
+  display: flex;
+  height: 3.5rem;
+  /* h-14 = 56px */
+  align-items: center;
 }
 
-/* Setting left time size */
-
+/* Left time slot height */
 .fc-timegrid-slot {
-  @apply h-6 !important;
+  height: 1.5rem !important;
+  /* Tailwind h-6 */
 }
 
 .fc-timegrid-slot-label-cushion {
-  @apply text-xs font-light !important;
+  font-size: 0.75rem !important;
+  /* text-xs */
+  font-weight: 300 !important;
+  /* font-light */
 }
 
-/* Setting cell colors */
-
-td.fc-daygrid-day.fc-day {
-  @apply hover:bg-secondary !important;
+/* Cell hover colors */
+td.fc-daygrid-day.fc-day:hover {
+  background: var(--color-secondary) !important;
 }
 
 td.fc-daygrid-day.fc-day.fc-day-today {
-  @apply bg-secondary-foreground;
+  background: var(--color-secondary-foreground);
 }
 
 .fc-day-today {
-  @apply bg-inherit !important;
+  background: inherit !important;
 }
 
 .fc-day-other {
-  @apply bg-gray-200 dark:bg-secondary !important;
+  background-color: rgb(229 231 235) !important;
+  /* gray-200 */
+}
+
+.dark .fc-day-other {
+  background-color: var(--color-secondary) !important;
 }
 
 .fc-daygrid-day-top {
-  @apply flex flex-row h-8 w-full items-center  !important;
+  display: flex;
+  flex-direction: row;
+  height: 2rem;
+  /* h-8 */
+  width: 100%;
+  align-items: center;
 }
 
-.fc-daygrid-dot-event {
-  @apply hover:bg-blue-50 !important;
+/* Dot events */
+.fc-daygrid-dot-event:hover {
+  background-color: rgb(239 246 255) !important;
+  /* blue-50 */
 }
 
+/* Event harness interactions */
 .fc-daygrid-event-harness {
-  @apply pr-2 hover:bg-none hover:scale-[1.02] transition-all hover:cursor-pointer  !important;
+  padding-right: 0.5rem;
+  transition: all 0.2s;
 }
 
-.fc-timegrid-event-harness {
-  @apply hover:bg-none hover:cursor-pointer !important;
+.fc-daygrid-event-harness:hover {
+  cursor: pointer;
+  transform: scale(1.02);
 }
 
+/* Time grid harness */
+.fc-timegrid-event-harness:hover {
+  cursor: pointer;
+}
+
+/* Event main wrapper */
 .fc-event-main {
-  @apply flex w-full h-full !important;
+  display: flex;
+  width: 100%;
+  height: 100%;
 }
 
+/* Overall event styling */
 .fc-event {
-  @apply flex border-none min-w-full !important;
+  display: flex;
+  border: none !important;
+  min-width: 100% !important;
 }
 
+/* Event margins */
 .fc-daygrid-event {
-  @apply mx-1 !important;
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+  /* mx-1 */
 }
 
 .fc-timegrid-event {
-  @apply px-1 !important;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+  /* px-1 */
 }
 
+/* Pointer events */
 td.fc-daygrid-day.fc-day {
   pointer-events: none !important;
 }
