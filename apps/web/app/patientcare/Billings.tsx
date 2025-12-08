@@ -451,74 +451,106 @@ const Billing: React.FC<BillingsProps> = ({
   //   }
   // };
 
-  const handleAddBillingItem = (item: BillingItem) => {
-    if (!item) return;
+const handleAddBillingItem = (item: BillingItem) => {
+  if (!item) return;
 
-    const id =
-      item.BillingItemChargeId ||
-      (item as any).billingItemChargeId ||
-      Math.random().toString(36).substring(2, 9);
+  const id =
+    item.BillingItemChargeId ||
+    (item as any).billingItemChargeId ||
+    Math.random().toString(36).substring(2, 9);
 
-    const selectedType = item.selectedChargeType || "General";
-    const uniqueKey = `${id}-${selectedType}`;
+  const selectedType = item.selectedChargeType || "General";
+  const uniqueKey = `${id}-${selectedType}`;
 
-    let isDuplicate = false;
+  const charge = item.billingItemCharge || item.chargeData || item;
 
-    // -----------------------------------
-    // AUTO-DISCOUNT LOGIC (BILLING + ADVISED)
-    // -----------------------------------
-    const charge = item.billingItemCharge || item.chargeData || item;
+  // -------------------------------
+  // PRICE FIX
+  // -------------------------------
+  let basePrice = 0;
+  if (charge.appointmentTypeId === 1 || charge.appointmentTypeId === 3) {
+    basePrice = Number(charge.walkinPrice || 0);
+  } else if (charge.appointmentTypeId === 2) {
+    basePrice = Number(charge.telePrice || 0);
+  } else {
+    basePrice = Number(item.price || charge.price || 0);
+  }
 
-    const maxPercent = Number(charge?.maxDiscountPercent || 0);
-    const maxFlat = Number(charge?.maxDiscountInr || 0);
+  // -------------------------------
+  // DISCOUNT LOGIC
+  // -------------------------------
+  const maxPercent = Number(charge?.maxDiscountPercent || 0);
+  const maxFlat = Number(charge?.maxDiscountInr || 0);
 
-    const base = Number(item.price || charge?.price || 0);
+  let autoDiscountAmt = 0;
+  let autoDiscountType: "flat" | "percent" = "flat";
+  let autoDiscountValue = 0;
 
-    let autoDiscountAmt = 0;
-    let autoDiscountType: "flat" | "percent" = "flat";
-    let autoDiscountValue = 0;
+  if (maxPercent > 0) {
+    autoDiscountType = "percent";
+    autoDiscountValue = maxPercent;
+    autoDiscountAmt = (basePrice * maxPercent) / 100;
+  } else if (maxFlat > 0) {
+    autoDiscountType = "flat";
+    autoDiscountValue = maxFlat;
+    autoDiscountAmt = maxFlat;
+  }
 
-    if (maxPercent > 0) {
-      autoDiscountType = "percent";
-      autoDiscountValue = maxPercent;
-      autoDiscountAmt = (base * maxPercent) / 100;
-    } else if (maxFlat > 0) {
-      autoDiscountType = "flat";
-      autoDiscountValue = maxFlat;
-      autoDiscountAmt = maxFlat;
-    }
+  // --------------------------------
+  // ❌ CHECK DUPLICATE BEFORE STATE UPDATE
+  // --------------------------------
+  const alreadyExists = selectedItems.some(
+    (i) => i.uniqueKey === uniqueKey
+  );
 
-    setSelectedItems((prev) => {
-      const exists = prev.some((i) => i.uniqueKey === uniqueKey);
-      if (exists) return prev;
-
-      const newItem = {
-        ...item,
-        BillingItemChargeId: id,
-        selectedChargeType: selectedType,
-        uniqueKey,
-        subCategoryName: selectedType,
-
-        price: base,
-        units: 1,
-
-        // Auto discount for BOTH Billing + Advised
-        discount: autoDiscountAmt,
-        discountType: autoDiscountType,
-        discountValue: autoDiscountValue,
-
-        gst: 0,
-        gstType: "flat",
-        gstValue: 0,
-        received: 0,
-
-        chargeType: charge.chargeType, // ensure binding
-        billingItemCharge: charge,
-      };
-
-      return [...prev, newItem];
+  if (alreadyExists) {
+    toast.current?.show({
+      severity: "warn",
+      summary: "Already Added",
+      detail: `"${item.BillingItemName}" is already selected.`,
     });
-  };
+    return; // stop here
+  }
+
+  // --------------------------------
+  // ✅ SAFE: SHOW SUCCESS ALERT ONLY ONCE
+  // --------------------------------
+  toast.current?.show({
+    severity: "success",
+    summary: "Item Added",
+    detail: `"${item.BillingItemName}" added successfully.`,
+  });
+
+  // --------------------------------
+  // UPDATE STATE (NO SIDE-EFFECTS HERE)
+  // --------------------------------
+  setSelectedItems((prev) => [
+    ...prev,
+    {
+      ...item,
+      BillingItemChargeId: id,
+      selectedChargeType: selectedType,
+      uniqueKey,
+      subCategoryName: selectedType,
+
+      price: basePrice,
+      units: 1,
+
+      discount: autoDiscountAmt,
+      discountType: autoDiscountType,
+      discountValue: autoDiscountValue,
+
+      gst: 0,
+      gstType: "flat",
+      gstValue: 0,
+      received: 0,
+
+      chargeType: charge?.chargeType,
+      billingItemCharge: charge,
+    },
+  ]);
+};
+
 
   const updateBillingItem = (
     uniqueKey: string,
