@@ -451,7 +451,7 @@ const Billing: React.FC<BillingsProps> = ({
   //   }
   // };
 
-const handleAddBillingItem = (item: BillingItem) => {
+const handleAddBillingItem = (item:  BillingItem) => {
   if (!item) return;
 
   const id =
