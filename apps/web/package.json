@@ -75,7 +75,7 @@
     "lucide-react": "^0.511.0",
     "luxon": "^3.6.1",
     "material-react-table": "^3.2.1",
-    "next": "latest",
+    "next": "16.0.7",
     "nprogress": "^0.2.0",
     "number-to-words": "^1.2.4",
     "pdfmake": "^0.2.20",
