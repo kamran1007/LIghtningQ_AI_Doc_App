@@ -1629,7 +1629,7 @@ const Billing: React.FC<BillingsProps> = ({
                                       (x: any) => x.status === "Incomplete"
                                     )
                                     .map((pkg: any) => {
-                                      const charge = pkg.billingItemCharge;
+                                      const charge = pkg.BillingItemCharge;
                                       const isConsultation =
                                         charge?.chargeType?.BillItemTypeName?.toUpperCase() ===
                                         "CONSULTATION";

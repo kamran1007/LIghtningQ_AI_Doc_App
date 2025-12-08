@@ -106,7 +106,12 @@ interface Vitals {
 }
 
 interface Appointment {
-  Vitals: Vitals[];
+  Vitals: Vitals | null; // OR optional: Vitals?
+}
+interface UpdatedByUser {
+  UserId: number;
+  firstName: string;
+  lastName: string;
 }
 
 interface AppointmentCaseSheet {
@@ -115,6 +120,7 @@ interface AppointmentCaseSheet {
   appointment?: Appointment;
   consultationStatus?: string;
   updatedAt?: string;
+  updatedBy?: UpdatedByUser;
 }
 
 export default function PatientCaseHistory({
@@ -444,6 +450,7 @@ export default function PatientCaseHistory({
     ];
   };
   const sections = createConsultationSections(appointmentcasesheet);
+  const vital = appointmentcasesheet?.appointment?.Vitals;
 
   return (
     <Sidebar
@@ -609,7 +616,7 @@ export default function PatientCaseHistory({
                     <div>
                       <p className="font-medium mb-1">Allergies:</p>
                       {patient?.patient?.allergies?.length ? (
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-1.5">
                           {patient.patient.allergies.map(
                             (a: Allergy, idx: number) => (
                               <span
@@ -629,7 +636,7 @@ export default function PatientCaseHistory({
                     <div>
                       <p className="font-medium mb-1">Medical History:</p>
                       {patient?.patient?.medicalHistory?.length ? (
-                        <ul className="list-disc list-inside">
+                        <ul className="list-disc list-inside flex flex-wrap gap-1.5">
                           {patient.patient.medicalHistory.map(
                             (c: MedicalHistory, idx: number) => (
                               <span
@@ -649,7 +656,7 @@ export default function PatientCaseHistory({
                     <div>
                       <p className="font-medium mb-1">Medications:</p>
                       {appointmentcasesheet?.ConsultationMedication?.length ? (
-                        <ul className="list-disc list-inside">
+                        <ul className="list-disc list-inside flex flex-wrap gap-1.5">
                           {appointmentcasesheet.ConsultationMedication.map(
                             (m: Medication, idx: number) => (
                               <span
@@ -670,7 +677,7 @@ export default function PatientCaseHistory({
                       <p className="font-medium mb-1">Medical Conditions :</p>
                       {appointmentcasesheet?.ConsultationCheifComplaint
                         ?.length ? (
-                        <ul className="list-disc list-inside">
+                        <ul className="list-disc list-inside flex flex-wrap gap-1.5">
                           {appointmentcasesheet.ConsultationCheifComplaint.map(
                             (p: ConsultationChiefComplaint, idx: number) => (
                               <span
@@ -700,75 +707,86 @@ export default function PatientCaseHistory({
                       Vitals Overview
                     </h3>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-800 dark:text-gray-200">
-                    <div className="p-3 rounded-lg bg-blue-50 dark:bg-slate-700">
-                      <p className="font-semibold">Heart Rate</p>
-                      <p className="text-lg">
-                        {appointmentcasesheet?.appointment?.Vitals[0]
-                          ?.HeartRate || "--"}{" "}
-                        <span className="text-xs">bpm</span>
-                      </p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-yellow-50 dark:bg-slate-700">
-                      <p className="font-semibold">Temperature</p>
-                      <p className="text-lg">
-                        {appointmentcasesheet?.appointment?.Vitals[0]
-                          ?.Temperature || "--"}{" "}
-                        <span className="text-xs">°F</span>
-                      </p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-red-50 dark:bg-slate-700">
-                      <p className="font-semibold">Blood Pressure</p>
-                      <p className="text-lg">
-                        {appointmentcasesheet?.appointment?.Vitals[0]
-                          ?.Systolic &&
-                        appointmentcasesheet?.appointment?.Vitals[0]?.Diastolic
-                          ? `${appointmentcasesheet?.appointment?.Vitals[0]?.Systolic}/${appointmentcasesheet?.appointment?.Vitals[0]?.Diastolic} mmHg`
-                          : "--"}
-                      </p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-purple-50 dark:bg-slate-700">
-                      <p className="font-semibold">Weight</p>
-                      <p className="text-lg">
-                        {appointmentcasesheet?.appointment?.Vitals[0]?.Weight ||
-                          "--"}{" "}
-                        <span className="text-xs">Kg</span>
-                      </p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-orange-50 dark:bg-slate-700">
-                      <p className="font-semibold">Height</p>
-                      <p className="text-lg">
-                        {appointmentcasesheet?.appointment?.Vitals[0]?.Height ||
-                          "--"}{" "}
-                        <span className="text-xs">Cm</span>
-                      </p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-sky-50 dark:bg-slate-700">
-                      <p className="font-semibold">SpO₂</p>
-                      <p className="text-lg">
-                        {appointmentcasesheet?.appointment?.Vitals[0]
-                          ?.OxygenSaturation || "--"}{" "}
-                        <span className="text-xs">%</span>
-                      </p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-violet-50 dark:bg-slate-700">
-                      <p className="font-semibold">Blood Group</p>
-                      <p className="text-lg">
-                        {bloodGroupMap[
-                          appointmentcasesheet?.appointment?.Vitals[0]
-                            ?.BloodGroup ?? ""
-                        ] || "--"}
-                      </p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-green-50 dark:bg-slate-700">
-                      <p className="font-semibold">BMI</p>
-                      <p className="text-lg">
-                        {appointmentcasesheet?.appointment?.Vitals[0]?.BMI ||
-                          "--"}{" "}
-                      </p>
-                    </div>
-                  </div>
+
+                  {/** Extract vitals once */}
+                  {(() => {
+                    const vital = appointmentcasesheet?.appointment?.Vitals;
+
+                    return (
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-800 dark:text-gray-200">
+                        {/* Heart Rate */}
+                        <div className="p-3 rounded-lg bg-blue-50 dark:bg-slate-700">
+                          <p className="font-semibold">Heart Rate</p>
+                          <p className="text-lg">
+                            {vital?.HeartRate ?? "--"}{" "}
+                            <span className="text-xs">bpm</span>
+                          </p>
+                        </div>
+
+                        {/* Temperature */}
+                        <div className="p-3 rounded-lg bg-yellow-50 dark:bg-slate-700">
+                          <p className="font-semibold">Temperature</p>
+                          <p className="text-lg">
+                            {vital?.Temperature ?? "--"}{" "}
+                            <span className="text-xs">°F</span>
+                          </p>
+                        </div>
+
+                        {/* Blood Pressure */}
+                        <div className="p-3 rounded-lg bg-red-50 dark:bg-slate-700">
+                          <p className="font-semibold">Blood Pressure</p>
+                          <p className="text-lg">
+                            {vital?.Systolic && vital?.Diastolic
+                              ? `${vital.Systolic}/${vital.Diastolic} mmHg`
+                              : "--"}
+                          </p>
+                        </div>
+
+                        {/* Weight */}
+                        <div className="p-3 rounded-lg bg-purple-50 dark:bg-slate-700">
+                          <p className="font-semibold">Weight</p>
+                          <p className="text-lg">
+                            {vital?.Weight ?? "--"}{" "}
+                            <span className="text-xs">Kg</span>
+                          </p>
+                        </div>
+
+                        {/* Height */}
+                        <div className="p-3 rounded-lg bg-orange-50 dark:bg-slate-700">
+                          <p className="font-semibold">Height</p>
+                          <p className="text-lg">
+                            {vital?.Height ?? "--"}{" "}
+                            <span className="text-xs">Cm</span>
+                          </p>
+                        </div>
+
+                        {/* SPO2 */}
+                        <div className="p-3 rounded-lg bg-sky-50 dark:bg-slate-700">
+                          <p className="font-semibold">SpO₂</p>
+                          <p className="text-lg">
+                            {vital?.OxygenSaturation ?? "--"}{" "}
+                            <span className="text-xs">%</span>
+                          </p>
+                        </div>
+
+                        {/* Blood Group */}
+                        <div className="p-3 rounded-lg bg-violet-50 dark:bg-slate-700">
+                          <p className="font-semibold">Blood Group</p>
+                          <p className="text-lg">
+                            {bloodGroupMap[vital?.BloodGroup ?? ""] || "--"}
+                          </p>
+                        </div>
+
+                        {/* BMI */}
+                        <div className="p-3 rounded-lg bg-green-50 dark:bg-slate-700">
+                          <p className="font-semibold">BMI</p>
+                          <p className="text-lg">{vital?.BMI ?? "--"}</p>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </Card>
+
                 <Card className="p-6 border rounded-2xl shadow-lg bg-white/70 dark:bg-slate-800/60 backdrop-blur-md">
                   <div className="flex items-center mb-4">
                     <FileText
@@ -805,7 +823,12 @@ export default function PatientCaseHistory({
                     <div className="flex items-center space-x-2">
                       <UserCheck className="text-rose-500" size={18} />
                       <p className="font-medium">Last Updated By:</p>
-                      <span className="text-base">--</span>
+
+                      <span className="text-base capitalize">
+                        {appointmentcasesheet?.updatedBy
+                          ? `${appointmentcasesheet.updatedBy.firstName} ${appointmentcasesheet.updatedBy.lastName}`
+                          : "--"}
+                      </span>
                     </div>
 
                     {/* Last Updated At */}

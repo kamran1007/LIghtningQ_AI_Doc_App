@@ -227,12 +227,12 @@ export default function AppointmentActionsDialog({
                           : "cursor-pointer"
                       }`}
                       onClick={() => {
-                        // if (!canViewConsultation) {
-                        //   showToast(
-                        //     "You don’t have permission to start consultation."
-                        //   );
-                        //   return;
-                        // }
+                        if (!canViewConsultation) {
+                          showToast(
+                            "You don’t have permission to start consultation."
+                          );
+                          return;
+                        }
 
                         const appointmentDate = new Date(
                           patient.appointmentDate
@@ -241,15 +241,15 @@ export default function AppointmentActionsDialog({
                         appointmentDate.setHours(0, 0, 0, 0);
                         today.setHours(0, 0, 0, 0);
 
-                        // if (appointmentDate < today)
-                        //   return showToast(
-                        //     "You can't start consultation for a past appointment."
-                        //   );
-                        // if (appointmentDate > today)
-                        //   return showToast(
-                        //     "You can't start consultation for a future appointment.",
-                        //     "warn"
-                        //   );
+                        if (appointmentDate < today)
+                          return showToast(
+                            "You can't start consultation for a past appointment."
+                          );
+                        if (appointmentDate > today)
+                          return showToast(
+                            "You can't start consultation for a future appointment.",
+                            "warn"
+                          );
 
                         onStartConsultation({
                           ...patient,
@@ -297,7 +297,7 @@ export default function AppointmentActionsDialog({
                         // First check consultation status
                         if (
                           patient?.consultation?.consultationStatus !==
-                          "COMPLETE"
+                          "COMPLETED"
                         ) {
                           showToast(
                             "Consultation is not complete. You cannot start billing."

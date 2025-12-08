@@ -1380,15 +1380,28 @@ export default function ConsultationDrawer({
           ProcedureId: String(p?.billingItem?.BillingItemChargeId),
         })) || [];
 
-      const procedureremarkMap =
-        consultation.ConsultationProcedure?.reduce(
-          (acc: Record<string, string>, p: any) => {
-            const key = String(p?.BillingItemCharge?.BillingItemChargeId);
-            acc[key] = p?.ConsultationProcedureRemark || "";
-            return acc;
-          },
-          {}
-        ) || {};
+      // Build a robust lookup map for procedure remarks
+      const procedureremarkMap: Record<string, string> = (
+        consultation?.ConsultationProcedure || []
+      ).reduce((acc: Record<string, string>, p: any) => {
+        const billingId = p?.BillingItemCharge?.BillingItemChargeId;
+        const procId = p?.ConsultationProcedureId;
+
+        const remark =
+          (p?.ConsultationProcedureRemark ?? "").toString().trim() || "";
+
+        // add entry by BillingItemChargeId if available
+        if (billingId !== undefined && billingId !== null) {
+          acc[String(billingId)] = remark;
+        }
+
+        // also add entry by ConsultationProcedureId if available
+        if (procId !== undefined && procId !== null) {
+          acc[String(procId)] = remark;
+        }
+
+        return acc;
+      }, {});
 
       setProcedures(procedureList);
       setProcedureremarkMap(procedureremarkMap);
