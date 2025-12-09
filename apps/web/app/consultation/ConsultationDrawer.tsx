@@ -597,26 +597,88 @@ export default function ConsultationDrawer({
   };
 
   const customsStyles: StylesConfig<any, true> = {
-    control: (base) => ({
+    control: (base, state) => ({
       ...base,
       minHeight: 44,
-      fontSize: 14,
+      padding: "2px 6px",
+      borderRadius: "12px",
+      borderColor: state.isFocused ? "#38bdf8" : "#d1d5db",
+      boxShadow: state.isFocused
+        ? "0 0 0 3px rgba(56, 189, 248, 0.25)"
+        : "none",
+      transition: "0.2s ease",
+      backgroundColor: "white",
+      fontSize: "14px",
     }),
-    valueContainer: (base) => ({
-      ...base,
-      padding: "4px 6px",
-    }),
-    multiValue: (base) => ({
-      ...base,
-      backgroundColor: "#E0F2FE",
-    }),
-    multiValueLabel: (base) => ({
-      ...base,
-      color: "#0369A1",
-    }),
+
     placeholder: (base) => ({
       ...base,
-      fontSize: 14,
+      fontSize: "14px",
+      color: "#9ca3af",
+      letterSpacing: "0.02em",
+    }),
+
+    valueContainer: (base) => ({
+      ...base,
+      padding: "4px 8px",
+      gap: "4px",
+    }),
+
+    multiValue: (base) => ({
+      ...base,
+      backgroundColor: "#f0f9ff",
+      borderRadius: "8px",
+      padding: "2px 6px",
+    }),
+
+    multiValueLabel: (base) => ({
+      ...base,
+      color: "#0284c7",
+      fontWeight: 500,
+      letterSpacing: "0.01em",
+    }),
+
+    multiValueRemove: (base) => ({
+      ...base,
+      color: "#0ea5e9",
+      ":hover": {
+        backgroundColor: "#bae6fd",
+        color: "#0369a1",
+      },
+    }),
+
+    menu: (base) => ({
+      ...base,
+      borderRadius: "12px",
+      boxShadow:
+        "0px 4px 20px rgba(15, 23, 42, 0.12), 0px 2px 8px rgba(15, 23, 42, 0.06)",
+      padding: "6px 0",
+      backgroundColor: "white",
+      overflow: "hidden",
+      zIndex: 9999,
+      scrollbarColor: "#bae6fd",
+    }),
+
+    menuList: (base) => ({
+      ...base,
+      padding: 0,
+      maxHeight: 180, // ⭐ Show only ~5 items → scroll
+      overflowY: "auto",
+    }),
+
+    option: (base, state) => ({
+      ...base,
+      padding: "10px 14px",
+      fontSize: "14px",
+      borderRadius: "6px",
+      backgroundColor: state.isSelected
+        ? "#0ea5e9"
+        : state.isFocused
+          ? "#f0f9ff"
+          : "white",
+      color: state.isSelected ? "white" : "#1f2937",
+      cursor: "pointer",
+      transition: "0.15s ease",
     }),
   };
 
@@ -1319,7 +1381,7 @@ export default function ConsultationDrawer({
       const investigationRemarks =
         consultation.ConsultationInvestigation?.reduce(
           (acc: Record<string, string>, i: any) => {
-            const key = String(i?.billingItem?.BillingItemChargeId);
+            const key = String(i?.BillingItemCharge?.BillingItemChargeId);
             acc[key] = i?.ConsultationInvestigatRemark || "";
             return acc;
           },
@@ -1377,31 +1439,14 @@ export default function ConsultationDrawer({
       const procedureList =
         consultation.ConsultationProcedure?.map((p: any) => ({
           label: p?.BillingItemCharge?.BillingItemName || "",
-          ProcedureId: String(p?.billingItem?.BillingItemChargeId),
+          ProcedureId: p?.BillingItemCharge?.BillingItemChargeId, // USE CHARGE ID
         })) || [];
 
-      // Build a robust lookup map for procedure remarks
-      const procedureremarkMap: Record<string, string> = (
-        consultation?.ConsultationProcedure || []
-      ).reduce((acc: Record<string, string>, p: any) => {
-        const billingId = p?.BillingItemCharge?.BillingItemChargeId;
-        const procId = p?.ConsultationProcedureId;
-
-        const remark =
-          (p?.ConsultationProcedureRemark ?? "").toString().trim() || "";
-
-        // add entry by BillingItemChargeId if available
-        if (billingId !== undefined && billingId !== null) {
-          acc[String(billingId)] = remark;
-        }
-
-        // also add entry by ConsultationProcedureId if available
-        if (procId !== undefined && procId !== null) {
-          acc[String(procId)] = remark;
-        }
-
-        return acc;
-      }, {});
+      const procedureremarkMap: Record<string, string> = {};
+      consultation.ConsultationProcedure?.forEach((p: any) => {
+        const key = String(p?.BillingItemCharge?.BillingItemChargeId);
+        procedureremarkMap[key] = p?.ConsultationProcedureRemark || "";
+      });
 
       setProcedures(procedureList);
       setProcedureremarkMap(procedureremarkMap);

@@ -47,19 +47,41 @@ export async function generateBillPDF(bill: any, appointment?: any) {
     return `${day}${suffix} ${month} ${year}, ${time}`;
   };
 
+  const addressLine1 =
+  bill.Patient.addressLine1 &&
+  bill.Patient.addressLine1.trim() !== ""
+    ? bill.Patient.addressLine1.trim()
+    : "";
+
+const locationParts = [
+  bill.Patient.area,
+  bill.Patient.city,
+  bill.Patient.state,
+].filter(Boolean);
+
+const locationText = locationParts.join(", ");
+
+const finalAddress =
+  addressLine1
+    ? locationText
+      ? `${addressLine1}, ${locationText}`
+      : addressLine1
+    : locationText || "-";
+
+
   const docDefinition: any = {
     pageSize: "A4",
     pageMargins: [40, 30, 40, 40],
 
     content: [
       // ---------------------- HEADER -------------------------
-      { text: bill.hospital?.HospitalName, style: "header" },
+      { text: bill.Hospital?.HospitalName, style: "header" },
       {
-        text: `${bill.hospital?.address} | Phone: ${bill.hospital?.contactNumber}`,
+        text: `${bill.Hospital?.address} | Phone: ${bill.Hospital?.contactNumber}`,
         style: "subheader",
       },
       {
-        text: `GST: ${bill.hospital?.GSTNumber || "N/A"}`,
+        text: `GST: ${bill.Hospital?.GSTNumber || "N/A"}`,
         style: "subheader",
         margin: [0, 0, 0, 20],
       },
@@ -94,7 +116,7 @@ export async function generateBillPDF(bill: any, appointment?: any) {
                 style: "field",
               },
               {
-                text: `Created By: MR. ${bill.createdUser?.firstName} ${bill.createdUser?.lastName}`,
+                text: `Created By: MR. ${bill.User_BillingTransaction_createdByToUser?.firstName} ${bill.User_BillingTransaction_createdByToUser?.lastName}`,
                 style: "field",
               },
             ],
@@ -136,7 +158,7 @@ export async function generateBillPDF(bill: any, appointment?: any) {
         margin: [0, 10, 0, 15],
       },
 
-      // ---------------------- PATIENT + DOCTOR INFO -------------------------
+      // ---------------------- Patient + DOCTOR INFO -------------------------
       {
         columns: [
           {
@@ -144,7 +166,7 @@ export async function generateBillPDF(bill: any, appointment?: any) {
             stack: [
               { text: "Patient Information", style: "sectionTitle" },
               {
-                text: `Name: ${bill.patient.firstName} ${bill.patient.lastName}`,
+                text: `Name: ${bill.Patient.firstName} ${bill.Patient.lastName}`,
                 style: "field",
               },
               {
@@ -152,31 +174,18 @@ export async function generateBillPDF(bill: any, appointment?: any) {
                 style: "field",
               },
               {
-                text: `MRN: ${bill.patient.Patient_Medical_Record_No}`,
+                text: `MRN: ${bill.Patient.Patient_Medical_Record_No}`,
                 style: "field",
               },
-              { text: `Mobile: ${bill.patient.mobile}`, style: "field" },
-              { text: `Email: ${bill.patient.email || "-"}`, style: "field" },
+              { text: `Mobile: ${bill.Patient.mobile}`, style: "field" },
+              { text: `Email: ${bill.Patient.email || "-"}`, style: "field" },
               {
-                text: `Age: ${calculateAge(bill.patient.dateOfBirth)} Years`,
+                text: `Age: ${calculateAge(bill.Patient.dateOfBirth)} Years`,
                 style: "field",
               },
               {
                 text: `Address: ${
-                  bill.patient.addressLine1 &&
-                  bill.patient.addressLine1.trim() !== ""
-                    ? bill.patient.addressLine1
-                    : bill.patient.area ||
-                        bill.patient.city ||
-                        bill.patient.state
-                      ? [
-                          bill.patient.area,
-                          bill.patient.city,
-                          bill.patient.state,
-                        ]
-                          .filter(Boolean)
-                          .join(", ")
-                      : "-"
+                 finalAddress
                 }`,
                 style: "field",
               },
@@ -195,12 +204,12 @@ export async function generateBillPDF(bill: any, appointment?: any) {
                 alignment: "right",
               },
               {
-                text: `Doctor: Dr. ${bill.doctor.firstName} ${bill.doctor.lastName}`,
+                text: `Doctor: Dr. ${bill.User_BillingTransaction_doctorIdToUser.firstName} ${bill.User_BillingTransaction_createdByToUser.lastName}`,
                 style: "field",
                 alignment: "right",
               },
               {
-                text: `Specialization: ${bill.doctor.Specialization.SpecializationName || "-"}`,
+                text: `Specialization: ${bill.User_BillingTransaction_doctorIdToUser.Specialization.SpecializationName || "-"}`,
                 style: "field",
                 alignment: "right",
               },
@@ -245,7 +254,7 @@ export async function generateBillPDF(bill: any, appointment?: any) {
               { text: "Qty", style: "tableHeader" },
               { text: "Amount", style: "tableHeader" },
             ],
-            ...bill.items.map((row: any, i: number) => [
+            ...bill.BillingTransactionItem.map((row: any, i: number) => [
               i + 1,
               `${row.itemName} — ${row.billingItemCharge?.chargeType?.BillItemTypeName || ""}`,
               `₹${row.price}`,
@@ -297,7 +306,7 @@ export async function generateBillPDF(bill: any, appointment?: any) {
               { text: "Transaction Number", style: "tableHeader" },
               { text: "Date & Time", style: "tableHeader" },
             ],
-            ...bill.payments.map((p: any) => [
+            ...bill.BillingPayment.map((p: any) => [
               p.paymentMode,
               `₹${p.amount}`,
               p.PaymentReceptNo || "-",

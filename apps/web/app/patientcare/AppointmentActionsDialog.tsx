@@ -159,6 +159,10 @@ export default function AppointmentActionsDialog({
                           showToast("You can't reschedule a past appointment.");
                           return;
                         }
+                        if(patient?.consultation){
+                          showToast("Consultation has started you cannot Reschedule");
+                          return;
+                        }
                         onReschedule(patient);
                         setOpen(false);
                       }}
@@ -174,6 +178,10 @@ export default function AppointmentActionsDialog({
                       onClick={() => {
                         if (isPastDate(patient.appointmentDate)) {
                           showToast("You can't cancel a past appointment.");
+                          return;
+                        }
+                        if(patient?.consultation){
+                          showToast("Consultation has started you cannot Cancel");
                           return;
                         }
                         onCancel(patient);

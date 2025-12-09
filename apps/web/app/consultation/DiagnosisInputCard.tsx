@@ -58,6 +58,7 @@ export default function DiagnosisInputCard({
     Record<string, boolean>
   >({});
   const [initialLoadDone, setInitialLoadDone] = useState(false);
+  const [loadingDiagnosis, setLoadingDiagnosis] = useState(true);
 
   const {
     transcript,
@@ -72,10 +73,13 @@ export default function DiagnosisInputCard({
   useEffect(() => {
     const fetchDiagnosis = async () => {
       try {
+        setLoadingDiagnosis(true);
+
         const resp = await getProfile();
         setUserprofiledata(resp);
 
         const res = await FetchDiagnosis();
+
         const allOptions = res.return
           .map((item: any) => ({
             label: item.DiagnosisName,
@@ -83,14 +87,16 @@ export default function DiagnosisInputCard({
             DiagnosisId: item.DiagnosisId,
           }))
           .filter(
-            (opt: any, index: number, self: any) =>
-              index ===
-              self.findIndex((t: any) => t.DiagnosisId === opt.DiagnosisId)
+            (opt: any, idx: number, arr: any) =>
+              idx ===
+              arr.findIndex((t: any) => t.DiagnosisId === opt.DiagnosisId)
           );
 
         setOptions(allOptions);
       } catch (err) {
         console.error("❌ Failed to fetch diagnosis:", err);
+      } finally {
+        setLoadingDiagnosis(false);
       }
     };
 
@@ -207,6 +213,106 @@ export default function DiagnosisInputCard({
   if (!browserSupportsSpeechRecognition) {
     return <p>Your browser does not support speech recognition.</p>;
   }
+  const diagnosisSelectStyles = {
+    control: (base: any, state: { isFocused: any; isDisabled: any }) => ({
+      ...base,
+      minHeight: "44px",
+      borderColor: state.isFocused ? "#86efac" : "#bbf7d0",
+      backgroundColor: state.isDisabled ? "#f3f4f6" : "white",
+      boxShadow: state.isFocused ? "0 0 0 2px #dcfce7" : "none",
+      borderRadius: "12px",
+      paddingLeft: "4px",
+      transition: "all 0.2s ease",
+      "&:hover": {
+        borderColor: "#86efac",
+      },
+      fontSize: "14px",
+      fontWeight: 500,
+      color: "#065f46",
+    }),
+
+    placeholder: (base: any) => ({
+      ...base,
+      color: "#6b7280",
+      fontSize: "14px",
+      fontWeight: 400,
+    }),
+
+    input: (base: any) => ({
+      ...base,
+      color: "#065f46",
+      fontWeight: 500,
+    }),
+
+    multiValue: (base: any) => ({
+      ...base,
+      backgroundColor: "#d1fae5",
+      borderRadius: "8px",
+      padding: "2px 6px",
+    }),
+
+    multiValueLabel: (base: any) => ({
+      ...base,
+      color: "#047857",
+      fontWeight: 600,
+      fontSize: "13px",
+    }),
+
+    multiValueRemove: (base: any) => ({
+      ...base,
+      color: "#047857",
+      "&:hover": {
+        backgroundColor: "#fecaca",
+        color: "#b91c1c",
+      },
+    }),
+
+    menu: (base: any) => ({
+      ...base,
+      borderRadius: "12px",
+      overflow: "hidden",
+      border: "1px solid #bbf7d0",
+      paddingTop: "6px",
+      paddingBottom: "6px",
+      boxShadow: "0 10px 25px rgba(0,0,0,0.05), 0 4px 10px rgba(0,0,0,0.03)",
+    }),
+
+    menuList: (base: any) => ({
+      ...base,
+      maxHeight: "220px",
+      padding: "0",
+      scrollbarWidth: "none", // Firefox
+      msOverflowStyle: "none", // Internet Explorer
+      "&::-webkit-scrollbar": {
+        width: "0 !important", // Chrome/Safari
+        height: "0 !important",
+      },
+      "&::-webkit-scrollbar-thumb": {
+        backgroundColor: "transparent !important",
+      },
+      "&::-webkit-scrollbar-track": {
+        background: "transparent !important",
+      },
+    }),
+
+    option: (base: any, state: { isFocused: any }) => ({
+      ...base,
+      padding: "10px 14px",
+      fontSize: "14px",
+      fontWeight: 500,
+      borderRadius: "6px",
+      margin: "2px 8px",
+      transition: "all 0.15s ease",
+      backgroundColor: state.isFocused
+        ? "#ecfdf5" // 💚 Light Green hover
+        : "white",
+      color: "#065f46",
+      "&:hover": {
+        backgroundColor: "#ecfdf5",
+        color: "#065f46",
+      },
+    }),
+  };
 
   return (
     <Card className="p-4 rounded-xl shadow-sm border bg-white relative hover:shadow-xl hover:border-green-300">
@@ -220,12 +326,18 @@ export default function DiagnosisInputCard({
         options={filteredOptions}
         value={selectedOptions}
         onChange={handleDiagnosisChange}
-        inputValue={diagnosisInputValue}
-        onInputChange={(val) => setDiagnosisInputValue(val)}
+        onInputChange={(v) => setDiagnosisInputValue(v)}
         onCreateOption={handleCreateOption}
         placeholder="Type or select diagnosis..."
         classNamePrefix="react-select"
-        className="mb-3 border border-green-200 focus:border-green-300 focus:ring-green-200"
+        isLoading={loadingDiagnosis}
+        styles={diagnosisSelectStyles}
+        loadingMessage={() => (
+          <div className="flex items-center gap-2 text-sm text-green-600">
+            <span className="animate-spin w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full"></span>
+            Loading diagnosis...
+          </div>
+        )}
       />
 
       {diagnoses.length > 0 && (

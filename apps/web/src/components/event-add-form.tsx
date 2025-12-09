@@ -224,13 +224,15 @@ interface PatientPackageUsage {
 
   IsFastTrack: boolean;
   IsFreeFollowUp: boolean;
-
   billingItemChargeId: number;
 
-  billingItemCharge?: {
+  BillingItemCharge?: {
     BillingItemChargeId: number;
     BillingItemName: string;
     price?: number;
+    chargeType?:{
+      BillItemTypeId?: number;
+    }
   };
 }
 
@@ -519,33 +521,6 @@ export function EventAddForm({
   }, []);
 
   useEffect(() => {
-    const loadBillingItems = async () => {
-      if (!selectedDoctorId) return; // doctor not selected yet
-
-      try {
-        setBillingLoading(true);
-
-        const billingResp = await GetBillingItem({
-          hospitalId: selectedHospital?.hospital?.HospitalId,
-          chargeType: "consultation",
-          doctorId: selectedDoctorId,
-          page: 1,
-          limit: 10,
-        });
-
-        setBillingItems(billingResp.data || []);
-        console.log("Billing items for doctor:", billingResp.data);
-      } catch (error) {
-        console.error("❌ Billing Fetch Error:", error);
-      } finally {
-        setBillingLoading(false);
-      }
-    };
-
-    loadBillingItems();
-  }, [selectedDoctorId]); // ⭐ runs ONLY after doctor selection
-
-  useEffect(() => {
     if (selectedSpecializationId) {
       const filtered = doctorData.filter(
         (doc) =>
@@ -828,20 +803,42 @@ export function EventAddForm({
   }, [filteredDoctors]);
 
   useEffect(() => {
-    console.log(
-      "Filtering billing items for doctor:",
-      selectedDoctorId,
-      billingItems.length,
-      watchVisitTypeId
-    );
-    if (!selectedDoctorId || !billingItems.length || !watchVisitTypeId) return;
+    const loadBillingItems = async () => {
+      if (!selectedDoctorId) return; // doctor not selected yet
+
+      try {
+        setBillingLoading(true);
+
+        const billingResp = await GetBillingItem({
+          hospitalId: selectedHospital?.hospital?.HospitalId,
+          chargeType: "consultation",
+          doctorId: selectedDoctorId,
+          page: 1,
+          limit: 10,
+        });
+
+        setBillingItems(billingResp.data || []);
+        console.log("Billing items for doctor:", billingResp.data);
+      } catch (error) {
+        console.error("❌ Billing Fetch Error:", error);
+      } finally {
+        setBillingLoading(false);
+      }
+    };
+
+    loadBillingItems();
+  }, [selectedDoctorId, watchVisitTypeId]); // ⭐ runs ONLY after doctor selection
+
+  useEffect(() => {
+    if (!watchVisitTypeId) return;
 
     const selectedVisitType = appointmentType.find(
       (t) => t.id.toString() === watchVisitTypeId
     );
 
-    if (!selectedVisitType) {
-      setFilteredBillingItems([]);
+    console.log("Selected item for Visit Type", selectedVisitType);
+
+    if (!selectedVisitType || !billingItems.length) {
       return;
     }
 
@@ -852,7 +849,7 @@ export function EventAddForm({
     );
 
     setFilteredBillingItems(filtered);
-  }, [billingItems, appointmentType, selectedDoctorId, watchVisitTypeId]);
+  }, [appointmentType, watchVisitTypeId, billingItems]);
 
   useEffect(() => {
     if (!selectedPatient?.PatientId && !editingEvent?.AppointmentId) return;
@@ -975,12 +972,16 @@ export function EventAddForm({
           IsFreeFollowUp: Boolean(form.visitTypeId === "2"),
           status: "Incomplete",
         };
-
+        console.log("usageBase", usageBase)
         // ✅ Only include PatientPackageUsageId when updating
-        if (isUpdate && advisedItems[0]?.PatientPackageUsageId) {
+        const consultationCharges = advisedItems.filter(
+          (item) => item?.BillingItemCharge?.chargeType?.BillItemTypeId === 1
+        );
+
+        if (isUpdate && consultationCharges[0]?.PatientPackageUsageId) {
           addupdatePatientPackageUsage({
             ...usageBase,
-            PatientPackageUsageId: advisedItems[0].PatientPackageUsageId,
+            PatientPackageUsageId: consultationCharges[0].PatientPackageUsageId,
           });
         } else {
           // ✅ NEW appointment → do NOT send PatientPackageUsageId

@@ -451,106 +451,103 @@ const Billing: React.FC<BillingsProps> = ({
   //   }
   // };
 
-const handleAddBillingItem = (item:  BillingItem) => {
-  if (!item) return;
+  const handleAddBillingItem = (item: BillingItem) => {
+    if (!item) return;
 
-  const id =
-    item.BillingItemChargeId ||
-    (item as any).billingItemChargeId ||
-    Math.random().toString(36).substring(2, 9);
+    const id =
+      item.BillingItemChargeId ||
+      (item as any).billingItemChargeId ||
+      Math.random().toString(36).substring(2, 9);
 
-  const selectedType = item.selectedChargeType || "General";
-  const uniqueKey = `${id}-${selectedType}`;
+    const selectedType = item.selectedChargeType || "General";
+    const uniqueKey = `${id}-${selectedType}`;
 
-  const charge = item.billingItemCharge || item.chargeData || item;
+    const charge = item.billingItemCharge || item.chargeData || item;
 
-  // -------------------------------
-  // PRICE FIX
-  // -------------------------------
-  let basePrice = 0;
-  if (charge.appointmentTypeId === 1 || charge.appointmentTypeId === 3) {
-    basePrice = Number(charge.walkinPrice || 0);
-  } else if (charge.appointmentTypeId === 2) {
-    basePrice = Number(charge.telePrice || 0);
-  } else {
-    basePrice = Number(item.price || charge.price || 0);
-  }
+    // -------------------------------
+    // PRICE FIX
+    // -------------------------------
+    let basePrice = 0;
+    if (charge.appointmentTypeId === 1 || charge.appointmentTypeId === 3) {
+      basePrice = Number(charge.walkinPrice || 0);
+    } else if (charge.appointmentTypeId === 2) {
+      basePrice = Number(charge.telePrice || 0);
+    } else {
+      basePrice = Number(item.price || charge.price || 0);
+    }
 
-  // -------------------------------
-  // DISCOUNT LOGIC
-  // -------------------------------
-  const maxPercent = Number(charge?.maxDiscountPercent || 0);
-  const maxFlat = Number(charge?.maxDiscountInr || 0);
+    // -------------------------------
+    // DISCOUNT LOGIC
+    // -------------------------------
+    const maxPercent = Number(charge?.maxDiscountPercent || 0);
+    const maxFlat = Number(charge?.maxDiscountInr || 0);
 
-  let autoDiscountAmt = 0;
-  let autoDiscountType: "flat" | "percent" = "flat";
-  let autoDiscountValue = 0;
+    let autoDiscountAmt = 0;
+    let autoDiscountType: "flat" | "percent" = "flat";
+    let autoDiscountValue = 0;
 
-  if (maxPercent > 0) {
-    autoDiscountType = "percent";
-    autoDiscountValue = maxPercent;
-    autoDiscountAmt = (basePrice * maxPercent) / 100;
-  } else if (maxFlat > 0) {
-    autoDiscountType = "flat";
-    autoDiscountValue = maxFlat;
-    autoDiscountAmt = maxFlat;
-  }
+    if (maxPercent > 0) {
+      autoDiscountType = "percent";
+      autoDiscountValue = maxPercent;
+      autoDiscountAmt = (basePrice * maxPercent) / 100;
+    } else if (maxFlat > 0) {
+      autoDiscountType = "flat";
+      autoDiscountValue = maxFlat;
+      autoDiscountAmt = maxFlat;
+    }
 
-  // --------------------------------
-  // ❌ CHECK DUPLICATE BEFORE STATE UPDATE
-  // --------------------------------
-  const alreadyExists = selectedItems.some(
-    (i) => i.uniqueKey === uniqueKey
-  );
+    // --------------------------------
+    // ❌ CHECK DUPLICATE BEFORE STATE UPDATE
+    // --------------------------------
+    const alreadyExists = selectedItems.some((i) => i.uniqueKey === uniqueKey);
 
-  if (alreadyExists) {
+    if (alreadyExists) {
+      toast.current?.show({
+        severity: "warn",
+        summary: "Already Added",
+        detail: `"${item.BillingItemName}" is already selected.`,
+      });
+      return; // stop here
+    }
+
+    // --------------------------------
+    // ✅ SAFE: SHOW SUCCESS ALERT ONLY ONCE
+    // --------------------------------
     toast.current?.show({
-      severity: "warn",
-      summary: "Already Added",
-      detail: `"${item.BillingItemName}" is already selected.`,
+      severity: "success",
+      summary: "Item Added",
+      detail: `"${item.BillingItemName}" added successfully.`,
     });
-    return; // stop here
-  }
 
-  // --------------------------------
-  // ✅ SAFE: SHOW SUCCESS ALERT ONLY ONCE
-  // --------------------------------
-  toast.current?.show({
-    severity: "success",
-    summary: "Item Added",
-    detail: `"${item.BillingItemName}" added successfully.`,
-  });
+    // --------------------------------
+    // UPDATE STATE (NO SIDE-EFFECTS HERE)
+    // --------------------------------
+    setSelectedItems((prev) => [
+      ...prev,
+      {
+        ...item,
+        BillingItemChargeId: id,
+        selectedChargeType: selectedType,
+        uniqueKey,
+        subCategoryName: selectedType,
 
-  // --------------------------------
-  // UPDATE STATE (NO SIDE-EFFECTS HERE)
-  // --------------------------------
-  setSelectedItems((prev) => [
-    ...prev,
-    {
-      ...item,
-      BillingItemChargeId: id,
-      selectedChargeType: selectedType,
-      uniqueKey,
-      subCategoryName: selectedType,
+        price: basePrice,
+        units: 1,
 
-      price: basePrice,
-      units: 1,
+        discount: autoDiscountAmt,
+        discountType: autoDiscountType,
+        discountValue: autoDiscountValue,
 
-      discount: autoDiscountAmt,
-      discountType: autoDiscountType,
-      discountValue: autoDiscountValue,
+        gst: 0,
+        gstType: "flat",
+        gstValue: 0,
+        received: 0,
 
-      gst: 0,
-      gstType: "flat",
-      gstValue: 0,
-      received: 0,
-
-      chargeType: charge?.chargeType,
-      billingItemCharge: charge,
-    },
-  ]);
-};
-
+        chargeType: charge?.chargeType,
+        billingItemCharge: charge,
+      },
+    ]);
+  };
 
   const updateBillingItem = (
     uniqueKey: string,
@@ -890,19 +887,26 @@ const handleAddBillingItem = (item:  BillingItem) => {
 
   const mapBillToForm = (bill: any) => {
     // 1. Load Items
-    const mappedItems = bill.items.map((it: any, index: number) => ({
-      BillingItemChargeId: it.billingItemChargeId,
-      BillingItemName: it.itemName,
-      price: Number(it.price),
-      units: Number(it.units),
-      discount: Number(it.discountAmount),
-      discountType: it.discountType || "flat",
-      discountValue: Number(it.discountValue || 0),
-      gst: Number(it.gstAmount || 0),
-      gstType: it.gstType || "flat",
-      gstValue: Number(it.gstValue || 0),
-      uniqueKey: `${it.billingItemChargeId}-${index}`,
-    }));
+    const mappedItems = bill.BillingTransactionItem.map(
+      (it: any, index: number) => ({
+        BillingItemChargeId: it.billingItemChargeId,
+        BillingItemName: it.itemName,
+        chargeType:
+          it.chargeType ||
+          it.BillingItemCharge?.chargeType ||
+          it.BillingItemCharge?.chargeType?.BillItemTypeName,
+
+        price: Number(it.price),
+        units: Number(it.units),
+        discount: Number(it.discountAmount),
+        discountType: it.discountType || "flat",
+        discountValue: Number(it.discountValue || 0),
+        gst: Number(it.gstAmount || 0),
+        gstType: it.gstType || "flat",
+        gstValue: Number(it.gstValue || 0),
+        uniqueKey: `${it.billingItemChargeId}-${index}`,
+      })
+    );
 
     setSelectedItems(mappedItems);
 
@@ -910,7 +914,7 @@ const handleAddBillingItem = (item:  BillingItem) => {
     const payMap: any = { Cash: 0, Card: 0, Cheque: 0, Other: 0 };
     let prevPaid = 0;
 
-    bill.payments.forEach((p: any) => {
+    bill.BillingPayment.forEach((p: any) => {
       prevPaid += Number(p.amount || 0);
 
       if (payMap[p.paymentMode] !== undefined) {
@@ -980,7 +984,7 @@ const handleAddBillingItem = (item:  BillingItem) => {
 
   const onEditBill = (bill: any) => {
     const totalPrevPaid =
-      bill.payments?.reduce(
+      bill.BillingPayment?.reduce(
         (sum: number, p: any) => sum + Number(p.amount || 0),
         0
       ) || 0;
@@ -1051,7 +1055,7 @@ const handleAddBillingItem = (item:  BillingItem) => {
         billStatusId: 2,
         PaymentStatusId: totalBalance == 0 ? 3 : 2, // 1=Paid,2=Partial,3=Unpaid
 
-        items: dueBill?.items.map((item: any) => ({
+        items: dueBill?.BillingTransactionItem.map((item: any) => ({
           BillingItemChargeId: item.billingItemChargeId,
           BillingItemName: item.itemName,
           quantity: Number(item.units),
@@ -1229,7 +1233,7 @@ const handleAddBillingItem = (item:  BillingItem) => {
   };
 
   const finalizedBills = previousBills.filter(
-    (bill) => bill.billStatus?.StatusName === "Finalized"
+    (bill) => bill.BillStatus?.StatusName === "Finalized"
   );
 
   useEffect(() => {
@@ -2584,15 +2588,15 @@ const handleAddBillingItem = (item:  BillingItem) => {
                         previousBills
                           .filter(
                             (bill: any) =>
-                              bill.billStatus?.StatusName?.toLowerCase() ===
+                              bill.BillStatus?.StatusName?.toLowerCase() ===
                               "finalized"
                           )
                           .map((bill: any) => {
                             const isOpen =
                               expandedBillId === bill.BillingTransactionId;
                             const isPaid =
-                              bill.paymentStatus?.StatusName === "Completed" ||
-                              bill.paymentStatus?.StatusName?.toLowerCase() ===
+                              bill.PaymentStatus?.StatusName === "Completed" ||
+                              bill.PaymentStatus?.StatusName?.toLowerCase() ===
                                 "paid";
 
                             return (
@@ -2641,8 +2645,17 @@ const handleAddBillingItem = (item:  BillingItem) => {
                                               Towards Doctor
                                             </span>
                                             <span className="font-semibold text-gray-800 font-sans">
-                                              Dr. {bill.doctor?.firstName}{" "}
-                                              {bill.doctor?.lastName}
+                                              Dr.{" "}
+                                              {
+                                                bill
+                                                  .User_BillingTransaction_doctorIdToUser
+                                                  ?.firstName
+                                              }{" "}
+                                              {
+                                                bill
+                                                  .User_BillingTransaction_doctorIdToUser
+                                                  ?.lastName
+                                              }
                                             </span>
                                           </div>
                                         </div>
@@ -2654,8 +2667,8 @@ const handleAddBillingItem = (item:  BillingItem) => {
                                               Branch
                                             </span>
                                             <span className="font-semibold text-gray-800 font-sans">
-                                              {bill.hospital?.HospitalName} –{" "}
-                                              {bill.hospital?.city}
+                                              {bill.Hospital?.HospitalName} –{" "}
+                                              {bill.Hospital?.city}
                                             </span>
                                           </div>
                                         </div>
@@ -2667,8 +2680,16 @@ const handleAddBillingItem = (item:  BillingItem) => {
                                               Created By
                                             </span>
                                             <span className="font-semibold text-gray-800 font-sans">
-                                              {bill.createdUser?.firstName}{" "}
-                                              {bill.createdUser?.lastName}
+                                              {
+                                                bill
+                                                  .User_BillingTransaction_createdByToUser
+                                                  ?.firstName
+                                              }{" "}
+                                              {
+                                                bill
+                                                  .User_BillingTransaction_createdByToUser
+                                                  ?.lastName
+                                              }
                                             </span>
                                           </div>
                                         </div>
@@ -2736,7 +2757,7 @@ const handleAddBillingItem = (item:  BillingItem) => {
                                             : "bg-yellow-100 text-yellow-700"
                                         }`}
                                       >
-                                        {bill.paymentStatus?.StatusName}
+                                        {bill.PaymentStatus?.StatusName}
                                       </span>
 
                                       <ChevronDown
@@ -2903,39 +2924,41 @@ const handleAddBillingItem = (item:  BillingItem) => {
                                             </thead>
 
                                             <tbody>
-                                              {bill.items.map((row: any) => (
-                                                <tr
-                                                  key={
-                                                    row.BillingTransactionItemId
-                                                  }
-                                                  className="border-b border-gray-300 hover:bg-pink-50"
-                                                >
-                                                  <td className="p-3">
-                                                    {row.itemName} —{" "}
-                                                    {
-                                                      row.billingItemCharge
-                                                        ?.chargeType
-                                                        ?.BillItemTypeName
+                                              {bill.BillingTransactionItem.map(
+                                                (row: any) => (
+                                                  <tr
+                                                    key={
+                                                      row.BillingTransactionItemId
                                                     }
-                                                  </td>
+                                                    className="border-b border-gray-300 hover:bg-pink-50"
+                                                  >
+                                                    <td className="p-3">
+                                                      {row.itemName} —{" "}
+                                                      {
+                                                        row.BillingItemCharge
+                                                          ?.chargeType
+                                                          ?.BillItemTypeName
+                                                      }
+                                                    </td>
 
-                                                  <td className="p-3 text-right">
-                                                    ₹{row.price}
-                                                  </td>
-                                                  <td className="p-3 text-center">
-                                                    {row.units}
-                                                  </td>
-                                                  <td className="p-3 text-right text-green-600">
-                                                    -₹{row.discountAmount}
-                                                  </td>
-                                                  <td className="p-3 text-right">
-                                                    ₹{row.gstAmount}
-                                                  </td>
-                                                  <td className="p-3 text-right font-semibold">
-                                                    ₹{row.totalAmount}
-                                                  </td>
-                                                </tr>
-                                              ))}
+                                                    <td className="p-3 text-right">
+                                                      ₹{row.price}
+                                                    </td>
+                                                    <td className="p-3 text-center">
+                                                      {row.units}
+                                                    </td>
+                                                    <td className="p-3 text-right text-green-600">
+                                                      -₹{row.discountAmount}
+                                                    </td>
+                                                    <td className="p-3 text-right">
+                                                      ₹{row.gstAmount}
+                                                    </td>
+                                                    <td className="p-3 text-right font-semibold">
+                                                      ₹{row.totalAmount}
+                                                    </td>
+                                                  </tr>
+                                                )
+                                              )}
                                             </tbody>
                                           </table>
                                         </div>
@@ -2948,7 +2971,7 @@ const handleAddBillingItem = (item:  BillingItem) => {
                                           Payment History
                                         </h3>
 
-                                        {bill.payments.length === 0 ? (
+                                        {bill.BillingPayment.length === 0 ? (
                                           <div className="p-6 bg-white rounded-xl border text-gray-500 ">
                                             No payment recorded
                                           </div>
@@ -2981,10 +3004,11 @@ const handleAddBillingItem = (item:  BillingItem) => {
 
                                               <tbody>
                                                 {Array.isArray(
-                                                  bill?.payments
+                                                  bill?.BillingPayment
                                                 ) &&
-                                                bill.payments.length > 0 ? (
-                                                  bill.payments.map(
+                                                bill.BillingPayment.length >
+                                                  0 ? (
+                                                  bill.BillingPayment.map(
                                                     (p: any) => (
                                                       <tr
                                                         key={p.BillingPaymentId}
@@ -3092,7 +3116,7 @@ const handleAddBillingItem = (item:  BillingItem) => {
                             {
                               previousBills.filter(
                                 (b: any) =>
-                                  b.billStatus?.StatusName?.toLowerCase() ===
+                                  b.BillStatus?.StatusName?.toLowerCase() ===
                                   "cancelled"
                               ).length
                             }{" "}
@@ -3112,7 +3136,7 @@ const handleAddBillingItem = (item:  BillingItem) => {
                       {!loadingBills &&
                         previousBills.filter(
                           (b: any) =>
-                            b.billStatus?.StatusName?.toLowerCase() ===
+                            b.BillStatus?.StatusName?.toLowerCase() ===
                             "cancelled"
                         ).length === 0 && (
                           <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl shadow border border-gray-300">
@@ -3128,7 +3152,7 @@ const handleAddBillingItem = (item:  BillingItem) => {
                         previousBills
                           .filter(
                             (bill: any) =>
-                              bill.billStatus?.StatusName?.toLowerCase() ===
+                              bill.BillStatus?.StatusName?.toLowerCase() ===
                               "cancelled"
                           )
                           .map((bill: any) => {
@@ -3151,7 +3175,7 @@ const handleAddBillingItem = (item:  BillingItem) => {
                                   <div className="flex justify-between items-start gap-4">
                                     <div className="space-y-2">
                                       <h2 className="font-semibold text-gray-800">
-                                        {bill.OPInvoiceNo}
+                                        Invoice No.: {bill.OPInvoiceNo}
                                       </h2>
                                       <p className="text-sm text-gray-500">
                                         {new Date(bill.billDate).toLocaleString(
@@ -3173,12 +3197,12 @@ const handleAddBillingItem = (item:  BillingItem) => {
                                 </div>
 
                                 {isOpen && (
-                                  <div className="border-t p-6 bg-red-50">
-                                    <p className="text-gray-700 text-sm">
+                                  <div className="border-t p-6 bg-red-50 border-gray-300 ">
+                                    <p className="text-gray-600 text-sm">
                                       Cancelled By:{" "}
                                       <strong>
-                                        {bill.cancelledUser.firstName || "-"}{" "}
-                                        {bill.cancelledUser.lastName}
+                                        {bill?.User_BillingTransaction_cancelledByToUser?.firstName || "-"}{" "}
+                                        {bill?.User_BillingTransaction_cancelledByToUser?.lastName}
                                       </strong>
                                     </p>
 
@@ -3229,7 +3253,7 @@ const handleAddBillingItem = (item:  BillingItem) => {
                             {
                               previousBills.filter(
                                 (b: any) =>
-                                  b.billStatus?.StatusName?.toLowerCase() ===
+                                  b.BillStatus?.StatusName?.toLowerCase() ===
                                   "draft"
                               ).length
                             }{" "}
@@ -3252,7 +3276,7 @@ const handleAddBillingItem = (item:  BillingItem) => {
                       {!loadingBills &&
                         previousBills.filter(
                           (b: any) =>
-                            b.billStatus?.StatusName?.toLowerCase() === "draft"
+                            b.BillStatus?.StatusName?.toLowerCase() === "draft"
                         ).length === 0 && (
                           <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl shadow border border-gray-300">
                             <NotepadTextDashed className="w-16 h-16 text-gray-300 mb-4" />
@@ -3267,7 +3291,7 @@ const handleAddBillingItem = (item:  BillingItem) => {
                         previousBills
                           .filter(
                             (bill: any) =>
-                              bill.billStatus?.StatusName?.toLowerCase() ===
+                              bill.BillStatus?.StatusName?.toLowerCase() ===
                               "draft"
                           )
                           .map((bill: any) => {
@@ -3363,27 +3387,29 @@ const handleAddBillingItem = (item:  BillingItem) => {
                                           </thead>
 
                                           <tbody>
-                                            {bill.items.map((item: any) => (
-                                              <tr
-                                                key={
-                                                  item.BillingTransactionItemId
-                                                }
-                                                className="border-b hover:bg-blue-50 border-gray-300"
-                                              >
-                                                <td className="p-3">
-                                                  {item.itemName}
-                                                </td>
-                                                <td className="p-3 text-right">
-                                                  ₹{item.price}
-                                                </td>
-                                                <td className="p-3 text-center">
-                                                  {item.units}
-                                                </td>
-                                                <td className="p-3 text-right font-semibold">
-                                                  ₹{item.totalAmount}
-                                                </td>
-                                              </tr>
-                                            ))}
+                                            {bill.BillingTransactionItem.map(
+                                              (item: any) => (
+                                                <tr
+                                                  key={
+                                                    item.BillingTransactionItemId
+                                                  }
+                                                  className="border-b hover:bg-blue-50 border-gray-300"
+                                                >
+                                                  <td className="p-3">
+                                                    {item.itemName}
+                                                  </td>
+                                                  <td className="p-3 text-right">
+                                                    ₹{item.price}
+                                                  </td>
+                                                  <td className="p-3 text-center">
+                                                    {item.units}
+                                                  </td>
+                                                  <td className="p-3 text-right font-semibold">
+                                                    ₹{item.totalAmount}
+                                                  </td>
+                                                </tr>
+                                              )
+                                            )}
                                           </tbody>
                                         </table>
                                       </div>
@@ -3422,7 +3448,7 @@ const handleAddBillingItem = (item:  BillingItem) => {
                             {
                               previousBills.filter(
                                 (b: any) =>
-                                  b.billStatus?.StatusName?.toLowerCase() ===
+                                  b.BillStatus?.StatusName?.toLowerCase() ===
                                   "cancelleddraft"
                               ).length
                             }{" "}
@@ -3445,7 +3471,7 @@ const handleAddBillingItem = (item:  BillingItem) => {
                       {!loadingBills &&
                         previousBills.filter(
                           (b: any) =>
-                            b.billStatus?.StatusName?.toLowerCase() ===
+                            b.BillStatus?.StatusName?.toLowerCase() ===
                             "cancelleddraft"
                         ).length === 0 && (
                           <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl shadow border border-gray-300">
@@ -3461,7 +3487,7 @@ const handleAddBillingItem = (item:  BillingItem) => {
                         previousBills
                           .filter(
                             (bill: any) =>
-                              bill.billStatus?.StatusName?.toLowerCase() ===
+                              bill.BillStatus?.StatusName?.toLowerCase() ===
                               "cancelleddraft"
                           )
                           .map((bill: any) => {
@@ -3557,27 +3583,29 @@ const handleAddBillingItem = (item:  BillingItem) => {
                                           </thead>
 
                                           <tbody>
-                                            {bill.items.map((item: any) => (
-                                              <tr
-                                                key={
-                                                  item.BillingTransactionItemId
-                                                }
-                                                className="border-b hover:bg-blue-50 border-gray-300"
-                                              >
-                                                <td className="p-3">
-                                                  {item.itemName}
-                                                </td>
-                                                <td className="p-3 text-right">
-                                                  ₹{item.price}
-                                                </td>
-                                                <td className="p-3 text-center">
-                                                  {item.units}
-                                                </td>
-                                                <td className="p-3 text-right font-semibold">
-                                                  ₹{item.totalAmount}
-                                                </td>
-                                              </tr>
-                                            ))}
+                                            {bill.BillingTransactionItem.map(
+                                              (item: any) => (
+                                                <tr
+                                                  key={
+                                                    item.BillingTransactionItemId
+                                                  }
+                                                  className="border-b hover:bg-blue-50 border-gray-300"
+                                                >
+                                                  <td className="p-3">
+                                                    {item.itemName}
+                                                  </td>
+                                                  <td className="p-3 text-right">
+                                                    ₹{item.price}
+                                                  </td>
+                                                  <td className="p-3 text-center">
+                                                    {item.units}
+                                                  </td>
+                                                  <td className="p-3 text-right font-semibold">
+                                                    ₹{item.totalAmount}
+                                                  </td>
+                                                </tr>
+                                              )
+                                            )}
                                           </tbody>
                                         </table>
                                       </div>
