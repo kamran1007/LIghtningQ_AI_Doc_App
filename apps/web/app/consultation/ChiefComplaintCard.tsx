@@ -7,6 +7,7 @@ import {
   FetchChiefComplaint,
 } from "@/lib/consultation"; // adjust path as needed
 import { getProfile } from "@/lib/action";
+import { Spinner } from "@/components/ui/spinner";
 
 interface ComplaintOption {
   label: string;
@@ -35,14 +36,19 @@ export const ChiefComplaintCard = ({
     !!complaintText // open if remark already exists
   );
   const [chiefInputValue, setChiefInputValue] = useState("");
+  const [loadingChiefComplaints, setLoadingChiefComplaints] = useState(true);
 
   // console.log("ChiefComplaintCard rendered", chiefComplaintOptions);
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoadingChiefComplaints(true);
+
         const resp = await getProfile();
         setUserprofiledata(resp);
+
         const response = await FetchChiefComplaint();
+
         const transformed = response?.return.map((item: any) => ({
           label: item.ChiefComplainTagName,
           value: item.ChiefComplainTagName,
@@ -52,11 +58,14 @@ export const ChiefComplaintCard = ({
         setChiefComplaintOptions(transformed);
       } catch (error) {
         console.error("Failed to fetch chief complaints:", error);
+      } finally {
+        setLoadingChiefComplaints(false);
       }
     };
 
     fetchData();
   }, []);
+
   const handleCreateOption = async (inputValue: string) => {
     const newTag = {
       ChiefComplainTagName: inputValue,
@@ -117,7 +126,14 @@ export const ChiefComplaintCard = ({
         isDisabled={disabled}
         options={chiefComplaintOptions}
         styles={customsStyles}
-        value={(selectedChiefComplaints || []).map((c:any) => ({
+        isLoading={loadingChiefComplaints} // 🔥 Show spinner
+        loadingMessage={() => (
+          <div className="flex items-center gap-2 text-sm">
+              <span className="animate-spin w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full"></span>
+            Loading complaints...
+          </div>
+        )}
+        value={(selectedChiefComplaints || []).map((c: any) => ({
           label: c?.label,
           value: c?.value,
         }))}

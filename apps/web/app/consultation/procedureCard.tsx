@@ -57,6 +57,7 @@ export default function ProcedureInputCard({
   const [procedureInputValue, setProcedureInputValue] = useState("");
   const [expandedMap, setExpandedMap] = useState<Record<string, boolean>>({});
   const [filteredOptions, setFilteredOptions] = useState<Option[]>([]);
+  const [loadingProcedures, setLoadingProcedures] = useState(true);
 
   const {
     transcript,
@@ -93,6 +94,8 @@ export default function ProcedureInputCard({
   // };
   const fetchProcedures = async () => {
     try {
+      setLoadingProcedures(true); // ⬅️ START LOADING
+
       const profile = await getProfile();
       setUserprofiledata(profile);
 
@@ -122,6 +125,8 @@ export default function ProcedureInputCard({
     } catch (err) {
       console.error("❌ Failed to fetch procedures:", err);
       return [];
+    } finally {
+      setLoadingProcedures(false); // ⬅️ STOP LOADING
     }
   };
 
@@ -236,8 +241,8 @@ export default function ProcedureInputCard({
 
   const selectedOptions: Option[] = procedures.map((proc: any) => ({
     label: proc.label,
-    value: proc.label,
-    BillingItemChargeId: proc.ProcedureId ?? 0,
+    value: proc.ProcedureId,
+    BillingItemChargeId: proc.ProcedureId, // match options list
   }));
 
   // 🧠 Expand remark boxes for filled remarks
@@ -293,6 +298,13 @@ export default function ProcedureInputCard({
           isMulti
           isDisabled={disabled}
           options={filteredOptions}
+          isLoading={loadingProcedures} // ⬅️ turn on spinner
+          loadingMessage={() => (
+            <div className="flex items-center gap-2 px-2 py-1 text-sm text-blue-600">
+              <span className="animate-spin w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full"></span>
+              Loading procedures...
+            </div>
+          )}
           value={selectedOptions}
           onChange={(selected) => {
             setProcedures(

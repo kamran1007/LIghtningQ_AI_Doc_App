@@ -1,4 +1,4 @@
-import { IsBoolean, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsInt, IsOptional, IsString } from "class-validator";
 
 export class CreatePatientPackageUsageDto {
   @IsOptional()
@@ -18,7 +18,7 @@ export class CreatePatientPackageUsageDto {
   IsFreeFollowUp?: boolean;
 
   @IsOptional()
-  @IsBoolean()
+  @IsInt()      // <-- FIX THIS
   packageId?: number;
 
   @IsOptional()
@@ -29,10 +29,11 @@ export class CreatePatientPackageUsageDto {
   @IsInt()
   consultationId?: number;
 
+  @IsOptional()
   @IsInt()
   billingItemChargeId?: number;
 
   @IsOptional()
   @IsString()
-  status?: string; // defaults to Active
+  status?: string;
 }

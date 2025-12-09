@@ -53,6 +53,7 @@ const InvestigationCard = ({
   const [activeField, setActiveField] = useState<string | null>(null);
   const [filteredInvestigationOptions, setFilteredInvestigationOptions] =
     useState<any[]>([]);
+  const [loadingInvestigations, setLoadingInvestigations] = useState(true);
 
   // Speech recognition with proper field handling
   const {
@@ -153,6 +154,8 @@ const InvestigationCard = ({
 
   const fetchOptions = async () => {
     try {
+      setLoadingInvestigations(true);
+
       const resp = await GetBillingItem({
         chargeType: "INVESTIGATION",
         limit: 200,
@@ -202,6 +205,8 @@ const InvestigationCard = ({
       console.log("✅ Investigation Groups with Colors:", formatted);
     } catch (error) {
       console.error("❌ Error fetching investigation billing items:", error);
+    } finally {
+      setLoadingInvestigations(false);
     }
   };
 
@@ -352,6 +357,13 @@ const InvestigationCard = ({
           isMulti
           isDisabled={disabled}
           options={filteredInvestigationOptions}
+          isLoading={loadingInvestigations}
+          loadingMessage={() => (
+            <div className="flex items-center gap-2 px-2 py-1 text-sm text-gray-600">
+              <span className="animate-spin w-4 h-4 border-2 border-pink-400 border-t-transparent rounded-full"></span>
+              Loading investigations...
+            </div>
+          )}
           value={(form.investigations || []).map((v: any) => ({
             ...v,
             value: String(v.value || v.InvestigationSubTypeId),

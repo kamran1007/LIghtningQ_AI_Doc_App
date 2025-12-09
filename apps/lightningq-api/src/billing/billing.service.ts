@@ -230,223 +230,223 @@ export class BillingService {
     return `${financialYear}${hospitalCode}R${type}${padded}`;
   }
 
- async createOrUpdateBilling(data: any, userId: number) {
-  data.billingTransactionId =
-    data.billingTransactionId ?? data.BillingTransactionId ?? null;
+  async createOrUpdateBilling(data: any, userId: number) {
+    data.billingTransactionId =
+      data.billingTransactionId ?? data.BillingTransactionId ?? null;
 
-  const isEdit = !!data.billingTransactionId;
+    const isEdit = !!data.billingTransactionId;
 
-  // --------------------------------------------------------
-  // 1️⃣ FAST TRANSACTION - Only writes, no heavy reads
-  // --------------------------------------------------------
-  const billingId = await this.prisma.$transaction(async (tx) => {
-    let billing;
+    // --------------------------------------------------------
+    // 1️⃣ FAST TRANSACTION - Only writes, no heavy reads
+    // --------------------------------------------------------
+    const billingId = await this.prisma.$transaction(async (tx) => {
+      let billing;
 
-    // ----------------------
-    // CREATE MODE
-    // ----------------------
-    if (!isEdit) {
-      const hospital = await tx.hospital.findUnique({
-        where: { HospitalId: data.hospitalId },
-      });
-      if (!hospital) throw new NotFoundException('Hospital not found');
+      // ----------------------
+      // CREATE MODE
+      // ----------------------
+      if (!isEdit) {
+        const hospital = await tx.hospital.findUnique({
+          where: { HospitalId: data.hospitalId },
+        });
+        if (!hospital) throw new NotFoundException('Hospital not found');
 
-      const hospitalCode = hospital.HospitalCode || 'HOS';
+        const hospitalCode = hospital.HospitalCode || 'HOS';
 
-      const OPInvoiceNo = await this.generateInvoiceNumber(
-        tx,
-        data.hospitalId,
-        hospitalCode,
-      );
+        const OPInvoiceNo = await this.generateInvoiceNumber(
+          tx,
+          data.hospitalId,
+          hospitalCode,
+        );
 
-      const paymentStatusName = this.determinePaymentStatus(
-        data.amountPaid,
-        data.netAmount,
-      );
+        const paymentStatusName = this.determinePaymentStatus(
+          data.amountPaid,
+          data.netAmount,
+        );
 
-      const paymentStatus = await tx.paymentStatus.findFirst({
-        where: { StatusName: paymentStatusName },
-      });
+        const paymentStatus = await tx.paymentStatus.findFirst({
+          where: { StatusName: paymentStatusName },
+        });
 
-      const billStatus = await tx.billStatus.findFirst({
-        where: { StatusName: 'Finalized' },
-      });
+        const billStatus = await tx.billStatus.findFirst({
+          where: { StatusName: 'Finalized' },
+        });
 
-      billing = await tx.billingTransaction.create({
-        data: {
-          OPInvoiceNo,
-          billDate: new Date(),
-          patientId: data.patientId,
-          appointmentId: data.appointmentId,
-          hospitalId: data.hospitalId,
-          organizationId: data.organizationId,
-          doctorId: data.doctorId,
-          createdBy: userId,
-          subtotal: data.subtotal,
-          totalDiscount: data.totalDiscount,
-          totalTax: data.totalTax,
-          overallDiscountType: data.overallDiscountType,
-          overallDiscountValue: data.overallDiscountValue,
-          netAmount: data.netAmount,
-          amountPaid: data.amountPaid,
-          balanceDue: data.netAmount - data.amountPaid,
-          remarks: data.remarks,
-          billStatusId: data.billStatusId ?? undefined,
-            paymentStatusId: data.PaymentStatusId ?? undefined,
-          updatedAt: new Date(),
-        },
-      });
-    }
-
-    // ----------------------
-    // UPDATE MODE
-    // ----------------------
-    else {
-      billing = await tx.billingTransaction.update({
-        where: { BillingTransactionId: data.billingTransactionId },
-        data: {
-          patientId: data.patientId,
-          appointmentId: data.appointmentId,
-          hospitalId: data.hospitalId,
-          organizationId: data.organizationId,
-          doctorId: data.doctorId,
-          subtotal: data.subtotal,
-          totalDiscount: data.totalDiscount,
-          totalTax: data.totalTax,
-          overallDiscountType: data.overallDiscountType,
-          overallDiscountValue: data.overallDiscountValue,
-          netAmount: data.netAmount,
-          amountPaid: data.amountPaid,
-          balanceDue: data.netAmount - data.amountPaid,
-          remarks: data.remarks,
-          billStatusId: data.billStatusId,
-          paymentStatusId: data.PaymentStatusId,
-        },
-      });
-
-      // Delete items only (not payments)
-      await tx.billingTransactionItem.deleteMany({
-        where: { billingTransactionId: billing.BillingTransactionId },
-      });
-    }
-
-    // ----------------------
-    // INSERT ITEMS
-    // ----------------------
-    if (data.items?.length) {
-      await tx.billingTransactionItem.createMany({
-        data: data.items.map((item) => ({
-          billingTransactionId: billing.BillingTransactionId,
-          billingItemChargeId: item.BillingItemChargeId,
-          itemName: item.BillingItemName,
-          chargeType: item.chargeType || null,
-          units: item.quantity || 1,
-          price: item.price,
-          discountType: item.discountType || 'flat',
-          discountValue: item.discountValue || 0,
-          discountAmount: item.discount || 0,
-          gstType: item.gstType || 'flat',
-          gstValue: item.gstValue || 0,
-          gstAmount: item.gst || 0,
-          totalAmount: item.netAmount,
-        })),
-      });
-    }
-
-    // ----------------------
-    // INSERT PAYMENTS (append only)
-    // ----------------------
-    if (data.payments?.length) {
-      for (const p of data.payments) {
-        const payment = await tx.billingPayment.create({
+        billing = await tx.billingTransaction.create({
           data: {
-            billingTransactionId: billing.BillingTransactionId,
-            paymentMode: p.paymentMode,
-            amount: p.amount,
-            referenceNumber: p.referenceNumber || null,
-            remarks: p.remarks || null,
-            createdAt: p.createdAt ? new Date(p.createdAt) : new Date(),
+            OPInvoiceNo,
+            billDate: new Date(),
+            patientId: data.patientId,
+            appointmentId: data.appointmentId,
+            hospitalId: data.hospitalId,
+            organizationId: data.organizationId,
+            doctorId: data.doctorId,
+            createdBy: userId,
+            subtotal: data.subtotal,
+            totalDiscount: data.totalDiscount,
+            totalTax: data.totalTax,
+            overallDiscountType: data.overallDiscountType,
+            overallDiscountValue: data.overallDiscountValue,
+            netAmount: data.netAmount,
+            amountPaid: data.amountPaid,
+            balanceDue: data.netAmount - data.amountPaid,
+            remarks: data.remarks,
+            billStatusId: data.billStatusId ?? undefined,
+            paymentStatusId: data.PaymentStatusId ?? undefined,
+            updatedAt: new Date(),
+          },
+        });
+      }
+
+      // ----------------------
+      // UPDATE MODE
+      // ----------------------
+      else {
+        billing = await tx.billingTransaction.update({
+          where: { BillingTransactionId: data.billingTransactionId },
+          data: {
+            patientId: data.patientId,
+            appointmentId: data.appointmentId,
+            hospitalId: data.hospitalId,
+            organizationId: data.organizationId,
+            doctorId: data.doctorId,
+            subtotal: data.subtotal,
+            totalDiscount: data.totalDiscount,
+            totalTax: data.totalTax,
+            overallDiscountType: data.overallDiscountType,
+            overallDiscountValue: data.overallDiscountValue,
+            netAmount: data.netAmount,
+            amountPaid: data.amountPaid,
+            balanceDue: data.netAmount - data.amountPaid,
+            remarks: data.remarks,
+            billStatusId: data.billStatusId,
+            paymentStatusId: data.PaymentStatusId,
           },
         });
 
-        const hospital = await tx.hospital.findUnique({
-          where: { HospitalId: billing.hospitalId },
-        });
-
-        const receipt = this.generateReceiptNo(
-          payment.BillingPaymentId,
-          hospital?.HospitalCode || 'HOS',
-          billing.billType === 'OPD' ? 'OP' : 'IP',
-        );
-
-        await tx.billingPayment.update({
-          where: { BillingPaymentId: payment.BillingPaymentId },
-          data: { PaymentReceptNo: receipt },
+        // Delete items only (not payments)
+        await tx.billingTransactionItem.deleteMany({
+          where: { billingTransactionId: billing.BillingTransactionId },
         });
       }
-    }
 
-    // ----------------------
-    // HISTORY
-    // ----------------------
-    await tx.billingHistory.create({
-      data: {
-        BillingTransactionId: billing.BillingTransactionId,
-        historyType: isEdit ? 'updated' : 'created',
-        remarks: isEdit ? 'Bill updated' : 'Bill created',
-        snapshot: {},
-        createdBy: userId,
+      // ----------------------
+      // INSERT ITEMS
+      // ----------------------
+      if (data.items?.length) {
+        await tx.billingTransactionItem.createMany({
+          data: data.items.map((item) => ({
+            billingTransactionId: billing.BillingTransactionId,
+            billingItemChargeId: item.BillingItemChargeId,
+            itemName: item.BillingItemName,
+            chargeType: item.chargeType || null,
+            units: item.quantity || 1,
+            price: item.price,
+            discountType: item.discountType || 'flat',
+            discountValue: item.discountValue || 0,
+            discountAmount: item.discount || 0,
+            gstType: item.gstType || 'flat',
+            gstValue: item.gstValue || 0,
+            gstAmount: item.gst || 0,
+            totalAmount: item.netAmount,
+          })),
+        });
+      }
+
+      // ----------------------
+      // INSERT PAYMENTS (append only)
+      // ----------------------
+      if (data.payments?.length) {
+        for (const p of data.payments) {
+          const payment = await tx.billingPayment.create({
+            data: {
+              billingTransactionId: billing.BillingTransactionId,
+              paymentMode: p.paymentMode,
+              amount: p.amount,
+              referenceNumber: p.referenceNumber || null,
+              remarks: p.remarks || null,
+              createdAt: p.createdAt ? new Date(p.createdAt) : new Date(),
+            },
+          });
+
+          const hospital = await tx.hospital.findUnique({
+            where: { HospitalId: billing.hospitalId },
+          });
+
+          const receipt = this.generateReceiptNo(
+            payment.BillingPaymentId,
+            hospital?.HospitalCode || 'HOS',
+            billing.billType === 'OPD' ? 'OP' : 'IP',
+          );
+
+          await tx.billingPayment.update({
+            where: { BillingPaymentId: payment.BillingPaymentId },
+            data: { PaymentReceptNo: receipt },
+          });
+        }
+      }
+
+      // ----------------------
+      // HISTORY
+      // ----------------------
+      await tx.billingHistory.create({
+        data: {
+          BillingTransactionId: billing.BillingTransactionId,
+          historyType: isEdit ? 'updated' : 'created',
+          remarks: isEdit ? 'Bill updated' : 'Bill created',
+          snapshot: {},
+          createdBy: userId,
+        },
+      });
+
+      // Return only ID to avoid timeout
+      return billing.BillingTransactionId;
+    }); // END TRANSACTION
+
+    // --------------------------------------------------------
+    // 2️⃣ HEAVY FETCH OUTSIDE TRANSACTION (NO TIMEOUT)
+    // --------------------------------------------------------
+    const fullBill = await this.prisma.billingTransaction.findUnique({
+      where: { BillingTransactionId: billingId },
+      include: {
+        Patient: true,
+        User_BillingTransaction_doctorIdToUser: {
+          include: { Specialization: true },
+        },
+        Hospital: true,
+        Organization: true,
+        BillStatus: true,
+        PaymentStatus: true,
+        User_BillingTransaction_createdByToUser: true,
+
+        BillingTransactionItem: {
+          include: {
+            BillingItemCharge: {
+              include: { chargeType: true },
+            },
+          },
+        },
+
+        BillingPayment: true,
+
+        BillingHistory: {
+          include: {
+            BillingHistoryDetails: {
+              include: { HistoryPaymentInfo: true },
+            },
+          },
+        },
       },
     });
 
-    // Return only ID to avoid timeout
-    return billing.BillingTransactionId;
-  }); // END TRANSACTION
-
-  // --------------------------------------------------------
-  // 2️⃣ HEAVY FETCH OUTSIDE TRANSACTION (NO TIMEOUT)
-  // --------------------------------------------------------
-  const fullBill = await this.prisma.billingTransaction.findUnique({
-    where: { BillingTransactionId: billingId },
-    include: {
-      Patient: true,
-      User_BillingTransaction_doctorIdToUser: {
-        include: { Specialization: true },
-      },
-      Hospital: true,
-      Organization: true,
-      BillStatus: true,
-      PaymentStatus: true,
-      User_BillingTransaction_createdByToUser: true,
-
-      BillingTransactionItem: {
-        include: {
-          BillingItemCharge: {
-            include: { chargeType: true },
-          },
-        },
-      },
-
-      BillingPayment: true,
-
-      BillingHistory: {
-        include: {
-          BillingHistoryDetails: {
-            include: { HistoryPaymentInfo: true },
-          },
-        },
-      },
-    },
-  });
-
-  return {
-    message: isEdit
-      ? 'Billing updated successfully'
-      : 'Billing created successfully',
-    data: fullBill,
-  };
-}
-
+    return {
+      message: isEdit
+        ? 'Billing updated successfully'
+        : 'Billing created successfully',
+      data: fullBill,
+    };
+  }
+  
 
   async cancelBilling(
     billingTransactionId: number,
@@ -589,6 +589,12 @@ export class BillingService {
         data.consultationId = dto.consultationId;
       if (dto.billingItemChargeId !== undefined)
         data.billingItemChargeId = dto.billingItemChargeId;
+
+      // ✅ ADD THESE TWO
+      if (dto.IsFastTrack !== undefined) data.IsFastTrack = dto.IsFastTrack;
+      if (dto.IsFreeFollowUp !== undefined)
+        data.IsFreeFollowUp = dto.IsFreeFollowUp;
+
       if (dto.status !== undefined) data.status = dto.status;
 
       return this.prisma.patientPackageUsage.update({
@@ -607,6 +613,12 @@ export class BillingService {
       createData.consultationId = dto.consultationId;
     if (dto.billingItemChargeId !== undefined)
       createData.billingItemChargeId = dto.billingItemChargeId;
+
+    // ✅ ADD THESE TWO
+    if (dto.IsFastTrack !== undefined) createData.IsFastTrack = dto.IsFastTrack;
+    if (dto.IsFreeFollowUp !== undefined)
+      createData.IsFreeFollowUp = dto.IsFreeFollowUp;
+
     if (dto.status !== undefined) createData.status = dto.status;
 
     return this.prisma.patientPackageUsage.create({
