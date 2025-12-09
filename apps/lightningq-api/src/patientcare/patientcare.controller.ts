@@ -4,6 +4,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
+  HttpStatus,
   InternalServerErrorException,
   Param,
   ParseIntPipe,
@@ -32,11 +34,14 @@ import { CreateDiagnosisDto } from 'src/consultation/dto/create-diagnosis.dto';
 import { CreateChiefComplaintDto } from 'src/consultation/dto/CreateCheifcomplaint.dto';
 import { CreateMedicineDto } from 'src/consultation/dto/create-medicine.dto';
 import { ConsultationProcedureDto } from 'src/consultation/dto/CreateOrUpdateConsultationDto';
+import { ConsultationActionDto } from 'src/appointment/dto/consultation-action.dto';
+import { AppointmentService } from 'src/appointment/appointment.service';
 @Controller('patientcare')
 export class PatientcareController {
   constructor(
     private readonly patientcareService: PatientcareService,
     private readonly prisma: PrismaService,
+    private ManageAppointment: AppointmentService,
   ) {}
 
   @Patch('upsertPatient')
@@ -253,7 +258,7 @@ export class PatientcareController {
       gender, // lowercase
       GenderName, // uppercase
       SpecializationId,
-      isConsultationcompleted,
+      consultationStatus,
       acuity,
       search,
       appointmentDate,
@@ -275,7 +280,7 @@ export class PatientcareController {
       TagPatientId: Number(TagPatientId),
       GenderName: gender || GenderName, // normalize
       SpecializationId: Number(SpecializationId),
-      isConsultationcompleted,
+      consultationStatus,
       acuity,
       search,
       appointmentDate,
@@ -479,7 +484,74 @@ export class PatientcareController {
   }
 
   @Get('getPatientMedications/:patientId')
-  async getPatientMedications(@Param('patientId', ParseIntPipe) patientId: number) {
+  async getPatientMedications(
+    @Param('patientId', ParseIntPipe) patientId: number,
+  ) {
     return this.patientcareService.getPatientMedications(patientId);
+  }
+
+  @Post(':id/start')
+  async startConsultation(
+    @Param('id') id: string,
+    @Body() body: ConsultationActionDto,
+  ) {
+    const appointmentId = Number(id);
+    if (isNaN(appointmentId)) {
+      throw new HttpException('Invalid Appointment ID', HttpStatus.BAD_REQUEST);
+    }
+
+    const result = await this.ManageAppointment.startConsultation(
+      appointmentId,
+      Number(body.userId),
+    );
+
+    return {
+      message: 'Consultation started',
+      status: 'success',
+      appointment: result,
+    };
+  }
+
+  // 👉 COMPLETE consultation
+  @Post(':appointmentId/complete')
+  async completeConsultation(
+    @Param('appointmentId') appointmentId: string,
+    @Body('consultationId') consultationId: string,
+    @Req() req,
+  ) {
+    if (isNaN(Number(appointmentId))) {
+      throw new HttpException('Invalid Appointment ID', HttpStatus.BAD_REQUEST);
+    }
+
+    if (isNaN(Number(consultationId))) {
+      throw new HttpException(
+        'Invalid Consultation ID',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const userId = req.user?.UserId;
+
+    return this.ManageAppointment.completeConsultation(
+      Number(appointmentId),
+      Number(consultationId),
+      Number(userId),
+    );
+  }
+
+  // 👉 MARK INCOMPLETE
+  @Post(':appointmentId/incomplete')
+  async markIncomplete(
+    @Param('appointmentId') appointmentId: number,
+    @Body('consultationId') consultationId: number,
+    @Req() req,
+  ) {
+    const userId = req.user?.UserId;
+
+    return this.ManageAppointment.markIncomplete(
+      appointmentId,
+      consultationId,
+      userId,
+    );
   }
 }

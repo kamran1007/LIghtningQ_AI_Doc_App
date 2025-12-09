@@ -1,0 +1,2 @@
+-- This migration was already handled manually in the live database.
+-- No SQL changes needed here.

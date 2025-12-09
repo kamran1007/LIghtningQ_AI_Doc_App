@@ -1,0 +1,3 @@
+-- EMPTY BASELINE FIX
+-- This migration intentionally contains no SQL.
+-- Its purpose is to sync Prisma migration history with the current DB schema.

@@ -178,7 +178,9 @@ body {
 }
 /* Add this to your global CSS */
 .input-gradient {
-  @apply w-full h-14 px-4 rounded-md border border-gray-300 transition duration-100 bg-white outline-none;
+  @apply w-full px-4 rounded-md border border-gray-300 transition duration-100 bg-white outline-none;
+  height: 3.5rem;
+  /* replaces h-14 */
 }
 
 .input-gradient:focus {
@@ -624,25 +626,26 @@ input[type="checkbox"].gradient-checkbox:checked {
   box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);
 }
 
-/* Custom Scrollbar */
+/* Professional Scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #feffff;
-  /* slate-900 */
+  background: transparent;
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #829c99, #8ba4af);
-  /* teal → sky */
-  border-radius: 9999px;
-  border: 1px solid #ffffff;
-  /* creates padding effect */
+  background: rgba(120, 120, 120, 0.25);
+  border-radius: 10px;
+  transition: background 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #65c7ce, #6deee7);
-  /* sky → blue */
+  background: rgba(120, 120, 120, 0.45);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
 }

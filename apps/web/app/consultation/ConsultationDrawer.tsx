@@ -105,6 +105,14 @@ import successAnimation from "@/assets/Success.json";
 import { useSelector } from "react-redux";
 import PatientCaseHistory from "app/patientvisithistory/CaseHistory";
 import { Procedure } from "@/types/consultation";
+import { RootState } from "@/store";
+import {
+  addupdatePatientPackageUsage,
+  addupdatePatientsyncPatientPackageUsage,
+  getPatientPackageUsage,
+} from "@/lib/billing";
+import axios from "axios";
+import { completeConsultation, markIncomplete } from "@/lib/patientcare";
 
 export default function ConsultationDrawer({
   open,
@@ -175,6 +183,24 @@ export default function ConsultationDrawer({
       dateStyle: "medium",
       timeStyle: "short",
     }).format(date);
+  }
+  interface PatientPackageUsage {
+    PatientPackageUsageId: number;
+    patientId: number;
+    appointmentId?: number;
+    consultationId?: number;
+    status?: string;
+
+    IsFastTrack: boolean;
+    IsFreeFollowUp: boolean;
+
+    billingItemChargeId: number;
+
+    billingItemCharge?: {
+      BillingItemChargeId: number;
+      BillingItemName: string;
+      price?: number;
+    };
   }
 
   const [form, setForm] = useState<ConsultationFormValues>({
@@ -309,9 +335,12 @@ export default function ConsultationDrawer({
 
   // Investigations
   type Investigation = {
-    InvestigationTypeId: number;
-    InvestigationSubTypeId: number;
-    value: string; // for select mapping
+    BillingItemChargeId: number; // ✅ ADD THIS
+    InvestigationTypeId?: number;
+    InvestigationSubTypeId?: number;
+    label?: string;
+    value?: string | number; // ✅ optional for select usage
+    color?: string;
   };
 
   // Diagnosis
@@ -380,8 +409,10 @@ export default function ConsultationDrawer({
   const selectedHospital = useSelector(
     (state: any) => state.hospitalSelection?.selectedHospital
   );
+  const UserHospitalData = useSelector((state: any) => state);
   const [isDisabled, setIsDisabled] = useState(true);
   const [isCaseHistoryOpen, setIsCaseHistoryOpen] = useState(false);
+  const [advisedItems, setAdvisedItems] = useState<PatientPackageUsage[]>([]);
 
   // console.log("Selected Chief Complaints:", selectedChiefComplaints);
   const dispatch = useAppDispatch();
@@ -566,26 +597,88 @@ export default function ConsultationDrawer({
   };
 
   const customsStyles: StylesConfig<any, true> = {
-    control: (base) => ({
+    control: (base, state) => ({
       ...base,
       minHeight: 44,
-      fontSize: 14,
+      padding: "2px 6px",
+      borderRadius: "12px",
+      borderColor: state.isFocused ? "#38bdf8" : "#d1d5db",
+      boxShadow: state.isFocused
+        ? "0 0 0 3px rgba(56, 189, 248, 0.25)"
+        : "none",
+      transition: "0.2s ease",
+      backgroundColor: "white",
+      fontSize: "14px",
     }),
-    valueContainer: (base) => ({
-      ...base,
-      padding: "4px 6px",
-    }),
-    multiValue: (base) => ({
-      ...base,
-      backgroundColor: "#E0F2FE",
-    }),
-    multiValueLabel: (base) => ({
-      ...base,
-      color: "#0369A1",
-    }),
+
     placeholder: (base) => ({
       ...base,
-      fontSize: 14,
+      fontSize: "14px",
+      color: "#9ca3af",
+      letterSpacing: "0.02em",
+    }),
+
+    valueContainer: (base) => ({
+      ...base,
+      padding: "4px 8px",
+      gap: "4px",
+    }),
+
+    multiValue: (base) => ({
+      ...base,
+      backgroundColor: "#f0f9ff",
+      borderRadius: "8px",
+      padding: "2px 6px",
+    }),
+
+    multiValueLabel: (base) => ({
+      ...base,
+      color: "#0284c7",
+      fontWeight: 500,
+      letterSpacing: "0.01em",
+    }),
+
+    multiValueRemove: (base) => ({
+      ...base,
+      color: "#0ea5e9",
+      ":hover": {
+        backgroundColor: "#bae6fd",
+        color: "#0369a1",
+      },
+    }),
+
+    menu: (base) => ({
+      ...base,
+      borderRadius: "12px",
+      boxShadow:
+        "0px 4px 20px rgba(15, 23, 42, 0.12), 0px 2px 8px rgba(15, 23, 42, 0.06)",
+      padding: "6px 0",
+      backgroundColor: "white",
+      overflow: "hidden",
+      zIndex: 9999,
+      scrollbarColor: "#bae6fd",
+    }),
+
+    menuList: (base) => ({
+      ...base,
+      padding: 0,
+      maxHeight: 180, // ⭐ Show only ~5 items → scroll
+      overflowY: "auto",
+    }),
+
+    option: (base, state) => ({
+      ...base,
+      padding: "10px 14px",
+      fontSize: "14px",
+      borderRadius: "6px",
+      backgroundColor: state.isSelected
+        ? "#0ea5e9"
+        : state.isFocused
+          ? "#f0f9ff"
+          : "white",
+      color: state.isSelected ? "white" : "#1f2937",
+      cursor: "pointer",
+      transition: "0.15s ease",
     }),
   };
 
@@ -625,13 +718,30 @@ export default function ConsultationDrawer({
   };
   useEffect(() => {
     // by default lock if completed
-    if (patient?.IsConsultationCompleted === true) {
+    if (patient?.consultationStatus === "COMPLETED") {
       setIsDisabled(true);
     } else {
       setIsDisabled(false);
     }
-  }, [patient?.IsConsultationCompleted]);
-  const userHasEditAccess = true; // or false
+  }, [patient?.consultationStatus]);
+  // 🔹 1. Get all access rights from Redux
+  const accessRights = useSelector(
+    (state: RootState) => state.hospitalAccessRight.data
+  );
+
+  // 🔹 2. Find "Patient Care" module
+  const patientCareModule = accessRights?.find(
+    (m: any) => m.ModuleName === "Patient Care"
+  );
+
+  // 🔹 3. Find the "Consultation" submodule (⚠️ note lowercase `Submodules`)
+  const consultationSubmodule = patientCareModule?.Submodules?.find(
+    (s: any) => s.SubModuleName === "Consultation"
+  );
+
+  // 🔹 4. Extract permission safely
+  const canUpdateConsultation =
+    consultationSubmodule?.Permissions?.[0]?.CanUpdate ?? false;
 
   const items = [
     {
@@ -640,7 +750,7 @@ export default function ConsultationDrawer({
       title: "Edit Consultation",
       command: () => {
         // ✅ Only allow edit if user has access
-        if (userHasEditAccess) {
+        if (canUpdateConsultation) {
           setIsDisabled(false); // enable fields
           toast.current?.show({
             severity: "success",
@@ -946,9 +1056,37 @@ export default function ConsultationDrawer({
     }
   }, [form.bloodgroup, setValue]);
 
+  useEffect(() => {
+    if (!patient?.PatientId) return;
+
+    const fetchAdvised = async () => {
+      try {
+        const resp = await getPatientPackageUsage(
+          0,
+          patient?.PatientId,
+          patient?.AppointmentId
+        );
+
+        // ❗ FILTER OUT INCOMPLETE ITEMS
+        const filtered = (resp || []).filter(
+          (item: any) => item.status === "Incomplete"
+        );
+
+        console.log("Filtered Advised Items:", filtered);
+
+        setAdvisedItems(filtered);
+      } catch (err) {
+        console.error("Error loading advised items:", err);
+      }
+    };
+
+    fetchAdvised();
+  }, [patient?.PatientId]);
+
   const handleSaveConsultation = async (type: string) => {
     try {
-      const isComplete = type?.toLowerCase() === "complete"; // case-insensitive check
+      const isComplete = type?.toLowerCase() === "complete";
+      const SaveConsultation = type?.toLowerCase() === "save";
       setIsSaving(true);
 
       // 🕒 Prepare timestamps
@@ -956,53 +1094,65 @@ export default function ConsultationDrawer({
         patient?.consultationStartDateTime || new Date().toISOString();
       const consultationEnd = isComplete ? new Date().toISOString() : "";
 
+      // 🧹 FIX: CLEAN PROCEDURES FIRST
+      const cleanedProcedures = (procedures || [])
+        .filter(
+          (p) =>
+            p?.ProcedureId &&
+            !isNaN(Number(p.ProcedureId)) &&
+            Number(p.ProcedureId) > 0
+        )
+        .map((p) => ({
+          BillingItemChargeId: Number(p.ProcedureId),
+          ConsultationProcedureRemark:
+            procedureremarkMap?.[p.ProcedureId] || "",
+        }));
+
       // 🧩 Build final payload
       const payload = {
         ConsultationId: patient?.consultationId || undefined,
-        AppointmentId: appointmentId, // ✅ Still required (used for relation connect on backend)
+        AppointmentId: appointmentId,
         consultationDatTime: consultationStart,
         consultationEndDateTime: consultationEnd,
         CheifcomplaintNotes: form?.notes || complaintText || "",
         IsSentCaseSheet: isComplete,
-        IsConsultationCompleted: isComplete,
 
-        // ✅ Chief Complaints
+        // Chief Complaints
         ConsultationCheifComplaint: (selectedChiefComplaints || []).map(
           (item) => ({
             ChiefComplaintTagId: Number(item?.ChiefComplaintTagId) || 0,
           })
         ),
 
-        // ✅ Investigations
+        // Investigations
         ConsultationInvestigation: (form.investigations || []).map((inv) => ({
-          InvestigationTypeId: Number(inv.InvestigationTypeId),
-          InvestigationSubTypeId: Number(inv.InvestigationSubTypeId),
+          BillingItemChargeId: Number(inv.value),
           ConsultationInvestigatRemark:
             form.investigationRemarks?.[inv.value] || "",
         })),
 
-        // ✅ Medications (mapped properly to DTO)
+        // Medications
         ConsultationMedication: (form.medications || []).map((med) => ({
-          medicationName: med.medicationName || med.medicationName || "",
+          medicationName: med.medicationName || "",
           dosage: med.dosage || "",
           frequency: med.frequency || "",
           duration: med.duration || "",
-          remarks: med.remarks || med.remarks || "",
+          remarks: med.remarks || "",
         })),
 
-        // ✅ Clinical Notes
+        // Clinical Notes
         ConsultationclinicalNotes: clinicalnotesText
           ? [{ content: clinicalnotesText }]
           : [],
 
-        // ✅ Diagnosis
+        // Diagnosis
         ConsultationDiagnosis: (diagnoses || []).map((diag) => ({
           diagnosisId: Number(diag?.DiagnosisId) || undefined,
           DiagnosisName: diag?.label || "",
           DiagnosisRemark: remarkMap?.[diag?.DiagnosisId] || "",
         })),
 
-        // ✅ Treatment
+        // Treatment
         ConsultationTreatment: [
           {
             treatmentText: form.treatment || "",
@@ -1010,7 +1160,7 @@ export default function ConsultationDrawer({
           },
         ],
 
-        // ✅ Follow-Up Plan
+        // Follow-up
         ConsultationFollowUpPlan: {
           followUpText: form.followUp || "",
           duration: form.followUpDuration
@@ -1023,28 +1173,53 @@ export default function ConsultationDrawer({
           ),
         },
 
-        // ✅ followUpDate
         followUpDate: calculateFollowUpDate(
           form.followUpDuration,
           form.followUpUnit
         ),
 
-        // ✅ Procedures
-        ConsultationProcedure: (procedures || [])
-          .filter(
-            (proc) => proc?.ProcedureId && !isNaN(Number(proc.ProcedureId))
-          )
-          .map((proc) => ({
-            ProcedureName: proc.label || "",
-            ProcedureId: Number(proc.ProcedureId),
-            Description: procedureremarkMap?.[proc.ProcedureId] || "",
-          })),
+        // 🟩 FIX: USE CLEANED PROCEDURES
+        ConsultationProcedure: cleanedProcedures,
       };
 
-      console.log("🧠 Submitting payload:", payload);
+      // Compute BIC IDs for usage sync
+      const investigationIds =
+        payload.ConsultationInvestigation?.map((i) => i.BillingItemChargeId) ||
+        [];
 
-      // ✅ Send payload to backend
-      await addupdateConsultation(payload);
+      const procedureIds =
+        cleanedProcedures.map((p) => p.BillingItemChargeId) || [];
+
+      const allBillingItemChargeIds = [
+        ...investigationIds,
+        ...procedureIds,
+      ].filter(Boolean);
+
+      console.log("All Billing Item Charge IDs:", allBillingItemChargeIds);
+      console.log("Submitting payload:", payload);
+
+      // API call
+      const consultationdata = await addupdateConsultation(payload);
+
+      const usageBase = {
+        patientId: patient?.PatientId || null,
+        appointmentId: patient?.AppointmentId || null,
+        consultationId: consultationdata?.data?.ConsultationId || null,
+        status: "Incomplete",
+      };
+
+      if (isComplete) {
+        await Promise.all([
+          addupdatePatientsyncPatientPackageUsage({
+            ...usageBase,
+            billingItemChargeIds: allBillingItemChargeIds,
+          }),
+          completeConsultation(appointmentId, usageBase.consultationId),
+        ]);
+      }
+
+      if (SaveConsultation)
+        await markIncomplete(appointmentId, usageBase.consultationId);
 
       toast.current?.show({
         severity: "success",
@@ -1054,15 +1229,16 @@ export default function ConsultationDrawer({
           : "Consultation draft saved.",
       });
 
-      // ✅ UI handling
       setTimeout(() => {
         SetConsultationComlete(true);
         setTimeout(() => {
           SetConsultationComlete(false);
+          onClose();
+
           const today = new Date().toLocaleDateString("en-CA", {
             timeZone: "Asia/Kolkata",
           });
-          onClose(); // Close modal or drawer
+
           dispatch(
             fetchAllAppointmentPatient({
               page: 1,
@@ -1112,6 +1288,49 @@ export default function ConsultationDrawer({
     }
     return date.toISOString();
   };
+  const resetConsultationForm = () => {
+    setSelectedChiefComplaints([]);
+    setComplaintText("");
+    setClinicalnotesText("");
+    setDiagnoses([]);
+    setRemarkMap({});
+    setForm({
+      followUpDuration: "",
+      followUpUnit: "Days",
+      clinicalnotesText: "",
+      systolic: "",
+      diastolic: "",
+      weight: "",
+      temperature: "",
+      heartRate: "",
+      oxygen: "",
+      height: "",
+      bloodgroup: "",
+      BMI: "",
+      BMIStatus: "",
+      complaint: "",
+      notes: "",
+      investigations: [],
+      investigationRemarks: {},
+      diagnosis: "",
+      treatment: "",
+      followUp: "",
+      complaints: [],
+      medications: [
+        {
+          medicationName: "",
+          dosage: "",
+          frequency: "",
+          duration: "",
+          unit: "",
+          remarks: "",
+        },
+      ],
+    });
+    setProcedures([]);
+    setProcedureremarkMap({});
+  };
+
   //binding consultation data
   useEffect(() => {
     if (patient?.consultation) {
@@ -1153,29 +1372,28 @@ export default function ConsultationDrawer({
       // Investigations
       const investigationValues =
         consultation.ConsultationInvestigation?.map((i: any) => ({
-          label: i?.InvestigationSubType?.InvestigationSubTypename,
-          value: i?.InvestigationSubTypeId,
-          InvestigationTypeId: i?.InvestigationTypeId,
-          InvestigationSubTypeId: i?.InvestigationSubTypeId,
-          InvestigationType: i?.InvestigationType?.InvestigationTypeName,
-          color: i?.InvestigationType?.InvestigationTypeColorCode,
+          label: i?.BillingItemCharge?.BillingItemName || "",
+          value: String(i?.BillingItemCharge?.BillingItemChargeId),
+          BillingItemChargeId: i?.BillingItemCharge?.BillingItemChargeId,
+          color: i?.BillingItemCharge?.InvestigationTypeColor || "", // only if available
         })) || [];
 
       const investigationRemarks =
         consultation.ConsultationInvestigation?.reduce(
           (acc: Record<string, string>, i: any) => {
-            acc[i?.InvestigationSubTypeId] =
-              i?.ConsultationInvestigatRemark || "";
+            const key = String(i?.BillingItemCharge?.BillingItemChargeId);
+            acc[key] = i?.ConsultationInvestigatRemark || "";
             return acc;
           },
           {}
         ) || {};
-      console.log("INVESTIGATION REMARK ", investigationRemarks);
+
       setForm((prev: any) => ({
         ...prev,
         investigations: investigationValues,
         investigationRemarks,
       }));
+
       console.log("Rendering remarks for:", form.investigations);
       console.log("Remarks:", form.investigationRemarks);
 
@@ -1188,17 +1406,17 @@ export default function ConsultationDrawer({
       }));
 
       // Follow-up
-      const followUpData = consultation.ConsultationFollowUpPlan[0];
+      const followUpData = consultation?.ConsultationFollowUpPlan ?? {};
 
-      const formattedDate = followUpData.nextDate
+      const formattedDate = followUpData?.nextDate
         ? new Date(followUpData.nextDate).toISOString().slice(0, 10)
         : "";
 
       setForm((prev: any) => ({
         ...prev,
-        followUp: followUpData.followUpText || "",
-        followUpDuration: followUpData.duration?.toString() || "",
-        followUpUnit: followUpData.unit || "Days", // Default unit
+        followUp: followUpData?.followUpText || "",
+        followUpDuration: followUpData?.duration?.toString() || "",
+        followUpUnit: followUpData?.unit || "Days",
       }));
 
       // Medications
@@ -1220,19 +1438,20 @@ export default function ConsultationDrawer({
       // Procedures
       const procedureList =
         consultation.ConsultationProcedure?.map((p: any) => ({
-          label: p?.procedure?.ProcedureName || "",
-          ProcedureId: p?.procedure?.ProcedureId?.toString() || "",
+          label: p?.BillingItemCharge?.BillingItemName || "",
+          ProcedureId: p?.BillingItemCharge?.BillingItemChargeId, // USE CHARGE ID
         })) || [];
 
       const procedureremarkMap: Record<string, string> = {};
       consultation.ConsultationProcedure?.forEach((p: any) => {
-        if (p?.ProcedureId) {
-          procedureremarkMap[p.ProcedureId.toString()] = p?.Description || "";
-        }
+        const key = String(p?.BillingItemCharge?.BillingItemChargeId);
+        procedureremarkMap[key] = p?.ConsultationProcedureRemark || "";
       });
 
-      setProcedures(procedureList); // <-- setSelectedProcedures or whatever state you're using
+      setProcedures(procedureList);
       setProcedureremarkMap(procedureremarkMap);
+    } else {
+      resetConsultationForm();
     }
   }, [patient]);
 
@@ -1507,118 +1726,75 @@ export default function ConsultationDrawer({
             <div className="w-full text-sm text-gray-700 font-mono py-2">
               {fullScreen ? (
                 // 👉 Full screen layout - single row grid
-                <div className="grid grid-cols-5 gap-x-4 gap-y-2 w-full font-sans">
+                <div className="grid grid-cols-[1fr_1fr_1fr_0.7fr_auto] gap-x-4 gap-y-2 w-full font-sans">
                   {/* Scheduled Time */}
-                  <div className="flex items-start gap-2 col-span-1">
-                    {/* Icon and label on same line */}
-                    <CalendarDays className="w-4 h-4 text-blue-300" />
-                    <div>
-                      <div className="flex items-center gap-1 text-[12px] text-muted-foreground">
-                        Scheduled Time & Date
-                      </div>
-                      <div className="text-sm font-medium -mx-4">
-                        {formatDateTime(patient?.appointmentDate)}
-                      </div>
+                  <div className="flex flex-col items-start">
+                    <div className="flex items-center gap-1 text-[12px] text-muted-foreground">
+                      <CalendarDays className="w-4 h-4 text-blue-300" />
+                      Scheduled Time & Date
+                    </div>
+                    <div className="text-sm font-medium">
+                      {formatDateTime(patient?.appointmentDate)}
                     </div>
                   </div>
 
-                  {/* Assigned Physician */}
-                  <div className="flex items-start gap-2 ">
-                    <div className="flex items-center justify-items-center gap-1 text-[11px] text-muted-foreground">
-                      <UserRound className="w-4 h-4  text-pink-300" />
+                  {/* Assign Provider */}
+                  <div className="flex flex-col items-start">
+                    <div className="flex items-center gap-1 text-[12px] text-muted-foreground">
+                      <UserRound className="w-4 h-4 text-pink-300" />
+                      Assign Provider
                     </div>
-                    <div>
-                      {/* Icon and label on same line */}
-                      <div className="flex items-center gap-1 text-[12px] text-muted-foreground">
-                        Assign Provider
-                      </div>
-                      {/* Value on next line */}
-                      <div className="text-sm font-medium -mx-4">
-                        Dr. {patient?.doctor?.firstName || "N/A"}{" "}
-                        {patient?.doctor?.lastName || "N/A"}
-                      </div>
+                    <div className="text-sm font-medium">
+                      Dr. {patient?.doctor?.firstName || "N/A"}{" "}
+                      {patient?.doctor?.lastName || ""}
                     </div>
                   </div>
 
-                  {/* Reason */}
-                  <div className="flex flex-col">
-                    {/* Label */}
+                  {/* Visit Reason */}
+                  <div className="flex flex-col items-start">
                     <div className="flex items-center gap-1 text-[12px] text-muted-foreground">
                       <NotebookPen className="w-4 h-4 text-red-300" />
-                      <span>Visit Reason</span>
+                      Visit Reason
                     </div>
 
-                    {/* Value */}
-                    <div className="flex flex-wrap gap-1">
-                      {patient?.reason ? (
-                        patient.reason.length > 35 ? (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="cursor-pointer text-sm text-gray-700 dark:text-gray-300">
-                                  {patient.reason.slice(0, 35)}...
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p className="max-w-xs break-words">
-                                  {patient.reason}
-                                </p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        ) : (
-                          <span className="text-m text-gray-700 dark:text-gray-300">
-                            {patient.reason}
-                          </span>
-                        )
-                      ) : (
-                        <span className="italic text-gray-400">N/A</span>
-                      )}
+                    <div className="text-sm font-medium">
+                      {patient?.reason || "N/A"}
                     </div>
                   </div>
 
                   {/* Emergency Contact */}
-                  <div className="flex flex-col col-span-1">
-                    <div className="flex items-center justify-center gap-1 text-[12px] text-muted-foreground">
+                  <div className="flex flex-col items-start">
+                    <div className="flex items-center gap-1 text-[12px] text-muted-foreground">
                       <AlertTriangle className="w-4 h-4 text-yellow-300" />
                       Emergency Contact
                     </div>
+
                     {patient?.patient?.emergencyName ? (
                       <>
                         <div className="text-sm">
                           {patient.patient.emergencyName} (
                           {patient.patient.emergencyRelation || "N/A"})
                         </div>
-                        <div className="text-sm">
+
+                        <div className="text-sm pl-6">
                           {patient.patient.emergencyContact || "N/A"}
                         </div>
                       </>
                     ) : (
-                      <>
-                        <div className="text-sm">N/A</div>
-                      </>
+                      <div className="text-sm pl-6">N/A</div>
                     )}
                   </div>
 
-                  {/* Fast Track Patient */}
-                  <div className="flex flex-col">
-                    <div className="flex items-center justify-center gap-1 text-[12px] text-muted-foreground">
+                  {/* Patient Type */}
+                  <div className="flex flex-col items-start pl-4">
+                    <div className="flex items-center gap-1 text-[12px] text-muted-foreground">
                       <Stethoscope className="w-4 h-4 text-blue-300" />
                       Patient Type
                     </div>
-                    <div>
-                      {/* <Image
-                      src="/fast-time.png"
-                      alt="Fast Track"
-                      width={20}
-                      height={20}
-                      className="object-contain"
-                    /> */}
-                      <span className="text-sm">
-                        {patient?.fasttrackpatient
-                          ? "Fast Track Patient"
-                          : "Normal Patient"}
-                      </span>
+                    <div className="text-sm">
+                      {patient?.fasttrackpatient
+                        ? "Fast Track Patient"
+                        : "Normal Patient"}
                     </div>
                   </div>
                 </div>
@@ -1713,7 +1889,7 @@ export default function ConsultationDrawer({
               className="font-mono"
             >
               <TabsList
-                className="mb-2 rounded-xl p-1 text-black"
+                className="mb-2 rounded-xl p-1 text-black flex justify-center gap-4"
                 style={{
                   background:
                     "linear-gradient(135deg, rgba(34, 211, 238, 0.35) 0%, rgba(129, 140, 248, 0.15) 100%)",
@@ -2115,6 +2291,7 @@ export default function ConsultationDrawer({
                             form={form}
                             setForm={setForm}
                             customStyles={customStyles}
+                            UserHospitalData={UserHospitalData}
                             // handleInvestigationMicClick={
                             //   handleInvestigationMicClick
                             // }
@@ -2139,6 +2316,7 @@ export default function ConsultationDrawer({
                             setInputValue={setInputValue}
                             procedureremarkMap={procedureremarkMap}
                             setProcedureremarkMap={setProcedureremarkMap}
+                            UserHospitalData={UserHospitalData}
                           />
                           <TreatmentInstructionsCard
                             disabled={isDisabled}

@@ -341,7 +341,6 @@ export default function Dashboard({
     formState: { errors, isSubmitting },
     watch,
   } = useForm({});
-  
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -369,6 +368,8 @@ export default function Dashboard({
   }, []);
   const fetchDashboardDemographyData = async () => {
     try {
+      setLoading(true);
+
       const startDate = dateRange[0]?.startDate
         ? formatLocalDate(dateRange[0].startDate)
         : undefined;
@@ -401,7 +402,6 @@ export default function Dashboard({
       });
       // console.log("Patient data:", res);
       console.log("Processed patient data:", patientData);
-      setLoading(true);
     } catch (err) {
       console.error("Error fetching dashboard summary", err);
     } finally {
@@ -410,6 +410,7 @@ export default function Dashboard({
   };
 
   useEffect(() => {
+    fetchDashboardData();
     fetchDashboardDemographyData();
   }, []);
 

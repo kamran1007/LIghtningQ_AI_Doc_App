@@ -13,6 +13,7 @@ import { createEvent } from 'ics';
 import { STATUS_CODES } from 'http';
 import { addDays } from 'date-fns';
 import { WhatsappService } from 'src/common/whatsapp/whatsapp.service';
+import { ConsultationStatus } from '@prisma/client';
 
 // import { subMinutes, addMilliseconds } from 'date-fns';
 
@@ -93,7 +94,7 @@ export class AppointmentService {
             lt: new Date(dto.appointmentDate + 'T23:59:59'),
           },
           status: {
-            in: ['SCHEDULED','COMPLETED'], // optional
+            in: ['SCHEDULED', 'COMPLETED'], // optional
           },
         },
       });
@@ -134,6 +135,7 @@ export class AppointmentService {
           TagPatients: dto.TagPatientIds?.length
             ? { connect: dto.TagPatientIds.map((id) => ({ TagPatientId: id })) }
             : undefined,
+          consultationStatus: dto.consultationStatus ?? 'NOT_STARTED',
         },
       });
 
@@ -232,6 +234,77 @@ export class AppointmentService {
       patient: result.patient,
       STATUS_CODES: 200,
     };
+  }
+
+  // appointment.service.ts
+
+  async startConsultation(appointmentId: number, userId?: number) {
+    // optionally validate appointment exists / permission
+    return this.prisma.appointment.update({
+      where: { AppointmentId: appointmentId },
+      data: {
+        consultationStatus: 'ONGOING',
+        // consultationStartDateTime: new Date(),
+        // optionally track who started:
+        createdBy: userId,
+      },
+    });
+  }
+
+  async completeConsultation(
+    appointmentId: number,
+    consultationId: number,
+    userId: number,
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      // Update Appointment table
+      await tx.appointment.update({
+        where: { AppointmentId: appointmentId },
+        data: {
+          consultationStatus: 'COMPLETED',
+          createdBy: userId,
+        },
+      });
+
+      // Update Consultation table
+      await tx.consultation.update({
+        where: { ConsultationId: consultationId },
+        data: {
+          consultationStatus: 'COMPLETED',
+          consultationEndDateTime: new Date(),
+        },
+      });
+
+      return { success: true };
+    });
+  }
+
+  async markIncomplete(
+    appointmentId: number,
+    consultationId: number,
+    userId: number,
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Update Appointment table
+      await tx.appointment.update({
+        where: { AppointmentId: appointmentId },
+        data: {
+          consultationStatus: 'INCOMPLETE',
+          createdBy: userId,
+        },
+      });
+
+      // 2. Update Consultation table
+      await tx.consultation.update({
+        where: { ConsultationId: consultationId },
+        data: {
+          consultationStatus: 'INCOMPLETE',
+          createdById: userId,
+        },
+      });
+
+      return { success: true };
+    });
   }
 
   async sendAllNotificationsForAppointment(
@@ -378,10 +451,7 @@ export class AppointmentService {
         if (err instanceof Error) {
           console.error('❌ Failed to send WhatsApp message:', err.message);
         } else {
-          console.error(
-            '❌ Failed to send WhatsApp message:',
-            String(err),
-          );
+          console.error('❌ Failed to send WhatsApp message:', String(err));
         }
       }
     }
@@ -503,6 +573,7 @@ export class AppointmentService {
         sendSmsMessage: dto.sendSmsMessage,
         sendEmailMessage: dto.sendEmailMessage,
         fasttrackpatient: dto.fasttrackpatient ?? false,
+        consultationStatus: dto.consultationStatus ?? 'NOT_STARTED',
       },
     });
 
@@ -781,7 +852,7 @@ export class AppointmentService {
     TagPatientId?: number;
     GenderName?: string;
     SpecializationId?: number;
-    isConsultationcompleted?: boolean | string;
+    consultationStatus?: boolean | string;
     acuity?: string;
     search?: string;
     appointmentDate?: string;
@@ -854,12 +925,25 @@ export class AppointmentService {
       andConditions.push({ acuity: String(filters.acuity).toUpperCase() });
 
     // consultation completion (convert string->bool defensively)
-    if (typeof filters.isConsultationcompleted !== 'undefined') {
-      const isCompleted =
-        String(filters.isConsultationcompleted).toLowerCase() === 'true';
-      andConditions.push({
-        consultation: { is: { IsConsultationCompleted: isCompleted } },
-      });
+    if (filters.consultationStatus) {
+      const value = String(filters.consultationStatus).toUpperCase();
+
+      if (
+        [
+          ConsultationStatus.NOT_STARTED,
+          ConsultationStatus.ONGOING,
+          ConsultationStatus.COMPLETED,
+          ConsultationStatus.INCOMPLETE,
+        ].includes(value as ConsultationStatus)
+      ) {
+        andConditions.push({
+          consultation: {
+            is: {
+              consultationStatus: value as ConsultationStatus,
+            },
+          },
+        });
+      }
     }
 
     // patient nested filters: gender, age -> dateOfBirth range
@@ -974,12 +1058,12 @@ export class AppointmentService {
           include: {
             ConsultationCheifComplaint: { include: { chiefComplaint: true } },
             ConsultationDiagnosis: { include: { diagnosis: true } },
-            ConsultationProcedure: { include: { procedure: true } },
+            ConsultationProcedure: { include: { BillingItemCharge: true } },
             ConsultationMedication: true,
             ConsultationInvestigation: {
               include: {
-                InvestigationType: true,
-                InvestigationSubType: true,
+                BillingItemCharge: true,
+                // InvestigationSubType: true,
               },
             },
             ConsultationTreatment: true,
@@ -992,8 +1076,8 @@ export class AppointmentService {
 
     // sort them in memory
     const data = appointments.sort((a, b) => {
-      const aCompleted = a.consultation?.IsConsultationCompleted ? 1 : 0;
-      const bCompleted = b.consultation?.IsConsultationCompleted ? 1 : 0;
+      const aCompleted = a.consultation?.consultationStatus ? 1 : 0;
+      const bCompleted = b.consultation?.consultationStatus ? 1 : 0;
 
       if (aCompleted !== bCompleted) {
         return aCompleted - bCompleted; // incomplete first

@@ -12,11 +12,13 @@ import {
   Scissors,
   Stethoscope,
   History,
+  HandCoins,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
 import { blue } from '@mui/material/colors';
+import BillItem from './BillItem';
 
 // Lazy load the modal component
 const MedicineModal = dynamic(() => import("../settings/MedicineModal"), {
@@ -80,10 +82,11 @@ const settings = [
     icon: <History className="w-4 h-4" />,
   },
 
-  // {
-  //   name: "Vitals Templates",
-  //   color: "bg-gradient-to-tr from-teal-200 to-teal-300",
-  // },
+  {
+    name: "Bill Items",
+    color: "bg-gradient-to-tr from-teal-300 to-teal-400",
+    icon: <HandCoins  className="w-4 h-4" />,
+  },
 
   // {
   //   name: "Advice Templates",
@@ -115,6 +118,7 @@ function AppSetting() {
         "Chief Complaint",
         "Procedures",
         "Medical History Tags",
+        "Bill Items",
       ].includes(name)
     ) {
       setOpenSetting(name);
@@ -184,6 +188,9 @@ function AppSetting() {
       )}
       {openSetting === "Medical History Tags" && (
         <MedicalHistoryDialog open onClose={closeModal} />
+      )}
+      {openSetting === "Bill Items" && (
+        <BillItem open onClose={closeModal} />
       )}
     </div>
     // </Scrollbars>

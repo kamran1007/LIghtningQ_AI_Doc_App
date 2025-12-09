@@ -5,10 +5,15 @@ export function generateCaseSheetHtml(
   appointmentDetails: any,
 ) {
   const { hospital, patient, doctor, Vitals } = appointmentDetails;
-
-  const vital = Array.isArray(Vitals) && Vitals.length > 0 ? Vitals[0] : null;
+  console.log('🏥 Hospital:', Vitals);
+const vital = Array.isArray(Vitals)
+  ? Vitals[0]
+  : (typeof Vitals === "object" ? Vitals : null);
   console.log('📊 Vitals Count:', vital);
-console.log('🩺 Procedures Count:', consultation.ConsultationProcedure?.length);
+  console.log(
+    '🩺 Procedures Count:',
+    consultation.ConsultationProcedure?.length,
+  );
 
   const vitalsBlock = vital
     ? `
@@ -67,8 +72,8 @@ console.log('🩺 Procedures Count:', consultation.ConsultationProcedure?.length
               ${consultation.ConsultationProcedure.map(
                 (p: any) => `
                 <tr>
-                  <td>${p.procedure?.ProcedureName || '-'}</td>
-                  <td>${p.Description || '-'}</td>
+                  <td>${p.BillingItemCharge?.BillingItemName || '-'}</td>
+                  <td>${p.ConsultationProcedureRemark || '-'}</td>
                 </tr>`,
               ).join('')}
             </tbody>
@@ -260,16 +265,24 @@ console.log('🩺 Procedures Count:', consultation.ConsultationProcedure?.length
       </div>
 
       <div class="section">
-        <h2>Investigations</h2>
-        <ul class="custom-bullets">
-          ${
-            consultation.ConsultationInvestigation?.map(
-              (inv: any) =>
-                `<li>${inv.InvestigationType?.InvestigationTypeName} - ${inv.InvestigationSubType?.InvestigationSubTypename} (${inv.ConsultationInvestigatRemark})</li>`,
-            ).join('') || ''
-          }
-        </ul>
-      </div>
+  <h2>Investigations</h2>
+  <ul class="custom-bullets">
+    ${
+      consultation.ConsultationInvestigation?.map(
+        (inv: any) => `
+        <li>
+          ${inv.BillingItemCharge?.BillingItemName || '-'}
+          (${
+            inv.BillingItemCharge?.InvestigationType?.InvestigationTypeName ||
+            'N/A'
+          })
+          - ${inv.ConsultationInvestigatRemark || '-'}
+        </li>`,
+      ).join('') || ''
+    }
+  </ul>
+</div>
+
 
       <div class="section">
         <h2>Treatment Plan</h2>
@@ -282,12 +295,11 @@ console.log('🩺 Procedures Count:', consultation.ConsultationProcedure?.length
         <h2>Follow-up</h2>
         <ul class="custom-bullets">
           ${
-            consultation.ConsultationFollowUpPlan?.map(
-              (f: any) =>
-                `<li>${f.followUpText}, After ${f.duration} ${f.unit}<br><strong>Next Date: ${new Date(
-                  f.nextDate,
-                ).toLocaleDateString()}</strong></li>`,
-            ).join('') || ''
+            consultation.ConsultationFollowUpPlan
+              ? `<li>${consultation.ConsultationFollowUpPlan.followUpText}, After ${consultation.ConsultationFollowUpPlan.duration} ${consultation.ConsultationFollowUpPlan.unit}<br><strong>Next Date: ${new Date(
+                  consultation.ConsultationFollowUpPlan.nextDate,
+                ).toLocaleDateString()}</strong></li>`
+              : ''
           }
         </ul>
       </div>

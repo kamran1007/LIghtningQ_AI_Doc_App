@@ -9,55 +9,70 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 
 export default function Page() {
-  // Define the type for access rights
+  // --- Type Definitions ---
   type AccessRight = {
     ModuleName: string;
-    Submodules?: { SubModuleName: string; [key: string]: any }[];
-    [key: string]: any;
+    Submodules?: {
+      SubModuleName: string;
+      Permissions?: { CanView?: boolean }[];
+      [key: string]: any;
+    }[];
   };
 
-  const accessRights = useSelector(
-    (state: RootState) => state.hospitalAccessRight.data
-  ) as AccessRight[];
-  // console.log("Access Rights from Redux:", accessRights);
-
-  // Extract permissions for Dashboard
-  const dashboardPerm = accessRights.find((m) => m.ModuleName === "Dashboard");
-  // console.log("Dashboard Permissions:", dashboardPerm);
-  const submodules = dashboardPerm?.Submodules ?? [];
-
-  // Example: find "Dashboard Report" submodule permissions
-  const dashboardReportPerm = submodules.find(
-    (s: any) => s.SubModuleName === "Dashboard Report"
-  );
-  // console.log("Dashboard Report Permissions:", dashboardReportPerm);
-  const [activeTab, setActiveTab] = useState<
-    "dashboard" | "advanced" | "additional"
-  >("dashboard");
-
-  const canViewDashboard = dashboardReportPerm?.Permissions?.CanView ?? false;
   type TabId = "dashboard" | "advanced" | "additional";
   type Tab = { id: TabId; label: string; canView: boolean };
 
-  // const tabs = [
-  //   { id: "dashboard", label: "Dashboard Report" },
-  //   { id: "advanced", label: "Advanced Report" },
-  //   { id: "additional", label: "Additional Report" },
-  // ] as const;
-  const rawTabs = [
-  { id: "dashboard", label: "Dashboard Report", canView: canViewDashboard },
-  { id: "advanced", label: "Advanced Report", canView: true },
-  { id: "additional", label: "Additional Report", canView: true },
-] as const;
+  // --- Redux Access Rights ---
+  const accessRights = useSelector(
+    (state: RootState) => state.hospitalAccessRight.data
+  ) as AccessRight[];
 
-const tabs: Tab[] = rawTabs.filter((t) => t.canView) as Tab[];
+  // --- Find the Dashboard module ---
+  const dashboardModule = accessRights?.find(
+    (m) => m.ModuleName === "Dashboard"
+  );
+  const submodules = dashboardModule?.Submodules ?? [];
 
+  // --- Extract Permissions for Each Submodule ---
+  const getPermission = (subModuleName: string) =>
+    submodules.find((s) => s.SubModuleName === subModuleName)?.Permissions?.[0];
+
+  const canViewDashboard = getPermission("Dashboard Report")?.CanView ?? false;
+  const canViewAdvanced = getPermission("Advance Dashboard")?.CanView ?? false;
+  const canViewAdditional =
+    getPermission("Additional Report")?.CanView ?? false;
+
+  // --- Define Tabs Dynamically ---
+  const rawTabs: Tab[] = [
+    { id: "dashboard", label: "Dashboard Report", canView: canViewDashboard },
+    { id: "advanced", label: "Advanced Report", canView: canViewAdvanced },
+    {
+      id: "additional",
+      label: "Additional Report",
+      canView: canViewAdditional,
+    },
+  ];
+
+  // Only keep allowed tabs
+  const tabs = rawTabs.filter((t) => t.canView);
+
+  // --- Active Tab State ---
+  const [activeTab, setActiveTab] = useState<TabId>(
+    (tabs[0]?.id as TabId) || "dashboard"
+  );
+
+  // --- Keep activeTab valid when permissions change ---
   useEffect(() => {
-    if (!tabs.find((t) => t.id === activeTab)) {
-      setActiveTab((tabs[0]?.id as typeof activeTab) ?? "dashboard");
+    const exists = tabs.some((t) => t.id === activeTab);
+    if (!exists) {
+      const newTab = (tabs[0]?.id as TabId) || "dashboard";
+      if (newTab !== activeTab) {
+        setActiveTab(newTab);
+      }
     }
-  }, [tabs, activeTab]);
+  }, [tabs]);
 
+  // --- Moving Pill Animation Setup ---
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const [pillStyle, setPillStyle] = useState<{ left: number; width: number }>({
     left: 0,
@@ -67,15 +82,27 @@ const tabs: Tab[] = rawTabs.filter((t) => t.canView) as Tab[];
   useEffect(() => {
     const el = tabRefs.current[activeTab];
     if (el) {
-      setPillStyle({ left: el.offsetLeft ?? 0, width: el.offsetWidth ?? 0 });
+      requestAnimationFrame(() => {
+        setPillStyle({ left: el.offsetLeft, width: el.offsetWidth });
+      });
     }
   }, [activeTab]);
 
+  // --- Handle case when no tab has permission ---
+  if (!tabs.length) {
+    return (
+      <div className="flex items-center justify-center h-64 text-gray-600 font-medium">
+        You don’t have permission to view any Dashboard reports.
+      </div>
+    );
+  }
+
+  // --- Render ---
   return (
     <div className="p-4">
-      {/* Toggle style tab buttons */}
+      {/* Tabs Header */}
       <div className="flex justify-center space-x-2 mb-6 bg-gray-100 rounded-full p-1 relative w-fit mx-auto">
-        {/* Moving pill */}
+        {/* Animated Pill */}
         <motion.div
           layout
           className="absolute top-1 bottom-1 rounded-full bg-[#22E0D4]"
@@ -101,7 +128,7 @@ const tabs: Tab[] = rawTabs.filter((t) => t.canView) as Tab[];
         ))}
       </div>
 
-      {/* Tab content with animation */}
+      {/* Tab Content */}
       <div className="relative min-h-[300px]">
         <AnimatePresence mode="wait">
           {activeTab === "dashboard" && canViewDashboard && (
@@ -117,7 +144,7 @@ const tabs: Tab[] = rawTabs.filter((t) => t.canView) as Tab[];
             </motion.div>
           )}
 
-          {activeTab === "advanced" && (
+          {activeTab === "advanced" && canViewAdvanced && (
             <motion.div
               key="advanced"
               initial={{ opacity: 0, x: -20 }}
@@ -130,7 +157,7 @@ const tabs: Tab[] = rawTabs.filter((t) => t.canView) as Tab[];
             </motion.div>
           )}
 
-          {activeTab === "additional" && (
+          {activeTab === "additional" && canViewAdditional && (
             <motion.div
               key="additional"
               initial={{ opacity: 0, x: -20 }}

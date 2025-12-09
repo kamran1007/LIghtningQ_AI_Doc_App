@@ -1,26 +1,45 @@
+import path from "path";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  productionBrowserSourceMaps: true,
-
-  images: {
-    domains: ["localhost", "127.0.0.1","dev.api.lightningq.com"],
-  },
+  // Disable Turbopack completely — use Webpack
   experimental: {
+    turbo: false,
     serverActions: {
       bodySizeLimit: "3mb",
     },
   },
+
+  productionBrowserSourceMaps: true,
+
+  images: {
+    // ⚠️ update this later to remotePatterns
+    domains: ["localhost", "127.0.0.1", "dev.api.lightningq.com"],
+  },
+
   env: {
-    // eslint-disable-next-line turbo/no-undeclared-env-vars, no-undef
     GOOGLEMAPSECRETEKEY: process.env.GOOGLEMAPSECRETEKEY,
   },
+
   async rewrites() {
     return [
       {
-        source: "/api/:path*", // Frontend route prefix
-        destination: "http://127.0.0.1:8000/:path*", // Backend server
+        source: "/api/:path*",
+        destination: "http://127.0.0.1:8000/:path*",
       },
     ];
+  },
+
+  // Keep webpack config — allowed because Turbopack is disabled
+  webpack: (config) => {
+    if (process.env.NODE_ENV === "development") {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        react: path.resolve(__dirname, "node_modules/react"),
+        "react-dom": path.resolve(__dirname, "node_modules/react-dom"),
+      };
+    }
+    return config;
   },
 };
 

@@ -63,15 +63,23 @@ function NavbarDropdown({ profile }: ProfileProps) {
   // console.log("Selected Hospital in NavbarDropdown:", selectedHospital);
 
   useEffect(() => {
-    if (selectedHospital) {
-      setUserHospital(selectedHospital);
+    if (selectedHospital) setUserHospital(selectedHospital);
+
+    const backend =
+      process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, "") || "";
+
+    if (!userProfile.imageUrl) {
+      setImageUrl("/default-avatar.png");
+      return;
     }
-    setImageUrl(
-      userProfile.imageUrl
-        ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${userProfile.imageUrl}`
-        : ""
-    );
+
+    const finalUrl = /^https?:\/\//i.test(userProfile.imageUrl)
+      ? userProfile.imageUrl
+      : `${backend}${userProfile.imageUrl.startsWith("/") ? "" : "/"}${userProfile.imageUrl}`;
+
+    setImageUrl(finalUrl);
   }, [selectedHospital, userProfile.imageUrl]);
+
   const handleLogout = () => {
     console.log("Logout clicked");
     dispatch(startLoading());
@@ -96,54 +104,53 @@ function NavbarDropdown({ profile }: ProfileProps) {
   if (!profile) return null; // ⛔️ avoid accessing null
 
   const UserAvatar = ({ imageUrl }: { imageUrl?: string }) => {
-  const [imgSrc, setImgSrc] = useState("/default-avatar.png");
+    const [imgSrc, setImgSrc] = useState("/default-avatar.png");
 
-  useEffect(() => {
-    const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
+    useEffect(() => {
+      const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-    if (!imageUrl || typeof imageUrl !== "string" || imageUrl.trim() === "") {
-      setImgSrc("/default-avatar.png");
-      return;
-    }
-
-    try {
-      let finalUrl = imageUrl;
-
-      // 🧩 Detect if imageUrl is already absolute (starts with http or https)
-      if (!/^https?:\/\//i.test(imageUrl)) {
-        if (!backend) throw new Error("Missing NEXT_PUBLIC_BACKEND_URL");
-
-        const cleanBackend = backend.replace(/\/$/, "");
-        const cleanPath = imageUrl.startsWith("/")
-          ? imageUrl
-          : `/${imageUrl}`;
-        finalUrl = `${cleanBackend}${cleanPath}`;
+      if (!imageUrl || typeof imageUrl !== "string" || imageUrl.trim() === "") {
+        setImgSrc("/default-avatar.png");
+        return;
       }
 
-      // ✅ Validate constructed URL
-      new URL(finalUrl);
+      try {
+        let finalUrl = imageUrl;
 
-      // Cache-bust to avoid stale images
-      setImgSrc(`${finalUrl}?v=${Date.now()}`);
-    } catch (error) {
-      console.error("❌ Invalid image URL:", imageUrl, error);
-      setImgSrc("/default-avatar.png");
-    }
-  }, [imageUrl]);
+        // 🧩 Detect if imageUrl is already absolute (starts with http or https)
+        if (!/^https?:\/\//i.test(imageUrl)) {
+          if (!backend) throw new Error("Missing NEXT_PUBLIC_BACKEND_URL");
 
-  return (
-    <Image
-      src={imgSrc}
-      alt="User avatar"
-      width={80}
-      height={80}
-      unoptimized
-      className="object-cover h-full w-full transition-transform duration-300 group-hover:scale-105"
-      onError={() => setImgSrc("/default-avatar.png")}
-    />
-  );
-};
+          const cleanBackend = backend.replace(/\/$/, "");
+          const cleanPath = imageUrl.startsWith("/")
+            ? imageUrl
+            : `/${imageUrl}`;
+          finalUrl = `${cleanBackend}${cleanPath}`;
+        }
 
+        // ✅ Validate constructed URL
+        new URL(finalUrl);
+
+        // Cache-bust to avoid stale images
+        setImgSrc(`${finalUrl}?v=${Date.now()}`);
+      } catch (error) {
+        console.error("❌ Invalid image URL:", imageUrl, error);
+        setImgSrc("/default-avatar.png");
+      }
+    }, [imageUrl]);
+
+    return (
+      <Image
+        src={imgSrc}
+        alt="User avatar"
+        width={80}
+        height={80}
+        unoptimized
+        className="object-cover h-full w-full transition-transform duration-300 group-hover:scale-105"
+        onError={() => setImgSrc("/default-avatar.png")}
+      />
+    );
+  };
 
   return (
     <>
@@ -152,13 +159,8 @@ function NavbarDropdown({ profile }: ProfileProps) {
         <DropdownMenuTrigger className="focus:outline-none focus:ring-0 focus:shadow-none cursor-pointer">
           <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-teal-300 flex items-center justify-center">
             {imageUrl ? (
-              <UserAvatar
-                imageUrl={
-                  imageUrl
-                    ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${imageUrl}`
-                    : ""
-                }
-              />
+              <UserAvatar imageUrl={imageUrl} />
+
             ) : (
               // <div className="flex items-center justify-center h-full w-full bg-teal-100">
               //   <svg

@@ -26,6 +26,32 @@ export async function generateConsultationPDF(data: any, patient: any) {
     return `${years} years ${months} months`;
   }
 
+  const vitals = patient?.Vitals;
+
+  const vitalsText = vitals
+    ? [
+        `BP: ${vitals.Systolic}/${vitals.Diastolic}`,
+        `Weight: ${vitals.Weight} kg`,
+        `Height: ${vitals.Height} cm`,
+        `BMI: ${vitals.BMI}`,
+        `Temp: ${vitals.Temperature} °F`,
+        `O₂ Sat: ${vitals.OxygenSaturation}%`,
+      ].join("\n")
+    : "Not Recorded";
+
+  function drawChip(doc: any, text: any, x: any, y: any) {
+    const padding = 2;
+    const textWidth = doc.getTextWidth(text);
+    const chipWidth = textWidth + padding * 4;
+    const chipHeight = 8;
+
+    doc.setFillColor(230, 247, 255);
+    doc.roundedRect(x, y - 6, chipWidth, chipHeight, 2, 2, "F");
+
+    doc.setTextColor(30, 60, 90);
+    doc.text(text, x + padding, y);
+  }
+
   function formatKeyValueRows(obj: Record<string, string | undefined>) {
     return Object.entries(obj)
       .map(([k, v]) => `${k} : ${v ?? ""}`)
@@ -154,15 +180,64 @@ export async function generateConsultationPDF(data: any, patient: any) {
               .join(", ")
           : "None",
       ],
-      [
-        "Vitals",
-        data.appointment?.Vitals?.length
-          ? `BP: ${data.appointment.Vitals[0].Systolic}/${data.appointment.Vitals[0].Diastolic} | Weight: ${data.appointment.Vitals[0].Weight}kg | Height: ${data.appointment.Vitals[0].Height}cm | BMI: ${data.appointment.Vitals[0].BMI} | Temp: ${data.appointment.Vitals[0].Temperature}°F | O2 Sat: ${data.appointment.Vitals[0].OxygenSaturation}%`
-          : "Not Recorded",
-      ],
+      ["Vitals", ""],
     ],
+
     styles: { fontSize: 10, cellPadding: 3 },
+
+    columnStyles: { 0: { cellWidth: 45 }, 1: { cellWidth: 135 } },
+
     headStyles: { fillColor: [0, 121, 107], textColor: 255 },
+
+    didDrawCell: (dataArg) => {
+      if (dataArg.row.index !== 2 || dataArg.column.index !== 1) return;
+
+      const v = patient?.Vitals;
+      if (!v) return;
+
+      const chipTexts = [
+        `BP: ${v.Systolic}/${v.Diastolic}`,
+        `HR: ${v.HeartRate} bpm`,
+        `Weight: ${v.Weight} kg`,
+        `Height: ${v.Height} cm`,
+        `BMI: ${v.BMI}`,
+        `Temp: ${v.Temperature}°F`,
+        `Oxygen: ${v.OxygenSaturation}%`,
+        `Blood: ${v.BloodGroup}`,
+      ];
+
+      const cellX = dataArg.cell.x;
+      const cellY = dataArg.cell.y;
+      const cellWidth = dataArg.cell.width;
+
+      let x = cellX + 4;
+      let y = cellY + 10;
+      const maxX = cellX + cellWidth - 4;
+
+      // track how far content extends to increase row height
+      let rowBottom = y;
+
+      chipTexts.forEach((chip) => {
+        const chipWidth = doc.getTextWidth(chip) + 16;
+
+        if (x + chipWidth > maxX) {
+          x = cellX + 4;
+          y += 12;
+        }
+
+        drawChip(doc, chip, x, y);
+
+        x += chipWidth + 4;
+        rowBottom = Math.max(rowBottom, y + 12);
+      });
+
+      // 🔥 Auto-grow the row if needed — NO WHITE SPACE
+      const neededHeight = rowBottom - cellY + 4;
+
+      if (neededHeight > dataArg.row.height) {
+        dataArg.row.height = neededHeight;
+      }
+    },
   });
 
   // ---------------- CONSULTATION SUMMARY ----------------
@@ -187,8 +262,8 @@ export async function generateConsultationPDF(data: any, patient: any) {
       data.ConsultationInvestigation?.length
         ? data.ConsultationInvestigation.map(
             (i: any) =>
-              `${i.InvestigationType?.InvestigationTypeName || ""} - ${
-                i.InvestigationSubType?.InvestigationSubTypename || ""
+              `${i.BillingItemCharge?.BillingItemName || ""} - ${
+                i.InvestigationType?.InvestigationTypeName || ""
               }\nRemark: ${i.ConsultationInvestigatRemark || ""}`
           ).join("\n\n")
         : "None",
@@ -207,9 +282,9 @@ export async function generateConsultationPDF(data: any, patient: any) {
       data.ConsultationProcedure?.length
         ? data.ConsultationProcedure.map(
             (p: any) =>
-              `${p.procedure?.ProcedureName || ""}\n${
-                p.Description?.trim()
-                  ? `Description: ${p.Description.trim()}`
+              `${p.BillingItemCharge?.BillingItemName || ""}\n${
+                p.ConsultationProcedureRemark?.trim()
+                  ? `Description: ${p.ConsultationProcedureRemark.trim()}`
                   : "Description: —"
               }`
           ).join("\n\n")
@@ -225,13 +300,17 @@ export async function generateConsultationPDF(data: any, patient: any) {
     ],
     [
       "Follow-Up Plan",
-      data.ConsultationFollowUpPlan?.length
-        ? data.ConsultationFollowUpPlan.map(
-            (f: any) =>
-              `${f.followUpText || ""}\nNext Date: ${
-                f.nextDate ? new Date(f.nextDate).toLocaleDateString() : ""
-              } (${f.duration} ${f.unit})`
-          ).join("\n\n")
+      data.ConsultationFollowUpPlan
+        ? `${data.ConsultationFollowUpPlan.followUpText || ""}
+Next Date: ${
+            data.ConsultationFollowUpPlan.nextDate
+              ? new Date(
+                  data.ConsultationFollowUpPlan.nextDate
+                ).toLocaleDateString()
+              : ""
+          } (${data.ConsultationFollowUpPlan.duration || ""} ${
+            data.ConsultationFollowUpPlan.unit || ""
+          })`
         : "None",
     ],
   ];

@@ -15,12 +15,20 @@ class ChiefComplaintDto {
   ChiefComplaintTagId!: number;
 }
 
+// class InvestigationDto {
+//   @IsInt()
+//   InvestigationTypeId!: number;
+
+//   @IsInt()
+//   InvestigationSubTypeId!: number;
+
+//   @IsOptional()
+//   @IsString()
+//   ConsultationInvestigatRemark?: string;
+// }
 class InvestigationDto {
   @IsInt()
-  InvestigationTypeId!: number;
-
-  @IsInt()
-  InvestigationSubTypeId!: number;
+  BillingItemChargeId!: number;
 
   @IsOptional()
   @IsString()
@@ -99,45 +107,52 @@ class FollowUpPlanDto {
   nextDate?: string;
 }
 
+// class ConsultationProcedureDto {
+//   @IsOptional()
+//   @IsString()
+//   ProcedureName?: string;
+
+//   @IsOptional()
+//   @IsInt()
+//   ProcedureId?: number;
+
+//   @IsOptional()
+//   @IsString()
+//   Description?: string;
+
+//   @IsOptional()
+//   @IsDateString()
+//   ProcedureDateTime?: string;
+
+//   @IsOptional()
+//   @IsBoolean()
+//   IsCompleted?: boolean;
+
+//   @IsOptional()
+//   @IsString()
+//   PerformedBy?: string;
+
+//   @IsOptional()
+//   @IsString()
+//   Remarks?: string;
+// }
 class ConsultationProcedureDto {
-  @IsOptional()
-  @IsString()
-  ProcedureName?: string;
-
-  @IsOptional()
   @IsInt()
-  ProcedureId?: number;
+  BillingItemChargeId!: number;
 
   @IsOptional()
   @IsString()
-  Description?: string;
-
-  @IsOptional()
-  @IsDateString()
-  ProcedureDateTime?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  IsCompleted?: boolean;
-
-  @IsOptional()
-  @IsString()
-  PerformedBy?: string;
-
-  @IsOptional()
-  @IsString()
-  Remarks?: string;
+  ConsultationProcedureRemark?: string;
 }
 
-
 export class CreateOrUpdateConsultationDto {
-  @IsOptional()
-  @IsBoolean()
-  @Transform(
-    ({ obj }) =>
-      obj.IsconsultationCompleted ?? obj.IsConsultationCompleted ?? false,
-  )
-  IsConsultationCompleted?: boolean = false;
+  // @IsOptional()
+  // @IsBoolean()
+  // @Transform(
+  //   ({ obj }) =>
+  //     obj.IsconsultationCompleted ?? obj.IsConsultationCompleted ?? false,
+  // )
+  // IsConsultationCompleted?: boolean = false;
 
   @IsOptional()
   @IsBoolean()

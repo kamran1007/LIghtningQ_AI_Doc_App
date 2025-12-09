@@ -10,6 +10,7 @@ import { generatePdfFromHtml } from 'src/utils/pdf-generator.util';
 import { CreateChiefComplaintDto } from './dto/CreateCheifcomplaint.dto';
 import { CreateMedicineDto } from './dto/create-medicine.dto';
 import { ConsultationProcedureDto } from './dto/CreateOrUpdateConsultationDto';
+import { console } from 'inspector';
 
 @Injectable()
 export class ConsultationService {
@@ -302,11 +303,11 @@ export class ConsultationService {
       ConsultationTreatment,
       ConsultationFollowUpPlan,
       ConsultationProcedure,
-      IsConsultationCompleted,
+      // IsConsultationCompleted,
       IsSentCaseSheet,
     } = dto;
 
-    const isCompleted = IsConsultationCompleted === true;
+    // const isCompleted = IsConsultationCompleted === true;
 
     const baseData = {
       CheifcomplaintNotes,
@@ -318,7 +319,7 @@ export class ConsultationService {
         ? new Date(consultationEndDateTime)
         : undefined,
       isDraft: isDraft ?? false,
-      IsConsultationCompleted: isCompleted,
+      // IsConsultationCompleted: isCompleted,
     };
 
     let targetId: number | undefined;
@@ -389,13 +390,8 @@ export class ConsultationService {
                 deleteMany: {},
                 create:
                   ConsultationInvestigation?.map((inv) => ({
-                    InvestigationType: {
-                      connect: { InvestigationTypeId: inv.InvestigationTypeId },
-                    },
-                    InvestigationSubType: {
-                      connect: {
-                        InvestigationSubTypeId: inv.InvestigationSubTypeId,
-                      },
+                    BillingItemCharge: {
+                      connect: { BillingItemChargeId: inv.BillingItemChargeId },
                     },
                     ConsultationInvestigatRemark:
                       inv.ConsultationInvestigatRemark ?? '',
@@ -425,12 +421,19 @@ export class ConsultationService {
 
               ConsultationFollowUpPlan: ConsultationFollowUpPlan
                 ? {
-                    deleteMany: {},
-                    create: {
-                      followUpText: ConsultationFollowUpPlan.followUpText,
-                      duration: ConsultationFollowUpPlan.duration,
-                      unit: ConsultationFollowUpPlan.unit,
-                      nextDate: ConsultationFollowUpPlan.nextDate,
+                    upsert: {
+                      create: {
+                        followUpText: ConsultationFollowUpPlan.followUpText,
+                        duration: ConsultationFollowUpPlan.duration,
+                        unit: ConsultationFollowUpPlan.unit,
+                        nextDate: ConsultationFollowUpPlan.nextDate,
+                      },
+                      update: {
+                        followUpText: ConsultationFollowUpPlan.followUpText,
+                        duration: ConsultationFollowUpPlan.duration,
+                        unit: ConsultationFollowUpPlan.unit,
+                        nextDate: ConsultationFollowUpPlan.nextDate,
+                      },
                     },
                   }
                 : undefined,
@@ -447,15 +450,16 @@ export class ConsultationService {
                 deleteMany: {},
                 create:
                   (ConsultationProcedure || []).map((p) => ({
-                    procedure: p.ProcedureId
-                      ? { connect: { ProcedureId: p.ProcedureId } }
-                      : p.ProcedureName
-                        ? { create: { ProcedureName: p.ProcedureName } }
-                        : undefined,
-                    Description: p.Description ?? '',
-                    ProcedureDateTime: p.ProcedureDateTime
-                      ? new Date(p.ProcedureDateTime)
-                      : undefined,
+                    BillingItemCharge: {
+                      connect: { BillingItemChargeId: p.BillingItemChargeId },
+                    },
+                    ConsultationProcedureRemark:
+                      p.ConsultationProcedureRemark ?? '',
+                    CreatedBy: userId,
+                    DoctorId: userId,
+                    // add if needed:
+                    // specializationId,
+                    // PatientId,
                   })) || [],
               },
             },
@@ -495,12 +499,9 @@ export class ConsultationService {
               ConsultationInvestigation: {
                 create:
                   ConsultationInvestigation?.map((inv) => ({
-                    InvestigationType: {
-                      connect: { InvestigationTypeId: inv.InvestigationTypeId },
-                    },
-                    InvestigationSubType: {
+                    BillingItemCharge: {
                       connect: {
-                        InvestigationSubTypeId: inv.InvestigationSubTypeId,
+                        BillingItemChargeId: inv.BillingItemChargeId,
                       },
                     },
                     ConsultationInvestigatRemark:
@@ -543,39 +544,40 @@ export class ConsultationService {
               ConsultationProcedure: {
                 create:
                   (ConsultationProcedure || []).map((p) => ({
-                    procedure: p.ProcedureId
-                      ? { connect: { ProcedureId: p.ProcedureId } }
-                      : p.ProcedureName
-                        ? { create: { ProcedureName: p.ProcedureName } }
-                        : undefined,
-                    Description: p.Description ?? '',
-                    ProcedureDateTime: p.ProcedureDateTime
-                      ? new Date(p.ProcedureDateTime)
-                      : undefined,
+                    BillingItemCharge: {
+                      connect: { BillingItemChargeId: p.BillingItemChargeId },
+                    },
+                    ConsultationProcedureRemark:
+                      p.ConsultationProcedureRemark ?? '',
+                    CreatedBy: userId,
+                    DoctorId: userId,
+                    // add if needed:
+                    // specializationId,
+                    // PatientId,
                   })) || [],
               },
             },
           });
         }
 
-        // ✅ Update appointment status
-        await tx.appointment.update({
-          where: { AppointmentId: Number(AppointmentId) },
-          data: {
-            consultationId: result.ConsultationId,
-            IsConsultationCompleted: isCompleted,
-            status: isCompleted ? 'COMPLETED' : 'SCHEDULED',
-          },
-        });
+        // // ✅ Update appointment status
+        // await tx.appointment.update({
+        //   where: { AppointmentId: Number(AppointmentId) },
+        //   data: {
+        //     consultationId: result.ConsultationId,
+        //     consultationStatus: isCompleted,
+        //     status: isCompleted ? 'COMPLETED' : 'SCHEDULED',
+        //   },
+        // });
 
         return result;
       },
       { timeout: 20000 }, // 🕒 Increase timeout
     );
 
-    console.log(
-      `✅ Appointment ${AppointmentId} updated — Consultation ${isCompleted ? 'Completed' : 'Pending'}`,
-    );
+    // console.log(
+    //   `✅ Appointment ${AppointmentId} updated — Consultation ${isCompleted ? 'Completed' : 'Pending'}`,
+    // );
 
     // ✅ PDF + Email sending OUTSIDE the transaction
     if (IsSentCaseSheet) {
@@ -620,8 +622,13 @@ export class ConsultationService {
               ConsultationMedication: true,
               ConsultationInvestigation: {
                 include: {
-                  InvestigationType: true,
-                  InvestigationSubType: true,
+                  BillingItemCharge: {
+                    include: {
+                      InvestigationType: true,
+                    },
+                  },
+
+                  // InvestigationSubType: true,
                 },
               },
               ConsultationTreatment: true,
@@ -629,11 +636,13 @@ export class ConsultationService {
               ConsultationclinicalNotes: true,
               ConsultationProcedure: {
                 include: {
-                  procedure: true,
+                  BillingItemCharge: true,
                 },
               },
             },
           });
+
+          console.log('📧 Sending case sheet email to:', consultationFull);
 
           const html = generateCaseSheetHtml(
             patientName,
@@ -696,13 +705,17 @@ export class ConsultationService {
         ConsultationMedication: true,
         ConsultationInvestigation: {
           include: {
-            InvestigationType: true,
-            InvestigationSubType: true,
+            BillingItemCharge: {
+              include: {
+                InvestigationType: true,
+              },
+            },
+            // InvestigationSubType: true,
           },
         },
         ConsultationProcedure: {
           include: {
-            procedure: true,
+            BillingItemCharge: true,
           },
         },
         ConsultationTreatment: true,
@@ -727,6 +740,7 @@ export class ConsultationService {
             hospital: true,
           },
         },
+        updatedBy: { select: { UserId: true, firstName: true, lastName: true }},
       },
     });
   }

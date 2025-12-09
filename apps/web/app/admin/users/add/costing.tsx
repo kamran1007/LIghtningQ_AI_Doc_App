@@ -7,7 +7,6 @@ import {
   DialogContent,
   DialogFooter,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,26 +16,16 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
-} from "@/components/ui/select"; // import { Button } from "@mui/material";
-import { X, ChevronDown 
-} from "lucide-react";
-
-import {
-
-  Loader2Icon,
-} from "lucide-react";
-
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
+} from "@/components/ui/select";
+import { X, Loader2Icon } from "lucide-react";
 import { User } from "@/types/user";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { AddUpdateDoctorCosting, fetchDoctorCosting } from "@/lib/admin";
 import toast from "react-hot-toast";
 import { DoctorCostingSkeleton } from "@/components/ui/skeletonloader/DoctorCostingSkeleton";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 interface CostingProps {
   open: boolean;
@@ -45,6 +34,19 @@ interface CostingProps {
 }
 
 const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
+  // 🔐 Fetch Access Rights
+  const accessRights = useSelector(
+    (state: RootState) => state.hospitalAccessRight.data
+  );
+
+  const adminModule = accessRights?.find((m: any) => m.ModuleName === "Admin");
+  const costingSub = adminModule?.Submodules?.find(
+    (s: any) => s.SubModuleName === "Costing"
+  );
+
+  const canViewCosting = costingSub?.Permissions?.[0]?.CanView ?? false;
+  const canUpdateCosting = costingSub?.Permissions?.[0]?.CanUpdate ?? false;
+
   const [selectedHospitalId, setSelectedHospitalId] = useState<number | null>(
     null
   );
@@ -57,65 +59,13 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
       name: h.hospital.HospitalName,
     })) ?? [];
 
-  // const toggleSelect = (id: number) => {
-  //   setSelectedHospitalIds((prev) =>
-  //     prev.includes(id) ? prev.filter((val) => val !== id) : [...prev, id]
-  //   );
-  // };
-  const toggleSelect = (id: number) => {
-    setSelectedHospitalId(id);
-    setValue("hospitalId", id); // ✅ Update the form with selected hospital
-
-    const selectedCosting = costings.find((c) => c.hospitalId === id);
-    if (selectedCosting) {
-      resetFormWithCosting(selectedCosting);
-    }
-  };
-
-  //onsubmit
   const {
     register,
     handleSubmit,
     reset,
     setValue,
-    formState: { errors,isSubmitting },
+    formState: { isSubmitting },
   } = useForm();
-  const onSubmit = async (formData: any) => {
-    try {
-      const payload = {
-        doctorId: user?.UserId,
-        hospitalIds: [parseInt(formData.hospitalId)], // ✅ convert to number
-        walkInFee: parseFloat(formData.walkInFee),
-        teleConsultFee: parseFloat(formData.teleConsultFee),
-        fastTrackFee: parseFloat(formData.fastTrackFee),
-        homeVisitFee: parseFloat(formData.homeVisitFee),
-        emergencyFee: parseFloat(formData.emergencyFee),
-        procedureFee: parseFloat(formData.procedureFee),
-        freeFollowupCount: parseInt(formData.freeFollowupCount),
-        followupValidityDays: parseInt(formData.followupValidityDays),
-        tax: parseFloat(formData.tax),
-        discount: parseFloat(formData.discount),
-        commission: parseFloat(formData.commission) || 10,
-        insuranceApplicable: !!formData.insuranceApplicable, // ✅ fixed here
-      };
-
-      const res = await AddUpdateDoctorCosting(payload);
-
-      if (res.ok) {
-        // const result = await res?.json();
-        // console.log("Costing saved:", result);
-        toast.success("Adding Costing successfully!");
-        onOpenChange(false);
-        reset();
-      } else {
-        const err = await res.json();
-        toast.error("Failed to save costing: " + err.message);
-        console.error("Save error:", err);
-      }
-    } catch (error) {
-      console.error("API Error:", error);
-    }
-  };
 
   const resetFormWithCosting = (costing: any) => {
     reset({
@@ -130,40 +80,96 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
       tax: costing.tax || "",
       discount: costing.discount || "",
       insuranceApplicable: costing.insuranceApplicable || false,
-      commission: costing.commission || "", // Default to 10% if not provided
-      
+      commission: costing.commission || "",
     });
   };
 
   useEffect(() => {
     if (open && user?.UserId) {
       setIsLoading(true);
+      fetchDoctorCosting(user.UserId)
+        .then((data) => {
+          const allCostings = data?.return?.costings ?? [];
+          setCostings(allCostings);
 
-      fetchDoctorCosting(user.UserId).then((data) => {
-        const allCostings = data?.return?.costings ?? [];
-        setCostings(allCostings);
-
-        if (allCostings.length) {
-          const defaultCosting = allCostings[0];
-          setSelectedHospitalId(defaultCosting.hospitalId);
-          setValue("hospitalId", defaultCosting.hospitalId);
-          resetFormWithCosting(defaultCosting);
-        }
-
-        setIsLoading(false); // ✅ only after data is set
-      });
+          if (allCostings.length) {
+            const defaultCosting = allCostings[0];
+            setSelectedHospitalId(defaultCosting.hospitalId);
+            setValue("hospitalId", defaultCosting.hospitalId);
+            resetFormWithCosting(defaultCosting);
+          }
+        })
+        .finally(() => setIsLoading(false));
     }
   }, [open, user?.UserId]);
+
+  const onSubmit = async (formData: any) => {
+    try {
+      const payload = {
+        doctorId: user?.UserId,
+        hospitalIds: [parseInt(formData.hospitalId)],
+        walkInFee: parseFloat(formData.walkInFee),
+        teleConsultFee: parseFloat(formData.teleConsultFee),
+        fastTrackFee: parseFloat(formData.fastTrackFee),
+        homeVisitFee: parseFloat(formData.homeVisitFee),
+        emergencyFee: parseFloat(formData.emergencyFee),
+        procedureFee: parseFloat(formData.procedureFee),
+        freeFollowupCount: parseInt(formData.freeFollowupCount),
+        followupValidityDays: parseInt(formData.followupValidityDays),
+        tax: parseFloat(formData.tax),
+        discount: parseFloat(formData.discount),
+        commission: parseFloat(formData.commission) || 10,
+        insuranceApplicable: !!formData.insuranceApplicable,
+      };
+
+      const res = await AddUpdateDoctorCosting(payload);
+
+      if (res.ok) {
+        toast.success("Costing saved successfully!");
+        onOpenChange(false);
+        reset();
+      } else {
+        const err = await res.json();
+        toast.error("Failed to save costing: " + err.message);
+      }
+    } catch (error) {
+      console.error("API Error:", error);
+      toast.error("Something went wrong.");
+    }
+  };
+
+  // ❌ If user doesn't have view permission
+  if (!canViewCosting) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="p-6 text-center max-w-md rounded-2xl"onInteractOutside={(e) => e.preventDefault()} // 🛑 Prevent close on outside click
+          onEscapeKeyDown={(e) => e.preventDefault()}>
+          <DialogTitle className="text-lg font-semibold text-red-500 mb-2">
+            Access Denied
+          </DialogTitle>
+          <p className="text-gray-600 mb-4">
+            You don’t have permission to view or modify doctor costing details.
+          </p>
+          <DialogFooter className="flex justify-center mt-4">
+            <Button
+              onClick={() => onOpenChange(false)}
+              className="rounded-full px-6 bg-teal-500 text-white hover:bg-teal-600"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[95vh] overflow-y-auto p-6 max-w-4xl rounded-2xl no-scrollbar">
-        {/* ✅ Always render DialogTitle for accessibility */}
         <div className="flex items-center justify-between mb-4">
-          <DialogTitle className="text-2xl font-semibold">
+          <DialogTitle className="text-2xl font-semibold text-teal-500">
             Add Costing Details
           </DialogTitle>
-
           <DialogClose asChild>
             <button
               className="text-teal-600 hover:bg-teal-100 p-2 rounded-full transition cursor-pointer"
@@ -174,20 +180,16 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
           </DialogClose>
         </div>
 
+        {!canUpdateCosting && (
+          <div className="text-sm text-amber-600 bg-amber-50 border border-amber-200 p-2 rounded-lg mb-4">
+            You have view-only access. Editing is disabled.
+          </div>
+        )}
+
         {isLoading ? (
           <DoctorCostingSkeleton />
         ) : (
           <form onSubmit={handleSubmit(onSubmit)}>
-            {/* Header Actions */}
-            {/* <div className="flex justify-end mb-1">
-              <DialogClose asChild>
-                <button className="text-blue-600 hover:bg-blue-100 p-2 rounded-full transition cursor-pointer">
-                  <X className="w-6 h-6" />
-                </button>
-              </DialogClose>
-            </div> */}
-
-            {/* Hidden Hospital ID Field */}
             <input
               type="hidden"
               {...register("hospitalId")}
@@ -200,8 +202,10 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
                 Select Hospital (Branch) <span className="text-red-500">*</span>
               </Label>
               <Select
+                disabled={!canUpdateCosting}
                 value={selectedHospitalId?.toString() || ""}
                 onValueChange={(value) => {
+                  if (!canUpdateCosting) return;
                   const selectedId = parseInt(value);
                   setSelectedHospitalId(selectedId);
                   const selectedCosting = costings.find(
@@ -210,7 +214,7 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
                   if (selectedCosting) {
                     resetFormWithCosting(selectedCosting);
                   } else {
-                    reset(); // clear form
+                    reset();
                   }
                   setValue("hospitalId", selectedId);
                 }}
@@ -218,7 +222,7 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
                 <SelectTrigger className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500">
                   <SelectValue placeholder="Select Hospital" />
                 </SelectTrigger>
-                <SelectContent className="border-white shadow-2xl rounded-2xl data-[state=checked]:bg-white data-[highlighted]:bg-white">
+                <SelectContent className="border-white shadow-2xl rounded-2xl">
                   {hospitalOptions.map((hosp) => (
                     <SelectItem key={hosp.id} value={hosp.id.toString()}>
                       {hosp.name}
@@ -230,78 +234,65 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
 
             {/* Consultation Fees Section */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-4 mb-6">
-              <div>
-                <Label>
-                  Walk-in Consultation Fee{" "}
-                  <span className="text-red-500">*</span>
-                </Label>
-                <Input {...register("walkInFee")} placeholder="e.g. 500"   defaultValue="0"/>
-              </div>
-              <div>
-                <Label>Tele Consultation Fee</Label>
-                <Input {...register("teleConsultFee")} placeholder="e.g. 400"   defaultValue="0"
- />
-              </div>
-              <div>
-                <Label>FastTrack Charges</Label>
-                <Input {...register("fastTrackFee")} placeholder="e.g. 700"   defaultValue="0"
-/>
-              </div>
-              <div>
-                <Label>No. of Free Follow-ups</Label>
-                <Input
-                  defaultValue="0"
-
-                  {...register("freeFollowupCount")}
-                  placeholder="e.g. 2"
-                />
-              </div>
-              <div>
-                <Label>Follow-up Validity (Days)</Label>
-                <Input
-                  defaultValue="0"
-
-                  {...register("followupValidityDays")}
-                  placeholder="e.g. 10"
-                />
-              </div>
-              <div>
-                <Label>Commission Charges</Label>
-                <Input
-                  {...register("commission")}
-
-                  defaultValue="0"
-                  placeholder="e.g. 10%"
-                />
-              </div>
+              {[
+                { name: "walkInFee", label: "Walk-in Consultation Fee", req: true },
+                { name: "teleConsultFee", label: "Tele Consultation Fee" },
+                { name: "fastTrackFee", label: "FastTrack Charges" },
+                { name: "freeFollowupCount", label: "No. of Free Follow-ups" },
+                { name: "followupValidityDays", label: "Follow-up Validity (Days)" },
+                { name: "commission", label: "Commission Charges" },
+              ].map((field) => (
+                <div key={field.name}>
+                  <Label>
+                    {field.label}
+                    {field.req && <span className="text-red-500">*</span>}
+                  </Label>
+                  <Input
+                    {...register(field.name)}
+                    placeholder={`e.g. ${field.label}`}
+                    defaultValue="0"
+                    disabled={!canUpdateCosting}
+                  />
+                </div>
+              ))}
             </div>
 
             {/* Additional Charges Section */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-4 mb-6">
-              <div>
-                <Label>Home Visit Charges</Label>
-                <Input {...register("homeVisitFee")} placeholder="e.g. 800"   defaultValue="0"
- />
-              </div>
-              <div>
-                <Label>Emergency Charges</Label>
-                <Input {...register("emergencyFee")} placeholder="e.g. 1000"  />
-              </div>
-              <div>
-                <Label>Additional Procedure Charges</Label>
-                <Input {...register("procedureFee")} placeholder="e.g. 1200" />
-              </div>
+              {[
+                { name: "homeVisitFee", label: "Home Visit Charges" },
+                { name: "emergencyFee", label: "Emergency Charges" },
+                { name: "procedureFee", label: "Additional Procedure Charges" },
+              ].map((field) => (
+                <div key={field.name}>
+                  <Label>{field.label}</Label>
+                  <Input
+                    {...register(field.name)}
+                    placeholder={`e.g. ${field.label}`}
+                    defaultValue="0"
+                    disabled={!canUpdateCosting}
+                  />
+                </div>
+              ))}
             </div>
 
             {/* Tax & Discount Section */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-4 mb-6">
               <div>
                 <Label>Tax %</Label>
-                <Input {...register("tax")} placeholder="e.g. 18" />
+                <Input
+                  {...register("tax")}
+                  placeholder="e.g. 18"
+                  disabled={!canUpdateCosting}
+                />
               </div>
               <div>
                 <Label>Discount %</Label>
-                <Input {...register("discount")} placeholder="e.g. 5" />
+                <Input
+                  {...register("discount")}
+                  placeholder="e.g. 5"
+                  disabled={!canUpdateCosting}
+                />
               </div>
               <div className="flex items-end gap-2 mt-6">
                 <input
@@ -309,6 +300,7 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
                   {...register("insuranceApplicable")}
                   id="insuranceApplicable"
                   className="w-4 h-4"
+                  disabled={!canUpdateCosting}
                 />
                 <Label htmlFor="insuranceApplicable">
                   Insurance Applicable
@@ -320,17 +312,32 @@ const Costing: React.FC<CostingProps> = ({ open, onOpenChange, user }) => {
             <DialogFooter className="w-full flex flex-col sm:flex-row justify-end items-center gap-4 mt-6">
               <Button
                 type="button"
-                className="rounded-full h-10 px-6 cursor-pointer bg-red-500 text-white hover:bg-red-600 shadow-2xl"
+                className="rounded-full h-10 px-6 bg-red-500 text-white hover:bg-red-600 shadow-2xl"
                 onClick={() => onOpenChange(false)}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                className="rounded-full h-10 px-6 cursor-pointer bg-green-400 text-white shadow-2xl hover:bg-green-500"
+                disabled={!canUpdateCosting}
+                className={`rounded-full h-10 px-6 shadow-2xl ${
+                  canUpdateCosting
+                    ? "bg-green-400 text-white hover:bg-green-500"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+                onClick={(e) => {
+                  if (!canUpdateCosting) {
+                    e.preventDefault();
+                    toast.error("You don’t have permission to update costing.");
+                    return;
+                  }
+                }}
               >
-                {isSubmitting ? <Loader2Icon className="animate-spin" />
-                                   : "Save"}
+                {isSubmitting ? (
+                  <Loader2Icon className="animate-spin" />
+                ) : (
+                  "Save"
+                )}
               </Button>
             </DialogFooter>
           </form>
