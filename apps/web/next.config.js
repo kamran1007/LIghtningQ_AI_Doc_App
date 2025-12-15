@@ -13,8 +13,13 @@ const nextConfig = {
   productionBrowserSourceMaps: true,
 
   images: {
-    // ⚠️ update this later to remotePatterns
-    domains: ["localhost", "127.0.0.1", "dev.api.lightningq.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "cdn.lightningq.com",
+        pathname: "/**",
+      },
+    ],
   },
 
   env: {

@@ -30,6 +30,7 @@ import { clearSelectedHospital } from "@/store/HospitalBranchSelectionSlice";
 import { useSelector } from "react-redux";
 import { persistor } from "@/store";
 import Image from "next/image";
+import { fixCDNUrl } from "@/utils/fixCDNUrl";
 
 type ProfileProps = {
   profile: {
@@ -73,11 +74,7 @@ function NavbarDropdown({ profile }: ProfileProps) {
       return;
     }
 
-    const finalUrl = /^https?:\/\//i.test(userProfile.imageUrl)
-      ? userProfile.imageUrl
-      : `${backend}${userProfile.imageUrl.startsWith("/") ? "" : "/"}${userProfile.imageUrl}`;
-
-    setImageUrl(finalUrl);
+    setImageUrl(fixCDNUrl(userProfile.imageUrl));
   }, [selectedHospital, userProfile.imageUrl]);
 
   const handleLogout = () => {
@@ -105,50 +102,43 @@ function NavbarDropdown({ profile }: ProfileProps) {
 
   const UserAvatar = ({ imageUrl }: { imageUrl?: string }) => {
     const [imgSrc, setImgSrc] = useState("/default-avatar.png");
+    const [firstError, setFirstError] = useState(true);
 
     useEffect(() => {
-      const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-      if (!imageUrl || typeof imageUrl !== "string" || imageUrl.trim() === "") {
+      if (!imageUrl) {
         setImgSrc("/default-avatar.png");
         return;
       }
 
-      try {
-        let finalUrl = imageUrl;
+      // 🔥 Do NOT run fixCDNUrl() here because parent already passed final URL
+      let finalUrl = imageUrl;
 
-        // 🧩 Detect if imageUrl is already absolute (starts with http or https)
-        if (!/^https?:\/\//i.test(imageUrl)) {
-          if (!backend) throw new Error("Missing NEXT_PUBLIC_BACKEND_URL");
-
-          const cleanBackend = backend.replace(/\/$/, "");
-          const cleanPath = imageUrl.startsWith("/")
-            ? imageUrl
-            : `/${imageUrl}`;
-          finalUrl = `${cleanBackend}${cleanPath}`;
-        }
-
-        // ✅ Validate constructed URL
-        new URL(finalUrl);
-
-        // Cache-bust to avoid stale images
-        setImgSrc(`${finalUrl}?v=${Date.now()}`);
-      } catch (error) {
-        console.error("❌ Invalid image URL:", imageUrl, error);
-        setImgSrc("/default-avatar.png");
+      // Allow blob / data URLs during preview
+      if (imageUrl.startsWith("blob:") || imageUrl.startsWith("data:")) {
+        finalUrl = imageUrl;
       }
+
+      setImgSrc(`${finalUrl}?v=${Date.now()}`);
+      setFirstError(true);
     }, [imageUrl]);
 
     return (
-      <Image
-        src={imgSrc}
-        alt="User avatar"
-        width={80}
-        height={80}
-        unoptimized
-        className="object-cover h-full w-full transition-transform duration-300 group-hover:scale-105"
-        onError={() => setImgSrc("/default-avatar.png")}
-      />
+      <div className="relative w-full h-full">
+        <Image
+          src={imgSrc}
+          alt="User avatar"
+          fill
+          sizes="48px"
+          unoptimized
+          className="object-cover"
+          onError={() => {
+            if (firstError) {
+              setFirstError(false);
+              setImgSrc("/default-avatar.png");
+            }
+          }}
+        />
+      </div>
     );
   };
 
@@ -157,21 +147,10 @@ function NavbarDropdown({ profile }: ProfileProps) {
       <ProfileModal open={profileOpen} setOpen={setProfileOpen} />
       <DropdownMenu>
         <DropdownMenuTrigger className="focus:outline-none focus:ring-0 focus:shadow-none cursor-pointer">
-          <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-teal-300 flex items-center justify-center">
+          <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-teal-300">
             {imageUrl ? (
               <UserAvatar imageUrl={imageUrl} />
-
             ) : (
-              // <div className="flex items-center justify-center h-full w-full bg-teal-100">
-              //   <svg
-              //     xmlns="http://www.w3.org/2000/svg"
-              //     className="h-6 w-6 text-teal-400"
-              //     viewBox="0 0 24 24"
-              //     fill="currentColor"
-              //   >
-              //     <path d="M12 12c2.67 0 8 1.34 8 4v2H4v-2c0-2.66 5.33-4 8-4Zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
-              //   </svg>
-              // </div>
               <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
                 <User className="w-6 h-6 text-teal-300" />
               </div>
@@ -187,14 +166,13 @@ function NavbarDropdown({ profile }: ProfileProps) {
                 {imageUrl ? (
                   <Image
                     src={`${imageUrl}?v=${Date.now()}`}
-                    alt="User avatar"
                     width={48}
                     height={48}
-                    className="object-cover h-full w-full transition-transform duration-300 hover:scale-105"
+                    unoptimized
+                    alt="Profile"
                     onError={(e) =>
                       (e.currentTarget.src = "/default-avatar.png")
                     }
-                    unoptimized
                   />
                 ) : (
                   <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">

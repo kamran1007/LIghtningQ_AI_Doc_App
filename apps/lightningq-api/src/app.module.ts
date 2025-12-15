@@ -19,22 +19,19 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { WhatsappModule } from './common/whatsapp/whatsapp.module';
 import { MailerModule } from './common/mailer/mailer.module';
 import { BillingModule } from './billing/billing.module';
+import { SettingsModule } from './settings/settings.module';
+import { R2Service } from './r2/r2.service';
+import { R2Module } from './r2/r2.module';
 
 @Module({
   imports: [
-    // ✅ Static module for serving uploads
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', '..', 'uploads'), // ✅ This resolves correctly at runtime
-      serveRoot: '/uploads',
-    }),
-
-    // ✅ Schedule module (must be here for cron jobs to work)
     ScheduleModule.forRoot(),
 
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env', 'apps/lightningq-api/.env'],
     }),
+
     AuthModule,
     UserModule,
     AdminModule,
@@ -47,6 +44,8 @@ import { BillingModule } from './billing/billing.module';
     WhatsappModule,
     MailerModule,
     BillingModule,
+    SettingsModule,
+    R2Module, // R2 integration
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

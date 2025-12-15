@@ -320,9 +320,9 @@ export default function Dashboard({
       setLoading(false);
     }
   };
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+  // useEffect(() => {
+  //   fetchDashboardData();
+  // }, []);
 
   function handleCardClick(kpiId: string) {
     setSelectedKpi(kpiId);
@@ -401,7 +401,9 @@ export default function Dashboard({
         newAppointments: res.summary.newAppointments || 0,
       });
       // console.log("Patient data:", res);
-      console.log("Processed patient data:", patientData);
+      // console.log("Processed patient data:", patientData);
+      console.log("SummaryCards:", summaryCards);
+      console.log("PatientData:", patientData);
     } catch (err) {
       console.error("Error fetching dashboard summary", err);
     } finally {

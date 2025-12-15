@@ -417,6 +417,13 @@ export class ManagePatientService {
   //specialization
   async getAllSpecialization() {
     return this.prisma.specialization.findMany({
+      where: {
+        RoleSpecialization: {
+          none: {
+            RoleId: 1, // 🚫 exclude if mapped to role 1
+          },
+        },
+      },
       orderBy: { SpecializationId: 'asc' },
     });
   }

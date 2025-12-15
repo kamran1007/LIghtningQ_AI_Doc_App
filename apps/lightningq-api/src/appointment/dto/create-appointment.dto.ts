@@ -178,4 +178,7 @@ export class QuickAppointmentDto {
   @IsOptional()
   @IsEnum(ConsultationStatusType)
   consultationStatus?: ConsultationStatusType;
+
+  @IsBoolean()
+  isBillingEnabled?: boolean
 }

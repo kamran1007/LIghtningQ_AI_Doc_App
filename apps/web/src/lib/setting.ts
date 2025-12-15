@@ -86,8 +86,7 @@ export const deletediagonasis = async (DiagnosisId: number) => {
   }
 };
 
-
-export const deleteprocedure = async (ProcedureId : number) => {
+export const deleteprocedure = async (ProcedureId: number) => {
   const session = await getSession();
 
   try {
@@ -108,7 +107,7 @@ export const deleteprocedure = async (ProcedureId : number) => {
   }
 };
 
-export const deleteMedicalHistory = async (MedicalHistoryId : number) => {
+export const deleteMedicalHistory = async (MedicalHistoryId: number) => {
   const session = await getSession();
 
   try {
@@ -167,14 +166,85 @@ export const getmedicalhistory = async () => {
   return res.data;
 };
 
-
 export const getInvestigationType = async () => {
   const session = await getSession();
   if (!session?.accessToken) {
     throw new Error("Unauthorized: Access token not found.");
   }
 
-  const res = await axios.get(`${BACKEND_URL}/patientcare/getInvestigationType`, {
+  const res = await axios.get(
+    `${BACKEND_URL}/patientcare/getInvestigationType`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${session?.accessToken}`,
+      },
+    }
+  );
+  return res.data;
+};
+
+export const upsertPrintData = async (payload: any) => {
+  const session = await getSession();
+
+  if (!session?.accessToken) {
+    throw new Error("Unauthorized: Access token missing");
+  }
+
+  const formData = new FormData();
+
+  // BASIC FIELDS
+  for (const key of [
+    "parentOrganizationId",
+    "hospitalId",
+    "userId",
+    "language",
+    "type",
+  ])
+    if (payload[key] !== undefined) formData.append(key, payload[key]);
+
+  // GLOBAL LOGOS JSON
+  formData.append("globalLogos", JSON.stringify(payload.globalLogos));
+
+  // DETAILS JSON ARRAY
+  formData.append("Printdetails", JSON.stringify(payload.Printdetails));
+
+  // FILES
+  if (payload.headerLogoFile)
+    formData.append("printHeaderImg", payload.headerLogoFile);
+  if (payload.footerLogoFile)
+    formData.append("printFooterImg", payload.footerLogoFile);
+  if (payload.billingLogoFile)
+    formData.append("billingLogo", payload.billingLogoFile);
+  if (payload.prescriptionLogoFile)
+    formData.append("prescriptionLogo", payload.prescriptionLogoFile);
+  if (payload.visitSummaryLogoFile)
+    formData.append("visitSummaryLogo", payload.visitSummaryLogoFile);
+
+  const res = await axios.post(
+    `${BACKEND_URL}/settings/upsertPrintData`,
+    formData,
+    {
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+    }
+  );
+
+  return res.data;
+};
+
+export const GetprintSetting = async (
+  userId: number,
+  hospitalId: number,
+  organizationId: number
+) => {
+  const session = await getSession();
+  if (!session?.accessToken) {
+    throw new Error("Unauthorized: Access token not found.");
+  }
+
+  const res = await axios.get(`${BACKEND_URL}/settings/GetprintSetting?userId=${userId}&hospitalId=${hospitalId}&organizationId=${organizationId}`, {
     headers: {
       "Content-Type": "application/json",
       authorization: `Bearer ${session?.accessToken}`,

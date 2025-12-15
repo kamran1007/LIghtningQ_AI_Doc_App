@@ -23,7 +23,8 @@ import { fetchAccessRight } from "@/store/LoginAccessRightSlice";
 import { setProfile } from "@/store/authSlice";
 import { RootState } from "@/store";
 import { Toast } from "primereact/toast";
-import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { ChevronRight, Eye, EyeOff, Lock, Mail, MapPin } from "lucide-react";
+import { fetchHospitalPrintSettings } from "@/store/HospitalPrintSettingsSlice";
 
 const LoginInForm = () => {
   const dispatch = useAppDispatch();
@@ -41,6 +42,8 @@ const LoginInForm = () => {
 
   const [sessionProfile, setSessionProfile] = useState<any>(null);
   const toast = useRef<Toast>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showScrollIndicator, setShowScrollIndicator] = useState(false);
 
   const [state, action] = useActionState(
     async (prevState: FormState, formData: FormData) => {
@@ -103,6 +106,8 @@ const LoginInForm = () => {
 
           dispatch(setSelectedHospital(hospitalAssignments[0]));
           dispatch(fetchAccessRight());
+          dispatch(fetchHospitalPrintSettings());
+
           router.push("/dashboard");
         } else {
           setStage("hospital"); // multiple hospitals, ask user to choose
@@ -138,6 +143,7 @@ const LoginInForm = () => {
 
     // 🚀 fetch access rights immediately after hospital is set
     dispatch(fetchAccessRight());
+    dispatch(fetchHospitalPrintSettings());
 
     router.push("/dashboard"); // ⬅️ redirect
     // Wait until navigation is "done"
@@ -183,6 +189,14 @@ const LoginInForm = () => {
       dispatch(fetchAccessRight());
     }
   }, [dispatch, selectedHospital, profile]);
+
+  // Check if scrollbar is needed for hospital list
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (container && hospitals.length > 0) {
+      setShowScrollIndicator(container.scrollHeight > container.clientHeight);
+    }
+  }, [hospitals]);
 
   const isScrollable = hospitals.length > 2;
   return (
@@ -279,63 +293,114 @@ const LoginInForm = () => {
       {stage === "hospital" && (
         <motion.div
           key="hospital"
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -100 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="flex flex-col items-center gap-8 p-6 w-full max-w-3xl mx-auto bg-white/70 backdrop-blur-md shadow-lg rounded-2xl"
+          className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden"
         >
-          {/* Greeting with gradient */}
-          <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-400 bg-clip-text text-transparent font-sans animate-ocean-flow">
-            Welcome back, {sessionProfile?.name}!
-          </h2>
+          {/* Header Section */}
+          <div className="bg-gradient-to-r from-teal-500 to-teal-700 via-teal-500 px-4 py-2 text-white font-sans p-0 text-center">
+            <motion.h2
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-3xl font-bold text-white mb-0"
+            >
+              Welcome back, {sessionProfile?.name}!
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-white/90 text-lg"
+            >
+              Please select your hospital to continue
+            </motion.p>
+          </div>
 
-          <p className="text-gray-600 text-lg font-medium font-sans text-center">
-            Please select your hospital to continue:
-          </p>
+          {/* Hospital List Container */}
+          <div className="p-2">
+            <div className="relative">
+              {/* Scrollable Container */}
+              <div
+                ref={scrollContainerRef}
+                className={`space-y-4 ${
+                  isScrollable ? "max-h-[300px] overflow-y-auto pr-2" : ""
+                }`}
+                style={{
+                  scrollBehavior: "smooth",
+                  scrollbarWidth: "thin",
+                  scrollbarColor: "#22d3ee #f3f4f6",
+                }}
+              >
+                {hospitals.map((hospital, index) => (
+                  <motion.button
+                    key={hospital.hospitalId}
+                    onClick={() => handleHospitalSelect(hospital)}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="group w-full p-5 rounded-xl border-2 border-gray-200 
+                      hover:border-teal-500 hover:shadow-lg 
+                      transition-all duration-300 ease-out
+                      bg-white hover:bg-gradient-to-r hover:from-cyan-50 hover:to-teal-50
+                      text-left relative overflow-hidden"
+                  >
+                    {/* Subtle shine effect on hover */}
+                    <div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent 
+                      -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out font-sans"
+                    />
 
-          {/* Hospital Buttons */}
-          <div
-            className={`flex flex-col items-center w-full px-6 py-6 scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-transparent transition-all duration-300 ${
-              isScrollable
-                ? "max-h-[400px] overflow-y-auto"
-                : "overflow-y-visible"
-            }`}
-            style={{ scrollBehavior: "smooth" }}
-          >
-            <div className="flex flex-col items-center gap-4 w-full">
-              {hospitals.map((h) => (
-                <motion.button
-                  key={h.hospitalId}
-                  type="button"
-                  onClick={() => handleHospitalSelect(h)}
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="relative w-[90%] sm:w-[480px] lg:w-[520px] py-4 px-8 rounded-xl font-semibold font-sans
-              bg-gradient-to-r from-cyan-400 via-teal-400 to-blue-500
-              text-white shadow-md hover:shadow-xl 
-              overflow-hidden transition-all duration-300 cursor-pointer whitespace-nowrap"
-                >
-                  {/* Shimmer effect */}
+                    <div className="relative z-10 flex items-center justify-between font-sans h-10">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-800 group-hover:text-cyan-600 transition-colors mb-1">
+                          {hospital.hospital?.HospitalName ??
+                            `Hospital ${hospital.hospitalId}`}
+                        </h3>
+                        <div className="flex items-center gap-2 text-gray-500">
+                          <MapPin className="w-4 h-4" />
+                          <span className="text-sm">
+                            {hospital.hospital?.city}
+                          </span>
+                        </div>
+                      </div>
+
+                      <ChevronRight className="w-6 h-6 text-gray-400 group-hover:text-cyan-500 group-hover:translate-x-1 transition-all duration-300" />
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
+
+              {/* Scroll Indicator */}
+              {showScrollIndicator && (
+                <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none flex items-end justify-center pb-1">
                   <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
-                    initial={{ x: "-100%" }}
-                    animate={{ x: "100%" }}
-                    transition={{
-                      duration: 1.5,
-                      repeat: Infinity,
-                    }}
-                  />
-
-                  {/* Button label */}
-                  <span className="relative z-10 text-center block">
-                    {h.hospital?.HospitalName ?? `Hospital ${h.hospitalId}`} –{" "}
-                    {h.hospital?.city}
-                  </span>
-                </motion.button>
-              ))}
+                    animate={{ y: [0, 4, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    <ChevronRight className="w-5 h-5 text-cyan-500 rotate-90" />
+                  </motion.div>
+                </div>
+              )}
             </div>
           </div>
+
+          {/* Footer Info */}
+          {/* <div className="px-8 pb-6">
+            <p className="text-sm text-gray-500 text-center">
+              Having trouble? Contact support at{" "}
+              <a
+                href="mailto:support@lightningq.com"
+                className="text-cyan-600 hover:underline font-medium"
+              >
+                support@lightningq.com
+              </a>
+            </p>
+          </div> */}
         </motion.div>
       )}
     </>

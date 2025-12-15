@@ -3,8 +3,11 @@ import { DashboardController } from './dashboard.controller';
 import { DashboardService } from './dashboard.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { MailerService } from 'src/common/mailer/mailer.service';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
+  imports: [ScheduleModule.forRoot()],
+
   controllers: [DashboardController],
   providers: [DashboardService, PrismaService, MailerService],
 })

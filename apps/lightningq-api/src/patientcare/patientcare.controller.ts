@@ -21,7 +21,7 @@ import { PatientcareService } from './patientcare.service';
 import { UpsertPatientDto } from '../manage-patient/dto/upsert-patient.dto';
 
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+import multer, { diskStorage } from 'multer';
 import path, { extname, join } from 'path';
 import { CurrentUser } from 'src/auth/decorator/current-user.decorator';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -36,31 +36,21 @@ import { CreateMedicineDto } from 'src/consultation/dto/create-medicine.dto';
 import { ConsultationProcedureDto } from 'src/consultation/dto/CreateOrUpdateConsultationDto';
 import { ConsultationActionDto } from 'src/appointment/dto/consultation-action.dto';
 import { AppointmentService } from 'src/appointment/appointment.service';
+import { R2Service } from 'src/r2/r2.service';
 @Controller('patientcare')
 export class PatientcareController {
   constructor(
     private readonly patientcareService: PatientcareService,
     private readonly prisma: PrismaService,
     private ManageAppointment: AppointmentService,
+    private readonly  r2Service : R2Service
   ) {}
 
   @Patch('upsertPatient')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: (req, file, cb) => {
-          const uploadPath = join(__dirname, '..', '..', 'uploads', 'patients');
-          if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
-          }
-          cb(null, uploadPath);
-        },
-        filename: (req, file, cb) => {
-          const timestamp = Date.now();
-          const ext = extname(file.originalname);
-          cb(null, `${timestamp}${ext}`); // Temporary name
-        },
-      }),
+      storage: multer.memoryStorage(),
+      limits: { fileSize: 5 * 1024 * 1024 },
     }),
   )
   async upsertPatient(
@@ -73,52 +63,66 @@ export class PatientcareController {
 
       const CreatedBy = Number(req.user?.UserId || 1);
 
+      let imageUrl = dto.profileImageUrl;
+
       const safeFirst =
         dto.firstName?.replace(/[^a-zA-Z0-9]/g, '') || 'unknown';
       const safeLast = dto.lastName?.replace(/[^a-zA-Z0-9]/g, '') || '';
+      const userFolder = `${safeFirst}_${safeLast}_${dto.PatientId || 'new'}`;
 
-      let imageUrl: string | undefined = dto.profileImageUrl;
-
-      // ✅ FIX: If file exists (multipart upload), assign image URL from file
+      // ------------------------------
+      // 1️⃣ FILE UPLOAD (multipart)
+      // ------------------------------
       if (file) {
-        console.log('📸 File received:', file.originalname, file.size);
-        imageUrl = `/uploads/patients/${file.filename}`;
+        console.log('📸 Uploading file to R2:', file.originalname);
+
+        imageUrl = await this.r2Service.uploadFile(
+          file,
+          'patients',
+          userFolder,
+        );
       }
 
-      // ✅ Fallback: base64 image conversion if no file but base64 provided
+      // ------------------------------
+      // 2️⃣ BASE64 → R2
+      // ------------------------------
       else if (dto.profileImageUrl?.startsWith('data:image')) {
-        const base64String = dto.profileImageUrl;
-        const base64Data = base64String.split(',')[1];
+        console.log('📸 Base64 image detected');
 
-        if (!base64Data) {
-          throw new BadRequestException('Invalid base64 image data.');
-        }
+        const base64Data = dto.profileImageUrl.split(',')[1];
+        if (!base64Data) throw new BadRequestException('Invalid base64 format');
 
         const buffer = Buffer.from(base64Data, 'base64');
-        const finalName = `${safeFirst}_${safeLast}_${Date.now()}.jpg`;
-        const imagePath = join(
-          __dirname,
-          '..',
-          '..',
-          'uploads',
-          'patients',
-          finalName,
-        );
 
-        fs.writeFileSync(imagePath, buffer);
-        imageUrl = `/uploads/patients/${finalName}`;
+        const fakeFile: Express.Multer.File = {
+          buffer,
+          originalname: `${Date.now()}.jpg`,
+          mimetype: 'image/jpeg',
+          fieldname: 'file',
+          size: buffer.length,
+
+          // ✔️ REQUIRED string placeholders
+          destination: '',
+          filename: '',
+          path: '',
+
+          encoding: '7bit',
+          stream: undefined as any,
+        };
+
+        imageUrl = await this.r2Service.uploadFile(
+          fakeFile,
+          'patients',
+          userFolder,
+        );
       }
 
-      // ✅ Final guard (this now will NOT trigger incorrectly)
-      // if (!dto.PatientId && !imageUrl) {
-      //   throw new BadRequestException(
-      //     'Patient image is required for new patient.',
-      //   );
-      // }
-
+      // ------------------------------
+      // 3️⃣ Save in DB
+      // ------------------------------
       return this.patientcareService.upsertPatient(dto, imageUrl, CreatedBy);
     } catch (err) {
-      console.error('❌ Backend Error:', err);
+      console.error('❌ Patient Upload Error:', err);
       throw new InternalServerErrorException(err);
     }
   }

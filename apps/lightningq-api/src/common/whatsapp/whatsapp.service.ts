@@ -102,7 +102,6 @@
 //   }
 // }
 
-
 import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
 
@@ -121,7 +120,7 @@ export class WhatsappService {
   constructor() {
     this.logger.log('🚀 WhatsAppService (MSG91) initialized...');
     this.logger.log(
-      `🔑 MSG91 AuthKey: ${this.msg91AuthKey ? '✅ Loaded' : '❌ Missing'}`
+      `🔑 MSG91 AuthKey: ${this.msg91AuthKey ? '✅ Loaded' : '❌ Missing'}`,
     );
   }
 
@@ -152,6 +151,16 @@ export class WhatsappService {
       return;
     }
 
+    // 🔹 Normalize appointment type
+    let appointmentTypeLabel = data.appointmentType;
+
+    if (
+      appointmentTypeLabel === 'Paid Follow-up' ||
+      appointmentTypeLabel === 'Free Follow-up'
+    ) {
+      appointmentTypeLabel = `${appointmentTypeLabel} Appointment`;
+    }
+
     // 🔧 Build MSG91 Payload
     const body = {
       integrated_number: this.integratedNumber,
@@ -174,7 +183,7 @@ export class WhatsappService {
                   type: 'text',
                   value: `${data.patient.firstName} ${data.patient.lastName ?? ''}`,
                 },
-                body_1: { type: 'text', value: data.appointmentType },
+                body_1: { type: 'text', value: appointmentTypeLabel },
                 body_2: { type: 'text', value: data.doctorName },
                 body_3: { type: 'text', value: data.hospitalName },
                 body_4: { type: 'text', value: data.appointmentDate },
@@ -202,7 +211,7 @@ export class WhatsappService {
     } catch (err: any) {
       this.logger.error('❌ MSG91 API Request Failed');
       this.logger.error(
-        `🧾 Error Response: ${JSON.stringify(err.response?.data || err.message, null, 2)}`
+        `🧾 Error Response: ${JSON.stringify(err.response?.data || err.message, null, 2)}`,
       );
     }
   }

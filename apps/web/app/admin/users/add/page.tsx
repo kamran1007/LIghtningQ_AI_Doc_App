@@ -47,6 +47,7 @@ import z, { set } from "zod";
 import AddUserSkeleton from "@/components/ui/skeletonloader/AddUserSkeleton";
 import PasswordStrengthMeter from "@/components/ui/PasswordStrengthMeter";
 import { Eye, EyeOff } from "lucide-react";
+import { fixCDNUrl } from "@/utils/fixCDNUrl";
 
 export default function AddUserPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -126,12 +127,13 @@ export default function AddUserPage() {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setImageUrl(reader.result as string); // ✅ For preview
-      setValue("imageUrl", file); // ✅ For backend
-      reader.readAsDataURL(file);
-    }
+    if (!file) return;
+
+    // 🔥 Perfect for instant preview
+    const previewUrl = URL.createObjectURL(file);
+
+    setImageUrl(previewUrl); // Show preview immediately
+    setValue("imageUrl", file); // Store file for backend upload
   };
 
   type SignaturePadExtended = SignaturePad & {
@@ -435,7 +437,7 @@ export default function AddUserPage() {
   };
 
   const UserAvatar = ({ imageUrl }: { imageUrl?: string }) => {
-    const [imgSrc, setImgSrc] = useState<string>("");
+    const [imgSrc, setImgSrc] = useState("/default-avatar.png");
 
     useEffect(() => {
       if (!imageUrl) {
@@ -443,18 +445,26 @@ export default function AddUserPage() {
         return;
       }
 
-      if (imageUrl.startsWith("data:") || imageUrl.startsWith("blob:")) {
-        // local upload preview
+      // 🔥 1. If it's a blob URL => show instantly
+      if (imageUrl.startsWith("blob:") || imageUrl.startsWith("data:")) {
         setImgSrc(imageUrl);
-      } else {
-        // backend-hosted image
-        setImgSrc(`${imageUrl}?v=${Date.now()}`);
+        return;
       }
+
+      // 🔥 2. If it's normal HTTP URL => fix CDN
+      const fixed = fixCDNUrl(imageUrl);
+
+      if (!fixed) {
+        setImgSrc("/default-avatar.png");
+        return;
+      }
+
+      setImgSrc(`${fixed}?v=${Date.now()}`); // cache-busting
     }, [imageUrl]);
 
     return (
       <Image
-        src={imgSrc} // ✅ always a string fallback
+        src={imgSrc}
         alt="User avatar"
         width={80}
         height={80}
@@ -498,19 +508,17 @@ export default function AddUserPage() {
       setValue("SpecializationId", user.SpecializationId ?? 0);
       setValue("Experience", user.Experience);
 
-      setImageUrl(
-        user.imageUrl
-          ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${user.imageUrl}`
-          : ""
-      );
+      setImageUrl(user.imageUrl ? `${user.imageUrl}` : "");
 
-      const rawSignature = user?.SignatureOfUser;
-      const fullSignatureUrl = rawSignature
-        ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${rawSignature}`
+      const raw = user?.SignatureOfUser;
+
+      const fullSignatureUrl = raw
+        ? fixCDNUrl(raw.startsWith("http") ? raw : `${raw.replace(/^\//, "")}`)
         : null;
+
       setPreviewUrl(fullSignatureUrl);
 
-      const extMatch = rawSignature?.match(/\.(png|jpg|jpeg)$/i);
+      const extMatch = raw?.match(/\.(png|jpg|jpeg)$/i);
       setSignatureMethod(extMatch ? "upload" : "draw");
     }
   }, [user, setValue]);
@@ -611,10 +619,7 @@ export default function AddUserPage() {
                   <div className="relative h-20 w-20 rounded-full overflow-hidden group cursor-pointer">
                     <UserAvatar
                       imageUrl={
-                        imageUrl ||
-                        (user?.imageUrl
-                          ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${user.imageUrl}`
-                          : "")
+                        imageUrl || (user?.imageUrl ? `${user.imageUrl}` : "")
                       }
                     />
 
@@ -1195,19 +1200,25 @@ export default function AddUserPage() {
                         </label>
                         <div className="w-72 h-32 border rounded bg-gray-100 flex items-center justify-center text-gray-400">
                           {previewUrl ? (
-                            previewUrl.startsWith("blob:") ? (
+                            previewUrl.startsWith("blob:") ||
+                            previewUrl.startsWith("data:") ? (
+                              // 🔥 Base64 or Blob preview using normal <img>
                               <img
                                 src={previewUrl}
                                 alt="Signature Preview"
                                 className="w-full h-full object-contain"
                               />
+                            ) : previewUrl.startsWith("http") ? (
+                              <Image
+                                src={previewUrl}
+                                alt="Signature Preview"
+                                width={150}
+                                height={80}
+                                className="w-full h-full object-contain"
+                              />
                             ) : (
                               <Image
-                                src={
-                                  previewUrl.startsWith("http")
-                                    ? previewUrl
-                                    : `${process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, "")}/${previewUrl.replace(/^\//, "")}`
-                                }
+                                src={`https://cdn.lightningq.com/${previewUrl.replace(/^\//, "")}`}
                                 alt="Signature Preview"
                                 width={150}
                                 height={80}

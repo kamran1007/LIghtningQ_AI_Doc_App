@@ -13,12 +13,14 @@ import {
   Stethoscope,
   History,
   HandCoins,
+  Printer,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
 import { blue } from '@mui/material/colors';
 import BillItem from './BillItem';
+import ManagePrint from './ManagePrint';
 
 // Lazy load the modal component
 const MedicineModal = dynamic(() => import("../settings/MedicineModal"), {
@@ -61,21 +63,21 @@ const settings = [
     color: "bg-gradient-to-tr from-teal-200 to-teal-300",
     icon: <Stethoscope className="w-4 h-4" />,
   },
-  {
-    name: "Investigation",
-    color: "bg-gradient-to-tr from-teal-300 to-teal-400",
-    icon: <FlaskConical className="w-4 h-4" />,
-  },
+  // {
+  //   name: "Investigation",
+  //   color: "bg-gradient-to-tr from-teal-300 to-teal-400",
+  //   icon: <FlaskConical className="w-4 h-4" />,
+  // },
   {
     name: "Diagnosis",
     color: "bg-gradient-to-tr from-teal-200 to-teal-300",
     icon: <FileText className="w-4 h-4" />,
   },
-  {
-    name: "Procedures",
-    color: "bg-gradient-to-tr from-teal-300 to-teal-400",
-    icon: <Scissors className="w-4 h-4" />,
-  },
+  // {
+  //   name: "Procedures",
+  //   color: "bg-gradient-to-tr from-teal-300 to-teal-400",
+  //   icon: <Scissors className="w-4 h-4" />,
+  // },
   {
     name: "Medical History Tags",
     color: "bg-gradient-to-tr from-teal-200 to-teal-300",
@@ -86,6 +88,11 @@ const settings = [
     name: "Bill Items",
     color: "bg-gradient-to-tr from-teal-300 to-teal-400",
     icon: <HandCoins  className="w-4 h-4" />,
+  },
+   {
+    name: "Print",
+    color: "bg-gradient-to-tr from-teal-200 to-teal-300",
+    icon: <Printer   className="w-4 h-4" />,
   },
 
   // {
@@ -119,6 +126,7 @@ function AppSetting() {
         "Procedures",
         "Medical History Tags",
         "Bill Items",
+        "Print"
       ].includes(name)
     ) {
       setOpenSetting(name);
@@ -191,6 +199,9 @@ function AppSetting() {
       )}
       {openSetting === "Bill Items" && (
         <BillItem open onClose={closeModal} />
+      )}
+      {openSetting === "Print" && (
+        <ManagePrint open onClose={closeModal} />
       )}
     </div>
     // </Scrollbars>

@@ -12,6 +12,7 @@ import AppointmentReducer from "./AppointmentSlice";
 import authReducer from "./authSlice";
 import hospitalSelectionReducer from "./HospitalBranchSelectionSlice";
 import hospitalAccessRightReducer from "./LoginAccessRightSlice";
+import HospitalPrintSettingsReducer from "./HospitalPrintSettingsSlice"
 
 const rootReducer = combineReducers({
   globalLoader: globalLoaderReducer,
@@ -23,12 +24,14 @@ const rootReducer = combineReducers({
   auth: authReducer,
   hospitalSelection: hospitalSelectionReducer,
   hospitalAccessRight: hospitalAccessRightReducer,
+  HospitalPrintSettings: HospitalPrintSettingsReducer
+
 });
 
 const persistConfig = {
   key: "lightningq_app",
   storage,
-  whitelist: ["auth", "hospitalSelection", "hospitalAccessRight"],
+  whitelist: ["auth", "hospitalSelection", "hospitalAccessRight","HospitalPrintSettings"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

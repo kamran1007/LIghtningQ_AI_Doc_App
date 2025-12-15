@@ -303,15 +303,15 @@ export default function AppointmentActionsDialog({
                       }`}
                       onClick={() => {
                         // First check consultation status
-                        if (
-                          patient?.consultation?.consultationStatus !==
-                          "COMPLETED"
-                        ) {
-                          showToast(
-                            "Consultation is not complete. You cannot start billing."
-                          );
-                          return;
-                        }
+                        // if (
+                        //   patient?.consultation?.consultationStatus !==
+                        //   "COMPLETED"
+                        // ) {
+                        //   showToast(
+                        //     "Consultation is not complete. You cannot start billing."
+                        //   );
+                        //   return;
+                        // }
                         
                         // Then check billing permission
                         if (!isBillingEnabled) {

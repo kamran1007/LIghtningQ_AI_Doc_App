@@ -71,83 +71,86 @@ model User {
   VitalsHistoryUpdatedBy                                  VitalsHistory[]      @relation("VitalsUpdatedBy")
   ConsultationSpecialist                                  Appointment[]        @relation("Specialist")
   UserBranchesArray                                       Hospital[]           @relation("UserHospitals")
+  doctorPrintSettings                                     DoctorPrintSetting[]
 }
 
 model Organization {
-  OrganizationId     Int                  @id @default(autoincrement())
-  OrganizationName   String
-  Organizationcode   String               @unique
-  logoUrl            String
-  email              String               @unique
-  contactNumber      String
-  Orgnizationtype    OrganizationType?
-  website            String
-  addressLine1       String
-  addressLine2       String
-  city               String
-  state              String
-  country            String
-  postalCode         String
-  registrationNo     String
-  establishedOn      DateTime
-  industryType       String
-  status             Hospital_Org_status  @default(ACTIVE)
-  description        String?
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @default(now())
-  isActive           Boolean?             @default(true)
-  BillingTransaction BillingTransaction[]
-  hospitals          Hospital[]
-  Patient            Patient[]
-  users              User[]
-  UserHospitalAccess UserHospitalAccess[]
+  OrganizationId      Int                  @id @default(autoincrement())
+  OrganizationName    String
+  Organizationcode    String               @unique
+  logoUrl             String
+  email               String               @unique
+  contactNumber       String
+  Orgnizationtype     OrganizationType?
+  website             String
+  addressLine1        String
+  addressLine2        String
+  city                String
+  state               String
+  country             String
+  postalCode          String
+  registrationNo      String
+  establishedOn       DateTime
+  industryType        String
+  status              Hospital_Org_status  @default(ACTIVE)
+  description         String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @default(now())
+  isActive            Boolean?             @default(true)
+  BillingTransaction  BillingTransaction[]
+  hospitals           Hospital[]
+  Patient             Patient[]
+  users               User[]
+  UserHospitalAccess  UserHospitalAccess[]
+  doctorPrintSettings DoctorPrintSetting[]
 }
 
 model Hospital {
-  HospitalId         Int                  @id @default(autoincrement())
-  HospitalName       String
-  HospitalCode       String               @unique
-  ParentHospitalCode String
-  Organizationcode   String
-  SpecializationType SpecializationType
-  address            String
-  city               String
-  state              String
-  country            String
-  postalCode         String
-  contactNumber      String
-  email              String
-  website            String
-  logoUrl            String
-  latitude           Float
-  longitude          Float
-  status             Hospital_Org_status  @default(ACTIVE)
-  level              HospitalLevel?
-  parentHospitalId   Int?
-  organizationId     Int
-  isActive           Boolean              @default(true)
-  createdById        Int?
-  updatedById        Int?
-  deletedById        Int?
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @default(now())
-  deletedAt          DateTime?
-  Appointment        Appointment[]
-  BillingItemCharge  BillingItemCharge[]
-  BillingTransaction BillingTransaction[]
-  DoctorCosting      DoctorCosting[]
-  DoctorSlot         DoctorSlot[]
-  DoctorTimeSlot     DoctorTimeSlot[]
-  CreatedBy          User?                @relation("UserCreatedHospitals", fields: [createdById], references: [UserId])
-  DeletedBy          User?                @relation("UserDeletedHospitals", fields: [deletedById], references: [UserId])
-  Organization       Organization         @relation(fields: [organizationId], references: [OrganizationId])
-  parentHospital     Hospital?            @relation("HospitalHierarchy", fields: [parentHospitalId], references: [HospitalId])
-  childHospital      Hospital[]           @relation("HospitalHierarchy")
-  UpdatedBy          User?                @relation("UserUpdatedHospitals", fields: [updatedById], references: [UserId])
-  Patient            Patient[]
-  ScheduledReport    ScheduledReport[]
-  users              UserHospitalAccess[]
-  mappedUsers        User[]               @relation("UserHospitals")
+  HospitalId          Int                  @id @default(autoincrement())
+  HospitalName        String
+  HospitalCode        String               @unique
+  ParentHospitalCode  String
+  Organizationcode    String
+  SpecializationType  SpecializationType
+  address             String
+  city                String
+  state               String
+  country             String
+  postalCode          String
+  contactNumber       String
+  email               String
+  website             String
+  logoUrl             String
+  latitude            Float
+  longitude           Float
+  status              Hospital_Org_status  @default(ACTIVE)
+  level               HospitalLevel?
+  parentHospitalId    Int?
+  organizationId      Int
+  isActive            Boolean              @default(true)
+  createdById         Int?
+  updatedById         Int?
+  deletedById         Int?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @default(now())
+  deletedAt           DateTime?
+  Appointment         Appointment[]
+  BillingItemCharge   BillingItemCharge[]
+  BillingTransaction  BillingTransaction[]
+  DoctorCosting       DoctorCosting[]
+  DoctorSlot          DoctorSlot[]
+  DoctorTimeSlot      DoctorTimeSlot[]
+  CreatedBy           User?                @relation("UserCreatedHospitals", fields: [createdById], references: [UserId])
+  DeletedBy           User?                @relation("UserDeletedHospitals", fields: [deletedById], references: [UserId])
+  Organization        Organization         @relation(fields: [organizationId], references: [OrganizationId])
+  parentHospital      Hospital?            @relation("HospitalHierarchy", fields: [parentHospitalId], references: [HospitalId])
+  childHospital       Hospital[]           @relation("HospitalHierarchy")
+  UpdatedBy           User?                @relation("UserUpdatedHospitals", fields: [updatedById], references: [UserId])
+  Patient             Patient[]
+  ScheduledReport     ScheduledReport[]
+  users               UserHospitalAccess[]
+  mappedUsers         User[]               @relation("UserHospitals")
+  doctorPrintSettings DoctorPrintSetting[]
 }
 
 model UserHospitalAccess {
@@ -307,15 +310,19 @@ model LoginSession {
 }
 
 model Specialization {
-  SpecializationId   Int                 @id @default(autoincrement())
-  SpecializationName String              @unique
+  SpecializationId   Int    @id @default(autoincrement())
+  SpecializationName String @unique
   Description        String
-  Appointment        Appointment[]
-  BillingItemCharge  BillingItemCharge[]
-  ChiefComplaintTag  ChiefComplaintTag[]
-  Diagnosis          Diagnosis[]
-  Procedure          Procedure[]
-  Users              User[]
+
+  Appointment       Appointment[]
+  BillingItemCharge BillingItemCharge[]
+  ChiefComplaintTag ChiefComplaintTag[]
+  Diagnosis         Diagnosis[]
+  Procedure         Procedure[]
+  Users             User[]
+
+  // 🔗 Relation
+  RoleSpecialization RoleSpecialization[]
 }
 
 model Patient {
@@ -746,13 +753,29 @@ model SubModule {
 }
 
 model Role {
-  RoleId             Int                  @id @default(autoincrement())
-  Rolename           String               @unique
-  Description        String
-  IsActive           Boolean              @default(true)
+  RoleId      Int     @id @default(autoincrement())
+  Rolename    String  @unique
+  Description String
+  IsActive    Boolean @default(true)
+
   permissions        RolePermission[]
   Users              User[]
   UserHospitalAccess UserHospitalAccess[]
+
+  // 🔗 Relation
+  RoleSpecialization RoleSpecialization[]
+}
+
+model RoleSpecialization {
+  RoleSpecializationId Int @id @default(autoincrement())
+
+  RoleId           Int
+  SpecializationId Int
+
+  Role           Role           @relation(fields: [RoleId], references: [RoleId], onDelete: Cascade)
+  Specialization Specialization @relation(fields: [SpecializationId], references: [SpecializationId], onDelete: Cascade)
+
+  @@unique([RoleId, SpecializationId]) // ❌ no duplicates
 }
 
 model Permission {
@@ -857,7 +880,7 @@ model BillingItemCharge {
   updatedAt                              DateTime
   createdBy                              Int?
   updatedBy                              Int?
-  BillingItemName                        String                      
+  BillingItemName                        String
   price                                  Decimal?                    @db.Decimal(10, 2)
   doctorId                               Int?
   fastTrackCharges                       Decimal?                    @db.Decimal(10, 2)
@@ -881,8 +904,8 @@ model BillingItemCharge {
   ConsultationInvestigation              ConsultationInvestigation[]
   ConsultationProcedure                  ConsultationProcedure[]
   PatientPackageUsage                    PatientPackageUsage[]
-  @@unique([BillingItemName, hospitalId, doctorId, appointmentTypeId])
 
+  @@unique([BillingItemName, hospitalId, doctorId, appointmentTypeId])
 }
 
 model BillingPayment {
@@ -957,8 +980,7 @@ model BillingTransactionItem {
   totalAmount    Decimal  @db.Decimal(10, 2)
   createdAt      DateTime @default(now())
   // updatedAt      DateTime
-  updatedAt      DateTime @updatedAt   // ⭐ FIX
-
+  updatedAt      DateTime @updatedAt // ⭐ FIX
 
   BillingItemCharge  BillingItemCharge  @relation(fields: [billingItemChargeId], references: [BillingItemChargeId])
   BillingTransaction BillingTransaction @relation(fields: [billingTransactionId], references: [BillingTransactionId])
@@ -993,7 +1015,7 @@ model PatientPackageUsage {
   usageDate             DateTime @default(now())
   status                String   @default("Incomplete")
   createdAt             DateTime @default(now())
-updatedAt DateTime @updatedAt
+  updatedAt             DateTime @updatedAt
 
   billingItemChargeId Int // REQUIRED
 
@@ -1015,6 +1037,109 @@ model PaymentStatus {
   createdAt          DateTime             @default(now())
   updatedAt          DateTime
   BillingTransaction BillingTransaction[]
+}
+
+// =======================
+// PRINT PAGE MASTER TABLE
+// =======================
+model PrintPage {
+  PrintPageId Int     @id @default(autoincrement())
+  pageName    String  @unique
+  isActive    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  printDetails PrintDetail[]
+}
+
+// =======================
+// DOCTOR PRINT SETTING
+// =======================
+model DoctorPrintSetting {
+  DoctorPrintSettingId Int @id @default(autoincrement())
+
+  parentOrganizationId Int
+  HospitalId           Int
+  userId               Int
+
+  language Int?
+  type     Boolean?
+
+  printHeaderImgUrl       String?
+  printHeaderImgAlignment String?
+
+  printImageHeaderUrl String?
+  printImageFooterUrl String?
+
+  printBillingLogoUrl      String?
+  printBillingHeaderImgUrl String?
+  printBillingFooterImgUrl String?
+
+  printPrescriptionLogoUrl      String?
+  printPrescriptionHeaderImgUrl String?
+  printPrescriptionFooterImgUrl String?
+
+  printVisitSummaryLogoUrl      String?
+  printVisitSummaryHeaderImgUrl String?
+  printVisitSummaryFooterImgUrl String?
+
+  user         User         @relation(fields: [userId], references: [UserId])
+  hospital     Hospital     @relation(fields: [HospitalId], references: [HospitalId])
+  organization Organization @relation(fields: [parentOrganizationId], references: [OrganizationId])
+
+  printDetails PrintDetail[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// =======================
+// PRINT DETAIL (per page)
+// =======================
+model PrintDetail {
+  PrintDetailId        Int @id @default(autoincrement())
+  DoctorPrintSettingId Int
+
+  printPageId     Int?
+  letterHeadValue String
+
+  pageSettings   PageSettings?
+  customSettings CustomPrintSettings?
+
+  DoctorPrintSetting DoctorPrintSetting @relation(fields: [DoctorPrintSettingId], references: [DoctorPrintSettingId])
+  printPage          PrintPage?         @relation(fields: [printPageId], references: [PrintPageId])
+}
+
+// =======================
+// PAGE SETTINGS  (owns cascade)
+// =======================
+model PageSettings {
+  PageSettingsId Int @id @default(autoincrement())
+  printDetailId  Int @unique
+
+  pageSize        String
+  pageOrientation String
+  marginTop       Int
+  marginBottom    Int
+  marginLeft      Int
+  marginRight     Int
+
+  PrintDetail PrintDetail @relation(fields: [printDetailId], references: [PrintDetailId], onDelete: Cascade)
+}
+
+// =======================
+// CUSTOM PRINT SETTINGS (owns cascade)
+// =======================
+model CustomPrintSettings {
+  CustomPrintSettingsId Int @id @default(autoincrement())
+  printDetailId         Int @unique
+
+  headerSettings  String?
+  contentSettings String?
+  footerSettings  String?
+
+  PrintDetail PrintDetail @relation(fields: [printDetailId], references: [PrintDetailId], onDelete: Cascade)
 }
 
 enum AcuityLevel {

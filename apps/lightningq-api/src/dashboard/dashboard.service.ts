@@ -14,6 +14,7 @@ import { generateScheduledReportHtml } from 'src/utils/scheduled-report-html';
 import { generatePdfFromHtml } from 'src/utils/pdf-generator.util';
 import { subDays, differenceInDays, startOfWeek, format } from 'date-fns';
 import { toZonedTime, formatInTimeZone } from 'date-fns-tz';
+import { Prisma } from '@prisma/client';
 const TZ = 'Asia/Kolkata';
 
 @Injectable()
@@ -29,8 +30,10 @@ export class DashboardService {
     endDate?: Date;
     hospitalId?: number;
     doctorId?: number;
+    specializationId?: number;
   }) {
-    const { startDate, endDate, hospitalId, doctorId } = filters;
+    const { startDate, endDate, hospitalId, doctorId, specializationId } =
+      filters;
 
     // 🕒 Normalize once for full-day coverage
     const normalizeDateRange = (start?: Date, end?: Date) => {
@@ -50,6 +53,7 @@ export class DashboardService {
       appointmentDate: { gte, lte },
       ...(hospitalId ? { hospitalId } : {}),
       ...(doctorId ? { DoctorId: doctorId } : {}),
+      ...(specializationId ? { SpecializationId: specializationId } : {}),
     };
 
     const todaysAppointments = await this.prisma.appointment.findMany({
@@ -77,6 +81,7 @@ export class DashboardService {
           appointmentDate: { gte, lte },
           ...(hospitalId ? { hospitalId } : {}),
           ...(doctorId ? { DoctorId: doctorId } : {}),
+          ...(specializationId ? { SpecializationId: specializationId } : {}),
         },
       },
     };
@@ -98,6 +103,7 @@ export class DashboardService {
           appointmentDate: { gte: previousStart, lte: previousEnd },
           ...(hospitalId ? { hospitalId } : {}),
           ...(doctorId ? { DoctorId: doctorId } : {}),
+          ...(specializationId ? { SpecializationId: specializationId } : {}),
         },
       },
     };
@@ -152,12 +158,13 @@ export class DashboardService {
     const consultationsWithSpecialization =
       await this.prisma.consultation.findMany({
         where: {
-  consultationStatus: "COMPLETED",
+          consultationStatus: 'COMPLETED',
           consultationEndDateTime: { not: null },
           appointment: {
             appointmentDate: { gte, lte }, // ✅ use appointment date only
             ...(hospitalId ? { hospitalId } : {}),
             ...(doctorId ? { DoctorId: doctorId } : {}),
+            ...(specializationId ? { SpecializationId: specializationId } : {}),
           },
         },
         select: {
@@ -218,12 +225,13 @@ export class DashboardService {
     // -------------------------
     const consultations = await this.prisma.consultation.findMany({
       where: {
-  consultationStatus: "COMPLETED",
+        consultationStatus: 'COMPLETED',
         consultationEndDateTime: { not: null },
         appointment: {
           appointmentDate: { gte, lte }, // ✅ use appointment date only
           ...(hospitalId ? { hospitalId } : {}),
           ...(doctorId ? { DoctorId: doctorId } : {}),
+          ...(specializationId ? { SpecializationId: specializationId } : {}),
         },
       },
       select: {
@@ -350,23 +358,68 @@ export class DashboardService {
     endDate?: Date;
     hospitalId?: number;
     doctorId?: number;
+    specializationId?: number;
   }) {
-    const { startDate, endDate, hospitalId, doctorId } = filters;
+    const { startDate, endDate, hospitalId, doctorId, specializationId } =
+      filters;
 
-    // ---- Build where conditions ----
-    const appointmentWhere: any = {};
+    /**
+     * -------------------------------------------------
+     * BUILD PRISMA WHERE CLAUSE (SAFE & CORRECT)
+     * -------------------------------------------------
+     */
+    const andConditions: any[] = [];
+
+    // Date range filter
     if (startDate && endDate) {
       const gte = new Date(startDate);
       const lte = new Date(endDate);
       gte.setHours(0, 0, 0, 0);
       lte.setHours(23, 59, 59, 999);
-      appointmentWhere.appointmentDate = { gte, lte };
+
+      andConditions.push({
+        appointmentDate: { gte, lte },
+      });
     }
 
-    if (hospitalId) appointmentWhere.hospitalId = hospitalId; // ✅ lowercase matches model
-    if (doctorId) appointmentWhere.DoctorId = doctorId;
+    // Hospital filter
+    if (hospitalId) {
+      andConditions.push({ hospitalId });
+    }
 
-    // ---- Fetch appointments in the range ----
+    // Doctor filter
+    if (doctorId) {
+      andConditions.push({ DoctorId: doctorId });
+    }
+
+    // Specialization filter (Appointment OR Doctor specialization)
+    if (specializationId) {
+      andConditions.push({
+        OR: [
+          { SpecializationId: specializationId },
+          {
+            doctor: {
+              is: {
+                SpecializationId: specializationId,
+              },
+            },
+          },
+        ],
+      });
+    }
+
+    const appointmentWhere = andConditions.length ? { AND: andConditions } : {};
+
+    console.dir(
+      { getPatientDemographicsWhere: appointmentWhere },
+      { depth: null },
+    );
+
+    /**
+     * -------------------------------------------------
+     * FETCH APPOINTMENTS
+     * -------------------------------------------------
+     */
     const appointments = await this.prisma.appointment.findMany({
       where: appointmentWhere,
       select: {
@@ -374,7 +427,9 @@ export class DashboardService {
         PatientId: true,
         acuity: true,
         visitTypeId: true,
-        visitType: { select: { AppointmentTypeName: true } },
+        visitType: {
+          select: { AppointmentTypeName: true },
+        },
         fasttrackpatient: true,
         appointmentDate: true,
         patient: {
@@ -386,11 +441,15 @@ export class DashboardService {
           },
         },
       },
-      orderBy: { appointmentDate: 'asc' }, // ✅ ensure chronological order
+      orderBy: { appointmentDate: 'asc' },
     });
 
-    // ---- No appointments case ----
-    if (appointments.length === 0) {
+    /**
+     * -------------------------------------------------
+     * NO DATA CASE (IMPORTANT)
+     * -------------------------------------------------
+     */
+    if (!appointments.length) {
       return {
         genderStats: [],
         summary: {
@@ -403,25 +462,34 @@ export class DashboardService {
       };
     }
 
-    // ---- Compute demographic stats ----
+    /**
+     * -------------------------------------------------
+     * DEMOGRAPHIC CALCULATIONS
+     * -------------------------------------------------
+     */
     const maleCount = appointments.filter(
       (a) => a.patient.gender?.toUpperCase() === 'MALE',
     ).length;
+
     const femaleCount = appointments.filter(
       (a) => a.patient.gender?.toUpperCase() === 'FEMALE',
     ).length;
+
     const fastTrack = appointments.filter((a) => a.fasttrackpatient).length;
+
     const highAcuity = appointments.filter((a) => a.acuity === 'HIGH').length;
 
-    // ---- New appointments (visitTypeId = 1) ----
     const newAppointments = appointments.filter(
       (a) => a.visitTypeId === 1,
     ).length;
 
-    // ---- Identify new vs returning patients efficiently ----
+    /**
+     * -------------------------------------------------
+     * NEW VS RETURNING PATIENTS
+     * -------------------------------------------------
+     */
     const uniquePatientIds = [...new Set(appointments.map((a) => a.PatientId))];
 
-    // ✅ Safe reference to earliest appointment date
     const earliestAppointmentDate =
       appointments[0]?.appointmentDate ?? new Date();
 
@@ -435,11 +503,16 @@ export class DashboardService {
     });
 
     const oldPatientIds = new Set(previousAppointments.map((p) => p.PatientId));
+
     const newPatients = uniquePatientIds.filter(
       (id) => !oldPatientIds.has(id),
     ).length;
 
-    // ---- Final response ----
+    /**
+     * -------------------------------------------------
+     * FINAL RESPONSE
+     * -------------------------------------------------
+     */
     return {
       genderStats: [
         { label: 'Male', value: maleCount },
@@ -878,91 +951,114 @@ export class DashboardService {
     };
   }
 
+  // 🔔 CRON — Runs EVERY DAY at 7 AM IST
   @Cron(CronExpression.EVERY_DAY_AT_7AM, { timeZone: 'Asia/Kolkata' })
   async checkAndSendReports() {
-    const today = new Date();
+    const now = new Date();
 
-    // fetch all reports due today or before
-    const dueReports = await this.prisma.scheduledReport.findMany({
+    this.logger.log(`⏰ Scheduler running at ${now.toISOString()}`);
+
+    const isMonday = now.getDay() === 1;
+    const isFirstOfMonth = now.getDate() === 1;
+
+    const frequencyConditions: Prisma.ScheduledReportWhereInput[] = [];
+
+    if (isMonday) {
+      frequencyConditions.push({
+        frequency: 'WEEKLY',
+        nextRunAt: { lte: now },
+      });
+    }
+
+    if (isFirstOfMonth) {
+      frequencyConditions.push({
+        frequency: 'MONTHLY',
+        nextRunAt: { lte: now },
+      });
+    }
+
+    if (!frequencyConditions.length) {
+      this.logger.log('ℹ️ No scheduled reports eligible today');
+      return;
+    }
+
+    const reports = await this.prisma.scheduledReport.findMany({
       where: {
-        nextRunAt: { lte: today },
-        frequency: { in: ['WEEKLY', 'MONTHLY'] },
-        OR: [{ lastRunAt: null }, { lastRunAt: { lt: today } }],
+        AND: [
+          { OR: frequencyConditions },
+          {
+            OR: [{ lastRunAt: null }, { lastRunAt: { lt: now } }],
+          },
+        ],
       },
     });
 
-    for (const report of dueReports) {
-      try {
-        const whereClause = this.buildWhereClause(report);
-        await this.generateAndSendPDF(report, whereClause);
-
-        let nextRunAt: Date;
-        if (report.frequency === 'WEEKLY') {
-          nextRunAt = this.calculateNextWeeklyRun(today);
-        } else if (report.frequency === 'MONTHLY') {
-          nextRunAt = this.calculateNextMonthlyRun(today);
-        } else {
-          continue;
-        }
-
-        await this.prisma.scheduledReport.update({
-          where: { ScheduledReportId: report.ScheduledReportId },
-          data: {
-            lastRunAt: today,
-            nextRunAt,
-          },
-        });
-
-        this.logger.log(
-          `Report ${report.ScheduledReportId} sent, next run at ${nextRunAt.toISOString()}`,
-        );
-      } catch (err) {
-        const errorMessage =
-          err && typeof err === 'object' && 'message' in err
-            ? (err as any).message
-            : String(err);
-        const errorStack =
-          err && typeof err === 'object' && 'stack' in err
-            ? (err as any).stack
-            : undefined;
-        this.logger.error(
-          `Failed to process report ${report.ScheduledReportId}: ${errorMessage}`,
-          errorStack,
-        );
-      }
+    for (const report of reports) {
+      await this.processReport(report, now);
     }
   }
 
-  // Calculate next Monday 8AM
+  // 🔄 PROCESS SINGLE REPORT
+  private async processReport(report: any, now: Date) {
+    try {
+      const whereClause = this.buildWhereClause(report);
+
+      await this.generateAndSendPDF(report, whereClause);
+
+      const nextRunAt =
+        report.frequency === 'WEEKLY'
+          ? this.calculateNextWeeklyRun(now)
+          : this.calculateNextMonthlyRun(now);
+
+      await this.prisma.scheduledReport.update({
+        where: { ScheduledReportId: report.ScheduledReportId },
+        data: {
+          lastRunAt: now,
+          nextRunAt,
+        },
+      });
+
+      this.logger.log(
+        `✅ ${report.frequency} report sent. Next run: ${nextRunAt.toISOString()}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `❌ Failed report ${report.ScheduledReportId}`,
+        error instanceof Error ? error.stack : undefined,
+      );
+    }
+  }
+
+  // 🗓 NEXT MONDAY 7 AM IST
   private calculateNextWeeklyRun(from: Date): Date {
     const next = new Date(from);
-    next.setHours(8, 0, 0, 0); // 8:00 AM
-    // move to next Monday
-    const day = next.getDay();
-    const daysUntilMonday = (1 + 7 - day) % 7 || 7;
+    next.setHours(7, 0, 0, 0);
+
+    const day = next.getDay(); // 0=Sun
+    const daysUntilMonday = (8 - day) % 7 || 7;
+
     next.setDate(next.getDate() + daysUntilMonday);
     return next;
   }
 
-  // Calculate 1st day of next month 9AM
+  // 🗓 1ST OF NEXT MONTH 7 AM IST
   private calculateNextMonthlyRun(from: Date): Date {
     const next = new Date(from);
     next.setMonth(next.getMonth() + 1);
     next.setDate(1);
-    next.setHours(9, 0, 0, 0); // 9:00 AM
+    next.setHours(7, 0, 0, 0);
     return next;
   }
 
+  // 📄 PDF + EMAIL
   private async generateAndSendPDF(report: any, whereClause: any) {
-    // 1. Get data for report sections
     const sections = await this.fetchReportSections(
       report.reportTypes,
       whereClause,
       report.frequency,
     );
 
-    // 2. Get hospital info
-    const hospitalInfo = await this.prisma.hospital.findUnique({
+    const hospital = await this.prisma.hospital.findUnique({
       where: { HospitalId: report.HospitalId },
       select: {
         HospitalName: true,
@@ -973,64 +1069,52 @@ export class DashboardService {
       },
     });
 
-    // 3. Generate HTML for report
     const html = generateScheduledReportHtml({
       frequency: report.frequency,
       reportTypes: report.reportTypes,
       generatedAt: new Date().toLocaleString(),
       sections,
       hospitalInfo: {
-        name: hospitalInfo?.HospitalName || '',
-        code: hospitalInfo?.HospitalCode || '',
-        email: hospitalInfo?.email || '',
-        mobile: hospitalInfo?.contactNumber || '',
-        Address: hospitalInfo?.address || '',
+        name: hospital?.HospitalName || '',
+        code: hospital?.HospitalCode || '',
+        email: hospital?.email || '',
+        mobile: hospital?.contactNumber || '',
+        Address: hospital?.address || '',
       },
     });
 
-    // 4. Convert HTML → PDF
     const pdfBuffer = await generatePdfFromHtml(html);
 
-    // 5. Fetch admin info
     const admin = await this.prisma.user.findUnique({
       where: { UserId: report.adminId },
       select: { email: true, firstName: true },
     });
 
-    if (!admin) throw new Error(`Admin with ID ${report.adminId} not found`);
+    if (!admin) throw new Error('Admin not found');
 
-    // 6. Send email (with null-check)
     if (!pdfBuffer) {
-      console.warn(
-        `⚠️ Scheduled report PDF generation failed for ${report.frequency}. Sending email without attachment...`,
-      );
-
       await this.mailerService.sendMail(
         admin.email,
         `${report.frequency} Scheduled Report`,
         `<p>Dear ${admin.firstName},</p>
-       <p>We encountered an issue generating your ${report.frequency.toLowerCase()} scheduled report.</p>
-       <p>Please try again later or contact support.</p>
-       <p>Best regards,<br/>LightningQ Team</p>`,
+         <p>Report generation failed.</p>`,
       );
-    } else {
-      await this.mailerService.sendMailWithAttachment(
-        admin.email,
-        `${report.frequency} Scheduled Report`,
-        `<p>Dear ${admin.firstName},</p>
-       <p>Please find attached your ${report.frequency.toLowerCase()} scheduled report.</p>
-       <p>Best regards,<br/>LightningQ Team</p>`,
-        [
-          {
-            filename: `ScheduledReport_${report.frequency}_${Date.now()}.pdf`,
-            content: pdfBuffer,
-            contentType: 'application/pdf',
-          },
-        ],
-      );
+      return;
     }
 
-    console.log(`✅ ${report.frequency} report email sent to ${admin.email}`);
+    await this.mailerService.sendMailWithAttachment(
+      admin.email,
+      `${report.frequency} Scheduled Report`,
+      `<p>Dear ${admin.firstName},</p>
+       <p>Please find attached your report.</p>`,
+      [
+        {
+          filename: `ScheduledReport_${report.frequency}_${Date.now()}.pdf`,
+          content: pdfBuffer,
+          contentType: 'application/pdf',
+        },
+      ],
+    );
   }
 
   private async fetchReportSections(

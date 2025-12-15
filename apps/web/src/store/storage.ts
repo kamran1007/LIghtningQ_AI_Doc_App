@@ -1,5 +1,5 @@
 // store/storage.ts
-import createWebStorage from "redux-persist/lib/storage/createWebStorage";
+import reduxStorage from "redux-persist/lib/storage";
 
 const createNoopStorage = () => {
   return {
@@ -17,7 +17,7 @@ const createNoopStorage = () => {
 
 const storage =
   typeof window !== "undefined"
-    ? createWebStorage("local")
+    ? reduxStorage
     : createNoopStorage();
 
 export default storage;

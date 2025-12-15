@@ -53,6 +53,8 @@ import { cn } from "@/lib/utils";
 import DemographicsCard from "./DemographicsCard";
 import EncounterLogCard from "./EncounterLogCard";
 import { generateConsultationPDF } from "@/utils/consultationPdf";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 interface CaseHistoryProps {
   visible: boolean;
@@ -145,6 +147,10 @@ export default function PatientCaseHistory({
     recentVisit?.return?.[0]?.AppointmentId ?? null
   );
   const [recentVisitLoading, setRecentVisitLoading] = useState(false);
+
+  const Printsettings = useSelector(
+    (state: RootState) => state.HospitalPrintSettings.data
+  );
 
   const bloodGroupMap: Record<string, string> = {
     A_POS: "A+",
@@ -901,7 +907,7 @@ export default function PatientCaseHistory({
                 <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                   <button
                     onClick={() =>
-                      generateConsultationPDF(appointmentcasesheet, patient)
+                      generateConsultationPDF(appointmentcasesheet, patient,Printsettings)
                     }
                     className="bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-500 hover:to-teal-600 text-white font-semibold px-6 py-3 rounded-2xl transition-all duration-300 cursor-pointer shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
                   >

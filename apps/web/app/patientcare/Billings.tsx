@@ -129,6 +129,7 @@ interface BillingItem {
   subCategoryName?: string;
   billingItemCharge?: string;
   chargeData?: any;
+  appointmentTypeId: number;
 }
 
 interface PatientPackageUsage {
@@ -149,6 +150,54 @@ interface PatientPackageUsage {
     price?: number;
   };
 }
+
+type BillingPayload = {
+  BillingTransactionId: string | number;
+  patientId?: number;
+  appointmentId?: number | null;
+  hospitalId?: number;
+  organizationId?: number;
+  doctorId?: number;
+
+  subtotal: number;
+  totalDiscount: number;
+  totalTax: number;
+  overallDiscountType: "flat" | "percent";
+  overallDiscountValue: number;
+  netAmount: number;
+  amountPaid: number;
+  remarks?: string;
+
+  billStatusId: number;
+  PaymentStatusId: number;
+
+  items: {
+    BillingItemChargeId: number;
+    BillingItemName: string;
+    quantity: number;
+    price: number;
+    discount: number;
+    gst: number;
+    netAmount: number;
+  }[];
+
+  payments: {
+    paymentMode: string;
+    amount: number;
+    referenceNumber: string;
+    remarks?: string;
+  }[];
+
+  paymentHistory?: {
+    paymentTypeId: number;
+    AppointmentChargesPaid: number;
+    isAmountPaid: boolean;
+    ActualAppointmentCharges: number;
+    DiscountOnAppointment: number;
+    FastTrackCharges: number;
+    TotalAppointmentCharges: number;
+  };
+};
 
 const Billing: React.FC<BillingsProps> = ({
   open,
@@ -454,12 +503,13 @@ const Billing: React.FC<BillingsProps> = ({
   const handleAddBillingItem = (item: BillingItem) => {
     if (!item) return;
 
-    const id =
-      item.BillingItemChargeId ||
-      (item as any).billingItemChargeId ||
-      Math.random().toString(36).substring(2, 9);
+    const id = item.BillingItemChargeId || (item as any).billingItemChargeId;
 
-    const selectedType = item.selectedChargeType || "General";
+    // ✅ FIX 1: Resolve selected type FIRST
+    const selectedType =
+      item.selectedChargeType ?? item.subCategoryName ?? "General";
+
+    // ✅ FIX 2: Stable unique key
     const uniqueKey = `${id}-${selectedType}`;
 
     const charge = item.billingItemCharge || item.chargeData || item;
@@ -469,7 +519,10 @@ const Billing: React.FC<BillingsProps> = ({
     // -------------------------------
     let basePrice = 0;
     if (charge.appointmentTypeId === 1 || charge.appointmentTypeId === 3) {
-      basePrice = Number(charge.walkinPrice || 0);
+      basePrice =
+        selectedType === "FastTrack"
+          ? Number(charge.fastTrackCharges || 0)
+          : Number(charge.walkinPrice || 0);
     } else if (charge.appointmentTypeId === 2) {
       basePrice = Number(charge.telePrice || 0);
     } else {
@@ -496,40 +549,48 @@ const Billing: React.FC<BillingsProps> = ({
       autoDiscountAmt = maxFlat;
     }
 
-    // --------------------------------
-    // ❌ CHECK DUPLICATE BEFORE STATE UPDATE
-    // --------------------------------
-    const alreadyExists = selectedItems.some((i) => i.uniqueKey === uniqueKey);
+    // -------------------------------
+    // ✅ DUPLICATE CHECK (NOW WORKS)
+    // -------------------------------
+
+    if (charge.appointmentTypeId === 1 || charge.appointmentTypeId === 3) {
+      basePrice =
+        selectedType === "FastTrack"
+          ? Number(charge.fastTrackCharges || 0)
+          : Number(charge.walkinPrice || 0);
+    }
+    const alreadyExists = selectedItems.some(
+      (i) =>
+        i.BillingItemChargeId === id && i.selectedChargeType === selectedType
+    );
 
     if (alreadyExists) {
       toast.current?.show({
         severity: "warn",
         summary: "Already Added",
-        detail: `"${item.BillingItemName}" is already selected.`,
+        detail: `"${item.BillingItemName} (${selectedType}) already added.`,
       });
-      return; // stop here
+      return;
     }
 
-    // --------------------------------
-    // ✅ SAFE: SHOW SUCCESS ALERT ONLY ONCE
-    // --------------------------------
     toast.current?.show({
       severity: "success",
       summary: "Item Added",
-      detail: `"${item.BillingItemName}" added successfully.`,
+      detail: `"${item.BillingItemName} (${selectedType}) added successfully.`,
     });
 
-    // --------------------------------
-    // UPDATE STATE (NO SIDE-EFFECTS HERE)
-    // --------------------------------
+    // -------------------------------
+    // ADD TO STATE
+    // -------------------------------
     setSelectedItems((prev) => [
       ...prev,
       {
         ...item,
         BillingItemChargeId: id,
+        appointmentTypeId: charge.appointmentTypeId,
         selectedChargeType: selectedType,
-        uniqueKey,
         subCategoryName: selectedType,
+        uniqueKey,
 
         price: basePrice,
         units: 1,
@@ -693,7 +754,21 @@ const Billing: React.FC<BillingsProps> = ({
 
       const billStatusId = mode === "Draft" ? 1 : 2;
 
-      const payload = {
+      // paymentTypePaymentTypeId: dto.paymentTypeId!,
+      // AppointmentChargesPaid: parseFloat(
+      //   dto.AppointmentChargesPaid || '0',
+      // ),
+      // isAmountPaid: dto.isAmountPaid ?? true,
+      // ActualAppointmentCharges: parseFloat(
+      //   dto.ActualAppointmentCharges || '0',
+      // ),
+      // DiscountOnAppointment: parseFloat(dto.DiscountOnAppointment || '0'),
+      // FastTrackCharges: parseFloat(dto.FastTrackCharges || '0'),
+      // TotalAppointmentCharges: parseFloat(
+      //   dto.TotalAppointmentCharges || '0',
+      // ),
+
+      const payload: BillingPayload = {
         BillingTransactionId: editingBillingId || "",
         patientId: appointment?.PatientId,
         appointmentId: appointment?.AppointmentId || null,
@@ -712,7 +787,7 @@ const Billing: React.FC<BillingsProps> = ({
           : totalReceived,
         remarks: billingRemarks,
 
-        billStatusId: billStatusId,
+        billStatusId,
         PaymentStatusId: totalBalance > 0 ? 2 : 1,
 
         items: selectedItems.map((item) => ({
@@ -734,6 +809,37 @@ const Billing: React.FC<BillingsProps> = ({
             remarks: billingRemarks || `clearing due amount`,
           })),
       };
+
+      const hasConsultationItem = selectedItems?.find(
+        (item) => item?.billingItemCharge?.chargeType?.BillItemTypeId === 1
+      );
+
+      if (hasConsultationItem) {
+        const walkin = Number(
+          hasConsultationItem?.billingItemCharge?.walkinPrice || 0
+        );
+
+        const fastTrack = Number(
+          hasConsultationItem?.billingItemCharge?.fastTrackCharges || 0
+        );
+
+        const discount = Number(
+          hasConsultationItem?.billingItemCharge?.maxDiscountInr || 0
+        );
+
+        payload.paymentHistory = {
+          paymentTypeId: clearPaymentMode?.toLowerCase() === "cash" ? 1 : 2,
+
+          AppointmentChargesPaid: walkin + fastTrack - discount,
+
+          isAmountPaid: true,
+
+          ActualAppointmentCharges: walkin, // ✅ FLOAT
+          DiscountOnAppointment: discount, // ✅ FLOAT
+          FastTrackCharges: fastTrack, // ✅ FLOAT
+          TotalAppointmentCharges: walkin + fastTrack, // ✅ FLOAT
+        };
+      }
 
       const res = await createUpdatePatientBill(payload);
       const advisedBillingItemChargeIds =
@@ -1708,6 +1814,8 @@ const Billing: React.FC<BillingsProps> = ({
                                                         charge?.chargeType,
                                                       billingItemCharge: charge,
                                                       chargeData: charge,
+                                                      appointmentTypeId:
+                                                        charge?.appointmentTypeId, // ✅ REQUIRED
                                                     });
 
                                                     // ⭐ ADD THIS
@@ -1751,7 +1859,7 @@ const Billing: React.FC<BillingsProps> = ({
                                                         BillingItemChargeId:
                                                           pkg.billingItemChargeId,
                                                         selectedChargeType:
-                                                          "Standard",
+                                                          "FastTrack",
                                                         price:
                                                           Number(
                                                             charge?.price
@@ -1761,6 +1869,8 @@ const Billing: React.FC<BillingsProps> = ({
                                                         billingItemCharge:
                                                           charge,
                                                         chargeData: charge,
+                                                        appointmentTypeId:
+                                                          charge?.appointmentTypeId, // ✅ REQUIRED
                                                       });
 
                                                       // ⭐ ADD THIS
@@ -1813,6 +1923,8 @@ const Billing: React.FC<BillingsProps> = ({
                                                       charge?.chargeType,
                                                     billingItemCharge: charge,
                                                     chargeData: charge,
+                                                    appointmentTypeId:
+                                                      charge?.appointmentTypeId, // ✅ REQUIRED
                                                   });
 
                                                   // ⭐
@@ -3201,8 +3313,14 @@ const Billing: React.FC<BillingsProps> = ({
                                     <p className="text-gray-600 text-sm">
                                       Cancelled By:{" "}
                                       <strong>
-                                        {bill?.User_BillingTransaction_cancelledByToUser?.firstName || "-"}{" "}
-                                        {bill?.User_BillingTransaction_cancelledByToUser?.lastName}
+                                        {bill
+                                          ?.User_BillingTransaction_cancelledByToUser
+                                          ?.firstName || "-"}{" "}
+                                        {
+                                          bill
+                                            ?.User_BillingTransaction_cancelledByToUser
+                                            ?.lastName
+                                        }
                                       </strong>
                                     </p>
 

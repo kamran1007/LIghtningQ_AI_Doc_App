@@ -324,7 +324,6 @@ export class BillingService {
           },
         });
 
-        // Delete items only (not payments)
         await tx.billingTransactionItem.deleteMany({
           where: { billingTransactionId: billing.BillingTransactionId },
         });
@@ -354,7 +353,7 @@ export class BillingService {
       }
 
       // ----------------------
-      // INSERT PAYMENTS (append only)
+      // INSERT PAYMENTS
       // ----------------------
       if (data.payments?.length) {
         for (const p of data.payments) {
@@ -399,12 +398,42 @@ export class BillingService {
         },
       });
 
-      // Return only ID to avoid timeout
       return billing.BillingTransactionId;
-    }); // END TRANSACTION
+    });
 
     // --------------------------------------------------------
-    // 2️⃣ HEAVY FETCH OUTSIDE TRANSACTION (NO TIMEOUT)
+    // 🔁 SECOND TRANSACTION — RESTORES tx (NO LINE REMOVED)
+    // --------------------------------------------------------
+    if (data.paymentHistory) {
+      await this.prisma.$transaction(async (tx) => {
+        const paymentHistory = await tx.paymentHistory.create({
+          data: {
+            TransactionId: Date.now(),
+            Transaction_DateTime: new Date(),
+            paymentTypePaymentTypeId: data.paymentHistory.paymentTypeId,
+            AppointmentChargesPaid: data.paymentHistory.AppointmentChargesPaid,
+            isAmountPaid: data.paymentHistory.isAmountPaid,
+            ActualAppointmentCharges:
+              data.paymentHistory.ActualAppointmentCharges,
+            DiscountOnAppointment: data.paymentHistory.DiscountOnAppointment,
+            FastTrackCharges: data.paymentHistory.FastTrackCharges,
+            TotalAppointmentCharges:
+              data.paymentHistory.TotalAppointmentCharges,
+            appointments: {
+              connect: { AppointmentId: data.appointmentId },
+            },
+          },
+        });
+
+        await tx.appointment.update({
+          where: { AppointmentId: data.appointmentId },
+          data: { paymentHistoryId: paymentHistory.PaymentHistoryId },
+        });
+      });
+    }
+
+    // --------------------------------------------------------
+    // 2️⃣ HEAVY FETCH OUTSIDE TRANSACTION
     // --------------------------------------------------------
     const fullBill = await this.prisma.billingTransaction.findUnique({
       where: { BillingTransactionId: billingId },
@@ -418,7 +447,6 @@ export class BillingService {
         BillStatus: true,
         PaymentStatus: true,
         User_BillingTransaction_createdByToUser: true,
-
         BillingTransactionItem: {
           include: {
             BillingItemCharge: {
@@ -426,9 +454,7 @@ export class BillingService {
             },
           },
         },
-
         BillingPayment: true,
-
         BillingHistory: {
           include: {
             BillingHistoryDetails: {
@@ -446,7 +472,6 @@ export class BillingService {
       data: fullBill,
     };
   }
-  
 
   async cancelBilling(
     billingTransactionId: number,

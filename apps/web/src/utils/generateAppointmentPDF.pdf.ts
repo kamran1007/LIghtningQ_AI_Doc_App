@@ -28,9 +28,13 @@ export const generateAppointmentPDF = async (appointmentData: any) => {
     return `${years} Years ${months} Months`;
   };
 
-  const numberToWords = (num: number) => {
-    if (!num) return "Zero";
-    return toWords(num).replace(/^\w/, (c: any) => c.toUpperCase()); // Capitalize first letter
+  const numberToWords = (value: any) => {
+    const num = Number(value);
+
+    // If value cannot convert to a valid number → return "Zero"
+    if (!isFinite(num) || isNaN(num)) return "Zero";
+
+    return toWords(num).replace(/^\w/, (c) => c.toUpperCase());
   };
 
   // const formatDateTime = (date: string) =>

@@ -110,4 +110,7 @@ export class UpdateAppointmentDto {
   @IsOptional()
   @IsEnum(ConsultationStatusType)
   consultationStatus?: ConsultationStatusType;
+
+  @IsOptional()
+  isBillingEnabled?: boolean
 }

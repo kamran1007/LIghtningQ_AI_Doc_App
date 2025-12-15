@@ -25,6 +25,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Toast } from "primereact/toast";
 
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
+
+import {
   Stethoscope,
   HeartPulse,
   BrainCircuit,
@@ -53,6 +60,7 @@ import {
   BellRing,
   HardDriveDownload,
   HandCoins,
+  Pencil,
 } from "lucide-react";
 import { useMemo, useRef } from "react";
 import {
@@ -230,9 +238,9 @@ interface PatientPackageUsage {
     BillingItemChargeId: number;
     BillingItemName: string;
     price?: number;
-    chargeType?:{
+    chargeType?: {
       BillItemTypeId?: number;
-    }
+    };
   };
 }
 
@@ -266,7 +274,7 @@ export function EventAddForm({
   // console.log("selected hospital from book Appointment", selectedHospital);
   const toast = useRef<Toast>(null);
   const [open, setOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState("Pay Now");
+  const [selectedOption, setSelectedOption] = useState("");
   const [isBillingOpen, setIsBillingOpen] = useState(false);
   const [appointmentData, setAppointmentData] = useState(null); // store created appointment data
   const [billingItems, setBillingItems] = useState<any[]>([]);
@@ -331,6 +339,7 @@ export function EventAddForm({
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [advisedItems, setAdvisedItems] = useState<PatientPackageUsage[]>([]);
+  const [extraDiscountPercent, setExtraDiscountPercent] = useState(0);
 
   type DoctorData = {
     UserId: number;
@@ -519,6 +528,18 @@ export function EventAddForm({
 
     init();
   }, []);
+
+  const baseDiscount = editingEvent?.AppointmentId
+    ? (editingEvent?.doctor?.DoctorCosting?.[0]?.discount ?? 0)
+    : (discountPercent ?? 0);
+
+  const [extraDiscountEnabled, setExtraDiscountEnabled] = useState(false);
+  const [extraDiscount, setExtraDiscount] = useState<number>(0);
+
+  const totalDiscountPercent =
+    baseDiscount + (extraDiscountEnabled ? extraDiscount : 0);
+
+  const discountAmount = (walkInFee * totalDiscountPercent) / 100;
 
   useEffect(() => {
     if (selectedSpecializationId) {
@@ -743,33 +764,42 @@ export function EventAddForm({
     if (!costing || !watchVisitTypeId) return;
 
     const walkInFee = costing.walkInFee || 0;
-    const FastTrackPatient = costing?.fastTrackFee || 0;
+    const fastTrackFeeBase = costing.fastTrackFee || 0;
 
-    const discountedFee =
-      costing.discountedFee !== undefined && costing.discountedFee > 0
+    const baseFee =
+      costing.discountedFee && costing.discountedFee > 0
         ? costing.discountedFee
         : walkInFee;
 
     const isFastTrack =
-      fastTrackSelected !== undefined
-        ? fastTrackSelected
-        : editingEvent?.fasttrackpatient || false;
+      fastTrackSelected ?? editingEvent?.fasttrackpatient ?? false;
 
-    const fastTrackFee = isFastTrack ? FastTrackPatient : 0;
+    const fastTrackFee = isFastTrack ? fastTrackFeeBase : 0;
+
+    // ✅ USE THE SAME DISCOUNT THE UI SHOWS
+    const discountAmount = (baseFee * totalDiscountPercent) / 100;
+
+    const finalBaseFee = Math.max(baseFee - discountAmount, 0);
 
     if (watchVisitTypeId === "2") {
       const freeAllowed = costing.freeFollowupCount > 0;
       const validitySet = costing.followupValidityDays > 0;
 
       if (freeAllowed && validitySet) {
-        setTotalToPay(0 + fastTrackFee); // ✅ Free Follow-up
+        setTotalToPay(fastTrackFee);
       } else {
-        setTotalToPay(discountedFee + fastTrackFee); // 🛑 Fallback Paid if config is invalid
+        setTotalToPay(finalBaseFee + fastTrackFee);
       }
     } else {
-      setTotalToPay(discountedFee + fastTrackFee); // ✅ Paid Follow-up or New Appointment
+      setTotalToPay(finalBaseFee + fastTrackFee);
     }
-  }, [watchVisitTypeId, costing, fastTrackSelected, editingEvent]);
+  }, [
+    watchVisitTypeId,
+    costing,
+    fastTrackSelected,
+    editingEvent,
+    totalDiscountPercent, // ✅ THIS is what must change
+  ]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -922,10 +952,11 @@ export function EventAddForm({
       sendEmailMessage: Boolean(form.sendEmailMessage),
       AppointmentChargesPaid: String(totalToPay), // fixed
       ActualAppointmentCharges: String(ActualAppointmentCharges),
-      DiscountOnAppointment: String(DiscountOnAppointment),
+      DiscountOnAppointment: String((walkInFee * totalDiscountPercent) / 100),
       FastTrackCharges: fastTrackSelected ? String(FastTrackCharges) : "0",
       TotalAppointmentCharges: String(TotalAppointmentCharges),
       VisitReason: form.VisitReason || "", // fixed
+      isBillingEnabled,
       // status: editingEvent.mode || 'SCHEDULED',
     };
     // ✅ Separate update payload (for rescheduling or cancellation)
@@ -949,6 +980,7 @@ export function EventAddForm({
           fasttrackpatient: Boolean(form.fasttrackpatient),
           sendSmsMessage: Boolean(form.sendSmsMessage),
           sendEmailMessage: Boolean(form.sendEmailMessage),
+          isBillingEnabled,
         }
       : null;
 
@@ -961,10 +993,15 @@ export function EventAddForm({
         // ✅ Build base usage data
         console.log("Booking/Update Response:", res);
         const usageBase = {
-          patientId: selectedPatient?.PatientId || null,
+          patientId:
+            selectedPatient?.PatientId ||
+            res?.return?.appointment?.PatientId ||
+            null,
           appointmentId:
             res?.return?.appointmentWithDetails?.AppointmentId ||
-            editingEvent?.AppointmentId,
+            editingEvent?.AppointmentId ||
+            res?.return?.appointment?.AppointmentId ||
+            null,
           consultationId: null,
           billingItemChargeId:
             filteredBillingItems[0]?.BillingItemChargeId || null,
@@ -972,7 +1009,7 @@ export function EventAddForm({
           IsFreeFollowUp: Boolean(form.visitTypeId === "2"),
           status: "Incomplete",
         };
-        console.log("usageBase", usageBase)
+        console.log("usageBase", usageBase);
         // ✅ Only include PatientPackageUsageId when updating
         const consultationCharges = advisedItems.filter(
           (item) => item?.BillingItemCharge?.chargeType?.BillItemTypeId === 1
@@ -1294,10 +1331,12 @@ export function EventAddForm({
         FastTrackCharges: 0,
         TotalAppointmentCharges: 0,
         isAmountPaid: true,
-        sendEmailMessage: false,
-        sendSmsMessage: false,
-        sendWhatsappMessage: false,
-        fasttrackpatient: false,
+        // ✅ DO NOT FORCE FALSE
+        sendEmailMessage: editingEvent?.sendEmailMessage ?? false,
+        sendSmsMessage: editingEvent?.sendSmsMessage ?? false,
+        sendWhatsappMessage: editingEvent?.sendWhatsappMessage ?? false,
+
+        fasttrackpatient: editingEvent?.fasttrackpatient ?? false,
         TagPatientIds: [],
       });
 
@@ -1503,6 +1542,11 @@ export function EventAddForm({
   const accessRights = useSelector(
     (state: RootState) => state.hospitalAccessRight.data
   );
+
+  const Printsettings = useSelector(
+    (state: RootState) => state.HospitalPrintSettings.data
+  );
+  // console.log("Print Data", Printsettings);
 
   // ✅ Find “Appointments” module
   const appointmentsModule = accessRights?.find(
@@ -2559,23 +2603,66 @@ export function EventAddForm({
                   </div>
 
                   <div className="text-right">
-                    <p className="text-sm font-medium">
-                      Discount (
-                      {(editingEvent?.AppointmentId
-                        ? editingEvent?.doctor?.DoctorCosting?.[0]?.discount
-                        : discountPercent) ?? 0}
-                      %)
-                    </p>
-                    <p className="text-base font-semibold text-green-700">
-                      -₹
-                      {(
-                        (walkInFee *
-                          ((editingEvent?.AppointmentId
-                            ? editingEvent?.doctor?.DoctorCosting?.[0]?.discount
-                            : discountPercent) ?? 0)) /
-                        100
-                      ).toFixed(0)}
-                    </p>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <div className="cursor-pointer">
+                          <p className="text-sm font-medium flex items-center gap-1">
+                            Discount ({totalDiscountPercent}%)
+                            <Pencil className="h-3.5 w-3.5 text-gray-500" />
+                          </p>
+
+                          <p className="text-base font-semibold text-green-700">
+                            -₹{discountAmount.toFixed(0)}
+                          </p>
+                        </div>
+                      </PopoverTrigger>
+
+                      <PopoverContent className="w-72 space-y-4 border-gray-300 shadow-2xl rounded-2xl focus:outline-none p-4">
+                        {/* Base Discount */}
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-600">Base Discount</span>
+                          <span className="font-medium">{baseDiscount}%</span>
+                        </div>
+
+                        {/* Toggle */}
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">
+                            Additional Discount
+                          </span>
+                          <Switch
+                            checked={extraDiscountEnabled}
+                            onCheckedChange={(v) => {
+                              setExtraDiscountEnabled(v);
+                              if (!v) setExtraDiscount(0);
+                            }}
+                          />
+                        </div>
+
+                        {/* Extra Discount Input */}
+                        {extraDiscountEnabled && (
+                          <div className="space-y-1">
+                            <label className="text-xs text-gray-500">
+                              Extra Discount (%)
+                            </label>
+                            <Input
+                              type="number"
+                              min={0}
+                              max={100}
+                              value={extraDiscount}
+                              onChange={(e) =>
+                                setExtraDiscount(Number(e.target.value) || 0)
+                              }
+                            />
+                          </div>
+                        )}
+
+                        {/* Final Discount */}
+                        <div className="border-t pt-2 flex justify-between text-sm font-semibold">
+                          <span>Total Discount</span>
+                          <span>{totalDiscountPercent}%</span>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </div>
 
@@ -2614,11 +2701,9 @@ export function EventAddForm({
                   </p> */}
                   <p className="text-lg font-bold text-blue-900">
                     ₹
-                    {editingEvent?.AppointmentId
-                      ? totalToPay ||
-                        Number(editingEvent?.TotalAppointmentCharges) ||
-                        0
-                      : totalToPay}
+                    {totalToPay !== null
+                      ? Math.round(totalToPay)
+                      : Number(editingEvent?.TotalAppointmentCharges ?? 0)}
                   </p>
                 </div>
                 {/* Notifications */}
@@ -2628,7 +2713,7 @@ export function EventAddForm({
                   </p>
 
                   {/* SMS */}
-                  <Controller
+                  {/* <Controller
                     name="sendSmsMessage"
                     control={control}
                     defaultValue={false}
@@ -2653,7 +2738,7 @@ export function EventAddForm({
                         </span>
                       </label>
                     )}
-                  />
+                  /> */}
 
                   {/* WhatsApp */}
                   <Controller
@@ -2687,24 +2772,16 @@ export function EventAddForm({
                   <Controller
                     name="sendEmailMessage"
                     control={control}
-                    defaultValue={true}
                     render={({ field }) => (
-                      <label
-                        htmlFor="sendEmailMessage"
-                        className="flex items-center gap-2 cursor-pointer"
-                      >
+                      <label className="flex items-center gap-2 cursor-pointer">
                         <input
                           type="checkbox"
-                          id="sendEmailMessage"
-                          checked={field.value}
-                          onChange={(e) => field.onChange(e.target.checked)} // ✅
-                          onBlur={field.onBlur}
-                          name={field.name}
-                          ref={field.ref}
-                          className="h-4 w-4 accent-green-600 border-gray-300 rounded focus:ring-green-300"
+                          checked={!!field.value} // ✅ SAFE
+                          onChange={(e) => field.onChange(e.target.checked)}
+                          className="h-4 w-4 accent-green-600"
                         />
                         <span className="flex items-center gap-1 text-sm font-medium">
-                          <i className="pi pi-envelope w-4 h-4" />
+                          <i className="pi pi-envelope" />
                           Email
                         </span>
                       </label>

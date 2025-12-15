@@ -28,6 +28,8 @@ import { useEvents } from "@/context/events-context";
 import AppointmentListSkeleton from "@/components/ui/skeletonloader/AppointmentList";
 import AppointmentActionsDialog from "./AppointmentActionsDialog";
 import ConsultationDrawer from "../consultation/ConsultationDrawer";
+import { format, isToday, isYesterday, isTomorrow } from "date-fns";
+
 import {
   Tooltip,
   TooltipContent,
@@ -497,6 +499,25 @@ export default function AppointmentLookupList() {
     setIsDialogOpen(false);
   };
 
+  function formatAppointmentDate(dateStr?: string) {
+    if (!dateStr) return "-";
+
+    const date = new Date(dateStr);
+
+    const time = format(date, "hh:mm a"); // 09:50 AM
+
+    if (isToday(date)) return `Today | ${time}`;
+    if (isYesterday(date)) return `Yesterday | ${time}`;
+    if (isTomorrow(date)) return `Tomorrow | ${time}`;
+
+    return `${format(date, "dd MMM yy")} | ${time}`; // 20 Nov 25 | 07:09 PM
+  }
+
+  function formatFullDateTime(dateStr?: string) {
+    if (!dateStr) return "-";
+    return format(new Date(dateStr), "dd MMM yyyy, hh:mm a");
+  }
+
   return (
     <div className="p-0 py-0.5 space-y-1 ">
       <div className="flex items-center justify-between w-full gap-4">
@@ -594,7 +615,9 @@ export default function AppointmentLookupList() {
                   </th>
                   <th className="px-4 py-3 whitespace-nowrap">Patient Info</th>
                   <th className="px-4 py-3 whitespace-nowrap">Contact Info</th>
-                  <th className="px-4 py-3 whitespace-nowrap">Visit Type</th>
+                  <th className="px-4 py-3 whitespace-nowrap">
+                    Visit Type/Date
+                  </th>
                   <th className="px-4 py-3 whitespace-nowrap">Specialist</th>
                   <th className="px-4 py-3 whitespace-nowrap">Reason</th>
                   <th className="px-2 py-3 whitespace-nowrap">Acuity</th>
@@ -824,22 +847,32 @@ export default function AppointmentLookupList() {
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <span className="truncate max-w-[120px] cursor-default">
-                                  {p?.visitType?.AppointmentTypeName
-                                    ? p.visitType.AppointmentTypeName.length > 9
-                                      ? p.visitType.AppointmentTypeName.slice(
-                                          0,
-                                          9
-                                        ) + "..."
-                                      : p.visitType.AppointmentTypeName
-                                    : "-"}
-                                </span>
+                                <div className="flex flex-col max-w-[140px] cursor-default">
+                                  {/* Visit Type */}
+                                  <span className="text-sm font-medium truncate">
+                                    {p?.visitType?.AppointmentTypeName ?? "-"}
+                                  </span>
+
+                                  {/* Date & Time */}
+                                  <span className="text-xs text-gray-500">
+                                    {formatAppointmentDate(p?.appointmentDate)}
+                                  </span>
+                                </div>
                               </TooltipTrigger>
+
+                              {/* Tooltip */}
                               <TooltipContent
                                 side="top"
-                                className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg"
+                                className="bg-zinc-800 text-white px-3 py-2 rounded-lg text-sm shadow-lg"
                               >
-                                {p?.visitType?.AppointmentTypeName ?? "-"}
+                                <div className="flex flex-col gap-1">
+                                  <span className="font-medium">
+                                    {p?.visitType?.AppointmentTypeName ?? "-"}
+                                  </span>
+                                  <span className="text-xs text-gray-300">
+                                    {formatFullDateTime(p?.appointmentDate)}
+                                  </span>
+                                </div>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
@@ -890,13 +923,30 @@ export default function AppointmentLookupList() {
                         </td>
 
                         <td className="px-2 py-3">
-                          <span
-                            className={`px-2 py-0.5 text-xs font-semibold rounded-xl ${getAcuityColor(
-                              p?.acuity ?? "" // 👈 fallback empty string
-                            )}`}
-                          >
-                            {p?.acuity ?? "-"}
-                          </span>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span
+                                  className={`inline-block max-w-[80px] truncate px-2 py-0.5 text-xs font-semibold rounded-xl cursor-default ${getAcuityColor(
+                                    p?.acuity ?? ""
+                                  )}`}
+                                >
+                                  {p?.acuity
+                                    ? p.acuity.length > 5
+                                      ? p.acuity.slice(0, 5) + "..."
+                                      : p.acuity
+                                    : "-"}
+                                </span>
+                              </TooltipTrigger>
+
+                              <TooltipContent
+                                side="top"
+                                className="bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg"
+                              >
+                                {p?.acuity ?? "-"}
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </td>
 
                         <td className="px-2 py-3 whitespace-nowrap">

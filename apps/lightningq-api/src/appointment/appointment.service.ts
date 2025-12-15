@@ -138,34 +138,37 @@ export class AppointmentService {
           consultationStatus: dto.consultationStatus ?? 'NOT_STARTED',
         },
       });
+      if (!dto.isBillingEnabled) {
+        // 4️⃣ Create payment history
+        const paymentHistory = await tx.paymentHistory.create({
+          data: {
+            TransactionId: Date.now(),
+            Transaction_DateTime: new Date(),
+            paymentTypePaymentTypeId: dto.paymentTypeId!,
+            AppointmentChargesPaid: parseFloat(
+              dto.AppointmentChargesPaid || '0',
+            ),
+            isAmountPaid: dto.isAmountPaid ?? true,
+            ActualAppointmentCharges: parseFloat(
+              dto.ActualAppointmentCharges || '0',
+            ),
+            DiscountOnAppointment: parseFloat(dto.DiscountOnAppointment || '0'),
+            FastTrackCharges: parseFloat(dto.FastTrackCharges || '0'),
+            TotalAppointmentCharges: parseFloat(
+              dto.TotalAppointmentCharges || '0',
+            ),
 
-      // 4️⃣ Create payment history
-      const paymentHistory = await tx.paymentHistory.create({
-        data: {
-          TransactionId: Date.now(),
-          Transaction_DateTime: new Date(),
-          paymentTypePaymentTypeId: dto.paymentTypeId!,
-          AppointmentChargesPaid: parseFloat(dto.AppointmentChargesPaid || '0'),
-          isAmountPaid: dto.isAmountPaid ?? true,
-          ActualAppointmentCharges: parseFloat(
-            dto.ActualAppointmentCharges || '0',
-          ),
-          DiscountOnAppointment: parseFloat(dto.DiscountOnAppointment || '0'),
-          FastTrackCharges: parseFloat(dto.FastTrackCharges || '0'),
-          TotalAppointmentCharges: parseFloat(
-            dto.TotalAppointmentCharges || '0',
-          ),
-
-          appointments: {
-            connect: { AppointmentId: appointment.AppointmentId },
+            appointments: {
+              connect: { AppointmentId: appointment.AppointmentId },
+            },
           },
-        },
-      });
+        });
 
-      await tx.appointment.update({
-        where: { AppointmentId: appointment.AppointmentId },
-        data: { paymentHistoryId: paymentHistory.PaymentHistoryId },
-      });
+        await tx.appointment.update({
+          where: { AppointmentId: appointment.AppointmentId },
+          data: { paymentHistoryId: paymentHistory.PaymentHistoryId },
+        });
+      }
 
       // 5️⃣ Create doctor slot
       const slotDate = new Date(dto.appointmentDate ?? '');
@@ -209,6 +212,8 @@ export class AppointmentService {
         appointmentWithDetails,
       };
     });
+    console.log(result);
+    console.log('Appointment booked successfully:', result.appointment);
 
     // 🧩 Now run notifications asynchronously, AFTER commit
     setImmediate(async () => {
@@ -348,11 +353,19 @@ export class AppointmentService {
   <div style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 40px;">
     <div style="max-width: 600px; margin: auto; background: white; border-radius: 8px; overflow: hidden; border: 1px solid #eee;">
       <div style="background-color: #29bab0; color: white; padding: 20px 30px;">
-        <h2 style="margin: 0;">Your ${appointmentWithDetails?.visitType?.AppointmentTypeName ?? 'Follow Up'} Appointment has been ${appointment?.status} !! confirmed</h2>
+<h2 style="margin: 0;">
+  Your ${
+    ['Free Follow-up', 'Paid Follow-up'].includes(
+      appointmentWithDetails?.visitType?.AppointmentTypeName,
+    )
+      ? `${appointmentWithDetails?.visitType?.AppointmentTypeName} Appointment`
+      : (appointmentWithDetails?.visitType?.AppointmentTypeName ?? 'Follow Up')
+  } is ${appointment?.status}.
+</h2>
       </div>
       <div style="padding: 30px;">
         <p>Dear <strong>${patient?.firstName} ${patient?.lastName}</strong>,</p>
-        <p>This is a confirmation email for your appointment with <strong>Dr. ${doctorFullName}</strong> on <strong>${appointmentDate}</strong> at <strong>${appointmentTime}</strong>.</p>
+        <p>This is a confirmation email for your Appointment with <strong>Dr. ${doctorFullName}</strong> on <strong>${appointmentDate}</strong> at <strong>${appointmentTime}</strong>.</p>
 
         <p>Should you have queries or require any clarifications, please do not hesitate to contact us.</p>
 
@@ -401,7 +414,7 @@ export class AppointmentService {
 
       await this.mailerService.sendMailWithAttachment(
         toEmail,
-        `Appointment ${appointment?.status}? 'Confirmed': ${appointmentDate} ${appointmentTime}`,
+        `Appointment ${appointment?.status} 'Confirmed': ${appointmentDate} ${appointmentTime}`,
         html,
         [
           {
@@ -554,6 +567,9 @@ export class AppointmentService {
         `${dto.appointmentDate}T${dto.appointmentTime}:00`,
       );
     }
+    const appointmentDate = new Date(
+      `${dto.appointmentDate}T${dto.appointmentTime}:00`,
+    );
 
     const updatedAppointment = await this.prisma.appointment.update({
       where: { AppointmentId: dto.AppointmentId },
@@ -619,10 +635,10 @@ export class AppointmentService {
     await this.sendAllNotificationsForAppointment(
       appointment.AppointmentId,
       appointmentWithDetails?.patient?.email ?? '',
-      appointment,
+      updatedAppointment,
       appointmentWithDetails?.patient,
       appointmentWithDetails,
-      appointment.sendEmailMessage,
+      dto.sendEmailMessage ?? false,
       appointment.sendSmsMessage,
       appointment.sendWhatsappMessage,
     );

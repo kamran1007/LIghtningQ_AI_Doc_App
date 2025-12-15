@@ -20,7 +20,7 @@ import { CreateHospitalDto } from 'src/manage_hospital/dto/create_hospital.dto';
 import { AdminService } from './admin.service';
 import { UpdateHospitalDto } from 'src/manage_hospital/dto/update_hospital.dto';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+import multer, { diskStorage } from 'multer';
 import { extname, join, resolve } from 'path';
 import {
   CreateUserDto,
@@ -37,12 +37,14 @@ import { CreateDoctorCostingDto } from 'src/manage_hospital/dto/create-doctor-co
 import { AddUpdateTimeSlotDto } from 'src/manage_hospital/dto/AddUpdateTimeSlot.dto';
 import * as fs from 'fs';
 import { AddUpdateAccessRightDto } from 'src/manage_hospital/dto/AddUpdateAccessRight.dto';
+import { R2Service } from 'src/r2/r2.service';
 
 @Controller('admin')
 export class AdminController {
   constructor(
     private readonly adminservice: AdminService,
     private readonly prisma: PrismaService,
+    private readonly r2Service: R2Service,
   ) {}
 
   // Create hospital
@@ -137,27 +139,7 @@ export class AdminController {
   @Post('AddUser')
   @UseInterceptors(
     AnyFilesInterceptor({
-      storage: diskStorage({
-        destination: (req, file, cb) => {
-          const uploadPath = join(process.cwd(), 'uploads', 'users');
-
-          if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
-          }
-
-          cb(null, uploadPath);
-        },
-        filename: (req, file, cb) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const userName = req.body.firstName?.replace(/\s+/g, '_') || 'user';
-          const cleanedFieldName = file.fieldname.replace(/\s+/g, '_');
-          const ext = extname(file.originalname);
-
-          const newFileName = `${cleanedFieldName}-${userName}-${uniqueSuffix}${ext}`;
-          cb(null, newFileName);
-        },
-      }),
+      storage: multer.memoryStorage(),
     }),
   )
   async addUser(
@@ -185,6 +167,27 @@ export class AdminController {
   ) {
     const userId = req.user?.UserId;
 
+    const profileImage = files?.find((f) => f.fieldname === 'imageUrl');
+    const signature = files?.find((f) => f.fieldname === 'SignatureOfUser');
+
+    // Upload to Cloudflare R2
+    let uploadedProfileUrl = '';
+    let uploadedSignatureUrl = '';
+
+    if (profileImage) {
+      uploadedProfileUrl = await this.r2Service.uploadFile(
+        profileImage,
+        `profiles`,
+      );
+    }
+
+    if (signature) {
+      uploadedSignatureUrl = await this.r2Service.uploadFile(
+        signature,
+        `signatures`,
+      );
+    }
+
     const dto: CreateUserDto = {
       Prefix,
       firstName,
@@ -201,35 +204,15 @@ export class AdminController {
       roleId,
       UserBranchesArray: userBranches,
       UserOrganizationArray: userOrgs,
-      imageUrl: '', // This will be filled from files below
-      SignatureOfUser: '', // This too
+      imageUrl: uploadedProfileUrl,
+      SignatureOfUser: uploadedSignatureUrl,
     };
-
-    const profileImage = files?.find((f) => f.fieldname === 'imageUrl');
-    const signature = files?.find((f) => f.fieldname === 'SignatureOfUser');
-    if (signature) {
-      console.log(
-        'Signature file saved at:',
-        join(process.cwd(), 'uploads', 'users', signature.filename),
-      );
-    }
-    console.log(
-      'Received files:',
-      files.map((f) => ({ name: f.originalname, field: f.fieldname })),
-    );
-    console.log('User created with signature:', dto.SignatureOfUser);
-
-    console.log('Uploaded files:', files);
-    if (profileImage) dto.imageUrl = `/uploads/users/${profileImage.filename}`;
-    if (signature) dto.SignatureOfUser = `/uploads/users/${signature.filename}`;
 
     return this.adminservice.createUserWithHospitals(
       dto,
       {
-        profileImagePath: profileImage
-          ? `/uploads/users/${profileImage.filename}`
-          : '',
-        signaturePath: signature ? `/uploads/users/${signature.filename}` : '',
+        profileImagePath: uploadedProfileUrl,
+        signaturePath: uploadedSignatureUrl,
       },
       userId,
     );
@@ -239,28 +222,7 @@ export class AdminController {
   @Patch('UpdateUser/:id')
   @UseInterceptors(
     AnyFilesInterceptor({
-      storage: diskStorage({
-        destination: (req, file, cb) => {
-          // Always resolve to the project root /upload/user
-          const dest = resolve(__dirname, '..', '..', '..', 'uploads', 'users');
-
-          // Create folder if missing
-          if (!fs.existsSync(dest)) {
-            fs.mkdirSync(dest, { recursive: true });
-          }
-
-          cb(null, dest);
-        },
-        filename: (req, file, cb) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const userName = req.body.firstName?.replace(/\s+/g, '_') || 'user';
-          const cleanedFieldName = file.fieldname.replace(/\s+/g, '_');
-          const ext = extname(file.originalname);
-          const newFileName = `${cleanedFieldName}-${userName}-${uniqueSuffix}${ext}`;
-          cb(null, newFileName);
-        },
-      }),
+      storage: multer.memoryStorage(), // <-- IMPORTANT CHANGE
     }),
   )
   async updateUser(
@@ -287,25 +249,40 @@ export class AdminController {
     @Body('Employee_ID') Employee_ID?: string,
   ) {
     const updatedById = req.user?.UserId;
+
+    // ---- Step 1: Validate user exists ----
     const existingUser = await this.prisma.user.findUnique({
       where: { UserId: userId },
     });
     if (!existingUser) throw new NotFoundException('User not found');
 
-    // ✅ Extract image files
-    // const profileImage = files?.find((f) => f.fieldname === 'imageUrl');
-    // const signature = files?.find((f) => f.fieldname === 'SignatureOfUser');
-
+    // ---- Step 2: Extract files ----
     const profileImage = files?.find(
-      (f) =>
-        f.fieldname === 'imageUrl' &&
-        f.originalname &&
-        f.originalname.trim() !== '',
+      (f) => f.fieldname === 'imageUrl' && f.size > 0,
     );
     const signature = files?.find(
       (f) => f.fieldname === 'SignatureOfUser' && f.size > 0,
     );
 
+    // ---- Step 3: Upload new files to R2 ----
+    let uploadedProfileUrl = existingUser.imageUrl; // keep old by default
+    let uploadedSignatureUrl = existingUser.SignatureOfUser; // keep old
+
+    if (profileImage) {
+      uploadedProfileUrl = await this.r2Service.uploadFile(
+        profileImage,
+        `profiles/user_${userId}`,
+      );
+    }
+
+    if (signature) {
+      uploadedSignatureUrl = await this.r2Service.uploadFile(
+        signature,
+        `signatures/user_${userId}`,
+      );
+    }
+
+    // ---- Step 4: Prepare DTO ----
     const dto: CreateUserDto = {
       Prefix,
       firstName,
@@ -321,20 +298,12 @@ export class AdminController {
       roleId,
       UserBranchesArray: userBranches,
       UserOrganizationArray: userOrgs,
-      // imageUrl: '',
-      // SignatureOfUser: '',
-      imageUrl: profileImage
-        ? `/uploads/users/${profileImage.filename}`
-        : existingUser.imageUrl, // retain old
-      SignatureOfUser: signature
-        ? `/uploads/users/${signature.filename}`
-        : existingUser.SignatureOfUser, // retain old
+      imageUrl: uploadedProfileUrl,
+      SignatureOfUser: uploadedSignatureUrl,
       updatedById,
     };
 
-    // if (profileImage) dto.imageUrl = `/uploads/users/${profileImage.filename}`;
-    // if (signature) dto.SignatureOfUser = `/uploads/users/${signature.filename}`;
-
+    // ---- Step 5: Update user ----
     return this.adminservice.updateUserWithHospitals(userId, dto);
   }
 

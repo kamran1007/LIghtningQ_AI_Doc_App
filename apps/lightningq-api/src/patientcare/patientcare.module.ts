@@ -9,10 +9,11 @@ import { MailerService } from 'src/common/mailer/mailer.service';
 import { ConsultationService } from 'src/consultation/consultation.service';
 import { DashboardService } from 'src/dashboard/dashboard.service';
 import { WhatsappService } from 'src/common/whatsapp/whatsapp.service';
+import { R2Service } from 'src/r2/r2.service';
 
 @Module({
   imports: [PrismaModule], // PrismaService available
-  providers: [PatientcareService,ManagePatientService, AppointmentService ,PrismaService,MailerService,ConsultationService,DashboardService,WhatsappService],
+  providers: [PatientcareService,ManagePatientService, AppointmentService ,PrismaService,MailerService,ConsultationService,DashboardService,WhatsappService,R2Service],
   controllers: [PatientcareController]
 })
 export class PatientcareModule {}

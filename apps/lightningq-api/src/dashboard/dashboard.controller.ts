@@ -28,12 +28,14 @@ export class DashboardController {
     @Query('endDate') endDate?: string,
     @Query('hospitalId') hospitalId?: number,
     @Query('doctorId') doctorId?: number,
+    @Query('specializationId') specializationId?: number,
   ) {
     return this.dashboardService.getDashboardSummary({
       startDate: startDate ? new Date(startDate) : undefined,
       endDate: endDate ? new Date(endDate) : undefined,
       hospitalId,
       doctorId,
+      specializationId,
     });
   }
 
@@ -41,14 +43,16 @@ export class DashboardController {
   async getPatientDemographics(
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
-    @Query('hospitalId') hospitalId?: number,
-    @Query('doctorId') doctorId?: number,
+    @Query('hospitalId') hospitalId?: string,
+    @Query('doctorId') doctorId?: string,
+    @Query('specializationId') specializationId?: string,
   ) {
     return this.dashboardService.getPatientDemographics({
       startDate: startDate ? new Date(startDate) : undefined,
       endDate: endDate ? new Date(endDate) : undefined,
-      hospitalId,
-      doctorId,
+      hospitalId: hospitalId ? Number(hospitalId) : undefined,
+      doctorId: doctorId ? Number(doctorId) : undefined,
+      specializationId: specializationId ? Number(specializationId) : undefined,
     });
   }
 
@@ -86,7 +90,7 @@ export class DashboardController {
       },
     });
   }
-  
+
   @Patch('UpdateReportSchedular/:ScheduledReportId')
   async updateScheduledReport(
     @Param('ScheduledReportId') ScheduledReportId: number,
@@ -117,21 +121,25 @@ export class DashboardController {
     @Query('adminId') adminId: string,
     @Query('hospitalId') hospitalId: string,
   ) {
-    const reports = await this.dashboardService.getReportsSchedularByAdminHospital(
-      Number(adminId),
-      Number(hospitalId),
-    );
+    const reports =
+      await this.dashboardService.getReportsSchedularByAdminHospital(
+        Number(adminId),
+        Number(hospitalId),
+      );
 
     return {
       reports,
     };
   }
 
-
-
-
   @Get('getAllHospital')
   async getAllHospital() {
     return this.dashboardService.getAllHospital();
+  }
+
+  @Post('trigger-now')
+  async triggerNow() {
+    await this.dashboardService.checkAndSendReports();
+    return { message: 'Report scheduler triggered manually' };
   }
 }

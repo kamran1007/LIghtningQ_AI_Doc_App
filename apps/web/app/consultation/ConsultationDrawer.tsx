@@ -113,6 +113,7 @@ import {
 } from "@/lib/billing";
 import axios from "axios";
 import { completeConsultation, markIncomplete } from "@/lib/patientcare";
+import { fetchHospitalPrintSettings } from "@/store/HospitalPrintSettingsSlice";
 
 export default function ConsultationDrawer({
   open,
@@ -416,6 +417,13 @@ export default function ConsultationDrawer({
 
   // console.log("Selected Chief Complaints:", selectedChiefComplaints);
   const dispatch = useAppDispatch();
+
+
+
+  const Printsettings = useSelector(
+    (state: RootState) => state.HospitalPrintSettings.data
+  );
+  // console.log("consultation Print Data", Printsettings);
 
   const customStyles: StylesConfig<any, true> = {
     option: (styles, { data, isFocused, isSelected }) => {

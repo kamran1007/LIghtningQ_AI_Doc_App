@@ -250,6 +250,20 @@ export default function AllRegisterPatientList() {
     setIsDialogOpen(false);
   };
 
+  const formatDateTime = (date?: string | null) => {
+    if (!date) return "-";
+
+    const d = new Date(date);
+    return d.toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
   return (
     <div className="p-0 py-1 space-y-1">
       <div className="flex items-center justify-end w-full gap-4">
@@ -314,7 +328,8 @@ export default function AllRegisterPatientList() {
                     <th className="px-4 py-3">MRN</th>
                     <th className="px-4 py-3">Contact Info</th>
                     <th className="px-4 py-3">Age</th>
-                    <th className="px-2 py-3 w-16 text-center">Last Visit</th>
+                    <th className="px-4 py-3 w-42">Register On</th>
+                    <th className="px-2 py-3 w-46 text-center">Last Visit</th>
                     <th className="px-2 py-3">Action</th>
                   </tr>
                 </thead>
@@ -375,7 +390,16 @@ export default function AllRegisterPatientList() {
                         <td className="px-2 py-3">
                           {p.dateOfBirth ? calculateAge(p.dateOfBirth) : "-"}
                         </td>
-                        <td className="px-4 py-3">{p.lastVisit || "-"}</td>
+                        <td className="px-3 py-3">
+                          {formatDateTime(p.createdAt)}
+                        </td>
+
+                        <td className="px-4 py-3">
+                          {formatDateTime(
+                            p.Appointment?.[0]?.rescheduledDate ||
+                              p.Appointment?.[0]?.appointmentDate
+                          )}
+                        </td>
                         <td className="px-2 py-3 w-16 text-center">
                           <DropdownMenu>
                             <DropdownMenuTrigger className="focus:outline-none">
