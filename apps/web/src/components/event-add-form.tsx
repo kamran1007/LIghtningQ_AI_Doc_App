@@ -113,6 +113,7 @@ import {
   getPatientPackageUsage,
 } from "@/lib/billing";
 import { hostname } from "os";
+import { fixCDNUrl } from "@/utils/fixCDNUrl";
 
 const messages = [
   "Search patient by Phone No.",
@@ -1794,9 +1795,10 @@ export function EventAddForm({
                         className="flex gap-4 overflow-x-hidden scroll-smooth px-8"
                       >
                         {filteredDoctors.map((doc) => {
-                          const imageUrl = doc.imageUrl
-                            ? `${BACKEND_URL}${doc.imageUrl}`
-                            : null;
+                          const imageUrl = fixCDNUrl(doc.imageUrl);
+                          // const imageUrl = doc.imageUrl
+                          //                             ? `${BACKEND_URL}${doc.imageUrl}`
+                          //                             : null;
                           const initials = getInitials(
                             doc.firstName,
                             doc.lastName
