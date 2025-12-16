@@ -159,8 +159,10 @@ export default function AppointmentActionsDialog({
                           showToast("You can't reschedule a past appointment.");
                           return;
                         }
-                        if(patient?.consultation){
-                          showToast("Consultation has started you cannot Reschedule");
+                        if (patient?.consultation) {
+                          showToast(
+                            "Consultation has started you cannot Reschedule"
+                          );
                           return;
                         }
                         onReschedule(patient);
@@ -180,8 +182,10 @@ export default function AppointmentActionsDialog({
                           showToast("You can't cancel a past appointment.");
                           return;
                         }
-                        if(patient?.consultation){
-                          showToast("Consultation has started you cannot Cancel");
+                        if (patient?.consultation) {
+                          showToast(
+                            "Consultation has started you cannot Cancel"
+                          );
                           return;
                         }
                         onCancel(patient);
@@ -235,6 +239,7 @@ export default function AppointmentActionsDialog({
                           : "cursor-pointer"
                       }`}
                       onClick={() => {
+                        // 🔐 Permission check
                         if (!canViewConsultation) {
                           showToast(
                             "You don’t have permission to start consultation."
@@ -242,23 +247,39 @@ export default function AppointmentActionsDialog({
                           return;
                         }
 
+                        // ✅ Resume if already ongoing
+                        if (patient?.consultationStatus === "ONGOING") {
+                          onStartConsultation({
+                            ...patient,
+                            initialTab: "consultation",
+                          });
+                          setOpen(false);
+                          return;
+                        }
+
+                        // 📅 Date validation (only for NEW consultations)
                         const appointmentDate = new Date(
                           patient.appointmentDate
                         );
                         const today = new Date();
+
                         appointmentDate.setHours(0, 0, 0, 0);
                         today.setHours(0, 0, 0, 0);
 
-                        if (appointmentDate < today)
+                        if (appointmentDate < today) {
                           return showToast(
                             "You can't start consultation for a past appointment."
                           );
-                        if (appointmentDate > today)
+                        }
+
+                        if (appointmentDate > today) {
                           return showToast(
                             "You can't start consultation for a future appointment.",
                             "warn"
                           );
+                        }
 
+                        // 🚀 Start consultation (today)
                         onStartConsultation({
                           ...patient,
                           initialTab: "consultation",
@@ -312,7 +333,7 @@ export default function AppointmentActionsDialog({
                         //   );
                         //   return;
                         // }
-                        
+
                         // Then check billing permission
                         if (!isBillingEnabled) {
                           showToast(
