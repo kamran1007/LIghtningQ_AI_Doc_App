@@ -119,9 +119,20 @@ const AppBar = () => {
         {/* User Information */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-2">
-            <p className="text-white font-semibold text-md leading-tight truncate font-sans">
-              {userProfile?.gender === "MALE" ? "Mr." : "Mrs."} {fullName}
-            </p>
+            <div className="flex flex-col leading-tight truncate">
+              {/* Name */}
+              <p className="text-white font-semibold text-md truncate font-sans">
+                {userProfile?.gender === "MALE" ? "Mr." : "Mrs."} {fullName}
+              </p>
+
+              {/* Specialization */}
+              {userProfile?.Specialization?.SpecializationName && (
+                <p className="text-white/80 text-xs truncate font-sans">
+                  {userProfile.Specialization.SpecializationName}
+                </p>
+              )}
+            </div>
+
             {/* Role Badge */}
             <span className="bg-white/100 text-black text-sm px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
               {roleLabel}

@@ -23,6 +23,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import type { Express, Response } from 'express';
 import { R2Service } from 'src/r2/r2.service';
 import { memoryStorage } from 'multer';
+import { spec } from 'node:test/reporters';
 
 @Controller('auth')
 export class AuthController {
@@ -100,12 +101,16 @@ export class AuthController {
         role: roleName || null, // ✅ dynamically picked from AdminAccess
 
         SpecializationId: userData.SpecializationId,
+        Specialization: userData.Specialization, // ✅ correct & clean
+
         createdAt: userData.createdAt,
         updatedAt: userData.updatedAt,
+     
       },
       include: {
         role: userData.role,
         AdminAccess: userData.AdminAccess,
+        specialization: userData.specialization,
       },
     };
   }
