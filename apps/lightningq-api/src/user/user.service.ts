@@ -25,6 +25,7 @@ export class UserService {
           include: { hospital: true, role: true },
         },
         role: true,
+        Specialization: true,
       },
     });
 
