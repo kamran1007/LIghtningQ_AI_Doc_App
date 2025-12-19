@@ -26,6 +26,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
 import { ProfileSkeleton } from "./ui/skeletonloader/ProfileSkeleton";
 import { Label } from "@/components/ui/label";
+import { fixCDNUrl } from "@/utils/fixCDNUrl";
 
 interface ProfileModalProps {
   open: boolean;
@@ -59,11 +60,8 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, setOpen }) => {
       const result = await getProfile();
       if (result) {
         console.log("ProfileModel working", result);
-        setImageUrl(
-          result.user.imageUrl
-            ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${result.user.imageUrl}`
-            : ""
-        );
+        setImageUrl(fixCDNUrl(result.user.imageUrl));
+
         setFirstName(result.user.firstName || "");
         setLastName(result.user.lastName || "");
         setMobile(result.user.mobile || "");

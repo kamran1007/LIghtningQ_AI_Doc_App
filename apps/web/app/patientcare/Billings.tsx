@@ -1350,15 +1350,14 @@ const Billing: React.FC<BillingsProps> = ({
   }, [Hasbilldone]);
 
   useEffect(() => {
-    if (!appointment?.PatientId) return;
 
     const fetchAdvised = async () => {
       setAdvisedItemsLoading(true);
       try {
         const resp = await getPatientPackageUsage(
           0,
-          appointment.PatientId,
-          appointment?.AppointmentId
+          appointment.PatientId || appointment?.Appointment?.PatientId,
+          appointment?.AppointmentId || appointment?.Appointment?.AppointmentId
         );
 
         // ❗ FILTER OUT INCOMPLETE ITEMS
