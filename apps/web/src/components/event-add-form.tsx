@@ -367,16 +367,6 @@ export function EventAddForm({
   const [printEnabled, setPrintEnabled] = useState(true); // defaultChecked ✅
   const [filteredBillingItems, setFilteredBillingItems] = useState<any[]>([]);
 
-  const costing = selectedDoctorData?.DoctorCosting?.[0];
-  const walkInFee = costing?.walkInFee || 0;
-  const fasttrackpatient = costing?.fastTrackFee || 0;
-  const discountPercent = costing?.discount || 0;
-  const discountedFee = costing?.discountedFee || 0;
-  const ActualAppointmentCharges = costing?.walkInFee || 0;
-  const DiscountOnAppointment = walkInFee - discountedFee || 0;
-  const FastTrackCharges = costing?.fastTrackFee || 0;
-  const TotalAppointmentCharges =
-    ActualAppointmentCharges + FastTrackCharges - DiscountOnAppointment || 0;
   useEffect(() => {
     const current = messages[msgIndex];
     if (current && charIndex < current.length) {
@@ -529,18 +519,6 @@ export function EventAddForm({
 
     init();
   }, []);
-
-  const baseDiscount = editingEvent?.AppointmentId
-    ? (editingEvent?.doctor?.DoctorCosting?.[0]?.discount ?? 0)
-    : (discountPercent ?? 0);
-
-  const [extraDiscountEnabled, setExtraDiscountEnabled] = useState(false);
-  const [extraDiscount, setExtraDiscount] = useState<number>(0);
-
-  const totalDiscountPercent =
-    baseDiscount + (extraDiscountEnabled ? extraDiscount : 0);
-
-  const discountAmount = (walkInFee * totalDiscountPercent) / 100;
 
   useEffect(() => {
     if (selectedSpecializationId) {
@@ -715,6 +693,31 @@ export function EventAddForm({
   const fastTrackSelected = watch("fasttrackpatient");
   const watchVisitTypeId = watch("visitTypeId");
   const appointmentDate = watch("appointmentDate");
+
+  const costing = selectedDoctorData?.DoctorCosting?.[0];
+  const walkInFee = costing?.walkInFee || 0;
+  const fasttrackpatient = costing?.fastTrackFee || 0;
+  const discountPercent = costing?.discount || 0;
+  const discountedFee = costing?.discountedFee || 0;
+  const ActualAppointmentCharges = costing?.walkInFee || 0;
+  const DiscountOnAppointment = walkInFee - discountedFee || 0;
+  const FastTrackCharges = costing?.fastTrackFee || 0;
+  const TotalAppointmentCharges =
+    ActualAppointmentCharges +
+      (fastTrackSelected ? FastTrackCharges : 0) -
+      DiscountOnAppointment || 0;
+
+  const baseDiscount = editingEvent?.AppointmentId
+    ? (editingEvent?.doctor?.DoctorCosting?.[0]?.discount ?? 0)
+    : (discountPercent ?? 0);
+
+  const [extraDiscountEnabled, setExtraDiscountEnabled] = useState(false);
+  const [extraDiscount, setExtraDiscount] = useState<number>(0);
+
+  const totalDiscountPercent =
+    baseDiscount + (extraDiscountEnabled ? extraDiscount : 0);
+
+  const discountAmount = (walkInFee * totalDiscountPercent) / 100;
   useEffect(() => {
     if (
       !selectedPatient ||
@@ -767,20 +770,28 @@ export function EventAddForm({
     const walkInFee = costing.walkInFee || 0;
     const fastTrackFeeBase = costing.fastTrackFee || 0;
 
-    const baseFee =
+    const doctorDiscountedFee =
       costing.discountedFee && costing.discountedFee > 0
         ? costing.discountedFee
-        : walkInFee;
+        : null;
+
+    const startingFee =
+      doctorDiscountedFee !== null ? doctorDiscountedFee : walkInFee;
 
     const isFastTrack =
       fastTrackSelected ?? editingEvent?.fasttrackpatient ?? false;
 
     const fastTrackFee = isFastTrack ? fastTrackFeeBase : 0;
 
-    // ✅ USE THE SAME DISCOUNT THE UI SHOWS
-    const discountAmount = (baseFee * totalDiscountPercent) / 100;
+    // ✅ APPLY ONLY EXTRA DISCOUNT HERE
+    const extraDiscountPercentApplied = extraDiscountEnabled
+      ? extraDiscount
+      : 0;
 
-    const finalBaseFee = Math.max(baseFee - discountAmount, 0);
+    const extraDiscountAmount =
+      (startingFee * extraDiscountPercentApplied) / 100;
+
+    const finalBaseFee = Math.max(startingFee - extraDiscountAmount, 0);
 
     if (watchVisitTypeId === "2") {
       const freeAllowed = costing.freeFollowupCount > 0;
@@ -799,7 +810,8 @@ export function EventAddForm({
     costing,
     fastTrackSelected,
     editingEvent,
-    totalDiscountPercent, // ✅ THIS is what must change
+    extraDiscountEnabled,
+    extraDiscount,
   ]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -1032,8 +1044,8 @@ export function EventAddForm({
         // ✅ Build appointment payload
         appointmentPayload = {
           ...payload,
-          AppointmentId:
-            res?.return?.AppointmentId || editingEvent?.AppointmentId,
+          Appointment:
+            res?.return?.appointment || editingEvent?.AppointmentId,
           doctor: selectedDoctorData, // ✅ include doctor
           patient: selectedPatient,
           AppoitmentSummary:
@@ -1796,9 +1808,8 @@ export function EventAddForm({
                       >
                         {filteredDoctors.map((doc) => {
                           const imageUrl = fixCDNUrl(doc.imageUrl);
-                          // const imageUrl = doc.imageUrl
-                          //                             ? `${BACKEND_URL}${doc.imageUrl}`
-                          //                             : null;
+                          // ,v,v,v,v
+
                           const initials = getInitials(
                             doc.firstName,
                             doc.lastName

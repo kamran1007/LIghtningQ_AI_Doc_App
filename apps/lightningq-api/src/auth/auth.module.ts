@@ -13,6 +13,7 @@ import refreshConfig from './config/refresh.config';
 import { RefreshStrategy } from './strategies/refresh-token.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { MailerService } from 'src/common/mailer/mailer.service';
+import { R2Service } from 'src/r2/r2.service';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { MailerService } from 'src/common/mailer/mailer.service';
   exports: [MailerService],
 
   controllers: [AuthController],
-  providers: [AuthService, UserService, PrismaService, LocalStrategy,JwtStrategy,JwtAuthGuard ,RefreshStrategy,MailerService,{
+  providers: [AuthService, UserService, PrismaService, LocalStrategy,JwtStrategy,JwtAuthGuard ,RefreshStrategy,MailerService,R2Service,{
     provide: APP_GUARD,
     useClass: JwtAuthGuard, //@UseGuard(JwtAuthGuard)
   },],

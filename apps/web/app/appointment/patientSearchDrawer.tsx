@@ -19,6 +19,7 @@ import Image from "next/image";
 import { BACKEND_URL } from "@/lib/constants";
 import { getSession } from "@/lib/session";
 import { PatientAvatar } from "./PatientAvatar";
+import { fixCDNUrl } from "@/utils/fixCDNUrl";
 
 type Props = {
   selectedHospital: any;
@@ -160,12 +161,9 @@ export function PatientSearchDrawer({
 
                 const isBase64 = p.profileImageUrl?.startsWith("data:image");
                 const isAbsolute = p.profileImageUrl?.startsWith("http");
-                const imageUrl =
-                  isBase64 || isAbsolute
-                    ? p.profileImageUrl
-                    : p.profileImageUrl
-                      ? `${BACKEND_URL}${p.profileImageUrl}`
-                      : null;
+                const imageUrl = isBase64
+                  ? p.profileImageUrl
+                  : fixCDNUrl(p.profileImageUrl);
 
                 const initials = getInitials(p.firstName, p.lastName);
                 const colorClass = getColorByInitials(initials);

@@ -16,7 +16,7 @@ export function PatientAvatar({ src, alt, initials, colorClass }: Props) {
   if (!src || imageError) {
     return (
       <div
-        className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm ${colorClass}`}
+        className={`w-10 h-10 rounded-full flex items-center justify-center font-medium text-sm ${colorClass}`}
       >
         {initials}
       </div>

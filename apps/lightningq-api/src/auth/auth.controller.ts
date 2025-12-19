@@ -20,15 +20,16 @@ import { ChangePasswordDto } from 'src/user/dto/changepassword.dto';
 import { UpdateProfileDto } from 'src/user/dto/updateprofile.dto';
 import { CurrentUser } from './decorator/current-user.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { extname } from 'path';
-import { diskStorage } from 'multer';
 import type { Express, Response } from 'express';
-import { ro } from 'date-fns/locale';
-import { PassThrough } from 'stream';
+import { R2Service } from 'src/r2/r2.service';
+import { memoryStorage } from 'multer';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly r2Service: R2Service,
+  ) {}
 
   @Public()
   @UseGuards(LocalAuthGuard)
@@ -45,7 +46,6 @@ export class AuthController {
 
     // 🔹 set refresh token in cookie
     setAuthCookies(res, response.refreshToken);
-
 
     console.log('Cookie set for login:', response.refreshToken);
 
@@ -136,29 +136,33 @@ export class AuthController {
   }
 
   //update profile
+  // update-profile.controller.ts
   @Patch('Updateprofile')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads', // Make sure this folder exists
-        filename: (req, file, cb) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
-        },
-      }),
+      storage: memoryStorage(), // 🔥 REQUIRED
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
     }),
   )
-  updateProfile(
+  async updateProfile(
     @CurrentUser() user: any,
     @UploadedFile() file: Express.Multer.File,
     @Body() dto: UpdateProfileDto,
   ) {
     if (file) {
-      dto.imageUrl = `/uploads/${file.filename}`; // save local path
+      const r2Path = await this.r2Service.uploadFile(
+        file,
+        'users/profile',
+        `user_${user.UserId}`,
+      );
+
+      // ✅ r2Path is already relative (see step 2)
+      dto.imageUrl = r2Path;
     }
+
     return this.authService.updateProfile(user.UserId, dto);
   }
+
   //change password
   @Patch('changepassword')
   changePassword(@CurrentUser() user: any, @Body() dto: ChangePasswordDto) {
