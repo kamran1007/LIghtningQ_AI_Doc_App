@@ -114,7 +114,7 @@ export class WhatsappService {
   private readonly msg91BaseUrl =
     'https://api.msg91.com/api/v5/whatsapp/whatsapp-outbound-message/bulk/';
   private readonly integratedNumber = '15558282551'; // your MSG91 integrated number
-  private readonly templateName = 'lightningqappointmentbooking'; // template name created in MSG91
+  private readonly templateName = 'lightningqappointmentbooking2'; // template name created in MSG91
   private readonly namespace = '55f1a1a8_5bf1_4ed7_8e86_c3e257969b15'; // template namespace
 
   constructor() {
@@ -171,11 +171,12 @@ export class WhatsappService {
         template: {
           name: this.templateName,
           language: {
-            code: 'en_US',
+            code: 'en',
             policy: 'deterministic',
           },
           namespace: this.namespace,
           to_and_components: [
+            
             {
               to: [mobile],
               components: {

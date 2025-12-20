@@ -331,7 +331,7 @@ const LoginInForm = () => {
                 style={{
                   scrollBehavior: "smooth",
                   scrollbarWidth: "thin",
-                  scrollbarColor: "#22d3ee #f3f4f6",
+                  // scrollbarColor: "#07ba99 #03544d",
                 }}
               >
                 {hospitals.map((hospital, index) => (

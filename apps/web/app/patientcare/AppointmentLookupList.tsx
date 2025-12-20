@@ -15,6 +15,8 @@ import {
   Crown,
   Bed,
   Circle,
+  Maximize2,
+  Maximize,
 } from "lucide-react";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
@@ -64,6 +66,7 @@ import { RootState } from "@/store";
 import Billing from "./Billings";
 import { startConsultationApi } from "@/lib/patientcare";
 import { getProfile } from "@/lib/action";
+import { useRouter } from "next/navigation";
 
 const getAcuityColor = (acuity: string) => {
   switch (acuity?.toLowerCase()) {
@@ -146,6 +149,8 @@ export default function AppointmentLookupList() {
 
   const filterRef = useRef<HTMLDivElement | null>(null);
   const UserHospitalData = useSelector((state: any) => state);
+    const router = useRouter();
+
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -582,6 +587,11 @@ export default function AppointmentLookupList() {
           <FunnelPlus
             className="w-6 h-6 text-teal-300 cursor-pointer"
             onClick={() => setIsDialogOpen(true)}
+          />
+
+          <Maximize
+            className="w-6 h-6 text-teal-300 cursor-pointer"
+            onClick={() => router.push("patientcare/OPDQueue")}
           />
         </div>
       </div>
