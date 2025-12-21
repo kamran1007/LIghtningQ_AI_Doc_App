@@ -771,9 +771,12 @@ const Billing: React.FC<BillingsProps> = ({
       const payload: BillingPayload = {
         BillingTransactionId: editingBillingId || "",
         patientId: appointment?.PatientId,
-        appointmentId: appointment?.AppointmentId || null,
+        appointmentId:
+          appointment?.AppointmentId ||
+          appointment?.Appointment.AppointmentId ||
+          null,
         hospitalId: appointment?.hospitalId,
-        organizationId: appointment?.hospital?.organizationId,
+        organizationId: appointment?.hospital?.organizationId || appointment?.hospital?.hospital.organizationId || null,
         doctorId: appointment?.DoctorId,
 
         subtotal: itemsNetBeforeOverall,
@@ -855,7 +858,7 @@ const Billing: React.FC<BillingsProps> = ({
         billingItemChargeIds: selectedAdvisedIds,
         status: "Completed",
       };
-      addupdatePatientsyncPatientPackageUsage(billingChanges);
+      (billingChanges);
       setIsBillingSubmitting(false);
 
       console.log("💾 Billing saved:", res);
@@ -1350,7 +1353,6 @@ const Billing: React.FC<BillingsProps> = ({
   }, [Hasbilldone]);
 
   useEffect(() => {
-
     const fetchAdvised = async () => {
       setAdvisedItemsLoading(true);
       try {
