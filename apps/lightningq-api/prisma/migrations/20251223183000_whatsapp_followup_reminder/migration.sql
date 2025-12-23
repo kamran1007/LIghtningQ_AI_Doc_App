@@ -1,0 +1,2 @@
+-- This migration was manually applied in the database.
+-- Prisma drift alignment only.

@@ -178,16 +178,16 @@ export default function AppointmentActionsDialog({
                       variant="ghost"
                       className={hoverchange}
                       onClick={() => {
-                        if (isPastDate(patient.appointmentDate)) {
-                          showToast("You can't cancel a past appointment.");
-                          return;
-                        }
-                        if (patient?.consultation) {
-                          showToast(
-                            "Consultation has started you cannot Cancel"
-                          );
-                          return;
-                        }
+                        // if (isPastDate(patient.appointmentDate)) {
+                        //   showToast("You can't cancel a past appointment.");
+                        //   return;
+                        // }
+                        // if (patient?.consultation) {
+                        //   showToast(
+                        //     "Consultation has started you cannot Cancel"
+                        //   );
+                        //   return;
+                        // }
                         onCancel(patient);
                         setOpen(false);
                       }}

@@ -212,4 +212,55 @@ export const markIncomplete = async (appointmentId: number, consultationId: numb
 };
 
 
+export interface PatientFilter {
+  page?: number;
+  limit?: number;
+  organizationId?: number;
+  hospitalId?: number;
+  search?: string;
+  specializationId?: number;
+  fromDate?: string; // <-- add this
+  toDate?: string; // <-- add this
+}
+
+export const GetPatientFollowUp = async (filters: PatientFilter = {}) => {
+  const session = await getSession();
+
+  const {
+    page = 1,
+    limit = 10,
+    hospitalId,
+    organizationId,
+    search,
+    specializationId,
+    fromDate,
+    toDate,
+  } = filters;
+
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+  });
+
+  if (organizationId) params.append("organizationId", String(organizationId));
+  if (hospitalId) params.append("hospitalId", String(hospitalId));
+  if (search) params.append("search", search);
+  if (specializationId)
+    params.append("specializationId", String(specializationId));
+  if (fromDate) params.append("fromDate", fromDate);
+  if (toDate) params.append("toDate", toDate);
+
+  const res = await axios.get(
+    `${BACKEND_URL}/patientcare/followups?${params.toString()}`,
+    {
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
+    }
+  );
+
+  return res.data;
+};
+
+
 //Auto Save

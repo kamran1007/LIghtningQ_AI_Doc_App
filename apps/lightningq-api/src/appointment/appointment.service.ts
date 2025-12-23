@@ -1,7 +1,9 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { QuickAppointmentDto } from './dto/create-appointment.dto';
@@ -14,11 +16,16 @@ import { STATUS_CODES } from 'http';
 import { addDays } from 'date-fns';
 import { WhatsappService } from 'src/common/whatsapp/whatsapp.service';
 import { ConsultationStatus } from '@prisma/client';
+import { Cron } from '@nestjs/schedule';
+import { istDayRangeToUtc } from 'src/utils/date.util';
+import dayjs from 'dayjs';
+import { first, last } from 'rxjs';
 
 // import { subMinutes, addMilliseconds } from 'date-fns';
 
 @Injectable()
 export class AppointmentService {
+  private readonly logger = new Logger(AppointmentService.name);
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
@@ -111,8 +118,54 @@ export class AppointmentService {
       }
 
       // 3️⃣ Create appointment
-      const appointmentDate = new Date(
-        `${dto.appointmentDate}T${dto.appointmentTime}:00`,
+      // const appointmentDate = new Date(
+      //   `${dto.appointmentDate}T${dto.appointmentTime}:00`,
+      // );
+      if (!dto.appointmentDate || !dto.appointmentTime) {
+        throw new Error('appointmentDate and appointmentTime are required');
+      }
+
+      const dateParts = dto.appointmentDate.split('-');
+      const timeParts = dto.appointmentTime.split(':');
+
+      if (dateParts.length !== 3 || timeParts.length !== 2) {
+        throw new BadRequestException(
+          'Invalid appointmentDate or appointmentTime',
+        );
+      }
+
+      const year = Number(dateParts[0]);
+      const month = Number(dateParts[1]);
+      const day = Number(dateParts[2]);
+      const hour = Number(timeParts[0]);
+      const minute = Number(timeParts[1]);
+
+      if (
+        !Number.isInteger(year) ||
+        !Number.isInteger(month) ||
+        !Number.isInteger(day) ||
+        !Number.isInteger(hour) ||
+        !Number.isInteger(minute)
+      ) {
+        throw new BadRequestException(
+          'Invalid appointmentDate or appointmentTime',
+        );
+      }
+
+      // ✅ Validate time strictly
+      const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+      if (!timeRegex.test(dto.appointmentTime)) {
+        throw new BadRequestException(
+          'appointmentTime must be in 24-hour HH:mm format',
+        );
+      }
+
+      /**
+       * 🔥 Create UTC date directly from IST
+       * IST = UTC + 5:30
+       */
+      const appointmentDateUtc = new Date(
+        Date.UTC(year, month - 1, day, hour - 5, minute - 30, 0),
       );
 
       const appointment = await tx.appointment.create({
@@ -122,7 +175,7 @@ export class AppointmentService {
           hospitalId: dto.hospitalId,
           visitTypeId: dto.visitTypeId!,
           paymentTypeId: dto.paymentTypeId!,
-          appointmentDate,
+          appointmentDate: appointmentDateUtc,
           reason: dto.VisitReason,
           age: dto.age,
           createdBy: CreatedBy,
@@ -884,22 +937,36 @@ export class AppointmentService {
 
     // Build UTC Date objects that correspond to IST day boundaries.
     // ✅ Corrected date helper — do not shift IST by offset again
-    const istDayRangeToUtc = (yyyyMmDd: string) => {
-      if (!yyyyMmDd) return null;
+    // const istDayRangeToUtc = (yyyyMmDd: string) => {
+    //   if (!yyyyMmDd) return null;
 
-      const [yearStr, monthStr, dayStr] = yyyyMmDd.split('-');
-      const year = Number(yearStr);
-      const month = Number(monthStr);
-      const day = Number(dayStr);
+    //   const parts = yyyyMmDd.split('-');
+    //   if (parts.length !== 3) return null;
 
-      if (![year, month, day].every(Number.isFinite)) return null;
+    //   const year = Number(parts[0]);
+    //   const month = Number(parts[1]);
+    //   const day = Number(parts[2]);
 
-      // We treat this date as a local day and construct UTC equivalents directly
-      const start = new Date(`${yyyyMmDd}T00:00:00.000Z`);
-      const end = new Date(`${yyyyMmDd}T23:59:59.999Z`);
+    //   if (
+    //     !Number.isInteger(year) ||
+    //     !Number.isInteger(month) ||
+    //     !Number.isInteger(day)
+    //   ) {
+    //     return null;
+    //   }
 
-      return { start, end };
-    };
+    //   // Create IST dates (local constructor, no timezone lies)
+    //   const istStart = new Date(year, month - 1, day, 0, 0, 0, 0);
+    //   const istEnd = new Date(year, month - 1, day, 23, 59, 59, 999);
+
+    //   // Convert IST → UTC exactly once
+    //   const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+
+    //   const utcStart = new Date(istStart.getTime() - IST_OFFSET_MS);
+    //   const utcEnd = new Date(istEnd.getTime() - IST_OFFSET_MS);
+
+    //   return { start: utcStart, end: utcEnd };
+    // };
 
     const parseNumberSafe = (v: any) => {
       if (typeof v === 'number') return Number.isFinite(v) ? v : undefined;
@@ -1003,23 +1070,40 @@ export class AppointmentService {
       andConditions.push({ patient: { is: patientFilter } });
     }
 
-    // appointment date / range: parse via istDayRangeToUtc
+    // Appointment date / date-range filter (IST → UTC safe)
     if (filters.appointmentDate) {
-      const r = istDayRangeToUtc(filters.appointmentDate);
-      if (r)
-        andConditions.push({ appointmentDate: { gte: r.start, lte: r.end } });
+      const range = istDayRangeToUtc(filters.appointmentDate);
+
+      if (range) {
+        andConditions.push({
+          appointmentDate: {
+            gte: range.start,
+            lte: range.end,
+          },
+        });
+      }
     } else if (filters.appointmentDateFrom || filters.appointmentDateTo) {
-      const range: any = {};
+      const dateRange: { gte?: Date; lte?: Date } = {};
+
       if (filters.appointmentDateFrom) {
-        const rFrom = istDayRangeToUtc(filters.appointmentDateFrom);
-        if (rFrom) range.gte = rFrom.start;
+        const fromRange = istDayRangeToUtc(filters.appointmentDateFrom);
+        if (fromRange) {
+          dateRange.gte = fromRange.start;
+        }
       }
+
       if (filters.appointmentDateTo) {
-        const rTo = istDayRangeToUtc(filters.appointmentDateTo);
-        if (rTo) range.lte = rTo.end;
+        const toRange = istDayRangeToUtc(filters.appointmentDateTo);
+        if (toRange) {
+          dateRange.lte = toRange.end;
+        }
       }
-      if (Object.keys(range).length > 0)
-        andConditions.push({ appointmentDate: range });
+
+      if (Object.keys(dateRange).length > 0) {
+        andConditions.push({
+          appointmentDate: dateRange,
+        });
+      }
     }
 
     // search (OR) — only if 3+ chars
@@ -1115,5 +1199,236 @@ export class AppointmentService {
       limit,
       totalPages: Math.ceil(total / limit),
     };
+  }
+
+  private calculateAge(dob: Date): number {
+    const diff = Date.now() - dob.getTime();
+    return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+  }
+
+  async getUpcomingFollowups(params: {
+    organizationId: number;
+    hospitalId: number;
+    specializationId?: number;
+    search?: string;
+    fromDate?: string;
+    toDate?: string;
+    page: number;
+    limit: number;
+  }) {
+    const {
+      organizationId,
+      hospitalId,
+      specializationId,
+      search,
+      fromDate,
+      toDate,
+      page,
+      limit,
+    } = params;
+
+    // Default range: today → next 45 days
+    const from = fromDate ? new Date(fromDate) : new Date();
+    from.setHours(0, 0, 0, 0);
+
+    const to = toDate
+      ? new Date(toDate)
+      : new Date(new Date(from).setDate(from.getDate() + 45));
+    to.setHours(23, 59, 59, 999);
+
+    const followups = await this.prisma.appointment.findMany({
+      where: {
+        hospitalId,
+        NextFollowupDate: {
+          not: null,
+          gte: from,
+          lte: to,
+        },
+        ...(specializationId && {
+          SpecializationId: specializationId,
+        }),
+        patient: {
+          OrganizationId: organizationId,
+          ...(search && {
+            OR: [
+              { firstName: { contains: search, mode: 'insensitive' } },
+              { lastName: { contains: search, mode: 'insensitive' } },
+              { mobile: { contains: search } },
+              { Patient_Medical_Record_No: { contains: search } },
+            ],
+          }),
+        },
+      },
+      select: {
+        AppointmentId: true,
+        appointmentDate: true,
+        NextFollowupDate: true,
+        SendWhatsappFollowUpReminder: true,
+        SpecializationId: true, 
+
+        patient: {
+          select: {
+            Prefix: true,
+            firstName: true,
+            lastName: true,
+            Patient_Medical_Record_No: true,
+            gender: true,
+            mobile: true,
+            email: true,
+            addressLine1: true,
+            city: true,
+            area: true,
+            dateOfBirth: true,
+          },
+        },
+      },
+      orderBy: {
+        NextFollowupDate: 'asc',
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return {
+      page,
+      limit,
+      count: followups.length,
+      data: followups.map((row, index) => ({
+        sno: (page - 1) * limit + index + 1,
+        Prefix: row.patient.Prefix,
+        gender: row.patient.gender,
+        email: row.patient.email,
+        addressLine1: row.patient.addressLine1,
+        city: row.patient.city,
+        firstName: row.patient.firstName,
+        lastName: row.patient.lastName,
+        name: `${row.patient.firstName} ${row.patient.lastName}`,
+        Patient_Medical_Record_No: row.patient.Patient_Medical_Record_No,
+        contact: row.patient.mobile,
+        area: row.patient.area,
+        age: this.calculateAge(row.patient.dateOfBirth),
+        PushNotification: row.SendWhatsappFollowUpReminder,
+        appointmentId: row.AppointmentId,
+        SpecializationId: row.SpecializationId,
+        // followUpDate: row.NextFollowupDate,
+        // lastVisit: row.appointmentDate,
+        // ✅ IST-correct
+        followUpDate: dayjs(row.NextFollowupDate)
+          .tz('Asia/Kolkata')
+          .format('YYYY-MM-DD HH:mm:ss'),
+
+        lastVisit: dayjs(row.appointmentDate)
+          .tz('Asia/Kolkata')
+          .format('YYYY-MM-DD HH:mm:ss'),
+      })),
+    };
+  }
+
+  //follow up reminders
+  @Cron('0 18 * * *', { timeZone: 'Asia/Kolkata' }) // every minute for testing
+  async sendFollowupReminders() {
+    const pid = process.pid;
+    this.logger.log(`⏰ [PID:${pid}] Running follow-up reminder cron`);
+
+    const IST_OFFSET = 5.5 * 60 * 60 * 1000;
+
+    // ✅ 1️⃣ Get TODAY in IST safely
+    const istNow = new Date(
+      new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Kolkata',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).format(new Date()),
+    );
+
+    // istNow = YYYY-MM-DDT00:00:00 IST
+    istNow.setHours(0, 0, 0, 0);
+
+    // ✅ 2️⃣ Tomorrow IST window
+    const tomorrowIstStart = new Date(istNow);
+    tomorrowIstStart.setDate(istNow.getDate() + 1);
+
+    const tomorrowIstEnd = new Date(tomorrowIstStart);
+    tomorrowIstEnd.setHours(23, 59, 59, 999);
+
+    // ✅ 3️⃣ Convert IST → UTC ONCE
+    const utcStart = new Date(tomorrowIstStart.getTime() - IST_OFFSET);
+    const utcEnd = new Date(tomorrowIstEnd.getTime() - IST_OFFSET);
+
+    this.logger.log(
+      `📅 IST Tomorrow: ${tomorrowIstStart.toString()} → ${tomorrowIstEnd.toString()}`,
+    );
+    this.logger.log(
+      `🌍 UTC Window: ${utcStart.toISOString()} → ${utcEnd.toISOString()}`,
+    );
+
+    // ✅ 4️⃣ Lock appointments
+    const lock = await this.prisma.appointment.updateMany({
+      where: {
+        NextFollowupDate: {
+          gte: utcStart,
+          lte: utcEnd,
+        },
+        SendWhatsappFollowUpReminder: false,
+        status: { not: 'CANCELLED' },
+        patient: {
+          mobile: { gt: '' },
+        },
+      },
+      data: {
+        SendWhatsappFollowUpReminder: true,
+      },
+    });
+
+    if (lock.count === 0) {
+      this.logger.log('✅ No follow-up reminders to send');
+      return;
+    }
+
+    this.logger.log(`🔒 Locked ${lock.count} follow-up appointments`);
+
+    // ✅ 5️⃣ Fetch locked rows
+    const followups = await this.prisma.appointment.findMany({
+      where: {
+        NextFollowupDate: {
+          gte: utcStart,
+          lte: utcEnd,
+        },
+        SendWhatsappFollowUpReminder: true,
+      },
+      include: {
+        patient: { select: { firstName: true, lastName: true, mobile: true } },
+        doctor: { select: { firstName: true, lastName: true } },
+        hospital: { select: { HospitalName: true } },
+      },
+    });
+
+    // ✅ 6️⃣ Send WhatsApp
+    for (const appt of followups) {
+      try {
+        await this.whatsappService.sendFollowupReminder({
+          mobile: appt.patient.mobile!,
+          patientName: `${appt.patient.firstName} ${appt.patient.lastName ?? ''}`,
+          doctorName: `${appt.doctor.firstName} ${appt.doctor.lastName ?? ''}`,
+          followupDate: appt.NextFollowupDate!,
+          hospitalName: appt.hospital.HospitalName,
+        });
+
+        this.logger.log(
+          `✅ Reminder sent (AppointmentId=${appt.AppointmentId})`,
+        );
+      } catch (err) {
+        this.logger.error(
+          `❌ Failed (AppointmentId=${appt.AppointmentId})`,
+          err,
+        );
+
+        await this.prisma.appointment.update({
+          where: { AppointmentId: appt.AppointmentId },
+          data: { SendWhatsappFollowUpReminder: false },
+        });
+      }
+    }
   }
 }

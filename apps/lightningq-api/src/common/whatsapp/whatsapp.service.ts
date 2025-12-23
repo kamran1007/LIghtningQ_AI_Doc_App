@@ -176,7 +176,6 @@ export class WhatsappService {
           },
           namespace: this.namespace,
           to_and_components: [
-            
             {
               to: [mobile],
               components: {
@@ -213,6 +212,94 @@ export class WhatsappService {
       this.logger.error('❌ MSG91 API Request Failed');
       this.logger.error(
         `🧾 Error Response: ${JSON.stringify(err.response?.data || err.message, null, 2)}`,
+      );
+    }
+  }
+
+  async sendFollowupReminder(data: {
+    mobile: string;
+    patientName: string;
+    doctorName: string;
+    followupDate: Date;
+    hospitalName: string;
+  }) {
+    this.logger.log('📨 Sending WhatsApp follow-up reminder');
+
+    const mobile = this.normalizeMobile(data.mobile);
+    if (!mobile) {
+      this.logger.error('❌ Invalid mobile number');
+      return;
+    }
+
+    const followupDateStr = new Date(data.followupDate).toLocaleDateString(
+      'en',
+      {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        timeZone: 'Asia/Kolkata',
+      },
+    );
+
+    const body = {
+      integrated_number: this.integratedNumber,
+      content_type: 'template',
+      payload: {
+        messaging_product: 'whatsapp',
+        type: 'template',
+        template: {
+          name: 'lightningq_followup_reminder',
+          language: {
+            code: 'en',
+            policy: 'deterministic',
+          },
+          namespace: this.namespace,
+          to_and_components: [
+            {
+              to: [mobile],
+              components: {
+                // ✅ HEADER VARIABLE ({{1}})
+                header_1: {
+                  type: 'text',
+                  value: data.patientName,
+                },
+
+                // ✅ BODY VARIABLES ({{1}}, {{2}}, {{3}})
+                body_1: {
+                  type: 'text',
+                  value: data.doctorName,
+                },
+                body_2: {
+                  type: 'text',
+                  value: followupDateStr,
+                },
+                body_3: {
+                  type: 'text',
+                  value: data.hospitalName,
+                },
+              },
+            },
+          ],
+        },
+      },
+    };
+
+    this.logger.debug(`📦 Follow-up Payload: ${JSON.stringify(body, null, 2)}`);
+
+    try {
+      const res = await axios.post(this.msg91BaseUrl, body, {
+        headers: {
+          'Content-Type': 'application/json',
+          authkey: this.msg91AuthKey,
+        },
+      });
+
+      this.logger.log('✅ Follow-up WhatsApp reminder sent');
+      this.logger.debug(`📨 Response: ${JSON.stringify(res.data, null, 2)}`);
+    } catch (err: any) {
+      this.logger.error('❌ Failed to send follow-up reminder');
+      this.logger.error(
+        JSON.stringify(err.response?.data || err.message, null, 2),
       );
     }
   }
