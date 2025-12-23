@@ -248,7 +248,7 @@ interface PatientPackageUsage {
 export function EventAddForm({
   start,
   end,
-  selectedPatient: initialPatient,
+  // selectedPatient: initialPatient,
 }: EventAddFormProps) {
   const { editingEvent, setEditingEvent, setEventAddOpen, eventAddOpen } =
     useEvents();
@@ -260,7 +260,15 @@ export function EventAddForm({
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [booked, setBooked] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedPatient, setSelectedPatient] = useState<any>(initialPatient);
+  const { editingPatient } = useEvents();
+
+  const [selectedPatient, setSelectedPatient] = useState<any>(null);
+
+  useEffect(() => {
+    if (editingPatient) {
+      setSelectedPatient(editingPatient);
+    }
+  }, [editingPatient]);
   const [displayText, setDisplayText] = useState("");
   const [msgIndex, setMsgIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
@@ -1044,8 +1052,7 @@ export function EventAddForm({
         // ✅ Build appointment payload
         appointmentPayload = {
           ...payload,
-          Appointment:
-            res?.return?.appointment || editingEvent?.AppointmentId,
+          Appointment: res?.return?.appointment || editingEvent?.AppointmentId,
           doctor: selectedDoctorData, // ✅ include doctor
           patient: selectedPatient,
           AppoitmentSummary:
@@ -1363,41 +1370,66 @@ export function EventAddForm({
     }
   }, [eventAddOpen]);
 
+  // useEffect(() => {
+  //   if (!initialPatient) return;
+
+  //   reset(
+  //     {
+  //       ...formDefaultValues,
+  //       Prefix: initialPatient.Prefix ?? "Mr",
+  //       firstName: initialPatient.firstName ?? "",
+  //       lastName: initialPatient.lastName ?? "",
+  //       dateOfBirth: initialPatient.dateOfBirth
+  //         ? String(initialPatient.dateOfBirth).slice(0, 10)
+  //         : "",
+  //       gender:
+  //         (initialPatient.gender as "MALE" | "FEMALE" | "OTHER") ?? "MALE",
+  //       mobile: initialPatient.mobile ?? "",
+  //       email: initialPatient.email ?? "",
+  //       // TagPatientIds: initialPatient.PatientId?.toString() ?? "", // ✅ must exist in defaultValues
+  //       fasttrackpatient: initialPatient.FastTrackPatient ?? false,
+  //     },
+  //     { keepDirty: false, keepTouched: false }
+  //   );
+  //   console.log("values after reset:", getValues()); // ✅ check what form thinks
+
+  //   setTimeout(() => {
+  //     console.log("watch after reset:", {
+  //       firstName: watch("firstName"),
+  //       lastName: watch("lastName"),
+  //       gender: watch("gender"),
+  //       dateOfBirth: watch("dateOfBirth"),
+  //       mobile: watch("mobile"),
+  //       email: watch("email"),
+  //       TagPatientIds: watch("TagPatientIds"),
+  //     });
+  //   }, 0);
+  // }, [initialPatient, reset, watch]);
+
   useEffect(() => {
-    if (!initialPatient) return;
-
-    reset(
-      {
-        ...formDefaultValues,
-        Prefix: initialPatient.Prefix ?? "Mr",
-        firstName: initialPatient.firstName ?? "",
-        lastName: initialPatient.lastName ?? "",
-        dateOfBirth: initialPatient.dateOfBirth
-          ? String(initialPatient.dateOfBirth).slice(0, 10)
+    if (selectedPatient) {
+      reset({
+        firstName: selectedPatient.firstName || "",
+        lastName: selectedPatient.lastName || "",
+        dateOfBirth: selectedPatient.dateOfBirth
+          ? formatToDateInput(selectedPatient.dateOfBirth)
           : "",
-        gender:
-          (initialPatient.gender as "MALE" | "FEMALE" | "OTHER") ?? "MALE",
-        mobile: initialPatient.mobile ?? "",
-        email: initialPatient.email ?? "",
-        // TagPatientIds: initialPatient.PatientId?.toString() ?? "", // ✅ must exist in defaultValues
-        fasttrackpatient: initialPatient.FastTrackPatient ?? false,
-      },
-      { keepDirty: false, keepTouched: false }
-    );
-    console.log("values after reset:", getValues()); // ✅ check what form thinks
-
-    setTimeout(() => {
-      console.log("watch after reset:", {
-        firstName: watch("firstName"),
-        lastName: watch("lastName"),
-        gender: watch("gender"),
-        dateOfBirth: watch("dateOfBirth"),
-        mobile: watch("mobile"),
-        email: watch("email"),
-        TagPatientIds: watch("TagPatientIds"),
+        gender: selectedPatient.gender || "",
+        mobile: selectedPatient.contact || "",
+        email: selectedPatient.email || "",
       });
-    }, 0);
-  }, [initialPatient, reset, watch]);
+    }
+  }, [selectedPatient, reset]);
+
+  useEffect(() => {
+    const specId =
+      editingEvent?.SpecializationId ?? editingEvent?.doctor?.SpecializationId;
+
+    if (!specId) return;
+    if (!doctorSpecializationData.length) return;
+
+    setSelectedSpecializationId(String(specId));
+  }, [editingEvent, doctorSpecializationData]);
 
   // console.log("Form values after reset:", watch());
 
@@ -1688,7 +1720,9 @@ export function EventAddForm({
                         Mobile No
                       </h1>
                       <p className="text-sm font-semibold text-black mt-1">
-                        {selectedPatient?.mobile || "-"}
+                        {selectedPatient?.mobile ||
+                          selectedPatient?.contact ||
+                          "-"}
                       </p>
                     </div>
                   </div>

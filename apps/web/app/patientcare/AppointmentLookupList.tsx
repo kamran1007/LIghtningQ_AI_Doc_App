@@ -149,8 +149,7 @@ export default function AppointmentLookupList() {
 
   const filterRef = useRef<HTMLDivElement | null>(null);
   const UserHospitalData = useSelector((state: any) => state);
-    const router = useRouter();
-
+  const router = useRouter();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -568,10 +567,16 @@ export default function AppointmentLookupList() {
 
           {/* Calendar Icon + Picker */}
           <div className="relative inline-block">
-            <CalendarSearch
-              className="w-6 h-6 text-teal-300 cursor-pointer"
-              onClick={() => setShowPicker((prev) => !prev)}
-            />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <CalendarSearch
+                  className="w-6 h-6 text-teal-300 cursor-pointer"
+                  onClick={() => setShowPicker((prev) => !prev)}
+                />
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Search by date</TooltipContent>
+            </Tooltip>
+
             {showPicker && (
               <div className="absolute z-50 mt-2 shadow-lg bg-white rounded-lg p-2 right-full mr-2">
                 <DateRangePicker
@@ -584,15 +589,25 @@ export default function AppointmentLookupList() {
           </div>
 
           {/* Filter Icon */}
-          <FunnelPlus
-            className="w-6 h-6 text-teal-300 cursor-pointer"
-            onClick={() => setIsDialogOpen(true)}
-          />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <FunnelPlus
+                className="w-6 h-6 text-teal-300 cursor-pointer"
+                onClick={() => setIsDialogOpen(true)}
+              />
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Filter patients</TooltipContent>
+          </Tooltip>
 
-          <Maximize
-            className="w-6 h-6 text-teal-300 cursor-pointer"
-            onClick={() => router.push("patientcare/OPDQueue")}
-          />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Maximize
+                className="w-6 h-6 text-teal-300 cursor-pointer"
+                onClick={() => router.push("/patientcare/OPDQueue/fullscreen")}
+              />
+            </TooltipTrigger>
+            <TooltipContent side="bottom">TV Queue (Fullscreen)</TooltipContent>
+          </Tooltip>
         </div>
       </div>
 

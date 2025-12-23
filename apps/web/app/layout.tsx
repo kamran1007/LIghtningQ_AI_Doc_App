@@ -12,6 +12,7 @@ import { Toaster } from "react-hot-toast";
 import IdleLogoutProvider from "@/hooks/IdleLogoutProvider";
 import NProgressProvider from "@/components/NProgressProvider";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
+import LayoutVisibility from "@/components/LayoutVisibility";
 
 // ⬇️ Orbitron font
 const orbitron = Orbitron({
@@ -49,11 +50,12 @@ export default async function RootLayout({
               {/* <IdleLogoutProvider /> */}
               <NProgressProvider />
 
-              {!isAuthPage && <ClientAppBarWrapper session={session} />}
+              {/* {!isAuthPage && <ClientAppBarWrapper session={session} />}
               <div className="flex flex-1 overflow-hidden">
                 {!isAuthPage && session?.user && <AppSidebar />}
                 <main className="flex-1 overflow-y-auto p-4">{children}</main>
-              </div>
+              </div> */}
+              <LayoutVisibility session={session}>{children}</LayoutVisibility>
             </AppProviders>
           </TooltipProvider>
         </>

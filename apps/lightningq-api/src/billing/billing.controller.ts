@@ -103,6 +103,7 @@ export class BillingController {
     return this.billingItemChargeService.getPatientPackageUsage(
       id ? +id : undefined,
       patientId ? +patientId : undefined,
+      appointmentId ? +appointmentId : undefined,
     );
   }
 }

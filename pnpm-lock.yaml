@@ -101,6 +101,9 @@ importers:
       date-fns-tz:
         specifier: ^3.2.0
         version: 3.2.0(date-fns@4.1.0)
+      dayjs:
+        specifier: ^1.11.13
+        version: 1.11.13
       ics:
         specifier: ^3.8.1
         version: 3.8.1

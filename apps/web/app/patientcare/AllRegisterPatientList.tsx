@@ -328,7 +328,7 @@ export default function AllRegisterPatientList() {
                     <th className="px-4 py-3">MRN</th>
                     <th className="px-4 py-3">Contact Info</th>
                     <th className="px-4 py-3">Age</th>
-                    <th className="px-4 py-3 w-42">Register On</th>
+                    <th className="px-4 py-3 w-46">Register On</th>
                     <th className="px-2 py-3 w-46 text-center">Last Visit</th>
                     <th className="px-2 py-3">Action</th>
                   </tr>

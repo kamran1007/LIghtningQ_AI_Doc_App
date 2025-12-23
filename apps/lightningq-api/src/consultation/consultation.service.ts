@@ -570,6 +570,16 @@ export class ConsultationService {
         //   },
         // });
 
+        // ✅ Update appointment Follow-up date (source of truth: DTO)
+        if (followUpDate) {
+          await tx.appointment.update({
+            where: { AppointmentId: Number(AppointmentId) },
+            data: {
+              NextFollowupDate: new Date(followUpDate),
+            },
+          });
+        }
+
         return result;
       },
       { timeout: 20000 }, // 🕒 Increase timeout
@@ -740,7 +750,9 @@ export class ConsultationService {
             hospital: true,
           },
         },
-        updatedBy: { select: { UserId: true, firstName: true, lastName: true }},
+        updatedBy: {
+          select: { UserId: true, firstName: true, lastName: true },
+        },
       },
     });
   }

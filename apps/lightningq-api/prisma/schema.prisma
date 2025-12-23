@@ -404,51 +404,53 @@ model MedicalHistory {
 }
 
 model Appointment {
-  AppointmentId       Int                       @id @default(autoincrement())
-  consultationId      Int?                      @unique
-  PatientId           Int
-  DoctorId            Int
-  hospitalId          Int
-  visitTypeId         Int
-  acuity              AcuityLevel
-  AssignedProviderId  Int?
-  SpecializationId    Int?
-  appointmentDate     DateTime
-  reason              String?
-  status              AppointmentStatus         @default(SCHEDULED)
-  RescheduleReason    String?
-  cancellationReason  String?
-  age                 Int?
-  createdAt           DateTime                  @default(now())
-  createdBy           Int?
-  rescheduledAt       DateTime?
-  rescheduledDate     DateTime?
-  rescheduledBy       Int?
-  paymentHistoryId    Int?
-  paymentTypeId       Int
-  sendWhatsappMessage Boolean                   @default(false)
-  sendSmsMessage      Boolean                   @default(false)
-  sendEmailMessage    Boolean                   @default(false)
-  isDraft             Boolean                   @default(false)
-  fasttrackpatient    Boolean?                  @default(false)
-  consultationStatus  ConsultationStatus        @default(NOT_STARTED)
-  assignedProvider    User?                     @relation("AssignedProvider", fields: [AssignedProviderId], references: [UserId])
-  doctor              User                      @relation("Doctor", fields: [DoctorId], references: [UserId])
-  patient             Patient                   @relation(fields: [PatientId], references: [PatientId])
-  specialization      Specialization?           @relation(fields: [SpecializationId], references: [SpecializationId])
-  createdByUser       User?                     @relation("CreatedBy", fields: [createdBy], references: [UserId])
-  hospital            Hospital                  @relation(fields: [hospitalId], references: [HospitalId])
-  paymentHistory      PaymentHistory?           @relation(fields: [paymentHistoryId], references: [PaymentHistoryId])
-  PaymentType         PaymentType               @relation(fields: [paymentTypeId], references: [PaymentTypeId])
-  rescheduledByUser   User?                     @relation("RescheduledBy", fields: [rescheduledBy], references: [UserId])
-  visitType           AppointmentType           @relation(fields: [visitTypeId], references: [AppointmentTypeId])
-  notifications       AppointmentNotification[]
-  BillingTransaction  BillingTransaction[]
-  consultation        Consultation?
-  PatientPackageUsage PatientPackageUsage[]
-  Vitals              Vitals?
-  TagPatients         TagPatient[]              @relation("AppointmentTagPatients")
-  User                User[]                    @relation("Specialist")
+  AppointmentId                Int                       @id @default(autoincrement())
+  consultationId               Int?                      @unique
+  PatientId                    Int
+  DoctorId                     Int
+  hospitalId                   Int
+  visitTypeId                  Int
+  acuity                       AcuityLevel
+  AssignedProviderId           Int?
+  SpecializationId             Int?
+  appointmentDate              DateTime
+  reason                       String?
+  status                       AppointmentStatus         @default(SCHEDULED)
+  RescheduleReason             String?
+  cancellationReason           String?
+  age                          Int?
+  createdAt                    DateTime                  @default(now())
+  createdBy                    Int?
+  rescheduledAt                DateTime?
+  rescheduledDate              DateTime?
+  rescheduledBy                Int?
+  paymentHistoryId             Int?
+  paymentTypeId                Int
+  NextFollowupDate             DateTime?
+  sendWhatsappMessage          Boolean                   @default(false)
+  SendWhatsappFollowUpReminder Boolean                   @default(false)
+  sendSmsMessage               Boolean                   @default(false)
+  sendEmailMessage             Boolean                   @default(false)
+  isDraft                      Boolean                   @default(false)
+  fasttrackpatient             Boolean?                  @default(false)
+  consultationStatus           ConsultationStatus        @default(NOT_STARTED)
+  assignedProvider             User?                     @relation("AssignedProvider", fields: [AssignedProviderId], references: [UserId])
+  doctor                       User                      @relation("Doctor", fields: [DoctorId], references: [UserId])
+  patient                      Patient                   @relation(fields: [PatientId], references: [PatientId])
+  specialization               Specialization?           @relation(fields: [SpecializationId], references: [SpecializationId])
+  createdByUser                User?                     @relation("CreatedBy", fields: [createdBy], references: [UserId])
+  hospital                     Hospital                  @relation(fields: [hospitalId], references: [HospitalId])
+  paymentHistory               PaymentHistory?           @relation(fields: [paymentHistoryId], references: [PaymentHistoryId])
+  PaymentType                  PaymentType               @relation(fields: [paymentTypeId], references: [PaymentTypeId])
+  rescheduledByUser            User?                     @relation("RescheduledBy", fields: [rescheduledBy], references: [UserId])
+  visitType                    AppointmentType           @relation(fields: [visitTypeId], references: [AppointmentTypeId])
+  notifications                AppointmentNotification[]
+  BillingTransaction           BillingTransaction[]
+  consultation                 Consultation?
+  PatientPackageUsage          PatientPackageUsage[]
+  Vitals                       Vitals?
+  TagPatients                  TagPatient[]              @relation("AppointmentTagPatients")
+  User                         User[]                    @relation("Specialist")
 }
 
 model AppointmentNotification {

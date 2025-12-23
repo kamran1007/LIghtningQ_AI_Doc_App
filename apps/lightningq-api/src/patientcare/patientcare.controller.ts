@@ -43,7 +43,7 @@ export class PatientcareController {
     private readonly patientcareService: PatientcareService,
     private readonly prisma: PrismaService,
     private ManageAppointment: AppointmentService,
-    private readonly  r2Service : R2Service
+    private readonly r2Service: R2Service,
   ) {}
 
   @Patch('upsertPatient')
@@ -557,5 +557,28 @@ export class PatientcareController {
       consultationId,
       userId,
     );
+  }
+
+  @Get('followups')
+  async getUpcomingFollowups(
+    @Query('organizationId', ParseIntPipe) organizationId: number,
+    @Query('hospitalId', ParseIntPipe) hospitalId: number,
+    @Query('specializationId') specializationId?: string,
+    @Query('search') search?: string,
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.ManageAppointment.getUpcomingFollowups({
+      organizationId,
+      hospitalId,
+      specializationId: specializationId ? Number(specializationId) : undefined,
+      search,
+      fromDate,
+      toDate,
+      page: page ? Number(page) : 1,
+      limit: limit ? Number(limit) : 20,
+    });
   }
 }

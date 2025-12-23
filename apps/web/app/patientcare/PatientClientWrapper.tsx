@@ -2,14 +2,16 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarClock, Users } from "lucide-react";
+import { CalendarClock, RotateCw, Users } from "lucide-react";
+
 import { AnimatePresence, motion } from "framer-motion";
 import { RegisterPatient } from "./PatientRegister";
 import AppointmentLookupList from "./AppointmentLookupList";
 import AllRegisterPatientList from "./AllRegisterPatientList";
 import { EventAddForm } from "@/components/event-add-form";
+import PatientFollowUpList from "./PatientFollowUpList";
 
-type TabId = "appointments" | "registered";
+type TabId = "appointments" | "followup" | "registered";
 
 export default function PatientClientWrapper() {
   const [activeTab, setActiveTab] = useState<TabId>("appointments");
@@ -103,6 +105,40 @@ export default function PatientClientWrapper() {
                     >
                       <Users className="w-4 h-4" /> All Patients
                     </TabsTrigger>
+                    <TabsTrigger
+                      data-tab="followup"
+                      value="followup"
+                      className="
+  relative z-10 flex items-center gap-1 px-4 py-2 rounded-full
+  text-sm font-medium cursor-pointer
+  transition-all duration-300
+
+  data-[state=active]:bg-gradient-to-r
+  data-[state=active]:from-teal-500
+  data-[state=active]:to-purple-500
+  data-[state=active]:text-white
+  data-[state=active]:font-medium
+
+
+  data-[state=inactive]:text-gray-600
+"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="w-4 h-4"
+                      >
+                        <path d="M16.051 12.616a1 1 0 0 1 1.909.024l.737 1.452a1 1 0 0 0 .737.535l1.634.256a1 1 0 0 1 .588 1.806l-1.172 1.168a1 1 0 0 0-.282.866l.259 1.613a1 1 0 0 1-1.541 1.134l-1.465-.75a1 1 0 0 0-.912 0l-1.465.75a1 1 0 0 1-1.539-1.133l.258-1.613a1 1 0 0 0-.282-.866l-1.156-1.153a1 1 0 0 1 .572-1.822l1.633-.256a1 1 0 0 0 .737-.535z" />
+                        <path d="M8 15H7a4 4 0 0 0-4 4v2" />
+                        <circle cx="10" cy="7" r="4" />
+                      </svg>
+                      Follow-ups
+                    </TabsTrigger>
                   </TabsList>
                 </div>
               </div>
@@ -128,6 +164,17 @@ export default function PatientClientWrapper() {
                     transition={{ duration: 0.3 }}
                   >
                     <AppointmentLookupList />
+                  </motion.div>
+                )}
+                {activeTab === "followup" && (
+                  <motion.div
+                    key="followup"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <PatientFollowUpList />
                   </motion.div>
                 )}
                 {activeTab === "registered" && (
