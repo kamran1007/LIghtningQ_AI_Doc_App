@@ -85,6 +85,9 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
   const [remarkType, setRemarkType] = useState<"DND" | "CANCEL" | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const selectedHospital = useSelector(
+      (state: any) => state.hospitalSelection?.selectedHospital
+    );
 
   type TimeSlot = {
     DoctorTimeSlotId?: number;
@@ -466,77 +469,73 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
   const showTodaySlot = selectedDays.includes(today);
   useEffect(() => {
     const loadSlots = async () => {
-      if (user) {
-        setIsLoading(true); // ⏳ Start skeleton
-        try {
-          const result = await fetchDoctorSlots(user.UserId); // ✅ Here!
+      if (!user || !selectedHospitalId) return;
 
-          const allSlots = result?.return?.slots || [];
-          console.log("Fetched slots:", allSlots);
-          // const selectedHospitals = allSlots?.HospitalId;
-          // if (!selectedHospitals && allSlots?.HospitalId) {
-          //   setSelectedHospitalId(selectedHospitals);
-          // }
-          const newSlotsByDay: Record<string, TimeSlot> = {};
-          const cancelled: string[] = [];
-          const dnd: string[] = [];
+      setIsLoading(true);
 
-          for (const slot of allSlots) {
-            const day = slot.DayOfWeek?.toUpperCase() || today;
-            const slotObj: TimeSlot = {
-              DoctorTimeSlotId: slot?.DoctorTimeSlotId,
-              morning: {
-                from: slot?.Morning_From || "",
-                to: slot?.Morning_To || "",
-              },
-              evening: {
-                from: slot?.Evening_From || "",
-                to: slot?.Evening_To || "",
-              },
-              consultTime: slot?.consult_Time_InMin?.toString() || "15",
-              isDND: slot?.is_DND ?? false,
-              dndRemarks: slot?.DNDremarks || "",
-              isCancelled: slot?.is_SlotCancelled ?? false,
-              cancellationRemarks: slot?.Slot_cancellation_remarks || "",
-              acceptAppointments: Boolean(
-                slot?.Accept_Appointment_Selected_Date
-              ),
+      try {
+        const result = await fetchDoctorSlots(user.UserId);
+        const allSlots = result?.return?.slots || [];
+        console.log("Fetched slots:", allSlots);
 
-              isPermanentCancelled: slot?.isPermanentCancelled ?? false,
-              hospitalId: slot?.HospitalId ?? undefined, // ✅ Store per-slot hospital
-            };
+        // ✅ FILTER ONCE
+        const hospitalSlots = allSlots.filter(
+          (s: any) => s.HospitalId === Number(selectedHospitalId)
+        );
 
-            if (slotObj.isCancelled) cancelled.push(day);
-            if (slotObj.isDND) dnd.push(day);
-            newSlotsByDay[day] = slotObj;
-            // setSelectedHospitalId(slot?.hospitalId);
-          }
+        const newSlotsByDay: Record<string, TimeSlot> = {};
+        const cancelled = new Set<string>();
+        const dnd = new Set<string>();
 
-          setSlotsByDay(newSlotsByDay);
-          setCancelledDays(cancelled);
-          setDndDays(dnd);
+        for (const slot of hospitalSlots) {
+          const day = slot.DayOfWeek?.toUpperCase();
+          if (!day) continue;
 
-          if (
-            selectedDays.length === 0 &&
-            Object.keys(newSlotsByDay).length > 0
-          ) {
-            const allFetchedDays = Object.keys(newSlotsByDay);
-            const daysToSelect = allFetchedDays.includes(today)
-              ? allFetchedDays
-              : [...allFetchedDays, today];
+          newSlotsByDay[day] = {
+            DoctorTimeSlotId: slot.DoctorTimeSlotId,
+            morning: {
+              from: slot.Morning_From || "",
+              to: slot.Morning_To || "",
+            },
+            evening: {
+              from: slot.Evening_From || "",
+              to: slot.Evening_To || "",
+            },
+            consultTime: slot.consult_Time_InMin?.toString() || "15",
+            isDND: slot.is_DND ?? false,
+            dndRemarks: slot.DNDremarks || "",
+            isCancelled: slot.is_SlotCancelled ?? false,
+            cancellationRemarks: slot.Slot_cancellation_remarks || "",
+            acceptAppointments: Boolean(slot.Accept_Appointment_Selected_Date),
+            isPermanentCancelled: slot.isPermanentCancelled ?? false,
+            hospitalId: slot.HospitalId,
+          };
 
-            setSelectedDays(Array.from(new Set(daysToSelect)));
-          }
-        } catch (error) {
-          console.error("Error fetching doctor slots", error);
-        } finally {
-          setIsLoading(false); // ✅ Hide skeleton
+          if (slot.is_SlotCancelled) cancelled.add(day);
+          if (slot.is_DND) dnd.add(day);
         }
+
+        setSlotsByDay(newSlotsByDay);
+        setCancelledDays([...cancelled]);
+        setDndDays([...dnd]);
+
+        // ✅ auto-select only days that exist for this hospital
+        setSelectedDays(Object.keys(newSlotsByDay));
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     loadSlots();
   }, [user, selectedHospitalId]);
+
+  useEffect(() => {
+    if (!selectedHospitalId && user?.AdminAccess?.length) {
+      setSelectedHospitalId(selectedHospital?.hospitalId?.toString() ?? "");
+    }
+  }, [user]);
 
   const renderSlotInputs = (day: string) => (
     <>
@@ -791,8 +790,11 @@ const Timeslot: React.FC<TimeslotProps> = ({ open, onOpenChange, user }) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[95vh] overflow-y-auto p-6 max-w-4xl rounded-2xl no-scrollbar" onInteractOutside={(e) => e.preventDefault()} // 🛑 Prevent close on outside click
-          onEscapeKeyDown={(e) => e.preventDefault()}>
+      <DialogContent
+        className="max-h-[95vh] overflow-y-auto p-6 max-w-4xl rounded-2xl no-scrollbar"
+        onInteractOutside={(e) => e.preventDefault()} // 🛑 Prevent close on outside click
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <div className="flex justify-between items-center mb-4">
           <DialogTitle className="text-2xl font-semibold text-teal-500">
             Doctor Time Slot

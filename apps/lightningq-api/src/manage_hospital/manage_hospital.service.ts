@@ -662,10 +662,20 @@ export class ManageHospitalService {
               dto.Accept_Appointment_Selected_Date ?? true,
             DNDremarks: slot.DNDremarks ?? null,
             Slot_cancellation_remarks: slot.Slot_cancellation_remarks ?? null,
-            is_DND: slot.is_DND ?? false,
-            is_SlotCancelled: slot.is_SlotCancelled ?? false,
-            isPermanentCancelled: slot.isPermanentCancelled ?? false,
-            isSlotChanged: slot.isSlotChanged ?? false,
+            is_DND:
+              typeof slot.is_DND === 'boolean' ? slot.is_DND : existing.is_DND,
+            is_SlotCancelled:
+              typeof slot.is_SlotCancelled === 'boolean'
+                ? slot.is_SlotCancelled
+                : existing.is_SlotCancelled,
+            isPermanentCancelled:
+              typeof slot.isPermanentCancelled === 'boolean'
+                ? slot.isPermanentCancelled
+                : existing.isPermanentCancelled,
+            isSlotChanged:
+              typeof slot.isSlotChanged === 'boolean'
+                ? slot.isSlotChanged
+                : existing.isSlotChanged,
             updatedAt: now,
           },
         });
@@ -706,25 +716,44 @@ export class ManageHospitalService {
     }
 
     // Step 4: Mark removed slots as cancelled (soft delete / slot cancelled)
-    const incomingKeys = dto.timeSlots.map(
-      (s) => `${s.hospitalId}_${s.DayOfWeek}`,
-    );
+    const incomingKeys = dto.timeSlots
+      .filter((s) => !s.isDeleted)
+      .map((s) => `${s.hospitalId}_${s.DayOfWeek}`);
+
     const removed = existingSlots.filter(
       (s) => !incomingKeys.includes(`${s.HospitalId}_${s.DayOfWeek}`),
     );
 
-    if (removed.length > 0) {
-      await this.prisma.doctorTimeSlot.updateMany({
-        where: {
-          DoctorTimeSlotId: { in: removed.map((r) => r.DoctorTimeSlotId) },
-        },
-        data: {
-          is_SlotCancelled: true,
-          Slot_cancellation_remarks: 'Cancelled by system update',
-          updatedAt: now,
-        },
-      });
-      results.cancelled = removed.length;
+    // if (removed.length > 0) {
+    //   await this.prisma.doctorTimeSlot.updateMany({
+    //     where: {
+    //       DoctorTimeSlotId: { in: removed.map((r) => r.DoctorTimeSlotId) },
+    //     },
+    //     data: {
+    //       is_SlotCancelled: true,
+    //       Slot_cancellation_remarks: 'Cancelled by system update',
+    //       updatedAt: now,
+    //     },
+    //   });
+    //   results.cancelled = removed.length;
+    // }
+
+    for (const slot of dto.timeSlots) {
+      if (slot.isDeleted) {
+        await this.prisma.doctorTimeSlot.updateMany({
+          where: {
+            DoctorId: dto.userId,
+            HospitalId: slot.hospitalId,
+            DayOfWeek: slot.DayOfWeek,
+          },
+          data: {
+            isDeleted: true,
+            is_SlotCancelled: true,
+            Slot_cancellation_remarks: 'Deleted by user',
+            updatedAt: now,
+          },
+        });
+      }
     }
 
     return {
@@ -1394,125 +1423,124 @@ export class ManageHospitalService {
   }
 
   // admin.service.ts
- async getAccessRights(filters: {
-  RoleId: number;
-  UserId: number;
-  HospitalId: number;
-  OrganizationId: number;
-}) {
-  const { RoleId, UserId, HospitalId, OrganizationId } = filters;
+  async getAccessRights(filters: {
+    RoleId: number;
+    UserId: number;
+    HospitalId: number;
+    OrganizationId: number;
+  }) {
+    const { RoleId, UserId, HospitalId, OrganizationId } = filters;
 
-  // 1️⃣ Fetch all role permissions with required joins
-  const rolePerms = await this.prisma.rolePermission.findMany({
-    where: {
-      RoleId,
-      UserId,
-      HospitalId,
-      OrganizationId,
-    },
-    include: {
-      Permission: {
-        include: {
-          SubModule: {
-            include: {
-              Module: true,
+    // 1️⃣ Fetch all role permissions with required joins
+    const rolePerms = await this.prisma.rolePermission.findMany({
+      where: {
+        RoleId,
+        UserId,
+        HospitalId,
+        OrganizationId,
+      },
+      include: {
+        Permission: {
+          include: {
+            SubModule: {
+              include: {
+                Module: true,
+              },
             },
+            RolePermissions: true,
           },
-          RolePermissions: true,
         },
       },
-    },
-  });
+    });
 
-  if (!rolePerms.length) return [];
+    if (!rolePerms.length) return [];
 
-  // 2️⃣ Group into Modules -> SubModules -> Permissions
-  const moduleMap = new Map<number, any>();
+    // 2️⃣ Group into Modules -> SubModules -> Permissions
+    const moduleMap = new Map<number, any>();
 
-  for (const rp of rolePerms) {
-    const perm = rp.Permission;
-    if (!perm?.SubModule) continue;
+    for (const rp of rolePerms) {
+      const perm = rp.Permission;
+      if (!perm?.SubModule) continue;
 
-    const sub = perm.SubModule;
-    const mod = sub.Module;
+      const sub = perm.SubModule;
+      const mod = sub.Module;
 
-    // --- Find or create module entry
-    if (!moduleMap.has(mod.ModuleId)) {
-      moduleMap.set(mod.ModuleId, {
-        ModuleId: mod.ModuleId,
-        ModuleName: mod.ModuleName,
-        enabled: false,
-        Submodules: [],
-      });
+      // --- Find or create module entry
+      if (!moduleMap.has(mod.ModuleId)) {
+        moduleMap.set(mod.ModuleId, {
+          ModuleId: mod.ModuleId,
+          ModuleName: mod.ModuleName,
+          enabled: false,
+          Submodules: [],
+        });
+      }
+
+      const moduleEntry = moduleMap.get(mod.ModuleId);
+
+      // --- Find or create submodule entry
+      let subEntry = moduleEntry.Submodules.find(
+        (s: any) => s.SubModuleId === sub.SubModuleId,
+      );
+
+      if (!subEntry) {
+        subEntry = {
+          SubModuleId: sub.SubModuleId,
+          SubModuleName: sub.SubModuleName,
+          enabled: false,
+          Permissions: [],
+        };
+        moduleEntry.Submodules.push(subEntry);
+      }
+
+      // --- Find or create permission entry
+      let permEntry = subEntry.Permissions.find(
+        (p: any) => p.PermissionId === perm.PermissionId,
+      );
+
+      if (!permEntry) {
+        permEntry = {
+          PermissionId: perm.PermissionId,
+          CanView: !!perm.CanView,
+          CanCreate: !!perm.CanCreate,
+          CanUpdate: !!perm.CanUpdate,
+          CanDelete: !!perm.CanDelete,
+          CanAI_Assist: !!perm.CanAI_Assist,
+          RolePermissions: [],
+        };
+        subEntry.Permissions.push(permEntry);
+      }
+
+      // --- Merge unique RolePermissions (avoid duplicate RolePermissionId)
+      const existing = permEntry.RolePermissions.find(
+        (r) => r.RolePermissionId === rp.RolePermissionId,
+      );
+      if (!existing) {
+        permEntry.RolePermissions.push({
+          RolePermissionId: rp.RolePermissionId,
+          RoleId: rp.RoleId,
+          UserId: rp.UserId,
+          HospitalId: rp.HospitalId,
+          OrganizationId: rp.OrganizationId,
+        });
+      }
+
+      // --- Update enable flags dynamically
+      const isEnabled =
+        perm.CanView ||
+        perm.CanCreate ||
+        perm.CanUpdate ||
+        perm.CanDelete ||
+        perm.CanAI_Assist;
+
+      if (isEnabled) {
+        subEntry.enabled = true;
+        moduleEntry.enabled = true;
+      }
     }
 
-    const moduleEntry = moduleMap.get(mod.ModuleId);
-
-    // --- Find or create submodule entry
-    let subEntry = moduleEntry.Submodules.find(
-      (s: any) => s.SubModuleId === sub.SubModuleId
-    );
-
-    if (!subEntry) {
-      subEntry = {
-        SubModuleId: sub.SubModuleId,
-        SubModuleName: sub.SubModuleName,
-        enabled: false,
-        Permissions: [],
-      };
-      moduleEntry.Submodules.push(subEntry);
-    }
-
-    // --- Find or create permission entry
-    let permEntry = subEntry.Permissions.find(
-      (p: any) => p.PermissionId === perm.PermissionId
-    );
-
-    if (!permEntry) {
-      permEntry = {
-        PermissionId: perm.PermissionId,
-        CanView: !!perm.CanView,
-        CanCreate: !!perm.CanCreate,
-        CanUpdate: !!perm.CanUpdate,
-        CanDelete: !!perm.CanDelete,
-        CanAI_Assist: !!perm.CanAI_Assist,
-        RolePermissions: [],
-      };
-      subEntry.Permissions.push(permEntry);
-    }
-
-    // --- Merge unique RolePermissions (avoid duplicate RolePermissionId)
-    const existing = permEntry.RolePermissions.find(
-      (r) => r.RolePermissionId === rp.RolePermissionId
-    );
-    if (!existing) {
-      permEntry.RolePermissions.push({
-        RolePermissionId: rp.RolePermissionId,
-        RoleId: rp.RoleId,
-        UserId: rp.UserId,
-        HospitalId: rp.HospitalId,
-        OrganizationId: rp.OrganizationId,
-      });
-    }
-
-    // --- Update enable flags dynamically
-    const isEnabled =
-      perm.CanView ||
-      perm.CanCreate ||
-      perm.CanUpdate ||
-      perm.CanDelete ||
-      perm.CanAI_Assist;
-
-    if (isEnabled) {
-      subEntry.enabled = true;
-      moduleEntry.enabled = true;
-    }
+    // 3️⃣ Return final structured, deduplicated list
+    return Array.from(moduleMap.values());
   }
-
-  // 3️⃣ Return final structured, deduplicated list
-  return Array.from(moduleMap.values());
-}
-
 
   async getAllModules() {
     const modules = await this.prisma.module.findMany({
