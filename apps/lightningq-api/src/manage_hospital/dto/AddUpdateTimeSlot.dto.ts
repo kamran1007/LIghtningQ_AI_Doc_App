@@ -46,24 +46,29 @@ export class TimeSlotDto {
 
   @IsOptional()
   @IsBoolean()
+  @Type(() => Boolean)
   is_DND?: boolean;
 
   @IsOptional()
   @IsBoolean()
+  @Type(() => Boolean)
   is_SlotCancelled?: boolean;
 
   @IsOptional()
   @IsBoolean()
+  @Type(() => Boolean)
   isPermanentCancelled?: boolean;
 
   @IsOptional()
   @IsBoolean()
+  @Type(() => Boolean)
   isDeleted?: boolean;
 
-
   @IsOptional()
-  @IsOptional()
-  isSlotChanged?: boolean; // Indicates if the slot has been changed
+  @IsBoolean()
+  @Type(() => Boolean)
+  isSlotChanged?: boolean;
+  // Indicates if the slot has been changed
 }
 
 export class AddUpdateTimeSlotDto {

@@ -1325,7 +1325,7 @@ export class AppointmentService {
   }
 
   //follow up reminders
-  @Cron('0 18 * * *', { timeZone: 'Asia/Kolkata' }) // every minute for testing
+@Cron('0 18 * * *', { timeZone: 'Asia/Kolkata' }) // every minute for testing
   async sendFollowupReminders() {
     const pid = process.pid;
     this.logger.log(`⏰ [PID:${pid}] Running follow-up reminder cron`);
@@ -1432,3 +1432,116 @@ export class AppointmentService {
     }
   }
 }
+
+
+//   @Cron('0 18 * * *', { timeZone: 'Asia/Kolkata' }) // 6 PM IST
+//   async sendFollowupReminders() {
+//     const pid = process.pid;
+//     this.logger.log(`⏰ [PID:${pid}] Running follow-up reminder cron`);
+
+//     // ─────────────────────────────────────────────
+//     // 1️⃣ Get CURRENT TIME in IST (REAL IST)
+//     // ─────────────────────────────────────────────
+//     const nowIst = new Date(
+//       new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }),
+//     );
+
+//     // ─────────────────────────────────────────────
+//     // 2️⃣ Tomorrow IST range (00:00 → 23:59)
+//     // ─────────────────────────────────────────────
+//     const tomorrowIstStart = new Date(nowIst);
+//     tomorrowIstStart.setDate(nowIst.getDate() + 1);
+//     tomorrowIstStart.setHours(0, 0, 0, 0);
+
+//     const tomorrowIstEnd = new Date(tomorrowIstStart);
+//     tomorrowIstEnd.setHours(23, 59, 59, 999);
+
+//     // ─────────────────────────────────────────────
+//     // 3️⃣ Convert IST → UTC (ONE TIME ONLY)
+//     // ─────────────────────────────────────────────
+//     const utcStart = new Date(tomorrowIstStart.toISOString());
+//     const utcEnd = new Date(tomorrowIstEnd.toISOString());
+
+//     this.logger.log(
+//       `📅 IST Tomorrow: ${tomorrowIstStart.toString()} → ${tomorrowIstEnd.toString()}`,
+//     );
+//     this.logger.log(
+//       `🌍 UTC Window: ${utcStart.toISOString()} → ${utcEnd.toISOString()}`,
+//     );
+
+//     // ─────────────────────────────────────────────
+//     // 4️⃣ Lock eligible appointments
+//     // ─────────────────────────────────────────────
+//     const lock = await this.prisma.appointment.updateMany({
+//       where: {
+//         NextFollowupDate: {
+//           gte: utcStart,
+//           lte: utcEnd,
+//         },
+//         SendWhatsappFollowUpReminder: false,
+//         status: { not: 'CANCELLED' },
+//         patient: {
+//           mobile: { gt: '' }, // Prisma-safe NOT NULL
+//         },
+//       },
+//       data: {
+//         SendWhatsappFollowUpReminder: true,
+//       },
+//     });
+
+//     if (lock.count === 0) {
+//       this.logger.log('✅ No follow-up reminders to send');
+//       return;
+//     }
+
+//     this.logger.log(`🔒 Locked ${lock.count} follow-up appointments`);
+
+//     // ─────────────────────────────────────────────
+//     // 5️⃣ Fetch locked rows
+//     // ─────────────────────────────────────────────
+//     const followups = await this.prisma.appointment.findMany({
+//       where: {
+//         NextFollowupDate: {
+//           gte: utcStart,
+//           lte: utcEnd,
+//         },
+//         SendWhatsappFollowUpReminder: true,
+//       },
+//       include: {
+//         patient: { select: { firstName: true, lastName: true, mobile: true } },
+//         doctor: { select: { firstName: true, lastName: true } },
+//         hospital: { select: { HospitalName: true } },
+//       },
+//     });
+
+//     // ─────────────────────────────────────────────
+//     // 6️⃣ Send WhatsApp reminders
+//     // ─────────────────────────────────────────────
+//     for (const appt of followups) {
+//       try {
+//         await this.whatsappService.sendFollowupReminder({
+//           mobile: appt.patient.mobile!,
+//           patientName: `${appt.patient.firstName} ${appt.patient.lastName ?? ''}`,
+//           doctorName: `${appt.doctor.firstName} ${appt.doctor.lastName ?? ''}`,
+//           followupDate: appt.NextFollowupDate!,
+//           hospitalName: appt.hospital.HospitalName,
+//         });
+
+//         this.logger.log(
+//           `✅ Reminder sent (AppointmentId=${appt.AppointmentId})`,
+//         );
+//       } catch (err) {
+//         this.logger.error(
+//           `❌ Failed (AppointmentId=${appt.AppointmentId})`,
+//           err,
+//         );
+
+//         // rollback flag if send fails
+//         await this.prisma.appointment.update({
+//           where: { AppointmentId: appt.AppointmentId },
+//           data: { SendWhatsappFollowUpReminder: false },
+//         });
+//       }
+//     }
+//   }
+// }
